@@ -1,0 +1,59 @@
+<ion-view cache-view="false" title="健康信息" >
+
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+      </ion-nav-buttons>
+      
+    </ion-nav-bar>
+
+
+  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+  <ion-content padding="true" style="">
+
+  <ion-list>
+    <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>类别</div>
+        <select ng-model="health.label" ng-options="label.Name for label in labels track by label.Type" style="width:100%">
+        </select>
+    </label>
+
+
+    <ionic-datepicker input-obj="datepickerObject4" class="item item-input">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>时间日期</span>
+        <input  ng-model="health.date"  type="text">
+    </ionic-datepicker>
+
+    <label class="item item-input">
+          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>文字描述</span>
+          <input  ng-model="health.text"  type="text">
+    </label>
+
+
+    <ion-item style="border:none; text-align:center; margin-top:30px" >
+         <img ng-src="{{health.imgurl}}" name="Photo" ng-click="onClickCamera($event)" style="height:70%; width:70%" />
+         <div>
+           <button class="button button-clear" style="color:#666" ng-click="onClickCamera($event)" ><i class="icon ion-camera"></i>上传照片</button>
+         </div>
+         
+    </ion-item>
+  </ion-list>
+
+
+
+  <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="HealthInfoSetup(health)">
+            保存
+      </button>
+
+  
+
+    
+    
+    
+    
+
+
+           
+  </ion-content>
+          
+</ion-view>

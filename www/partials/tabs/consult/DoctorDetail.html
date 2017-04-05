@@ -1,0 +1,29 @@
+<ion-view cache-view="false" title="医生详情" >
+
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+
+
+  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+  <ion-content padding="true" style="">
+
+    <ion-list>
+      <ion-item ng-repeat="item in items" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail()">
+        <img ng-src="{{item.img}}">
+        <h2>{{item.name}}</h2>
+        <p style="text-align: right">{{item.time}}</p>
+        <p>{{item.response}}</p>
+      </ion-item>
+    </ion-list>
+    
+    
+    
+
+
+           
+  </ion-content>
+          
+</ion-view>

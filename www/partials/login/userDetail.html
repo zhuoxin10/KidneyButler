@@ -1,0 +1,116 @@
+<ion-view title="个人信息" >
+
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+         <button class="button button-clear" ng-if="!CanSkip()" ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+
+
+  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+  <ion-content padding="true" style="">
+    
+    <div  class="list">
+      <label class="item item-input">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>姓名</span>
+        <input  ng-model="User.Name"  type="text" style="width:100%">
+      </label>
+    
+    
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>性别</div>
+        <select ng-model="User.Gender" ng-options="Gender.Name for Gender in Genders track by Gender.Type" style="width:100%">
+          
+        </select>
+      </label>
+      
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>血型</div>
+        <select ng-model="User.BloodType" ng-options="BloodType.Name for BloodType in BloodTypes track by BloodType.Type" style="width:100%">
+        </select>
+      </label>
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>是否高血压</div>
+        <select ng-model="User.Hypertension" ng-options="Hyper.Name for Hyper in Hypers track by Hyper.Type" style="width:100%">
+          
+        </select>
+      </label>
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>肾病类型</div>
+        <select ng-model="User.KidneyDisease.t" ng-options=" Disease.Name for Disease in Diseases track by Disease.Type" style="width:100%">
+           
+        </select>
+      </label>
+
+        <label class="item item-input" ng-if="showProgress()">
+          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>疾病进程</span>
+          <input  ng-model="User.DiseaseDetail"  type="text">
+        </label>
+
+        <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="!showProgress()">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>手术日期</span>
+        <input  ng-model="User.OperationDate"  type="text">
+        </ionic-datepicker>
+
+      <label class="item item-input">
+        <span class="error" ng-show="Height.$error.pattern" style="color:red"></span>
+        <span class="input-label" style="margin-left:8px ">身高（cm）</span>
+        <input  ng-model="User.Height"  type="text"  style="width:100%" >
+      </label>
+    
+      <label class="item item-input">
+       <span class="error" ng-show="Weight.$error.pattern" style="color:red"></span>
+        <span class="input-label" style="margin-left:8px ">体重（kg）</span>
+        <input  ng-model="User.Weight"  type="text"   style="width:100%" >
+      </label>
+
+      <ionic-datepicker input-obj="datepickerObject3" class="item item-input">
+        <span class="input-label" style="margin-left:8px ">出生日期</span>
+        <input  ng-model="User.Birthday"  type="text">
+      </ionic-datepicker>
+
+      <label class="item item-input">
+        <span class="input-label" style="margin-left:8px ">身份证号</span>
+        <span class="error" ng-show="IDCard.$error.pattern" style="color:red"></span>
+        <input  ng-model="User.IDCard"  type="text"    style="width:100%" >
+      </label>
+    </div>
+
+    <div>
+      <span class="input-label" style="margin-left:6px "><i class="icon ion-clipboard" style="margin-right:3px;font-size:20px" ></i>最近就诊信息</span>
+      <label class="item item-input">
+        <span class="input-label" style="margin-left:8px ">就诊医院</span>
+        <input  ng-model="User.LastHospital"  type="text">
+      </label>
+
+      <ionic-datepicker input-obj="datepickerObject1" class="item item-input">
+        <span class="input-label" style="margin-left:8px ">诊断日期</span>
+        <input  ng-model="User.LastDiagnosisTime"  type="text">
+      </ionic-datepicker>
+
+        <label class="item item-input">
+        <span class="input-label" style="margin-left:8px ">诊断结果</span>
+        <input  ng-model="User.LastDiagnosis"  type="text">
+      </label>
+    </div>
+
+
+    
+
+   
+
+    </div>
+      <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="infoSetup(User)">
+            保存
+      </button>
+      <button style="margin-top:10px" class="button button-block button-balanced" class="button button-clear" ng-if="CanSkip()" ng-click="Skip()">下一步</button>
+    
+
+
+           
+  </ion-content>
+          
+</ion-view>

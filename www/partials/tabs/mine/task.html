@@ -1,0 +1,22 @@
+<ion-view cache-view="false" view-title="任务列表">
+    <ion-nav-buttons side="secondary">
+        <a class="button icon-left ion-android-settings button-clear" href="#/taskSet/taskSet"></a> <!--进入设置页面-->
+    </ion-nav-buttons>
+    <ion-content class="padding">
+        <div class="list">
+            <a class="item" href="#">
+                测量
+                <a class="item item-icon-right" ng-repeat="item in measureTask">
+                    {{item.Name}} 
+                    <p>{{item.Value}}<span ng-if = "item.Flag">{{item.Unit}}</span></p>               
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup('{{item.Name}}')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                </a>
+            </a>
+        </div>
+        <button ng-click="Test()">测试</button>
+        <h>{{TestTime}}</h>
+    </ion-content>
+</ion-view>

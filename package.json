@@ -1,0 +1,71 @@
+{
+  "name": "ionic-project",
+  "version": "1.0.0",
+  "description": "An Ionic project",
+  "dependencies": {
+    "gulp": "^3.5.6",
+    "gulp-sass": "^2.0.4",
+    "gulp-concat": "^2.2.0",
+    "gulp-minify-css": "^0.3.0",
+    "gulp-rename": "^1.2.0"
+  },
+  "devDependencies": {
+    "bower": "^1.3.3",
+    "gulp-util": "^2.2.14",
+    "shelljs": "^0.3.0"
+  },
+  "cordovaPlugins": [
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\cordova-plugin-bluetooth-serial",
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\cordova-plugin-console",
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\cordova-plugin-device",
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\cordova-plugin-splashscreen",
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\cordova-plugin-whitelist",
+    "C:\\Users\\ZJU\\Desktop\\mywork\\plugins\\org.apache.cordova.inappbrowser",
+    "C:\\Users\\ZJU\\Desktop\\little\\login\\plugins\\cordova-plugin-datepicker",
+    "C:\\Users\\ZJU\\Desktop\\little\\login\\plugins\\com.ionic.keyboard",
+    "C:\\Users\\ZJU\\Desktop\\little\\login\\plugins\\cordova-plugin-whitelist",
+    "C:\\Users\\ZJU\\Desktop\\plugins\\de.appplant.cordova.plugin.local-notification",
+    "C:\\Users\\ZJU\\Desktop\\zyx\\plugins\\cordova-plugin-camera",
+    "C:\\Users\\ZJU\\Desktop\\little\\HealthCoach\\plugins\\cordova-plugin-file",
+    "C:\\Users\\ZJU\\Desktop\\little\\HealthCoach\\plugins\\cordova-plugin-file-transfer",
+    "C:\\Users\\ZJU\\Desktop\\jpush-phonegap-plugin-master",
+    "C:\\Users\\ZJU\\Desktop\\jpush-phonegap-plugin-master\\jpush-phonegap-plugin-master",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cn.jpush.phonegap.JPushPlugin",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\com.ionic.keyboard",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-bluetooth-serial",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-camera",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-console",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-datepicker",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-device",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-file",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-file-transfer",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-splashscreen",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\cordova-plugin-whitelist",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\de.appplant.cordova.plugin.local-notification",
+    "C:\\Users\\ZJU\\Desktop\\guide\\HealthGuide\\plugins\\org.apache.cordova.inappbrowser",
+    "C:\\Users\\ZJU\\Desktop\\cordova-plugin-x-toast",
+    "D:\\project\\plugins\\cn.jpush.phonegap.JPushPlugin",
+    "D:\\project\\plugins\\com.ionic.keyboard",
+    "D:\\project\\plugins\\cordova-plugin-bluetooth-serial",
+    "D:\\project\\plugins\\cordova-plugin-camera",
+    "D:\\project\\plugins\\cordova-plugin-console",
+    "D:\\project\\plugins\\cordova-plugin-datepicker",
+    "D:\\project\\plugins\\cordova-plugin-device",
+    "D:\\project\\plugins\\cordova-plugin-file",
+    "D:\\project\\plugins\\cordova-plugin-file-transfer",
+    "D:\\project\\plugins\\cordova-plugin-splashscreen",
+    "D:\\project\\plugins\\cordova-plugin-x-toast",
+    "D:\\project\\plugins\\de.appplant.cordova.common.registerusernotificationsettings",
+    "D:\\project\\plugins\\de.appplant.cordova.plugin.local-notification",
+    "D:\\project\\plugins\\org.apache.cordova.inappbrowser",
+    "D:\\project\\cordova-plugin-whitelist"
+  ],
+  "cordovaPlatforms": [
+    "ios",
+    "android"
+  ],
+  "scripts": {
+    "test": "karma start test/karma-unit-all.config.js",
+    "protractor": "protractor tests/e2e-tests.conf.js"
+  }
+}

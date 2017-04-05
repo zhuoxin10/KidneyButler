@@ -1,0 +1,96 @@
+<ion-view cache-view="false" title="个人信息">
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+    <ion-nav-back-button class="button-icon ion-arrow-left-c">
+    </ion-nav-back-button>
+    
+  </ion-nav-bar>
+  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+  <ion-content padding="true" style="">
+    
+    <div  class="list">
+      <label class="item item-input">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>姓名</span>
+        <input  ng-model="BasicInfo.Name"  type="text" style="width:100%">
+      </label>
+    
+    
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>性别</div>
+        <select ng-model="BasicInfo.Gender" ng-options="Gender.Name for Gender in Genders track by Gender.Type" style="width:100%">
+          
+        </select>
+      </label>
+      
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>血型</div>
+        <select ng-model="BasicInfo.BloodType" ng-options="BloodType.Name for BloodType in BloodTypes track by BloodType.Type" style="width:100%">
+        </select>
+      </label>
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>是否高血压</div>
+        <select ng-model="BasicInfo.Hypertension" ng-options="Hyper.Name for Hyper in Hypers track by Hyper.Type" style="width:100%">
+          
+        </select>
+      </label>
+
+      <label  class="item item-input item-select">
+        <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>肾病类型</div>
+        <select ng-model="BasicInfo.KidneyDisease" ng-options=" Disease.Name for Disease in Diseases track by Disease.Type" style="width:100%">
+           
+        </select>
+      </label>
+
+        <label class="item item-input" ng-if="showProgress()">
+          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>疾病进程</span>
+          <input  ng-model="BasicInfo.DiseaseDetail"  type="text">
+        </label>
+
+        <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="!showProgress()">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>手术日期</span>
+        <input  ng-model="BasicInfo.OperationDate"  type="text">
+        </ionic-datepicker>
+
+      <label class="item item-input">
+        <span class="error" ng-show="Height.$error.pattern" style="color:red"></span>
+        <span class="input-label" style="margin-left:8px ">身高（cm）</span>
+        <input  ng-model="BasicInfo.Height"  type="text"  style="width:100%" >
+      </label>
+    
+      <label class="item item-input">
+       <span class="error" ng-show="Weight.$error.pattern" style="color:red"></span>
+        <span class="input-label" style="margin-left:8px ">体重（kg）</span>
+        <input  ng-model="BasicInfo.Weight"  type="text"   style="width:100%" >
+      </label>
+
+      <ionic-datepicker input-obj="datepickerObject3" class="item item-input">
+        <span class="input-label" style="margin-left:8px ">出生日期</span>
+        <input  ng-model="BasicInfo.Birthday"  type="text">
+      </ionic-datepicker>
+
+      <label class="item item-input">
+        <span class="input-label" style="margin-left:8px ">身份证号</span>
+        <span class="error" ng-show="IDCard.$error.pattern" style="color:red"></span>
+        <input  ng-model="BasicInfo.IDCard"  type="text"    style="width:100%" >
+      </label>
+    </div>
+
+
+    
+
+   
+
+    </div>
+      <button style="margin-top:0" class="button button-block button-balanced" ng-click ="submit()">
+            保存
+      </button>
+      <button style="margin-top:0" class="button button-block button-balanced" class="button button-clear" ng-if="CanSkip" ng-click="SKip()">跳过
+      </button>
+    
+
+
+           
+  </ion-content>
+          
+</ion-view>
