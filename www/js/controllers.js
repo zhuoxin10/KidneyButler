@@ -1294,7 +1294,7 @@ initUserDetail();
   }
 
   $scope.staff = function(){
-    $state.go("insurancestaff")
+    $state.go("insurancestafflogin")
   }
 
   $scope.submitintension = function(){
@@ -1307,6 +1307,10 @@ initUserDetail();
 
   $scope.Goback = function(){
     $state.go("insurance")
+  }
+
+  $scope.Back = function(){
+    $state.go("tab.tasklist")
   }
 }])
 
@@ -1465,6 +1469,36 @@ initUserDetail();
   }
 }])
 
+//肾病保险工作人员--TDY
+.controller('insurancestaffCtrl', ['$scope', '$state', function ($scope, $state) {
+  $scope.intensions = 
+  [
+    {
+      "name": "李爱国",
+      "phoneNo": "15688745215"
+    },
+    {
+      "name": "张爱民",
+      "phoneNo": "17866656326"
+    },
+    {
+      "name": "步爱家",
+      "phoneNo": "13854616548"
+    }
+  ]
+
+  $scope.stafflogin = function(){
+    $state.go("insurancestaff")
+  }
+
+  $scope.Goback = function(){
+    $state.go("insurance")
+  }
+
+  $scope.Back = function(){
+    $state.go("insurancestafflogin")
+  }
+}])
 //咨询问卷--TDY
 .controller('consultquestionCtrl', ['$scope', '$state', function ($scope, $state) {
   $scope.Genders =
