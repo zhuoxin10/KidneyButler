@@ -1,0 +1,38 @@
+<ion-view cache-view="false" title="健康信息" >
+
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+      </ion-nav-buttons>
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="right" >
+         <button class="button button-clear" ng-click="newHealth()"><i class="icon ion-plus-round"></i></button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+
+
+  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+  <ion-content padding="true" style="">
+
+    <ion-list>
+      <ion-item ng-repeat="item in items" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail()">
+        <img ng-src="{{item.img}}">
+        <p style="text-align: right">{{item.time}}</p>
+        <h2>{{item.type.Name}}</h2>
+        
+        <p>{{item.description}}</p>
+        <div style="text-align: right">
+          <button class="button button-clear" style="color:#666" ng-click="DeleteHealth({{item.id}})"><i class="icon ion-trash-a"></i></button>
+          <button class="button button-clear" style="color:#666" ng-click="EditHealth({{item.id}})"><i class="icon ion-edit"></i></button>
+        </div>
+
+      </ion-item>
+    </ion-list>
+    
+    
+    
+
+
+           
+  </ion-content>
+          
+</ion-view>
