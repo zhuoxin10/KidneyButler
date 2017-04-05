@@ -261,11 +261,17 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
       templateUrl: 'partials/insurance/kidneyfunction.html',
       controller: 'insurancefunctionCtrl'
     })
+    .state('insurancestafflogin', {
+      cache: false,
+      url: '/insurancestafflogin',
+      templateUrl: 'partials/insurance/insurancestafflogin.html',
+      controller: 'insurancestaffCtrl'
+    })
     .state('insurancestaff', {
       cache: false,
       url: '/insurancestaff',
       templateUrl: 'partials/insurance/insurancestaff.html',
-      controller: 'insuranceCtrl'
+      controller: 'insurancestaffCtrl'
     });
 
   $urlRouterProvider.otherwise('/signin');
