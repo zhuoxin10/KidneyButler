@@ -176,7 +176,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           //把新用户和密码写入
           var usernames = Storage.get('usernames');
           var passwords = Storage.get('passwords');
-          if(usernames == ""){
+          if(usernames == "" || usernames == null){
             usernames = new Array();
             passwords = new Array();            
           }else{
@@ -188,7 +188,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.set('usernames',usernames);
           Storage.set('passwords',passwords);
           $scope.logStatus ="注册成功！";
-          $timeout(function(){$state.go('userdetail');} , 500);
+          $timeout(function(){$state.go('userdetail');} , 100);
         }
         else if(setPasswordState == 'reset'){
           //如果是重置密码
@@ -203,7 +203,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           passwords[index] = setPassword.newPass;
          
           Storage.set('passwords',passwords);
-          $timeout(function(){$state.go('signin');} , 500);
+          $timeout(function(){$state.go('signin');} , 100);
           
         }
       }else{
@@ -1076,6 +1076,13 @@ initUserDetail();
     $state.go('tab.AllDoctors');
   }
 
+  $scope.question = function(){
+    $state.go("tab.consultquestion1")
+  }
+
+  $scope.consult = function(){
+    $state.go("tab.consultquestion1")
+  }
   
 }])
 
@@ -1187,6 +1194,9 @@ initUserDetail();
     count2:127
   }];
 
+  $scope.question = function(){
+    $state.go("tab.consultquestion1")
+  }
 
   $scope.consult = function(){
     $state.go("tab.consultquestion1")
