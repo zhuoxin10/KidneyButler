@@ -589,15 +589,238 @@ initUserDetail();
   
 }])
 
-//任务列表
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+//任务列表--GL
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup) {
   $scope.barwidth="width:0%";
   
-  
+  $scope.measureTask = [{"Name":"体温",
+                         "Frequency":"1次/1天", 
+                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                         "Unit":"摄氏度",
+                         "Flag":false},
+                        {"Name":"体重",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"kg",
+                        "Flag":false}];
+  //console.log($scope.category);
+  //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
+  $scope.fillTask = [{"Name":"血管通路情况",
+                        "Frequency":"1周/1次", 
+                        "Discription":"",
+                        "Unit":"",
+                        "Flag":false}]
+  //自定义弹窗
+  $scope.measureResult = [{"Name":"","Value":""}];
+  $scope.showPopup = function(name) {
+           $scope.data = {}
+    var myPopup = $ionicPopup.show({
+       template: '<input type="text" ng-model="data.value">',
+       title: '请填写'+ name,
+       scope: $scope,
+       buttons: [
+         { text: '取消' },
+         {
+           text: '<b>保存</b>',
+           type: 'button-positive',
+           onTap: function(e) {
+             if (!$scope.data.value) {
+               // 不允许用户关闭，除非输入内容
+               e.preventDefault();
+             } else {
+              return $scope.data.value;
+             }  
+             }    
+         },
+       ]
+     });
+     myPopup.then(function(res) {
+      if(res)
+      {
+        //填写测量任务后标志位更新
+        $scope.measureResult.Name = name;
+        $scope.measureResult.Value = res;
+        console.log(res.value);
+        for (i = 0; i<$scope.measureTask.length; i++)
+        {
+          if ($scope.measureTask[i].Name == name)
+          {
+              $scope.measureTask[i].Flag = true;      
+              $scope.measureTask[i].Value = res;  
+          }          
+        }
+        console.log($scope.measureTask); 
+      }  
+    });
+  };
+
+  //任务完成后设定下次任务执行时间,CurrentTime为整数
+  function SetNextTime(CurrentTime, Freq)
+  {
+      var NextTime = 0;
+      //假定频率格式为2周/1次
+      var FreqUnit = Freq.substr(1,1);
+      var FreqNum = Freq.substr(0,1);
+      if (FreqUnit == "周")
+      {
+          NextTime = DateCalc("week", CurrentTime, parseInt(FreqNum)*7);
+      }
+      else if(FreqUnit == "月")
+      {
+          NextTime = DateCalc("month", CurrentTime, parseInt(FreqNum));
+      }
+      console.log(NextTime);
+      return NextTime;
+  }
+
+  //日期延后计算
+  function DateCalc(Type, CurrentTime, Addition)
+  {
+    var CuTimeStr = CurrentTime.toString();
+    var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);
+    var Date1 = new Date(CurrentTime);
+    var Date2;
+    if(Type == "week") //周
+    {
+        Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+    }
+    else //月
+    {
+        Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
+    }
+    var Ret = DateToInt(Date2);
+    return Ret;
+  }
+
+ //测试函数
+ $scope.Test=function()
+ {
+  $scope.TestTime = SetNextTime(20170331, "2月/次");
+ }
+
+ //日期转换为整数
+ function DateToInt(Date1)
+ {
+    var Year = Date1.getFullYear().toString();
+    var Month = (Date1.getMonth() + 1).toString();
+    var Day = Date1.getDate().toString();
+    if (Date1.getMonth() < 10)
+    {
+        Month = "0" + Month;
+    }
+    if(Date1.getDate() < 9)
+    {
+       Day = "0" + Day;
+    }
+    return parseInt(Year + Month + Day);
+ }
+
+  //填写记录时页面跳转
+   $scope.ToDetailPage=function(name)
+   {
+     $state.go('task.r',{t:name + 'userId|taskId'});
+   }
+
 }])
 
+//任务设置--GL
+.controller('TaskSetCtrl', ['$scope', '$state',function($scope, $state) {
+  
+  $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+  $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
+  
+  $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
+               {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
 
+  for (i = 0;i<$scope.tasks.length;i++)
+  {
+    if ($scope.tasks[i].Freq.substr(1,1) == "周")
+    {
+      $scope.tasks[i].Days = $scope.weekDays;
+      $scope.tasks[i].Type = "week"; 
+      $scope.tasks[i].SelectedDay = "星期一"; //默认时间
+    }
+    else if($scope.tasks[i].Freq.substr(1,1) == "月")
+    {
+      $scope.tasks[i].Days = $scope.monthDays;
+      $scope.tasks[i].Type = "month"; 
+      $scope.tasks[i].SelectedDay = "1日";//默认时间
+    }
+  }
+  console.log($scope.tasks);
+  $scope.SetDate = function()
+  {
+    $scope.Test = 20170401;
+    SetFirTaskTime($scope.Test);
+  }
+  
+  //选定星期或号数后，默认为离当前日期最近的日期
+  function SetFirTaskTime (CurrentTime)
+  {
+      var CuTimeStr = CurrentTime.toString();
+      var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);    
 
+      var CurrentDate = new Date(CurrentTime);
+      var WeekDay = CurrentDate.getDay(); //0-6 星期日为0
+      var Day = CurrentDate.getDate(); //1-31
+      for (i = 0;i < $scope.tasks.length; i++)
+      {
+          var Temp;
+          var SelectedDay = $scope.tasks[i].Days.indexOf($scope.tasks[i].SelectedDay);
+          var Date1 = new Date(CurrentTime); //日期为引用类型
+          if($scope.tasks[i].Type == "week")
+          {
+             var Date2;
+             if( SelectedDay >= WeekDay) //所选日期未过，选择本星期
+             {
+                Date2 = new Date(Date1.setDate(Day + SelectedDay - WeekDay));
+             }
+             else //下个星期
+             {
+                Date2 = new Date(Date1.setDate(Day + SelectedDay + 7 - WeekDay))
+             }
+             Temp = Date2;
+          }
+          else if($scope.tasks[i].Type == "month")
+          {
+            var Date3 = new Date(Date1.setDate(SelectedDay + 1));
+             if (SelectedDay + 1 < Day) //所选日期已过，选择下月
+             {
+                Date3 = new Date(Date3.setMonth(Date3.getMonth() + 1));
+             }
+             Temp = Date3;
+          }
+      $scope.tasks[i].TaskTime =  DateToInt(Temp);
+      }
+  }
+
+ //日期转换为整数
+  function DateToInt(Date1)
+   {
+      var Year = Date1.getFullYear().toString();
+      var Month = (Date1.getMonth() + 1).toString();
+      var Day = Date1.getDate().toString();
+      if (Date1.getMonth() < 10)
+      {
+          Month = "0" + Month;
+      }
+      if(Date1.getDate() < 9)
+      {
+         Day = "0" + Day;
+      }
+      return parseInt(Year + Month + Day);
+   }
+}])
+
+//任务执行填写--GL
+.controller('TaskFillCtrl', ['$scope', '$state', '$stateParams', function($scope, $state, $stateParams) {
+    $scope.Title = $stateParams.t;
+    $scope.FillOk = function()
+    {
+      //console.log("确定填写");
+      $state.go('tab.tasklist');
+    }
+  }])
 
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera) {
@@ -1763,214 +1986,5 @@ initUserDetail();
     $state.go("tab.consultquestion2")
   } 
 }])
-//任务管理--GL
-.controller('TaskCtrl', ['$scope', '$ionicPopup', function($scope, $ionicPopup) {
-  $scope.measureTask = [{"Name":"体温",
-                         "Frequency":"1次/1天", 
-                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                         "Unit":"摄氏度",
-                         "Flag":false},
-                        {"Name":"体重",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"kg",
-                        "Flag":false}];
-  //console.log($scope.category);
-  //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
-
-  //自定义弹窗
-  $scope.measureResult = [{"Name":"","Value":""}];
-  $scope.showPopup = function(name) {
-           $scope.data = {}
-    var myPopup = $ionicPopup.show({
-       template: '<input type="text" ng-model="data.value">',
-       title: '请填写'+ name,
-       scope: $scope,
-       buttons: [
-         { text: '取消' },
-         {
-           text: '<b>保存</b>',
-           type: 'button-positive',
-           onTap: function(e) {
-             if (!$scope.data.value) {
-               // 不允许用户关闭，除非输入内容
-               e.preventDefault();
-             } else {
-              return $scope.data.value;
-             }  
-             }    
-         },
-       ]
-     });
-     myPopup.then(function(res) {
-      if(res)
-      {
-        //填写测量任务后标志位更新
-        $scope.measureResult.Name = name;
-        $scope.measureResult.Value = res;
-        console.log(res.value);
-        for (i = 0; i<$scope.measureTask.length; i++)
-        {
-          if ($scope.measureTask[i].Name == name)
-          {
-              $scope.measureTask[i].Flag = true;      
-              $scope.measureTask[i].Value = res;  
-          }          
-        }
-        console.log($scope.measureTask); 
-      }  
-    });
-  };
-
-  //任务完成后设定下次任务执行时间,CurrentTime为整数
-  function SetNextTime(CurrentTime, Freq)
-  {
-      var NextTime = 0;
-      //假定频率格式为2周/1次
-      var FreqUnit = Freq.substr(1,1);
-      var FreqNum = Freq.substr(0,1);
-      if (FreqUnit == "周")
-      {
-          NextTime = DateCalc("week", CurrentTime, parseInt(FreqNum)*7);
-      }
-      else if(FreqUnit == "月")
-      {
-          NextTime = DateCalc("month", CurrentTime, parseInt(FreqNum));
-      }
-      console.log(NextTime);
-      return NextTime;
-  }
-
-  //日期延后计算
-  function DateCalc(Type, CurrentTime, Addition)
-  {
-    var CuTimeStr = CurrentTime.toString();
-    var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);
-    var Date1 = new Date(CurrentTime);
-    var Date2;
-    if(Type == "week") //周
-    {
-        Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
-    }
-    else //月
-    {
-        Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
-    }
-    var Ret = DateToInt(Date2);
-    return Ret;
-  }
-
- //测试函数
- $scope.Test=function()
- {
-  $scope.TestTime = SetNextTime(20170331, "2月/次");
- }
-
- //日期转换为整数
- function DateToInt(Date1)
- {
-    var Year = Date1.getFullYear().toString();
-    var Month = (Date1.getMonth() + 1).toString();
-    var Day = Date1.getDate().toString();
-    if (Date1.getMonth() < 10)
-    {
-        Month = "0" + Month;
-    }
-    if(Date1.getDate() < 9)
-    {
-       Day = "0" + Day;
-    }
-    return parseInt(Year + Month + Day);
- }
 
 
-}])
-
-//任务设置--GL
-.controller('TaskSetCtrl', ['$scope', '$state',function($scope, $state) {
-  
-  $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-  $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
-  
-  $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
-               {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
-
-  for (i = 0;i<$scope.tasks.length;i++)
-  {
-    if ($scope.tasks[i].Freq.substr(1,1) == "周")
-    {
-      $scope.tasks[i].Days = $scope.weekDays;
-      $scope.tasks[i].Type = "week"; 
-      $scope.tasks[i].SelectedDay = "星期一"; //默认时间
-    }
-    else if($scope.tasks[i].Freq.substr(1,1) == "月")
-    {
-      $scope.tasks[i].Days = $scope.monthDays;
-      $scope.tasks[i].Type = "month"; 
-      $scope.tasks[i].SelectedDay = "1日";//默认时间
-    }
-  }
-  console.log($scope.tasks);
-  $scope.SetDate = function()
-  {
-    $scope.Test = 20170401;
-    SetFirTaskTime($scope.Test);
-  }
-  
-  //选定星期或号数后，默认为离当前日期最近的日期
-  function SetFirTaskTime (CurrentTime)
-  {
-      var CuTimeStr = CurrentTime.toString();
-      var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);    
-
-      var CurrentDate = new Date(CurrentTime);
-      var WeekDay = CurrentDate.getDay(); //0-6 星期日为0
-      var Day = CurrentDate.getDate(); //1-31
-      for (i = 0;i < $scope.tasks.length; i++)
-      {
-          var Temp;
-          var SelectedDay = $scope.tasks[i].Days.indexOf($scope.tasks[i].SelectedDay);
-          var Date1 = new Date(CurrentTime); //日期为引用类型
-          if($scope.tasks[i].Type == "week")
-          {
-             var Date2;
-             if( SelectedDay >= WeekDay) //所选日期未过，选择本星期
-             {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay - WeekDay));
-             }
-             else //下个星期
-             {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay + 7 - WeekDay))
-             }
-             Temp = Date2;
-          }
-          else if($scope.tasks[i].Type == "month")
-          {
-            var Date3 = new Date(Date1.setDate(SelectedDay + 1));
-             if (SelectedDay + 1 < Day) //所选日期已过，选择下月
-             {
-                Date3 = new Date(Date3.setMonth(Date3.getMonth() + 1));
-             }
-             Temp = Date3;
-          }
-      $scope.tasks[i].TaskTime =  DateToInt(Temp);
-      }
-  }
-
- //日期转换为整数
-function DateToInt(Date1)
- {
-    var Year = Date1.getFullYear().toString();
-    var Month = (Date1.getMonth() + 1).toString();
-    var Day = Date1.getDate().toString();
-    if (Date1.getMonth() < 10)
-    {
-        Month = "0" + Month;
-    }
-    if(Date1.getDate() < 9)
-    {
-       Day = "0" + Day;
-    }
-    return parseInt(Year + Month + Day);
- }
-}])

@@ -213,26 +213,31 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
         }
          
     })
-    .state('tab.task', {
-        url: '/task',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/task.html',
-            controller: 'TaskCtrl'
-          }
-        }
-      })
-
-    .state('taskSet', {
-          url: '/taskSet',
+    
+    .state('task', {
+          url: '/task',
           abstract: true,
           template:'<ion-nav-view/>'
         })
 
-    .state('taskSet.r', {
-        url: '/:t',
-        templateUrl: 'partials/tabs/mine/taskSet.html',
-        controller: 'TaskSetCtrl'       
+    .state('task.r', {
+        url: '/:t',        
+        templateUrl:function($stateParams)
+        {
+          switch($stateParams.t)
+          {
+              case 'taskSet':return "partials/tabs/task/taskSet.html";break; //任务情况填写页面
+              default:return "partials/tabs/task/taskFill.html";break; //任务设置页面
+          }
+        },
+        controllerProvider:function($stateParams)
+        {
+          switch($stateParams.t)
+          {
+              case 'taskSet':return "TaskSetCtrl";break;
+              default:return "TaskFillCtrl";break;
+          }
+        }          
       })
 
      //肾病保险
