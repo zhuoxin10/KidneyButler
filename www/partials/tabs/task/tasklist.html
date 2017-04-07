@@ -1,10 +1,32 @@
 <!-- 任务视图中的列表-tab -->
 <ion-view view-title='任务'>
+<ion-nav-buttons side="primary">
+        <a class="button icon-left ion-android-settings button-clear" href="#/task/taskSet"></a> <!--进入设置页面-->
+    </ion-nav-buttons>
     
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-    <ion-content padding="true" style="">
-
-
-
-    </ion-content>    
+    <ion-content class="padding">
+        <div class="list">
+            <a class="item" href="#">
+                测量
+                <a class="item item-icon-right" ng-repeat="item in measureTask">
+                    {{item.Name}} 
+                    <p>{{item.Value}}<span ng-if = "item.Flag">{{item.Unit}}</span></p>               
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup('{{item.Name}}')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                </a>
+                <a class="item item-icon-right" ng-repeat="item in fillTask">
+                    {{item.Name}}                     
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "ToDetailPage('{{item.Name}}')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                </a>
+            </a>
+        </div>
+        <button ng-click="Test()">测试</button>
+        <h>{{TestTime}}</h>
+    </ion-content> 
 </ion-view>
