@@ -15,13 +15,23 @@
                         <option ng-repeat="day in item.Days">{{day}}</option>
                     </select>                   
                 </i>
-            </a>           
+            </a>   
+            <a class="item item-icon-right">
+                特殊评估
+                <p>一年1-2次</p>
+                <p>心电图，胸片，腹部泌尿系超声</p>             
+                <i class="icon ion-android-calendar">
+                    <select selected="1月">
+                        <option ng-repeat="item in specialMonth">{{item}}</option>
+                    </select>                   
+                </i>
+            </a>          
         </div>
-        <p>当前日期：{{Test}}</p>
-        <p ng-repeat = "item in tasks">{{item.TaskTime}}</p>
-        <div class="content padding has-header">
-            <button class="button button-block button-positive" ng-click="SetDate()">确定</button>
-        </div>
+        <!-- <p>当前日期：{{Test}}</p>
+        <p ng-repeat = "item in tasks">{{item.TaskTime}}</p> -->
+        <!-- <div class="content padding has-header"> -->
+        <button class="button button-block button-positive"  ng-click="SetDate()">确定</button>
+        <!-- </div> -->
         
     </ion-content>
 </ion-view>
