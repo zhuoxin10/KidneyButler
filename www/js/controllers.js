@@ -871,7 +871,7 @@ initUserDetail();
     $state.go('tab.myHealthInfo');
   }
   $scope.GoManagement = function(){
-    $state.go('tab.task');
+    $state.go('tab.tasklist');
   }
   $scope.GoMoney = function(){
     $state.go('tab.myMoney');
@@ -1768,6 +1768,9 @@ initUserDetail();
 }])
 //咨询问卷--TDY
 .controller('consultquestionCtrl', ['$scope', '$state', function ($scope, $state) {
+  $scope.showProgress = true
+  $scope.showSurgicalTime = true
+
   $scope.Genders =
   [
     {Name:"男",Type:1},

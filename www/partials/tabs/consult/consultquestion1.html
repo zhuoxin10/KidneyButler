@@ -42,13 +42,13 @@
         </select>
       </label>
 
-        <label class="item item-input" ng-if="showProgress()">
-          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>疾病进程</span>
+        <label class="item item-input" ng-if="showProgress">
+          <span class="input-label" ><!-- <i class="icon ion-asterisk" style="color:red;font-size:6px"> --></i>疾病进程</span>
           <input  ng-model="BasicInfo.DiseaseDetail"  type="text">
         </label>
 
-        <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="!showProgress()">
-        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>手术日期</span>
+        <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="showSurgicalTime">
+        <span class="input-label"><!-- <i class="icon ion-asterisk" style="color:red;font-size:6px"> --></i>手术日期</span>
         <input  ng-model="BasicInfo.OperationDate"  type="text">
         </ionic-datepicker>
 
