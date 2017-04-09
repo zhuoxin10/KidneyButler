@@ -7,7 +7,7 @@
   <ion-content padding="true" style="">
 
     <ion-list>
-      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail({{doctor.id}})">
+      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" href="#/tab/consult/chat/{{doctor.id}}">
         <img ng-src="{{doctor.img}}">
         <span>{{doctor.name}}</span>
         <span style="margin-left: 120px">{{doctor.department}}</span>
