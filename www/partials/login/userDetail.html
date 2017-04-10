@@ -45,15 +45,30 @@
         </select>
       </label>
 
-        <label class="item item-input" ng-if="showProgress()">
-          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>疾病进程</span>
-          <input  ng-model="User.DiseaseDetail"  type="text">
-        </label>
+      <label  class="item item-input item-select" ng-if="showProgress()">
+        <div class="input-label" style="margin-left:8px ">疾病进程</div>
+        <select ng-model="User.DiseaseDetail.t" ng-options=" DiseaseDetail.Name for DiseaseDetail in DiseaseDetails track by DiseaseDetail.Type" style="width:100%">
+           
+        </select>
+      </label>
 
         <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="!showProgress()">
-        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>手术日期</span>
+        <span class="input-label" style="margin-left:8px ">手术日期</span>
         <input  ng-model="User.OperationDate"  type="text">
         </ionic-datepicker>
+
+      
+
+      <ionic-datepicker input-obj="datepickerObject3" class="item item-input">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>出生日期</span>
+        <input  ng-model="User.Birthday"  type="text">
+      </ionic-datepicker>
+
+      <label class="item item-input">
+        <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>身份证号</span>
+        <span class="error" ng-show="IDCard.$error.pattern" style="color:red"></span>
+        <input  ng-model="User.IDCard"  type="text"    style="width:100%" >
+      </label>
 
       <label class="item item-input">
         <span class="error" ng-show="Height.$error.pattern" style="color:red"></span>
@@ -65,17 +80,6 @@
        <span class="error" ng-show="Weight.$error.pattern" style="color:red"></span>
         <span class="input-label" style="margin-left:8px ">体重（kg）</span>
         <input  ng-model="User.Weight"  type="text"   style="width:100%" >
-      </label>
-
-      <ionic-datepicker input-obj="datepickerObject3" class="item item-input">
-        <span class="input-label" style="margin-left:8px ">出生日期</span>
-        <input  ng-model="User.Birthday"  type="text">
-      </ionic-datepicker>
-
-      <label class="item item-input">
-        <span class="input-label" style="margin-left:8px ">身份证号</span>
-        <span class="error" ng-show="IDCard.$error.pattern" style="color:red"></span>
-        <input  ng-model="User.IDCard"  type="text"    style="width:100%" >
       </label>
     </div>
 

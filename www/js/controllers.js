@@ -1,7 +1,50 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','Health', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,Health) {
   $scope.barwidth="width:0%";
+  //-------------测试test()----------------
+
+  $scope.test = function(){
+    console.log("test for restful");
+       Health.createHealth({
+        userId:'U201704010003',
+        type:1,
+        time:'2014/02/22 11:03:37',
+        url:'c:/wf/img.jpg',
+        label:'b',
+        description:'wf',
+        comments:''
+      })
+    .then(
+      function(data)
+      {
+        console.log('data');
+        console.log(data);
+      },
+      function(err)
+      {
+        console.log('err');
+        console.log(err);
+      }
+    )
+
+  }
+
+
+
+
+
+
+
+
+
+  //------------测试结束----------------------
+
+
+
+
+
+
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
 
@@ -283,6 +326,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         ];
       //$scope.User.KidneyDisease={t:{Name:"肾移植",Type:1}};//默认选项
 
+      $scope.DiseaseDetails = {};
+      $scope.DiseaseDetails =
+      [
+        {Name:"稳定",Type:1},
+        {Name:"控制不佳",Type:2},
+      ]
+
 
 $scope.showProgress = function(){
   //console.log($scope.User.KidneyDisease.t.Type);
@@ -339,7 +389,7 @@ var initUserDetail = function(){
     BloodType:{Name:"A型",Type:1},
     Hypertension:{Name:"是",Type:1},
     KidneyDisease:{t:{Name:"肾移植",Type:1}},
-    DiseaseDetail:"",
+    DiseaseDetail:{t:{Name:"稳定",Type:1}},
     OperationDate:"",
     Height:"",
     Weight:"",
@@ -584,7 +634,7 @@ initUserDetail();
 .controller('GoToMessageCtrl', ['$scope','$timeout','$state', function($scope, $timeout,$state) {
 
   $scope.GoToMessage = function(){
-    $state.go('messages');//message还没写，在app.js还没定义
+    $state.go('messages');
   }
   
 }])
@@ -1393,6 +1443,259 @@ initUserDetail();
     })
 }])
 
+            });
+            return;
+      }
+
+
+        window.JMessage.getHistoryMessages("single",$state.params.chatId,"",$scope.params.msgCount,num,
+            function(response){
+                // console.log(response);
+                $scope.$broadcast('scroll.refreshComplete');
+                if(!response) $scope.params.moreMsgs=false;
+                else{
+                    var res=JSON.parse(response);
+                console.log(res);
+                    $scope.$apply(function(){
+                        if($scope.msgs[0]) $scope.msgs[0].diff=($scope.msgs[0].createTimeInMillis-res[0].createTimeInMillis)>300000?true:false;
+                        for(var i=0;i<res.length-1;++i){
+                            res[i].diff=(res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                            $scope.msgs.unshift(res[i]);
+                        }
+                        $scope.msgs.unshift(res[i]);
+                        $scope.msgs[0].diff=true;
+                        // msgsRender(0,i-1);
+                    });
+                    // console.log($scope.msgs);
+                    setTimeout(function(){
+                        $scope.scrollHandle.scrollBottom(true);
+                    },100);
+                    // $ionicScrollDelegate.scrollBottom();
+                    $scope.params.msgCount+=res.length;
+                }
+                
+            },
+            function(err){
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+    }
+
+    function viewUpdate(length,scroll){
+        if($scope.params.msgCount==0) getMsg(1);
+        var num = $scope.params.msgCount<length?$scope.params.msgCount:length;
+        if(num==0) return;
+         window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,num,
+            function(response){
+
+                var res=JSON.parse(response);
+                $scope.$apply(function(){
+                    for(var i=res.length-1,j=$scope.params.msgCount-res.length;i>=0;){
+                        if(j==$scope.params.msgCount){
+                            $scope.params.msgCount+=i+1;
+                        while(i>-1){
+                            res[i].diff= (res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                            $scope.msgs.push(res[i]);
+                            i--;
+                        }
+                            // for(var k=0;k<i)
+                            // $scope.msgs=$scope.msgs.concat(res.slice(0,i+1));
+                            // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
+                            // break;
+                        }else if($scope.msgs[j]['_id']==res[i]['_id']){
+                            $scope.msgs[j].status=res[i].status;
+                            ++j;--i;
+                        }else{
+                             ++j;
+                        }
+
+                    }   
+                });
+                // if(scroll){
+                    setTimeout(function(){
+                        $scope.scrollHandle.scrollBottom();
+                    },100);
+                // }
+            },function(){
+
+            });
+    }
+    //receiving new massage
+    $scope.$on('receiveMessage', function(event, msg) {
+        if (msg.targetType == 'single' && msg.fromName == $state.params.chatId) {
+            viewUpdate(5);
+        }
+    });
+
+    $scope.DisplayMore = function() {
+        getMsg(30);
+    }
+    $scope.scrollBottom = function() {
+        $scope.scrollHandle.scrollBottom(true);
+    }
+
+
+    //view image
+    $scope.zoomMin = 1;
+    $scope.imageUrl = '';
+    $scope.sound = {};
+    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.modal = modal;
+        // $scope.modal.show();
+        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+    });
+
+    function onImageLoad(path) {
+        $scope.$apply(function() {
+            $scope.imageUrl = path;
+        })
+
+    }
+
+    function onImageLoadFail(err) {
+
+    }
+    $scope.$on('image', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.imageUrl = args[2];
+        $scope.modal.show();
+        if (args[1] == 'img') {
+            window.JMessage.getOriginImageInSingleConversation($state.params.chatId, args[3], onImageLoad, onImageLoadFail);
+        } else {
+            // getImage(url,onImageLoad,onImageLoadFail)
+            $scope.imageUrl = args[3];
+        }
+    })
+    $scope.closeModal = function() {
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.modal.hide();
+        // $scope.modal.remove()
+    };
+    $scope.switchZoomLevel = function() {
+        if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin)
+            $scope.imageHandle.zoomTo(1, true);
+        else {
+            $scope.imageHandle.zoomTo(5, true);
+        }
+    }
+    $scope.$on('voice', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.sound = new Media(args[1],
+            function() {
+                // resolve(audio.media)
+            },
+            function(err) {
+                console.log(err);
+                // reject(err);
+            })
+        $scope.sound.play();
+    })
+    $scope.$on('profile', function(event, args) {
+            console.log(args)
+            event.stopPropagation();
+        })
+
+    //病例Panel
+    $scope.togglePanel = function() {
+        $scope.params.hidePanel = !$scope.params.hidePanel;
+    }
+    $scope.content = {
+        pics: [
+            'img/avatar.png',
+            'img/max.png',
+            'img/mike.png'
+        ]
+    }
+    $scope.viewPic = function(url) {
+            $scope.imageUrl = url;
+            $scope.modal.show();
+        }
+    // send message--------------------------------------------------------------------------------
+        //
+    function onSendSuccess(res) {
+        viewUpdate(10);
+    }
+
+    function onSendErr(err) {
+        console.log(err);
+        alert('[send msg]:err');
+        viewUpdate(20);
+    }
+    $scope.submitMsg = function() {
+            window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, '', onSendSuccess, onSendErr);
+            $scope.input.text = '';
+            viewUpdate(5, true);
+            // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
+            
+        }
+        //get image
+    $scope.getImage = function(type) {
+            Camera.getPicture(type)
+                .then(function(url) {
+                    console.log(url);
+
+                    window.JMessage.sendSingleImageMessage($state.params.chatId, url, '', onSendSuccess, onSendErr);
+                    viewUpdate(5, true);
+                    // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
+
+                }, function(err) {
+                    console.log(err)
+                })
+        }
+        //get voice
+    $scope.getVoice = function(){
+        //voice.record() do 2 things: record --- file manipulation 
+        voice.record()
+        .then(function(fileUrl){
+            window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,'',
+            function(res){
+                console.log(res);
+                viewUpdate(5,true);
+            },function(err){
+                console.log(err);
+            });
+            viewUpdate(5,true);
+        },function(err){
+            console.log(err);
+        });
+
+    }
+    $scope.stopAndSend = function() {
+        voice.stopRec();
+    }
+
+    $scope.goChats = function() {
+        $ionicHistory.nextViewOptions({
+            disableBack: true
+        });
+        // if($state.params.type=="1") $state.go('tab.doing');
+        $state.go('tab.myDoctors');
+    }
+
+
+    $scope.$on('keyboardshow', function(event, height) {
+        $scope.params.helpDivHeight = height + 30;
+        setTimeout(function() {
+            $scope.scrollHandle.scrollBottom();
+        }, 100);
+
+    })
+    $scope.$on('keyboardhide', function(event) {
+        $scope.params.helpDivHeight = 30;
+        // $ionicScrollDelegate.scrollBottom();
+    })
+    $scope.$on('$ionicView.leave', function() {
+        $scope.modal.remove();
+        $rootScope.conversation.type = null;
+        $rootScope.conversation.id = '';
+        if(window.JMessage) window.JMessage.exitConversation();
+    })
+}])
+
 
 
 //健康信息--PXY
@@ -1443,7 +1746,7 @@ initUserDetail();
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -1459,12 +1762,9 @@ initUserDetail();
     {Name:"用药",Type:3},
     {Name:"病历",Type:4},
   ];
-  //判断是修改还是新增,参数传不进去
-  console.log($stateParams.id);
+  //判断是修改还是新增
   if($stateParams.id!=null && $stateParams!=""){
     //修改
-    console.log("健康详情");
-    console.log($stateParams.id);
     var info = HealthInfo.search($stateParams.id);
     $scope.health={
       label:info.type,
@@ -1483,11 +1783,41 @@ initUserDetail();
     }
   }
 
+  
+
+  $scope.HealthInfoSetup = function(information){
+    if(information.date!=""&&information.text!=""){
+        if($stateParams.id==null||$stateParams==""){
+            HealthInfo.new(information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+
+        }
+        else{
+            HealthInfo.edit($stateParams.id,information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+        }
+    }
+    else{
+        $ionicLoading.show({
+            template:'信息填写不完整',
+            duration:1000
+        });
+    }
+
+}
+
 
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
   var weekDaysList=["日","一","二","三","四","五","六"];
-  // --------出生日期----------------
   var datePickerCallback = function (val) {
     if (typeof(val) === 'undefined') {
       console.log('No date selected');
@@ -1524,6 +1854,10 @@ initUserDetail();
       datePickerCallback(val);
     }
   };  
+//--------------
+
+
+
 
   
 }])
@@ -1557,9 +1891,8 @@ initUserDetail();
   }
 
   $scope.getMessageDetail = function(type){
-    if(type == 2){
-      $state.go('messagesDetail');
-    }
+    $state.go('messagesDetail',{messageType:type});
+    
 
   }
   //查询余额等等。。。。。
@@ -1614,84 +1947,73 @@ initUserDetail();
 
 
 //消息类型--PXY
-.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory','$stateParams',function($scope, $state,$ionicHistory,$stateParams) {
   $scope.barwidth="width:0%";
+  switch($stateParams.messageType){
+    case 1:
+    $scope.title = '支付消息';
+    $scope.messages = [
+    {
+        img:"img/pay.PNG",
+        time:"2017/04/01",
+        response:"恭喜你！成功充值50元，交易账号为0093842345."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/03/02",
+        response:"咨询支出20元，账户余额为28元，交易账号为0045252623."
+    }];
+    break;
+    case 2:
+    $scope.title = '任务消息';
+    $scope.messages =[
+  
+    {
+        img:"img/bloodpressure.PNG",
+        time:"2017/03/21",
+        response:"今天还没有测量血压，请及时完成！"
+
+    },
+    {
+        img:"img/exercise.PNG",
+        time:"2017/03/11",
+        response:"今天建议运动半小时，建议以散步或慢跑的形式！"
+
+    }];
+    break;
+    case 3:
+    $scope.title = '警报消息';
+    $scope.messages =[
+  
+    {
+        img:"img/alert.PNG",
+        time:"2017/03/11",
+        response:"你的血压值已超出控制范围！"
+
+    },
+    {
+        img:"img/alert.PNG",
+        time:"2017/03/07",
+        response:"你的血压值已超出控制范围！"
+
+    }];
+    break;
+
+  }
 
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-  $scope.messages =[
-  
-  {
-    img:"img/bloodpressure.PNG",
-    time:"2017/03/21",
-    response:"今天还没有测量血压，请及时完成！"
-
-  },
-  {
-    img:"img/exercise.PNG",
-    time:"2017/03/11",
-    response:"今天建议运动半小时，建议以散步或慢跑的形式！"
-
-  }]
 
   
 }])
   
-//我的医生--PXY
-.controller('myDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+
+
+
+//医生列表--PXY
+.controller('DoctorCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo',function($scope, $state,$ionicHistory,DoctorsInfo) {
   $scope.barwidth="width:0%";
-
-
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
-
-  $scope.allDoctors = function(){
-    $state.go('tab.AllDoctors');
-  }
-
-  $scope.question = function(){
-    $state.go("tab.consultquestion1")
-  }
-
-  $scope.consult = function(){
-    $state.go("tab.consultquestion1")
-  }
-  
-}])
-
-
-//所有医生--PXY
-.controller('allDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
-  $scope.barwidth="width:0%";
-  console.log("test")
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
@@ -1764,44 +2086,41 @@ initUserDetail();
     Type:0
   };
 
+  $scope.allDoctors = function(){
+    $state.go('tab.AllDoctors');
+  }
 
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
+
+
+
+  $scope.getDoctorDetail = function(ID){
+    $state.go('tab.DoctorDetail',{doctorId:ID});
+
+  }
+
+  $scope.doctors = DoctorsInfo.getalldoc();
+  $scope.mydoctors = DoctorsInfo.getalldoc();
 
   $scope.question = function(){
     $state.go("tab.consultquestion1")
   }
 
   $scope.consult = function(){
+     console.log("咨询");
     $state.go("tab.consultquestion1")
   }
+
+
+}])
+
+
+.controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','$stateParams',function($scope, $state,$ionicHistory,DoctorsInfo,$stateParams) {
+     $scope.Goback = function(){
+    $ionicHistory.goBack();
+  }
+    var doc = DoctorsInfo.searchdoc($stateParams.doctorId);
+    $scope.doctor = doc;
+
 }])
 
 

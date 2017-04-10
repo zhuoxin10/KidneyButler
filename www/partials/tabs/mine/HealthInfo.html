@@ -14,7 +14,7 @@
   <ion-content padding="true" style="">
 
     <ion-list>
-      <ion-item ng-repeat="item in items" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail()">
+      <ion-item ng-repeat="item in items" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail({{item.id}})">
         <img ng-src="{{item.img}}">
         <p style="text-align: right">{{item.time}}</p>
         <h2>{{item.type.Name}}</h2>
