@@ -194,6 +194,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }
       }
     })
+    .state('tab.consult-chat', {
+      url: '/consult/chat/:docId',
+      views: {
+        'tab-consult': {
+          cache:false,
+          templateUrl: 'partials/tabs/consult/consult-chat.html',
+          controller: 'ChatCtrl'
+        }
+      }
+    })
     .state('tab.AllDoctors', {
       url: '/AllDoctors',
       views: {
