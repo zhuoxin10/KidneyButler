@@ -44,7 +44,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-
+  Storage.set('USERNAME',"18600001564")
+  Storage.set('passwords',"123")
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
 
@@ -278,7 +279,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    if (Storage.get("personalinfobackstate") == "mine")
+    {
+      $state.go("tab.mine")
+    }
+    else
+    {
+      $ionicHistory.goBack();
+    }
   }
 
   
@@ -987,7 +995,7 @@ initUserDetail();
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera) {
   $scope.barwidth="width:0%";
-
+  Storage.set("personalinfobackstate","mine")
   //页面跳转---------------------------------
   $scope.GoUserDetail = function(){
     $state.go('userdetail');
@@ -1029,11 +1037,11 @@ initUserDetail();
                     //Storage.clear();
                     Storage.set("IsSignIn","No");
                      Storage.set("USERNAME",USERNAME);
-                     $timeout(function () {
+                     //$timeout(function () {
                      $ionicHistory.clearCache();
                      $ionicHistory.clearHistory();
-                    }, 30);
-                    $ionicPopup.hide();
+                    //}, 30);
+                    //$ionicPopup.hide();
                 }
               }
             ]
