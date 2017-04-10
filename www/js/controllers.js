@@ -1853,7 +1853,6 @@ initUserDetail();
   }
 
   $scope.consult = function(){
-     console.log("咨询");
     $state.go("tab.consultquestion1")
   }
 
@@ -1862,12 +1861,19 @@ initUserDetail();
 
 
 .controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','$stateParams',function($scope, $state,$ionicHistory,DoctorsInfo,$stateParams) {
-     $scope.Goback = function(){
+  $scope.Goback = function(){
     $ionicHistory.goBack();
   }
     var doc = DoctorsInfo.searchdoc($stateParams.doctorId);
     $scope.doctor = doc;
 
+  $scope.question = function(){
+    $state.go("tab.consultquestion1")
+  }
+
+  $scope.consult = function(){
+    $state.go("tab.consultquestion1")
+  }
 }])
 
 
