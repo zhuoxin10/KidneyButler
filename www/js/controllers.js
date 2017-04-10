@@ -1137,7 +1137,9 @@ initUserDetail();
 
   ]
     
-
+  $scope.getConsultRecordDetail = function() {
+    $state.go("tab.consult-chat")
+  }
 
   
 }])
@@ -1416,11 +1418,11 @@ initUserDetail();
     }
 
     $scope.goChats = function() {
-        $ionicHistory.nextViewOptions({
-            disableBack: true
-        });
+        // $ionicHistory.nextViewOptions({
+        //     disableBack: true
+        // });
         // if($state.params.type=="1") $state.go('tab.doing');
-        $state.go('tab.myDoctors');
+        $ionicHistory.goBack();
     }
 
 
@@ -1639,8 +1641,10 @@ initUserDetail();
 
   $scope.getMessageDetail = function(type){
     $state.go('messagesDetail',{messageType:type});
-    
+  }
 
+  $scope.getConsultRecordDetail = function () {
+    $state.go("tab.consult-chat")
   }
   //查询余额等等。。。。。
   $scope.messages =[
