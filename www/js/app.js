@@ -3,9 +3,9 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordova'])
+angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope) {
   $ionicPlatform.ready(function() {
 
 
@@ -13,7 +13,11 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
     if(isSignIN=='YES'){
       $state.go('tab.tasklist');
     }
-   
+
+    $rootScope.conversation = {
+            type: null,
+            id: ''
+        }
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -27,6 +31,58 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
     if(window.StatusBar) {
       StatusBar.styleDefault();
     }
+    if (window.JPush) {
+        window.JPush.init();
+    }
+    if (window.JMessage) {
+        // window.Jmessage.init();
+        JM.init();
+        window.JMessage.login('18868800011', '123456',
+        function(response) {
+            window.JMessage.username = '18868800011';
+            //gotoConversation();
+        },
+        function(err) {
+            console.log(err);
+            // JM.register($scope.useruserID, $scope.passwd);
+        });
+        document.addEventListener('jmessage.onOpenMessage', function(msg) {
+            console.info('[jmessage.onOpenMessage]:');
+            console.log(msg);
+            $state.go('tab.chat-detail', { chatId: msg.fromName, fromUser: msg.fromUser });
+        }, false);
+        document.addEventListener('jmessage.onReceiveMessage', function(msg) {
+            console.info('[jmessage.onReceiveMessage]:');
+            console.log(msg);
+            $rootScope.$broadcast('receiveMessage', msg);
+            if (device.platform == "Android") {
+                // message = window.JMessage.message;
+                // console.log(JSON.stringify(message));
+            }
+        }, false);
+        document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
+            console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
+            // $rootScope.$broadcast('receiveMessage',msg);
+            if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
+                if (device.platform == "Android") {
+                    window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
+                        // message = window.JMessage.message;
+                        // console.log(JSON.stringify(message));
+                } else {
+                    window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
+                }
+            }
+
+        }, false);
+
+    }
+    window.addEventListener('native.keyboardshow', function(e) {
+        $rootScope.$broadcast('keyboardshow', e.keyboardHeight);
+    });
+    window.addEventListener('native.keyboardhide', function(e) {
+        $rootScope.$broadcast('keyboardhide');
+    });
+
   });
 })
 
@@ -107,6 +163,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
         }
       }
     })
+    .state('tab.forum', {
+      url: '/forum',
+      views: {
+        'tab-forum': {
+          cache:false,
+          templateUrl: 'partials/tabs/forum.html',
+          controller: 'forumCtrl'
+        }
+      }
+    })
     .state('tab.myDoctors', {
       url: '/myDoctors',
       views: {
@@ -114,6 +180,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
           cache:false,
           templateUrl: 'partials/tabs/consult/myDoctors.html',
           controller: 'myDoctorsCtrl'
+        }
+      }
+    })
+    .state('tab.consult-chat', {
+      url: '/consult/chat/:docId',
+      views: {
+        'tab-consult': {
+          cache:false,
+          templateUrl: 'partials/tabs/consult/consult-chat.html',
+          controller: 'ChatCtrl'
         }
       }
     })
