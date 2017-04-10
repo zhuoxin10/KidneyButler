@@ -2326,3 +2326,18 @@ initUserDetail();
 }])
 
 
+//论坛
+.controller('forumCtrl', ['$scope', '$state', '$sce','$http',function ($scope, $state,$sce,$http) {
+  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
+
+  ionic.DomUtil.ready(function(){
+        $http({
+            method  : 'POST',
+            url     : 'http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
+            params    : {'username':'admin','password':'bme319'},  // pass in data as strings
+            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+            }).success(function(data) {
+                //console.log(data);
+        });
+    })
+}])

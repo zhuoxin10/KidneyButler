@@ -163,6 +163,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }
       }
     })
+    .state('tab.forum', {
+      url: '/forum',
+      views: {
+        'tab-forum': {
+          cache:false,
+          templateUrl: 'partials/tabs/forum.html',
+          controller: 'forumCtrl'
+        }
+      }
+    })
     .state('tab.myDoctors', {
       url: '/myDoctors',
       views: {
