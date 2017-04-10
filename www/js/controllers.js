@@ -619,12 +619,7 @@ initUserDetail();
                         "Frequency":"2次/1天", 
                         "Discription":"每天晨起或睡前安静状态下测量血压2次",
                         "Unit":"次/分",
-                        "Flag":false},
-                        {"Name":"腹透方案",
-                        "Frequency":"3-4次/1天", 
-                        "Discription":"医生设定腹透方案",
-                        "Unit":"次/分",
-                        "Flag":false},
+                        "Flag":false},                       
                         {"Name":"超滤量",
                         "Frequency":"1次/1天", 
                         "Discription":"",
@@ -803,7 +798,7 @@ initUserDetail();
   $scope.specialMonth = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
   
   $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
-               {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
+                {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
   $scope.HemoTask = {category:"血透排班",Freq:"1周2次"};
   $scope.HemoFreq = ["1周2次", "1周3次"];
 
