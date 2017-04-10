@@ -262,7 +262,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //个人信息--PXY
 .controller('userdetailCtrl',['$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover',function($scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover){
   $scope.barwidth="width:0%";
-//注册时可跳过个人信息
+  //注册时可跳过个人信息
   $scope.CanSkip = function(){
     if(Storage.get('setPasswordState')=='register'){
       return true;
@@ -1443,259 +1443,6 @@ initUserDetail();
     })
 }])
 
-            });
-            return;
-      }
-
-
-        window.JMessage.getHistoryMessages("single",$state.params.chatId,"",$scope.params.msgCount,num,
-            function(response){
-                // console.log(response);
-                $scope.$broadcast('scroll.refreshComplete');
-                if(!response) $scope.params.moreMsgs=false;
-                else{
-                    var res=JSON.parse(response);
-                console.log(res);
-                    $scope.$apply(function(){
-                        if($scope.msgs[0]) $scope.msgs[0].diff=($scope.msgs[0].createTimeInMillis-res[0].createTimeInMillis)>300000?true:false;
-                        for(var i=0;i<res.length-1;++i){
-                            res[i].diff=(res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
-                            $scope.msgs.unshift(res[i]);
-                        }
-                        $scope.msgs.unshift(res[i]);
-                        $scope.msgs[0].diff=true;
-                        // msgsRender(0,i-1);
-                    });
-                    // console.log($scope.msgs);
-                    setTimeout(function(){
-                        $scope.scrollHandle.scrollBottom(true);
-                    },100);
-                    // $ionicScrollDelegate.scrollBottom();
-                    $scope.params.msgCount+=res.length;
-                }
-                
-            },
-            function(err){
-                $scope.$broadcast('scroll.refreshComplete');
-            });
-    }
-
-    function viewUpdate(length,scroll){
-        if($scope.params.msgCount==0) getMsg(1);
-        var num = $scope.params.msgCount<length?$scope.params.msgCount:length;
-        if(num==0) return;
-         window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,num,
-            function(response){
-
-                var res=JSON.parse(response);
-                $scope.$apply(function(){
-                    for(var i=res.length-1,j=$scope.params.msgCount-res.length;i>=0;){
-                        if(j==$scope.params.msgCount){
-                            $scope.params.msgCount+=i+1;
-                        while(i>-1){
-                            res[i].diff= (res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
-                            $scope.msgs.push(res[i]);
-                            i--;
-                        }
-                            // for(var k=0;k<i)
-                            // $scope.msgs=$scope.msgs.concat(res.slice(0,i+1));
-                            // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
-                            // break;
-                        }else if($scope.msgs[j]['_id']==res[i]['_id']){
-                            $scope.msgs[j].status=res[i].status;
-                            ++j;--i;
-                        }else{
-                             ++j;
-                        }
-
-                    }   
-                });
-                // if(scroll){
-                    setTimeout(function(){
-                        $scope.scrollHandle.scrollBottom();
-                    },100);
-                // }
-            },function(){
-
-            });
-    }
-    //receiving new massage
-    $scope.$on('receiveMessage', function(event, msg) {
-        if (msg.targetType == 'single' && msg.fromName == $state.params.chatId) {
-            viewUpdate(5);
-        }
-    });
-
-    $scope.DisplayMore = function() {
-        getMsg(30);
-    }
-    $scope.scrollBottom = function() {
-        $scope.scrollHandle.scrollBottom(true);
-    }
-
-
-    //view image
-    $scope.zoomMin = 1;
-    $scope.imageUrl = '';
-    $scope.sound = {};
-    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
-        scope: $scope
-    }).then(function(modal) {
-        $scope.modal = modal;
-        // $scope.modal.show();
-        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
-    });
-
-    function onImageLoad(path) {
-        $scope.$apply(function() {
-            $scope.imageUrl = path;
-        })
-
-    }
-
-    function onImageLoadFail(err) {
-
-    }
-    $scope.$on('image', function(event, args) {
-        console.log(args)
-        event.stopPropagation();
-        $scope.imageHandle.zoomTo(1, true);
-        $scope.imageUrl = args[2];
-        $scope.modal.show();
-        if (args[1] == 'img') {
-            window.JMessage.getOriginImageInSingleConversation($state.params.chatId, args[3], onImageLoad, onImageLoadFail);
-        } else {
-            // getImage(url,onImageLoad,onImageLoadFail)
-            $scope.imageUrl = args[3];
-        }
-    })
-    $scope.closeModal = function() {
-        $scope.imageHandle.zoomTo(1, true);
-        $scope.modal.hide();
-        // $scope.modal.remove()
-    };
-    $scope.switchZoomLevel = function() {
-        if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin)
-            $scope.imageHandle.zoomTo(1, true);
-        else {
-            $scope.imageHandle.zoomTo(5, true);
-        }
-    }
-    $scope.$on('voice', function(event, args) {
-        console.log(args)
-        event.stopPropagation();
-        $scope.sound = new Media(args[1],
-            function() {
-                // resolve(audio.media)
-            },
-            function(err) {
-                console.log(err);
-                // reject(err);
-            })
-        $scope.sound.play();
-    })
-    $scope.$on('profile', function(event, args) {
-            console.log(args)
-            event.stopPropagation();
-        })
-
-    //病例Panel
-    $scope.togglePanel = function() {
-        $scope.params.hidePanel = !$scope.params.hidePanel;
-    }
-    $scope.content = {
-        pics: [
-            'img/avatar.png',
-            'img/max.png',
-            'img/mike.png'
-        ]
-    }
-    $scope.viewPic = function(url) {
-            $scope.imageUrl = url;
-            $scope.modal.show();
-        }
-    // send message--------------------------------------------------------------------------------
-        //
-    function onSendSuccess(res) {
-        viewUpdate(10);
-    }
-
-    function onSendErr(err) {
-        console.log(err);
-        alert('[send msg]:err');
-        viewUpdate(20);
-    }
-    $scope.submitMsg = function() {
-            window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, '', onSendSuccess, onSendErr);
-            $scope.input.text = '';
-            viewUpdate(5, true);
-            // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-            
-        }
-        //get image
-    $scope.getImage = function(type) {
-            Camera.getPicture(type)
-                .then(function(url) {
-                    console.log(url);
-
-                    window.JMessage.sendSingleImageMessage($state.params.chatId, url, '', onSendSuccess, onSendErr);
-                    viewUpdate(5, true);
-                    // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-
-                }, function(err) {
-                    console.log(err)
-                })
-        }
-        //get voice
-    $scope.getVoice = function(){
-        //voice.record() do 2 things: record --- file manipulation 
-        voice.record()
-        .then(function(fileUrl){
-            window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,'',
-            function(res){
-                console.log(res);
-                viewUpdate(5,true);
-            },function(err){
-                console.log(err);
-            });
-            viewUpdate(5,true);
-        },function(err){
-            console.log(err);
-        });
-
-    }
-    $scope.stopAndSend = function() {
-        voice.stopRec();
-    }
-
-    $scope.goChats = function() {
-        $ionicHistory.nextViewOptions({
-            disableBack: true
-        });
-        // if($state.params.type=="1") $state.go('tab.doing');
-        $state.go('tab.myDoctors');
-    }
-
-
-    $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 30;
-        setTimeout(function() {
-            $scope.scrollHandle.scrollBottom();
-        }, 100);
-
-    })
-    $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 30;
-        // $ionicScrollDelegate.scrollBottom();
-    })
-    $scope.$on('$ionicView.leave', function() {
-        $scope.modal.remove();
-        $rootScope.conversation.type = null;
-        $rootScope.conversation.id = '';
-        if(window.JMessage) window.JMessage.exitConversation();
-    })
-}])
-
 
 
 //健康信息--PXY
@@ -2017,11 +1764,11 @@ initUserDetail();
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-//清空搜索框
+  //清空搜索框
   $scope.clearSearch = function(){  
     $scope.searchCont = {};  
     //清空之后获取所有医生  
-}  
+  }  
 
   $scope.search = function(){
   //如果筛选条件还未清空的话，是在已筛选里搜索？
@@ -2091,12 +1838,12 @@ initUserDetail();
   }
 
 
-
-
-  $scope.getDoctorDetail = function(ID){
-    $state.go('tab.DoctorDetail',{doctorId:ID});
-
+  $scope.getDoctorDetail = function(ele, id) {
+        if (ele.target.innerText == '咨询') $state.go("tab.consultquestion1");
+        else if (ele.target.innerText == '问诊') $state.go("tab.consultquestion1");
+        else $state.go('tab.DoctorDetail',{doctorId:"doc01"});
   }
+
 
   $scope.doctors = DoctorsInfo.getalldoc();
   $scope.mydoctors = DoctorsInfo.getalldoc();
@@ -2685,6 +2432,10 @@ initUserDetail();
   $scope.backtoDisease = function(){
     $state.go("tab.consultquestion2")
   } 
+
+  $scope.Submitquestion = function(){
+    $state.go("tab.consult-chat", { docId: "doc01" })
+  }
 }])
 
 
