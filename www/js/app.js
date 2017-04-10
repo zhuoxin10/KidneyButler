@@ -72,6 +72,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
     .state('messagesDetail',{
       cache:false,
       url:'/messagesDetail',
+      params:{messageType:null},
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
     })
@@ -113,7 +114,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/myDoctors.html',
-          controller: 'myDoctorsCtrl'
+          controller: 'DoctorCtrl'
         }
       }
     })
@@ -123,7 +124,18 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/allDoctors.html',
-          controller: 'allDoctorsCtrl'
+          controller: 'DoctorCtrl'
+        }
+      }
+    })
+    .state('tab.DoctorDetail', {
+      url: '/DoctorDetail',
+      params:{doctorId:null},
+      views: {
+        'tab-consult': {
+          cache:false,
+          templateUrl: 'partials/tabs/consult/DoctorDetail.html',
+          controller: 'DoctorDetailCtrl'
         }
       }
     })
@@ -193,6 +205,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','ngCordo
     })
     .state('tab.myHealthInfoDetail', {
         url: '/mine/HealthInfoDetail/',
+        params: {id:null},
         views: {
           'tab-mine': {
             templateUrl: 'partials/tabs/mine/editHealthInfo.html',

@@ -1,53 +1,40 @@
-angular.module('kidney.services', ['ionic'])
+angular.module('kidney.services', ['ionic','ngResource'])
 
 
 // 客户端配置
 .constant('CONFIG', {
-  baseUrl: 'http://121.43.107.106:9000/Api/v1/',
-  wsServerIP : "ws://" + "121.43.107.106" + ":4141",
-  role: "Patient",
-  //revUserId: "",
-  //TerminalName: "",
-  //TerminalIP: "",
-  DeviceType: '1',
-  ImageAddressIP: "http://121.43.107.106:8089",
-  ImageAddressFile : "/PersonalPhoto",
-  // ImageAddress = ImageAddressIP + ImageAddressFile + "/" + DoctorId + ".jpg";
-  consReceiptUploadPath: 'cons/receiptUpload',
-  userResUploadPath: 'user/resUpload',
-
-  cameraOptions: {  // 用new的方式创建对象? 可以避免引用同一个内存地址, 可以修改新的对象而不会影响这里的值: 用angular.copy
-    quality: 75,
-    destinationType: 0,  // Camera.DestinationType = {DATA_URL: 0, FILE_URI: 1, NATIVE_URI: 2};
-    sourceType: 0,  // Camera.PictureSourceType = {PHOTOLIBRARY: 0, CAMERA: 1, SAVEDPHOTOALBUM: 2};
-    allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
-    encodingType: 0,  // Camera.EncodingType = {JPEG: 0, PNG: 1};
-    targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
-    targetHeight: 100,
-    // mediaType: 0,  // 可选媒体类型: Camera.MediaType = {PICTURE: 0, VIDEO: 1, ALLMEDIA: 2};
-    // correctOrientation: true,
-    saveToPhotoAlbum: false,
-    popoverOptions: { 
-      x: 0,
-      y:  32,
-      width : 320,
-      height : 480,
-      arrowDir : 15  // Camera.PopoverArrowDirection = {ARROW_UP: 1, ARROW_DOWN: 2, ARROW_LEFT: 4, ARROW_RIGHT: 8, ARROW_ANY: 15};
+    role: "Patient",
+    cameraOptions: {
+        cam: {
+            quality: 60,
+            destinationType: 1,
+            sourceType: 1,
+            allowEdit: true,
+            encodingType: 0,
+            targetWidth: 1000,
+            targetHeight: 1000,
+            popoverOptions: false,
+            saveToPhotoAlbum: false
+        },
+        gallery: {
+            quality: 60,
+            destinationType: 1,
+            sourceType: 0,
+            allowEdit: true,
+            encodingType: 0,
+            targetWidth: 1000,
+            targetHeight: 1000
+        }
     },
-    cameraDirection: 0  // 默认为前/后摄像头: Camera.Direction = {BACK : 0, FRONT : 1};
-  },
-
-  uploadOptions: {
-    // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-    // fileName: '.jpg',  // 后缀名, 在具体controller中会加上文件名; 这里不能用fileName, 否则将CONFIG.uploadOptions赋值给任何变量(引用赋值)后, 如果对该变量的同名属性fileName的修改都会修改CONFIG.uploadOptions.fileName
-    fileExt: '.jpg',  // 后缀名, 在具体controller中会加上文件名
-    httpMethod: 'POST',  // 'PUT'
-    mimeType: 'image/jpg',  // 'image/png'
-    //params: {_id: $stateParams.consId},
-    // chunkedMode: true,
-    //headers: {Authorization: 'Bearer ' + Storage.get('token')}
-  }
-  })
+    
+    appKey: 'b4ad7a831d5f3273acca5025',
+    path: {
+        base: 'media/b4ad7a831d5f3273acca5025/',
+        img: 'images/thumbnails/',
+        voice: 'voice/'
+    },
+    baseUrl: 'http://121.43.107.106:4050/'
+})
 
 // 本地存储函数
 .factory('Storage', ['$window', function ($window) {
@@ -177,10 +164,63 @@ angular.module('kidney.services', ['ionic'])
 
 
 
-
-
-
 //缓存数据
+
+
+//--------医生的缓存数据--------
+.factory('DoctorsInfo', [function () {
+  var self = this;
+  var DoctorTable= TAFFY([
+  {
+    id:"doc001",
+    img:"img/doctor1.PNG",
+    name:"李芳 ",
+    department:"肾脏内科",
+    title:"副主任医师",
+    workUnit:"浙江大学医学院附属第一医院",
+    major:"肾小球肾炎",
+    description:"女，教授、副主任医师，担任中华医学会肾脏病学分会副主任委员、卫生部中国肾移植科学登记系统管理委员会副主任委员兼秘书长、浙江省医学会肾脏病学分会主任委员、器官移植学分会副主任委员等学术职务。",
+    charge1:15,
+    charge2:100,
+    score:"9.0",
+    count1:30,
+    count2:100
+  },
+  {
+    id:"doc002",
+    img:"img/doctor2.PNG",
+    name:"张三",
+    department:"肾脏病中心",
+    title:"主任医师",
+    workUnit:"浙江大学医学院附属第二医院",
+    major:"临床难治肾病治疗",
+    description:"男，教授、主任医师、博士生导师，现任浙江大学附属第二医院党委副书记，浙江大学附属第一医院肾脏病中心主任。",
+    charge1:30,
+    charge2:200,
+    score:"9.3",
+    count1:35,
+    count2:127
+  },
+]);
+  
+  self.getalldoc = function(){
+    var records = new Array();
+    DoctorTable().each(function(r) {records.push(r)});
+    console.log(records);
+    return records;
+  }
+  
+  self.searchdoc = function(searchId){
+    var record = DoctorTable({id:searchId}).first();
+    return record;
+  }
+  
+  return self;
+}])
+//--------医生的缓存结束---------
+
+
+//--------健康信息的缓存数据--------
 .factory('HealthInfo', [function () {
   var self = this;
   var HealthTable= TAFFY([
@@ -208,22 +248,173 @@ angular.module('kidney.services', ['ionic'])
     HealthTable({id:removeId}).remove();
   }
   self.edit = function(editId,editInfo){
-    HealthTable({id:editId}).update({img:editInfo.img,type:editInfo.type,time:editInfo.time,description:editInfo.description});
+    HealthTable({id:editId}).update({img:editInfo.imgurl,type:editInfo.label,time:editInfo.date,description:editInfo.text});
   }
   self.new = function(newInfo){
     var last = HealthTable().last();
     var number = last.id++;
-    HealthTable.insert({id:number,img:newInfo.img,type:newInfo.type,time:newInfo.time,description:newInfo.description});
+    HealthTable.insert({id:number,img:newInfo.imgurl,type:newInfo.label,time:newInfo.date,description:newInfo.text});
   }
   self.search = function(searchId){
     var record = HealthTable({id:searchId}).first();
-    console.log(record);
     return record;
   }
   
   return self;
 }])
+//--------健康信息的缓存结束---------
 
+
+
+
+
+
+
+
+//数据模型
+.factory('Data',['$resource', '$q','$interval' ,'CONFIG' , function($resource,$q,$interval ,CONFIG){
+    var serve={};
+    var abort = $q.defer();
+
+    var Counsels = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
+            getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000}
+        });
+    };
+
+    var Patients =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'patient'},{
+            getPatientDetail:{method:'GET', params:{route: 'getPatientDetail'}, timeout: 100000}
+        });
+    }
+
+    var Doctors =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'doctor'},{
+            createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000}
+        });
+    }
+
+    var Health = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'healthInfo'},{
+            createHealth:{method:'POST', params:{route: 'insertHealthInfo'}, timeout: 100000}
+        });
+    }
+
+    serve.abort = function ($scope) {
+        abort.resolve();
+        $interval(function () {
+            abort = $q.defer();
+            serve.Counsels = Counsels();
+            serve.Patients = Patients();
+            serve.Doctors = Doctors();
+            serve.Health = Health();
+        }, 0, 1);
+    };
+    serve.Counsels = Counsels();
+    serve.Patients = Patients();
+    serve.Doctors = Doctors();
+    serve.Health = Health();
+    return serve;
+}])
+
+.factory('Health', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+            //  userId:'U201704010003',//unique
+            //  type:1,
+            //  time:'2014/02/22 11:03:37',
+            //  url:'c:/wf/img.jpg',
+            //  label:'abc',
+            //  description:'wf',
+            //  comments:''
+           // }
+    self.createHealth = function(params){
+        var deferred = $q.defer();
+        Data.Health.createHealth(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Patients', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01'}
+    self.getPatientDetail = function(params){
+        var deferred = $q.defer();
+        Data.Patients.getPatientDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Doctors', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+           //   userId:'docpostTest',//unique
+           //   name:'姓名',
+           //   birthday:'1956-05-22',
+           //   gender:1,
+           //   workUnit:'浙江省人民医院',
+           //   department:'肾内科',
+           //   title:'副主任医师',
+           //   major:'慢性肾炎',
+           //   description:'经验丰富',
+           //   photoUrl:'http://photo/docpost3.jpg',
+           //   charge1:150,
+           //   charge2:50
+           // }
+    self.createDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Doctors.createDoc(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Counsels', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'doc01',status:1}
+    //        1:{userId:'doc01'}
+    //        1:{userId:'doc01',type:1}
+    //        1:{userId:'doc01',status:1,type:1}
+    self.getCounsels = function(params){
+        var deferred = $q.defer();
+        Data.Counsels.getCounsel(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
 
 
 

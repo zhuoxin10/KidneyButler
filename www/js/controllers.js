@@ -1,7 +1,50 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','Health', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,Health) {
   $scope.barwidth="width:0%";
+  //-------------测试test()----------------
+
+  $scope.test = function(){
+    console.log("test for restful");
+       Health.createHealth({
+        userId:'U201704010003',
+        type:1,
+        time:'2014/02/22 11:03:37',
+        url:'c:/wf/img.jpg',
+        label:'b',
+        description:'wf',
+        comments:''
+      })
+    .then(
+      function(data)
+      {
+        console.log('data');
+        console.log(data);
+      },
+      function(err)
+      {
+        console.log('err');
+        console.log(err);
+      }
+    )
+
+  }
+
+
+
+
+
+
+
+
+
+  //------------测试结束----------------------
+
+
+
+
+
+
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
 
@@ -283,6 +326,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         ];
       //$scope.User.KidneyDisease={t:{Name:"肾移植",Type:1}};//默认选项
 
+      $scope.DiseaseDetails = {};
+      $scope.DiseaseDetails =
+      [
+        {Name:"稳定",Type:1},
+        {Name:"控制不佳",Type:2},
+      ]
+
 
 $scope.showProgress = function(){
   //console.log($scope.User.KidneyDisease.t.Type);
@@ -339,7 +389,7 @@ var initUserDetail = function(){
     BloodType:{Name:"A型",Type:1},
     Hypertension:{Name:"是",Type:1},
     KidneyDisease:{t:{Name:"肾移植",Type:1}},
-    DiseaseDetail:"",
+    DiseaseDetail:{t:{Name:"稳定",Type:1}},
     OperationDate:"",
     Height:"",
     Weight:"",
@@ -584,7 +634,7 @@ initUserDetail();
 .controller('GoToMessageCtrl', ['$scope','$timeout','$state', function($scope, $timeout,$state) {
 
   $scope.GoToMessage = function(){
-    $state.go('messages');//message还没写，在app.js还没定义
+    $state.go('messages');
   }
   
 }])
@@ -842,7 +892,7 @@ initUserDetail();
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -858,12 +908,9 @@ initUserDetail();
     {Name:"用药",Type:3},
     {Name:"病历",Type:4},
   ];
-  //判断是修改还是新增,参数传不进去
-  console.log($stateParams.id);
+  //判断是修改还是新增
   if($stateParams.id!=null && $stateParams!=""){
     //修改
-    console.log("健康详情");
-    console.log($stateParams.id);
     var info = HealthInfo.search($stateParams.id);
     $scope.health={
       label:info.type,
@@ -882,11 +929,41 @@ initUserDetail();
     }
   }
 
+  
+
+  $scope.HealthInfoSetup = function(information){
+    if(information.date!=""&&information.text!=""){
+        if($stateParams.id==null||$stateParams==""){
+            HealthInfo.new(information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+
+        }
+        else{
+            HealthInfo.edit($stateParams.id,information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+        }
+    }
+    else{
+        $ionicLoading.show({
+            template:'信息填写不完整',
+            duration:1000
+        });
+    }
+
+}
+
 
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
   var weekDaysList=["日","一","二","三","四","五","六"];
-  // --------出生日期----------------
   var datePickerCallback = function (val) {
     if (typeof(val) === 'undefined') {
       console.log('No date selected');
@@ -923,6 +1000,10 @@ initUserDetail();
       datePickerCallback(val);
     }
   };  
+//--------------
+
+
+
 
   
 }])
@@ -956,9 +1037,8 @@ initUserDetail();
   }
 
   $scope.getMessageDetail = function(type){
-    if(type == 2){
-      $state.go('messagesDetail');
-    }
+    $state.go('messagesDetail',{messageType:type});
+    
 
   }
   //查询余额等等。。。。。
@@ -1013,77 +1093,75 @@ initUserDetail();
 
 
 //消息类型--PXY
-.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory','$stateParams',function($scope, $state,$ionicHistory,$stateParams) {
   $scope.barwidth="width:0%";
+  switch($stateParams.messageType){
+    case 1:
+    $scope.title = '支付消息';
+    $scope.messages = [
+    {
+        img:"img/pay.PNG",
+        time:"2017/04/01",
+        response:"恭喜你！成功充值50元，交易账号为0093842345."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/03/02",
+        response:"咨询支出20元，账户余额为28元，交易账号为0045252623."
+    }];
+    break;
+    case 2:
+    $scope.title = '任务消息';
+    $scope.messages =[
+  
+    {
+        img:"img/bloodpressure.PNG",
+        time:"2017/03/21",
+        response:"今天还没有测量血压，请及时完成！"
+
+    },
+    {
+        img:"img/exercise.PNG",
+        time:"2017/03/11",
+        response:"今天建议运动半小时，建议以散步或慢跑的形式！"
+
+    }];
+    break;
+    case 3:
+    $scope.title = '警报消息';
+    $scope.messages =[
+  
+    {
+        img:"img/alert.PNG",
+        time:"2017/03/11",
+        response:"你的血压值已超出控制范围！"
+
+    },
+    {
+        img:"img/alert.PNG",
+        time:"2017/03/07",
+        response:"你的血压值已超出控制范围！"
+
+    }];
+    break;
+
+  }
 
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-  $scope.messages =[
-  
-  {
-    img:"img/bloodpressure.PNG",
-    time:"2017/03/21",
-    response:"今天还没有测量血压，请及时完成！"
 
-  },
-  {
-    img:"img/exercise.PNG",
-    time:"2017/03/11",
-    response:"今天建议运动半小时，建议以散步或慢跑的形式！"
-
-  }]
+ 
 
   
 }])
   
-//我的医生--PXY
-.controller('myDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+
+
+
+//医生列表--PXY
+.controller('DoctorCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo',function($scope, $state,$ionicHistory,DoctorsInfo) {
   $scope.barwidth="width:0%";
-
-
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
-
-  $scope.allDoctors = function(){
-    $state.go('tab.AllDoctors');
-  }
-
-  
-}])
-
-
-//所有医生--PXY
-.controller('allDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
-  $scope.barwidth="width:0%";
-  console.log("test")
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
@@ -1156,41 +1234,36 @@ initUserDetail();
     Type:0
   };
 
+  $scope.allDoctors = function(){
+    $state.go('tab.AllDoctors');
+  }
 
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
+
+
+  $scope.getDoctorDetail = function(ID){
+    $state.go('tab.DoctorDetail',{doctorId:ID});
+
+  }
+
+  $scope.doctors = DoctorsInfo.getalldoc();
+  $scope.mydoctors = DoctorsInfo.getalldoc();
 
 
   $scope.consult = function(){
     $state.go("tab.consultquestion1")
   }
+
+
+}])
+
+
+.controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','$stateParams',function($scope, $state,$ionicHistory,DoctorsInfo,$stateParams) {
+     $scope.Goback = function(){
+    $ionicHistory.goBack();
+  }
+    var doc = DoctorsInfo.searchdoc($stateParams.doctorId);
+    $scope.doctor = doc;
+
 }])
 
 
