@@ -1,8 +1,8 @@
 <!-- 任务视图中的列表-tab -->
 <ion-view view-title='任务'>
-<ion-nav-buttons side="primary">
-        <a class="button icon-left ion-android-settings button-clear" href="#/task/taskSet"></a> <!--进入设置页面-->
-    </ion-nav-buttons>
+<!-- <ion-nav-buttons side="primary">
+        <a class="button icon-left ion-android-settings button-clear" href="#/task/taskSet"></a> 
+    </ion-nav-buttons> -->
     
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
     <ion-content class="padding">
@@ -41,12 +41,12 @@
                     <p>{{item.Discription}}</p>                    
                 </a>              
             </a>
-            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
+            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);" ng-click = "ShowHide()">
                 主治医生排班                       
             </a>
             
         </div>
-        <table style="border: solid 1px rgba(82, 83, 84, 0.3);width:100%;cellpadding:20;">
+        <table style="border: solid 1px rgba(82, 83, 84, 0.3);width:100%;cellpadding:20;" ng-if = "ShowTblFlag">
         	<tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
         		<th colspan="2"></th>
         		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>

@@ -750,13 +750,20 @@ initUserDetail();
   //填写记录时页面跳转
    $scope.ToDetailPage=function(name)
    {
-     $state.go('task.r',{t:name + 'userId|taskId'});
+     $state.go('task.r',{t:name});
    }
-
+ 
+  //医生排班显示与隐藏
+  $scope.ShowTblFlag = false;
+  $scope.ShowHide = function ()
+  {
+     $scope.ShowTblFlag = !$scope.ShowTblFlag;
+     console.log($scope.ShowTblFlag);
+  }
 }])
 
 //任务设置--GL
-.controller('TaskSetCtrl', ['$scope', '$state',function($scope, $state) {
+.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', function($scope, $state, $ionicHistory) {
   
   $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
   $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
@@ -785,9 +792,44 @@ initUserDetail();
   {
     // $scope.Test = 20170401;
     // SetFirTaskTime($scope.Test);
-    $state.go('tab.tasklist');
+    //$state.go('tab.tasklist');
+    $ionicHistory.goBack();
   }
-  
+
+  $scope.Goback = function(){
+    $ionicHistory.goBack();
+  }
+  $scope.measureTask = [{"Name":"体温",
+                         "Frequency":"1次/1天", 
+                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                         "Unit":"摄氏度",
+                         "Flag":false},
+                        {"Name":"体重",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"kg",
+                        "Flag":false},
+                        {"Name":"血压",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"mmHg",
+                        "Flag":false},
+                        {"Name":"尿量",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"ml",
+                        "Flag":false},
+                        {"Name":"心率",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"次/分",
+                        "Flag":false}
+                        ];
+  $scope.fillTask = [{"Name":"血管通路情况",
+                        "Frequency":"1周/1次", 
+                        "Discription":"填写上周透析时内瘘／深静脉导管使用情况",
+                        "Unit":"",
+                        "Flag":false}];
   //选定星期或号数后，默认为离当前日期最近的日期
   function SetFirTaskTime (CurrentTime)
   {
@@ -871,8 +913,9 @@ initUserDetail();
     $state.go('tab.myHealthInfo');
   }
   $scope.GoManagement = function(){
-    $state.go('tab.task');
+    $state.go('tab.taskSet');
   }
+
   $scope.GoMoney = function(){
     $state.go('tab.myMoney');
   }
