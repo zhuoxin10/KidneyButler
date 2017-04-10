@@ -147,7 +147,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //手机正则表达式验证
      if(!phoneReg.test(Verify.Phone)){$scope.logStatus="手机号验证失败！";return;}
      //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
-      var usernames = Storage.get('usernames').split(",");
+      //var usernames = Storage.get('usernames').split(",");
       if(Storage.get('setPasswordState')=='register'){
         if(usernames.indexOf(Verify.Phone)>=0){
           $scope.logStatus = "该手机号码已经注册！";

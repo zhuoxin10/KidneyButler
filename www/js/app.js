@@ -110,7 +110,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('setpassword', {
       cache:false,
       url: '/setpassword',
-      templateUrl: 'partials/login/setPassword.html',
+      templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
     .state('userdetail',{
