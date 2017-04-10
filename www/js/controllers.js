@@ -44,7 +44,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-  Storage.set('USERNAME',"18600001564")
+  Storage.set('usernames',"18600001564")
   Storage.set('passwords',"123")
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
@@ -1176,6 +1176,27 @@ initUserDetail();
     time:"2017/03/01",
     response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
+  },
+  {
+    img:"img/doctor3.PNG",
+    name:"李四",
+    time:"2017/02/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor4.PNG",
+    name:"董星",
+    time:"2017/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor5.PNG",
+    name:"赵冰低",
+    time:"2016/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
   }
   
 
@@ -1691,7 +1712,7 @@ initUserDetail();
     $state.go("tab.consult-chat")
   }
   //查询余额等等。。。。。
-  $scope.messages =[
+ $scope.messages =[
   {
     img:"img/pay.PNG",
     name:"支付消息",
@@ -1731,10 +1752,33 @@ initUserDetail();
     time:"2017/03/01",
     response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
+  },
+  {
+    img:"img/doctor3.PNG",
+    name:"李四",
+    time:"2017/02/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor4.PNG",
+    name:"董星",
+    time:"2017/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor5.PNG",
+    name:"赵冰低",
+    time:"2016/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
   }
   
 
   ]
+    
+
     
 
   
@@ -1756,7 +1800,42 @@ initUserDetail();
     {
         img:"img/moneyout.PNG",
         time:"2017/03/02",
-        response:"咨询支出20元，账户余额为28元，交易账号为0045252623."
+        response:"咨询支出20元，账户余额为10元，交易账号为0045252623."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/02/12",
+        response:"咨询支出20元，账户余额为30元，交易账号为004525212."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2017/02/02",
+        response:"恭喜你！成功充值50元，交易账号为0093840202."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/02/02",
+        response:"咨询支出10元，账户余额为0元，交易账号为0045250202."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/01/02",
+        response:"咨询支出10元，账户余额为10元，交易账号为0045250102."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/03/02",
+        response:"恭喜你！成功充值20元，交易账号为0093842356."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/01/02",
+        response:"恭喜你！成功充值20元，交易账号为009320163425."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/01/01",
+        response:"恭喜你！成功充值20元，交易账号为00325262423"
     }];
     break;
     case 2:
@@ -1774,24 +1853,103 @@ initUserDetail();
         time:"2017/03/11",
         response:"今天建议运动半小时，建议以散步或慢跑的形式！"
 
-    }];
+    },
+    {
+        img:"img/heartRoute.PNG",
+        time:"2017/02/10",
+        response:"今天还没有测量血管通路，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2017/01/11",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2017/01/01",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/urine.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录尿量，请及时完成！"
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录体温，请及时完成！"
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录体重，请及时完成！"
+    }
+
+    ];
     break;
     case 3:
     $scope.title = '警报消息';
     $scope.messages =[
   
     {
-        img:"img/alert.PNG",
+        img:"img/bloodpressure.PNG",
         time:"2017/03/11",
         response:"你的血压值已超出控制范围！"
 
     },
     {
-        img:"img/alert.PNG",
+        img:"img/bloodpressure.PNG",
         time:"2017/03/07",
         response:"你的血压值已超出控制范围！"
 
-    }];
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2017/02/07",
+        response:"你的体重值已超出控制范围！"
+
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2017/01/07",
+        response:"你的体温值已超出控制范围！"
+
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2016/11/07",
+        response:"你的体温值已超出控制范围！"
+
+    },
+    {
+        img:"img/exercise.PNG",
+        time:"2016/10/07",
+        response:"你已经超过一周没进行运动！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2016/05/07",
+        response:"你的心率不太正常，建议及时就医！"
+
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2016/02/07",
+        response:"你的体重值已超出控制范围！"
+
+    }
+
+    ];
     break;
 
   }
@@ -1802,6 +1960,7 @@ initUserDetail();
 
   
 }])
+  
   
 
 
@@ -1889,7 +2048,7 @@ initUserDetail();
   $scope.getDoctorDetail = function(ele, id) {
         if (ele.target.innerText == '咨询') $state.go("tab.consultquestion1");
         else if (ele.target.innerText == '问诊') $state.go("tab.consultquestion1");
-        else $state.go('tab.DoctorDetail',{doctorId:"doc01"});
+        else $state.go('tab.DoctorDetail',{doctorId:id});
   }
 
 
