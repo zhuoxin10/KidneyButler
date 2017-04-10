@@ -640,19 +640,21 @@ initUserDetail();
 }])
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal) {
   $scope.barwidth="width:0%";
   
   $scope.measureTask = [{"Name":"体温",
                          "Frequency":"1次/1天", 
                          "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
                          "Unit":"摄氏度",
-                         "Flag":false},
+                         "Flag":true,
+                         "Value":37.5},
                         {"Name":"体重",
                         "Frequency":"1次/1天", 
                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
                         "Unit":"kg",
-                        "Flag":false},
+                        "Flag":true,
+                        "Value":54},
                         {"Name":"血压",
                         "Frequency":"2次/1天", 
                         "Discription":"每天晨起或睡前安静状态下测量血压2次",
@@ -667,8 +669,25 @@ initUserDetail();
                         "Frequency":"2次/1天", 
                         "Discription":"每天晨起或睡前安静状态下测量血压2次",
                         "Unit":"次/分",
+                        "Flag":false},
+                        {"Name":"腹透方案",
+                        "Frequency":"3-4次/1天", 
+                        "Discription":"医生设定腹透方案",
+                        "Unit":"次/分",
+                        "Flag":false},
+                        {"Name":"超滤量",
+                        "Frequency":"1次/1天", 
+                        "Discription":"",
+                        "Unit":"次/分",
+                        "Flag":false},
+                        {"Name":"有无浮肿",
+                        "Frequency":"1次/1天", 
+                        "Discription":"",
+                        "Unit":"次/分",
                         "Flag":false}
                         ];
+  //只用选择是或否                      
+  $scope.SimpleTask = [{"Name":"引流是否通畅", "Frequency":"1次/1天", "Falg":false},{"Name":"腹透液是否澄清", "Frequency":"1次/1天", "Flag":true}];
   //console.log($scope.category);
   //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
   $scope.fillTask = [{"Name":"血管通路情况",
@@ -692,12 +711,14 @@ initUserDetail();
   $scope.Docweek = ["周一","周二","周三","周四","周五","周六","周日"];
   $scope.TblColor1 = ["gray", "green", "gray" ,"gray", "green", "green", "gray"];
   $scope.TblColor2 = ["gray", "green", "green" ,"green", "gray", "gray", "gray"];
+
+  
   //自定义弹窗
   $scope.measureResult = [{"Name":"","Value":""}];
   $scope.showPopup = function(name) {
            $scope.data = {}
     var myPopup = $ionicPopup.show({
-       template: '<input type="text" ng-model="data.value">',
+       template: '<input type="text" ng-model="data.value">',     
        title: '请填写'+ name,
        scope: $scope,
        buttons: [
@@ -735,6 +756,8 @@ initUserDetail();
       }  
     });
   };
+
+
 
   //任务完成后设定下次任务执行时间,CurrentTime为整数
   function SetNextTime(CurrentTime, Freq)
@@ -802,14 +825,24 @@ initUserDetail();
    {
      $state.go('task.r',{t:name});
    }
- 
-  //医生排班显示与隐藏
-  $scope.ShowTblFlag = false;
-  $scope.ShowHide = function ()
-  {
-     $scope.ShowTblFlag = !$scope.ShowTblFlag;
-     console.log($scope.ShowTblFlag);
-  }
+ //弹窗：医生排班表
+  $ionicModal.fromTemplateUrl('templates/modal.html', {
+      scope: $scope,
+      animation: 'slide-in-up'
+     }).then(function(modal) {
+      $scope.modal = modal;
+    });
+     $scope.openModal = function() {
+     $scope.modal.show();
+   };
+   $scope.closeModal = function() {
+     $scope.modal.hide();
+   };
+   //清除
+   $scope.$on('$destroy', function() {
+     $scope.modal.remove();
+   });  
+
 }])
 
 //任务设置--GL
@@ -821,7 +854,10 @@ initUserDetail();
   
   $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
                {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
+  $scope.HemoTask = {category:"血透排班",Freq:"1周2次"};
+  $scope.HemoFreq = ["1周2次", "1周3次"];
 
+  $scope.SimpleWeek = ["周一","周二","周三","周四","周五","周六","周日"];
   for (i = 0;i<$scope.tasks.length;i++)
   {
     if ($scope.tasks[i].Freq.substr(1,1) == "周")
