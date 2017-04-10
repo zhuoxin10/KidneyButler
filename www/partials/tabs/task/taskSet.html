@@ -1,8 +1,23 @@
 <ion-view cache-view="false" view-title="任务设置">
-    <ion-nav-buttons side="primary">
-        <a class="button button-icon icon ion-ios-arrow-left" href="#/tab/tasklist"></a>
-    </ion-nav-buttons>
+    <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+      </ion-nav-buttons>     
+    </ion-nav-bar>
     <ion-content class="padding">
+        <p>测量</p>
+        <div class="list">           
+            <a class="item item-icon-right" ng-repeat="item in measureTask">
+                {{item.Name}}                            
+                <p>{{item.Frequency}}</p>
+                <p>{{item.Discription}}</p>               
+            </a>
+            <a class="item item-icon-right" ng-repeat="item in fillTask">
+                {{item.Name}}                     
+                <p>{{item.Frequency}}</p>
+                <p>{{item.Discription}}</p>               
+            </a>                                                        
+        </div>
         <p>请选择任务执行时间</p>
         <div class="list">
             <a class="item item-icon-right" ng-repeat = "item in tasks">
