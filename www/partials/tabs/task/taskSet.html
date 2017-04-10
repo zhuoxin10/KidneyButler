@@ -30,7 +30,8 @@
                         <option ng-repeat="day in item.Days">{{day}}</option>
                     </select>                   
                 </i>
-            </a>   
+            </a> 
+            
             <a class="item item-icon-right">
                 特殊评估
                 <p>一年1-2次</p>
@@ -40,7 +41,42 @@
                         <option ng-repeat="item in specialMonth">{{item}}</option>
                     </select>                   
                 </i>
-            </a>          
+            </a>   
+            <a class="item item-icon-right">
+                {{HemoTask.category}}               
+                <i class="icon ion-android-calendar">
+                    <select ng-model="HemoTask.Freq">
+                        <option ng-repeat="item in HemoFreq">{{item}}</option>
+                    </select>                   
+                </i>
+            </a>
+            <a class="item">
+                <table style="border: solid 1px rgba(82, 83, 84, 0.3);width:100%;cellpadding:20;">                   
+                    <tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
+                        <td></td><td ng-repeat="item in SimpleWeek">{{item}}</td>
+                    </tr>
+                    <tr style="border: solid 1px rgba(82, 83, 84, 0.3); height:30px;">
+                        <td>上午</td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgb(71, 184, 6)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                    </tr>
+                    <tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
+                        <td>下午</td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgb(71, 184, 6)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                        <td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+                    </tr>                   
+                </table>
+            </a>            
         </div>
         <!-- <p>当前日期：{{Test}}</p>
         <p ng-repeat = "item in tasks">{{item.TaskTime}}</p> -->
