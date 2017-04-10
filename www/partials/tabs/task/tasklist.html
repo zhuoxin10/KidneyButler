@@ -1,10 +1,85 @@
 <!-- 任务视图中的列表-tab -->
 <ion-view view-title='任务'>
+<!-- <ion-nav-buttons side="primary">
+        <a class="button icon-left ion-android-settings button-clear" href="#/task/taskSet"></a> 
+    </ion-nav-buttons> -->
     
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-    <ion-content padding="true" style="">
-
-
-
-    </ion-content>    
+    <ion-content class="padding">
+        <div class="list">
+            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
+                测量
+                <a class="item item-icon-right" ng-repeat="item in measureTask">
+                    {{item.Name}} 
+                    <p>{{item.Value}}<span ng-if = "item.Flag">{{item.Unit}}</span></p>               
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup('{{item.Name}}')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                </a>
+                <a class="item item-icon-right" ng-repeat="item in fillTask">
+                    {{item.Name}}                     
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "ToDetailPage('{{item.Name}}')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                </a>
+            </a>
+            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
+                复诊
+                <a class="item item-icon-right" ng-repeat="item in RevisitTask">
+                    {{item.Name}}                                
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>                    
+                </a>              
+            </a>
+            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
+                化验
+                <a class="item item-icon-right" ng-repeat="item in TestTask">
+                    {{item.Name}}                                
+                    <p>{{item.Frequency}}</p>
+                    <p>{{item.Discription}}</p>                    
+                </a>              
+            </a>
+            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);" ng-click = "ShowHide()">
+                主治医生排班                       
+            </a>
+            
+        </div>
+        <table style="border: solid 1px rgba(82, 83, 84, 0.3);width:100%;cellpadding:20;" ng-if = "ShowTblFlag">
+        	<tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
+        		<th colspan="2"></th>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td>正常</td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td>停诊</td>
+        		<th colspan="2"></th>
+        	</tr>
+        	<tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
+        		<td></td><td ng-repeat="item in Docweek">{{item}}</td>
+        	</tr>
+        	<tr style="border: solid 1px rgba(82, 83, 84, 0.3); height:30px;">
+        		<td>上午</td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        	</tr>
+        	<tr style="border: solid 1px rgba(82, 83, 84, 0.3);height:30px;">
+        		<td>下午</td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(76, 175, 80, 0.39)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        		<td style="background-color:rgba(128, 128, 128, 0.27)"></td>
+        	</tr>        	 		
+		</table>
+        <!-- <button ng-click="Test()">测试</button>
+        <h>{{TestTime}}</h> -->
+    </ion-content> 
 </ion-view>

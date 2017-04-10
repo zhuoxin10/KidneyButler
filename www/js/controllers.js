@@ -219,7 +219,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           //把新用户和密码写入
           var usernames = Storage.get('usernames');
           var passwords = Storage.get('passwords');
-          if(usernames == ""){
+          if(usernames == "" || usernames == null){
             usernames = new Array();
             passwords = new Array();            
           }else{
@@ -231,7 +231,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.set('usernames',usernames);
           Storage.set('passwords',passwords);
           $scope.logStatus ="注册成功！";
-          $timeout(function(){$state.go('userdetail');} , 500);
+          $timeout(function(){$state.go('userdetail');} , 100);
         }
         else if(setPasswordState == 'reset'){
           //如果是重置密码
@@ -246,7 +246,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           passwords[index] = setPassword.newPass;
          
           Storage.set('passwords',passwords);
-          $timeout(function(){$state.go('signin');} , 500);
+          $timeout(function(){$state.go('signin');} , 100);
           
         }
       }else{
@@ -639,15 +639,314 @@ initUserDetail();
   
 }])
 
-//任务列表
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+//任务列表--GL
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup) {
   $scope.barwidth="width:0%";
   
-  
+  $scope.measureTask = [{"Name":"体温",
+                         "Frequency":"1次/1天", 
+                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                         "Unit":"摄氏度",
+                         "Flag":false},
+                        {"Name":"体重",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"kg",
+                        "Flag":false},
+                        {"Name":"血压",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"mmHg",
+                        "Flag":false},
+                        {"Name":"尿量",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"ml",
+                        "Flag":false},
+                        {"Name":"心率",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"次/分",
+                        "Flag":false}
+                        ];
+  //console.log($scope.category);
+  //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
+  $scope.fillTask = [{"Name":"血管通路情况",
+                        "Frequency":"1周/1次", 
+                        "Discription":"填写上周透析时内瘘／深静脉导管使用情况",
+                        "Unit":"",
+                        "Flag":false}];
+  $scope.RevisitTask = [{"Name":"复诊",
+                        "Frequency":"1周/1次", 
+                        "Discription":"",
+                        "Unit":"",
+                        "Flag":false}];
+
+  $scope.TestTask = [{"Name":"化验",
+                        "Frequency":"1周/1次", 
+                        "Discription":"血常规、血生化、尿常规、尿生化、移植肾彩超、血药浓度",
+                        "Unit":"",
+                        "Flag":false}];
+                        
+  //医生排班表
+  $scope.Docweek = ["周一","周二","周三","周四","周五","周六","周日"];
+  $scope.TblColor1 = ["gray", "green", "gray" ,"gray", "green", "green", "gray"];
+  $scope.TblColor2 = ["gray", "green", "green" ,"green", "gray", "gray", "gray"];
+  //自定义弹窗
+  $scope.measureResult = [{"Name":"","Value":""}];
+  $scope.showPopup = function(name) {
+           $scope.data = {}
+    var myPopup = $ionicPopup.show({
+       template: '<input type="text" ng-model="data.value">',
+       title: '请填写'+ name,
+       scope: $scope,
+       buttons: [
+         { text: '取消' },
+         {
+           text: '<b>保存</b>',
+           type: 'button-positive',
+           onTap: function(e) {
+             if (!$scope.data.value) {
+               // 不允许用户关闭，除非输入内容
+               e.preventDefault();
+             } else {
+              return $scope.data.value;
+             }  
+             }    
+         },
+       ]
+     });
+     myPopup.then(function(res) {
+      if(res)
+      {
+        //填写测量任务后标志位更新
+        $scope.measureResult.Name = name;
+        $scope.measureResult.Value = res;
+        console.log(res.value);
+        for (i = 0; i<$scope.measureTask.length; i++)
+        {
+          if ($scope.measureTask[i].Name == name)
+          {
+              $scope.measureTask[i].Flag = true;      
+              $scope.measureTask[i].Value = res;  
+          }          
+        }
+        console.log($scope.measureTask); 
+      }  
+    });
+  };
+
+  //任务完成后设定下次任务执行时间,CurrentTime为整数
+  function SetNextTime(CurrentTime, Freq)
+  {
+      var NextTime = 0;
+      //假定频率格式为2周/1次
+      var FreqUnit = Freq.substr(1,1);
+      var FreqNum = Freq.substr(0,1);
+      if (FreqUnit == "周")
+      {
+          NextTime = DateCalc("week", CurrentTime, parseInt(FreqNum)*7);
+      }
+      else if(FreqUnit == "月")
+      {
+          NextTime = DateCalc("month", CurrentTime, parseInt(FreqNum));
+      }
+      console.log(NextTime);
+      return NextTime;
+  }
+
+  //日期延后计算
+  function DateCalc(Type, CurrentTime, Addition)
+  {
+    var CuTimeStr = CurrentTime.toString();
+    var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);
+    var Date1 = new Date(CurrentTime);
+    var Date2;
+    if(Type == "week") //周
+    {
+        Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+    }
+    else //月
+    {
+        Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
+    }
+    var Ret = DateToInt(Date2);
+    return Ret;
+  }
+
+ //测试函数
+ $scope.Test=function()
+ {
+  $scope.TestTime = SetNextTime(20170331, "2月/次");
+ }
+
+ //日期转换为整数
+ function DateToInt(Date1)
+ {
+    var Year = Date1.getFullYear().toString();
+    var Month = (Date1.getMonth() + 1).toString();
+    var Day = Date1.getDate().toString();
+    if (Date1.getMonth() < 10)
+    {
+        Month = "0" + Month;
+    }
+    if(Date1.getDate() < 9)
+    {
+       Day = "0" + Day;
+    }
+    return parseInt(Year + Month + Day);
+ }
+
+  //填写记录时页面跳转
+   $scope.ToDetailPage=function(name)
+   {
+     $state.go('task.r',{t:name});
+   }
+ 
+  //医生排班显示与隐藏
+  $scope.ShowTblFlag = false;
+  $scope.ShowHide = function ()
+  {
+     $scope.ShowTblFlag = !$scope.ShowTblFlag;
+     console.log($scope.ShowTblFlag);
+  }
 }])
 
+//任务设置--GL
+.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', function($scope, $state, $ionicHistory) {
+  
+  $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+  $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
+  $scope.specialMonth = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+  
+  $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
+               {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
 
+  for (i = 0;i<$scope.tasks.length;i++)
+  {
+    if ($scope.tasks[i].Freq.substr(1,1) == "周")
+    {
+      $scope.tasks[i].Days = $scope.weekDays;
+      $scope.tasks[i].Type = "week"; 
+      $scope.tasks[i].SelectedDay = "星期一"; //默认时间
+    }
+    else if($scope.tasks[i].Freq.substr(1,1) == "月")
+    {
+      $scope.tasks[i].Days = $scope.monthDays;
+      $scope.tasks[i].Type = "month"; 
+      $scope.tasks[i].SelectedDay = "1日";//默认时间
+    }
+  }
+  console.log($scope.tasks);
+  $scope.SetDate = function()
+  {
+    // $scope.Test = 20170401;
+    // SetFirTaskTime($scope.Test);
+    //$state.go('tab.tasklist');
+    $ionicHistory.goBack();
+  }
 
+  $scope.Goback = function(){
+    $ionicHistory.goBack();
+  }
+  $scope.measureTask = [{"Name":"体温",
+                         "Frequency":"1次/1天", 
+                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                         "Unit":"摄氏度",
+                         "Flag":false},
+                        {"Name":"体重",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"kg",
+                        "Flag":false},
+                        {"Name":"血压",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"mmHg",
+                        "Flag":false},
+                        {"Name":"尿量",
+                        "Frequency":"1次/1天", 
+                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
+                        "Unit":"ml",
+                        "Flag":false},
+                        {"Name":"心率",
+                        "Frequency":"2次/1天", 
+                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
+                        "Unit":"次/分",
+                        "Flag":false}
+                        ];
+  $scope.fillTask = [{"Name":"血管通路情况",
+                        "Frequency":"1周/1次", 
+                        "Discription":"填写上周透析时内瘘／深静脉导管使用情况",
+                        "Unit":"",
+                        "Flag":false}];
+  //选定星期或号数后，默认为离当前日期最近的日期
+  function SetFirTaskTime (CurrentTime)
+  {
+      var CuTimeStr = CurrentTime.toString();
+      var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);    
+
+      var CurrentDate = new Date(CurrentTime);
+      var WeekDay = CurrentDate.getDay(); //0-6 星期日为0
+      var Day = CurrentDate.getDate(); //1-31
+      for (i = 0;i < $scope.tasks.length; i++)
+      {
+          var Temp;
+          var SelectedDay = $scope.tasks[i].Days.indexOf($scope.tasks[i].SelectedDay);
+          var Date1 = new Date(CurrentTime); //日期为引用类型
+          if($scope.tasks[i].Type == "week")
+          {
+             var Date2;
+             if( SelectedDay >= WeekDay) //所选日期未过，选择本星期
+             {
+                Date2 = new Date(Date1.setDate(Day + SelectedDay - WeekDay));
+             }
+             else //下个星期
+             {
+                Date2 = new Date(Date1.setDate(Day + SelectedDay + 7 - WeekDay))
+             }
+             Temp = Date2;
+          }
+          else if($scope.tasks[i].Type == "month")
+          {
+            var Date3 = new Date(Date1.setDate(SelectedDay + 1));
+             if (SelectedDay + 1 < Day) //所选日期已过，选择下月
+             {
+                Date3 = new Date(Date3.setMonth(Date3.getMonth() + 1));
+             }
+             Temp = Date3;
+          }
+      $scope.tasks[i].TaskTime =  DateToInt(Temp);
+      }
+  }
+
+ //日期转换为整数
+  function DateToInt(Date1)
+   {
+      var Year = Date1.getFullYear().toString();
+      var Month = (Date1.getMonth() + 1).toString();
+      var Day = Date1.getDate().toString();
+      if (Date1.getMonth() < 10)
+      {
+          Month = "0" + Month;
+      }
+      if(Date1.getDate() < 9)
+      {
+         Day = "0" + Day;
+      }
+      return parseInt(Year + Month + Day);
+   }
+}])
+
+//任务执行填写--GL
+.controller('TaskFillCtrl', ['$scope', '$state', '$stateParams', function($scope, $state, $stateParams) {
+    $scope.Title = $stateParams.t;
+    $scope.FillOk = function()
+    {
+      //console.log("确定填写");
+      $state.go('tab.tasklist');
+    }
+  }])
 
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera) {
@@ -664,8 +963,9 @@ initUserDetail();
     $state.go('tab.myHealthInfo');
   }
   $scope.GoManagement = function(){
-    $state.go('tab.task');
+    $state.go('tab.taskSet');
   }
+
   $scope.GoMoney = function(){
     $state.go('tab.myMoney');
   }
@@ -840,6 +1140,307 @@ initUserDetail();
 
 
   
+}])
+//聊天 XJZ 
+.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http) {
+    $scope.input = {
+        text: ''
+    }
+    $scope.params = {
+        msgCount: 0,
+        helpDivHeight: 30,
+        hidePanel: true,
+        moreMsgs:true
+    }
+    $scope.msgs = [];
+    $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
+    //render msgs 
+    $scope.$on('$ionicView.beforeEnter', function() {
+        $state.params.chatId='13709553333';
+        if($state.params.type=='0') $scope.params.hidePanel=false;
+        // if (window.JMessage) {
+        //     window.JMessage.enterSingleConversation($state.params.chatId, "");
+        //     getMsg(30);
+        // }
+        getMsg(30);
+    });
+    $scope.$on('$ionicView.enter', function() {
+        $rootScope.conversation.type = 'single';
+        $rootScope.conversation.id = $state.params.chatId;
+    })
+    // function msgsRender(first,last){
+    //     while(first!=last){
+    //         $scope.msgs[first+1].diff=($scope.msgs[first+1].createTimeInMillis-$scope.msgs[first].createTimeInMillis)>300000?true:false;
+    //         first++;
+    //     }
+    // }
+    function getMsg(num){
+      if (!window.JMessage){
+        function msgsRender(first,last){
+                $scope.msgs[first].diff=true;
+                while(first!=last){
+                    $scope.msgs[first+1].diff=($scope.msgs[first+1].createTimeInMillis-$scope.msgs[first].createTimeInMillis)>300000?true:false;
+                    first++;
+                }
+            }
+            $http.get("data/sampleMsgs.json").success(function(data) {
+                $scope.msgs = data;
+                // $scope.$apply(function(){
+                    msgsRender(0,data.length-1);
+                // });
+                // 
+
+            });
+            return;
+      }
+
+
+        window.JMessage.getHistoryMessages("single",$state.params.chatId,"",$scope.params.msgCount,num,
+            function(response){
+                // console.log(response);
+                $scope.$broadcast('scroll.refreshComplete');
+                if(!response) $scope.params.moreMsgs=false;
+                else{
+                    var res=JSON.parse(response);
+                console.log(res);
+                    $scope.$apply(function(){
+                        if($scope.msgs[0]) $scope.msgs[0].diff=($scope.msgs[0].createTimeInMillis-res[0].createTimeInMillis)>300000?true:false;
+                        for(var i=0;i<res.length-1;++i){
+                            res[i].diff=(res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                            $scope.msgs.unshift(res[i]);
+                        }
+                        $scope.msgs.unshift(res[i]);
+                        $scope.msgs[0].diff=true;
+                        // msgsRender(0,i-1);
+                    });
+                    // console.log($scope.msgs);
+                    setTimeout(function(){
+                        $scope.scrollHandle.scrollBottom(true);
+                    },100);
+                    // $ionicScrollDelegate.scrollBottom();
+                    $scope.params.msgCount+=res.length;
+                }
+                
+            },
+            function(err){
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+    }
+
+    function viewUpdate(length,scroll){
+        if($scope.params.msgCount==0) getMsg(1);
+        var num = $scope.params.msgCount<length?$scope.params.msgCount:length;
+        if(num==0) return;
+         window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,num,
+            function(response){
+
+                var res=JSON.parse(response);
+                $scope.$apply(function(){
+                    for(var i=res.length-1,j=$scope.params.msgCount-res.length;i>=0;){
+                        if(j==$scope.params.msgCount){
+                            $scope.params.msgCount+=i+1;
+                        while(i>-1){
+                            res[i].diff= (res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                            $scope.msgs.push(res[i]);
+                            i--;
+                        }
+                            // for(var k=0;k<i)
+                            // $scope.msgs=$scope.msgs.concat(res.slice(0,i+1));
+                            // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
+                            // break;
+                        }else if($scope.msgs[j]['_id']==res[i]['_id']){
+                            $scope.msgs[j].status=res[i].status;
+                            ++j;--i;
+                        }else{
+                             ++j;
+                        }
+
+                    }   
+                });
+                // if(scroll){
+                    setTimeout(function(){
+                        $scope.scrollHandle.scrollBottom();
+                    },100);
+                // }
+            },function(){
+
+            });
+    }
+    //receiving new massage
+    $scope.$on('receiveMessage', function(event, msg) {
+        if (msg.targetType == 'single' && msg.fromName == $state.params.chatId) {
+            viewUpdate(5);
+        }
+    });
+
+    $scope.DisplayMore = function() {
+        getMsg(30);
+    }
+    $scope.scrollBottom = function() {
+        $scope.scrollHandle.scrollBottom(true);
+    }
+
+
+    //view image
+    $scope.zoomMin = 1;
+    $scope.imageUrl = '';
+    $scope.sound = {};
+    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.modal = modal;
+        // $scope.modal.show();
+        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+    });
+
+    function onImageLoad(path) {
+        $scope.$apply(function() {
+            $scope.imageUrl = path;
+        })
+
+    }
+
+    function onImageLoadFail(err) {
+
+    }
+    $scope.$on('image', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.imageUrl = args[2];
+        $scope.modal.show();
+        if (args[1] == 'img') {
+            window.JMessage.getOriginImageInSingleConversation($state.params.chatId, args[3], onImageLoad, onImageLoadFail);
+        } else {
+            // getImage(url,onImageLoad,onImageLoadFail)
+            $scope.imageUrl = args[3];
+        }
+    })
+    $scope.closeModal = function() {
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.modal.hide();
+        // $scope.modal.remove()
+    };
+    $scope.switchZoomLevel = function() {
+        if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin)
+            $scope.imageHandle.zoomTo(1, true);
+        else {
+            $scope.imageHandle.zoomTo(5, true);
+        }
+    }
+    $scope.$on('voice', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.sound = new Media(args[1],
+            function() {
+                // resolve(audio.media)
+            },
+            function(err) {
+                console.log(err);
+                // reject(err);
+            })
+        $scope.sound.play();
+    })
+    $scope.$on('profile', function(event, args) {
+            console.log(args)
+            event.stopPropagation();
+        })
+
+    //病例Panel
+    $scope.togglePanel = function() {
+        $scope.params.hidePanel = !$scope.params.hidePanel;
+    }
+    $scope.content = {
+        pics: [
+            'img/avatar.png',
+            'img/max.png',
+            'img/mike.png'
+        ]
+    }
+    $scope.viewPic = function(url) {
+            $scope.imageUrl = url;
+            $scope.modal.show();
+        }
+    // send message--------------------------------------------------------------------------------
+        //
+    function onSendSuccess(res) {
+        viewUpdate(10);
+    }
+
+    function onSendErr(err) {
+        console.log(err);
+        alert('[send msg]:err');
+        viewUpdate(20);
+    }
+    $scope.submitMsg = function() {
+            window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, '', onSendSuccess, onSendErr);
+            $scope.input.text = '';
+            viewUpdate(5, true);
+            // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
+            
+        }
+        //get image
+    $scope.getImage = function(type) {
+            Camera.getPicture(type)
+                .then(function(url) {
+                    console.log(url);
+
+                    window.JMessage.sendSingleImageMessage($state.params.chatId, url, '', onSendSuccess, onSendErr);
+                    viewUpdate(5, true);
+                    // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
+
+                }, function(err) {
+                    console.log(err)
+                })
+        }
+        //get voice
+    $scope.getVoice = function(){
+        //voice.record() do 2 things: record --- file manipulation 
+        voice.record()
+        .then(function(fileUrl){
+            window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,'',
+            function(res){
+                console.log(res);
+                viewUpdate(5,true);
+            },function(err){
+                console.log(err);
+            });
+            viewUpdate(5,true);
+        },function(err){
+            console.log(err);
+        });
+
+    }
+    $scope.stopAndSend = function() {
+        voice.stopRec();
+    }
+
+    $scope.goChats = function() {
+        $ionicHistory.nextViewOptions({
+            disableBack: true
+        });
+        // if($state.params.type=="1") $state.go('tab.doing');
+        $state.go('tab.myDoctors');
+    }
+
+
+    $scope.$on('keyboardshow', function(event, height) {
+        $scope.params.helpDivHeight = height + 30;
+        setTimeout(function() {
+            $scope.scrollHandle.scrollBottom();
+        }, 100);
+
+    })
+    $scope.$on('keyboardhide', function(event) {
+        $scope.params.helpDivHeight = 30;
+        // $ionicScrollDelegate.scrollBottom();
+    })
+    $scope.$on('$ionicView.leave', function() {
+        $scope.modal.remove();
+        $rootScope.conversation.type = null;
+        $rootScope.conversation.id = '';
+        if(window.JMessage) window.JMessage.exitConversation();
+    })
 }])
 
 
@@ -1151,7 +1752,6 @@ initUserDetail();
     $ionicHistory.goBack();
   }
 
- 
 
   
 }])
@@ -1248,8 +1848,13 @@ initUserDetail();
   $scope.doctors = DoctorsInfo.getalldoc();
   $scope.mydoctors = DoctorsInfo.getalldoc();
 
+  $scope.question = function(){
+    console.log("问诊");
+    $state.go("tab.consultquestion1")
+  }
 
   $scope.consult = function(){
+     console.log("咨询");
     $state.go("tab.consultquestion1")
   }
 
@@ -1574,6 +2179,9 @@ initUserDetail();
 }])
 //咨询问卷--TDY
 .controller('consultquestionCtrl', ['$scope', '$state', function ($scope, $state) {
+  $scope.showProgress = true
+  $scope.showSurgicalTime = true
+
   $scope.Genders =
   [
     {Name:"男",Type:1},
@@ -1826,214 +2434,20 @@ initUserDetail();
     $state.go("tab.consultquestion2")
   } 
 }])
-//任务管理--GL
-.controller('TaskCtrl', ['$scope', '$ionicPopup', function($scope, $ionicPopup) {
-  $scope.measureTask = [{"Name":"体温",
-                         "Frequency":"1次/1天", 
-                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                         "Unit":"摄氏度",
-                         "Flag":false},
-                        {"Name":"体重",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"kg",
-                        "Flag":false}];
-  //console.log($scope.category);
-  //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
-
-  //自定义弹窗
-  $scope.measureResult = [{"Name":"","Value":""}];
-  $scope.showPopup = function(name) {
-           $scope.data = {}
-    var myPopup = $ionicPopup.show({
-       template: '<input type="text" ng-model="data.value">',
-       title: '请填写'+ name,
-       scope: $scope,
-       buttons: [
-         { text: '取消' },
-         {
-           text: '<b>保存</b>',
-           type: 'button-positive',
-           onTap: function(e) {
-             if (!$scope.data.value) {
-               // 不允许用户关闭，除非输入内容
-               e.preventDefault();
-             } else {
-              return $scope.data.value;
-             }  
-             }    
-         },
-       ]
-     });
-     myPopup.then(function(res) {
-      if(res)
-      {
-        //填写测量任务后标志位更新
-        $scope.measureResult.Name = name;
-        $scope.measureResult.Value = res;
-        console.log(res.value);
-        for (i = 0; i<$scope.measureTask.length; i++)
-        {
-          if ($scope.measureTask[i].Name == name)
-          {
-              $scope.measureTask[i].Flag = true;      
-              $scope.measureTask[i].Value = res;  
-          }          
-        }
-        console.log($scope.measureTask); 
-      }  
-    });
-  };
-
-  //任务完成后设定下次任务执行时间,CurrentTime为整数
-  function SetNextTime(CurrentTime, Freq)
-  {
-      var NextTime = 0;
-      //假定频率格式为2周/1次
-      var FreqUnit = Freq.substr(1,1);
-      var FreqNum = Freq.substr(0,1);
-      if (FreqUnit == "周")
-      {
-          NextTime = DateCalc("week", CurrentTime, parseInt(FreqNum)*7);
-      }
-      else if(FreqUnit == "月")
-      {
-          NextTime = DateCalc("month", CurrentTime, parseInt(FreqNum));
-      }
-      console.log(NextTime);
-      return NextTime;
-  }
-
-  //日期延后计算
-  function DateCalc(Type, CurrentTime, Addition)
-  {
-    var CuTimeStr = CurrentTime.toString();
-    var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);
-    var Date1 = new Date(CurrentTime);
-    var Date2;
-    if(Type == "week") //周
-    {
-        Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
-    }
-    else //月
-    {
-        Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
-    }
-    var Ret = DateToInt(Date2);
-    return Ret;
-  }
-
- //测试函数
- $scope.Test=function()
- {
-  $scope.TestTime = SetNextTime(20170331, "2月/次");
- }
-
- //日期转换为整数
- function DateToInt(Date1)
- {
-    var Year = Date1.getFullYear().toString();
-    var Month = (Date1.getMonth() + 1).toString();
-    var Day = Date1.getDate().toString();
-    if (Date1.getMonth() < 10)
-    {
-        Month = "0" + Month;
-    }
-    if(Date1.getDate() < 9)
-    {
-       Day = "0" + Day;
-    }
-    return parseInt(Year + Month + Day);
- }
 
 
-}])
+//论坛
+.controller('forumCtrl', ['$scope', '$state', '$sce','$http',function ($scope, $state,$sce,$http) {
+  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
 
-//任务设置--GL
-.controller('TaskSetCtrl', ['$scope', '$state',function($scope, $state) {
-  
-  $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-  $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
-  
-  $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
-               {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
-
-  for (i = 0;i<$scope.tasks.length;i++)
-  {
-    if ($scope.tasks[i].Freq.substr(1,1) == "周")
-    {
-      $scope.tasks[i].Days = $scope.weekDays;
-      $scope.tasks[i].Type = "week"; 
-      $scope.tasks[i].SelectedDay = "星期一"; //默认时间
-    }
-    else if($scope.tasks[i].Freq.substr(1,1) == "月")
-    {
-      $scope.tasks[i].Days = $scope.monthDays;
-      $scope.tasks[i].Type = "month"; 
-      $scope.tasks[i].SelectedDay = "1日";//默认时间
-    }
-  }
-  console.log($scope.tasks);
-  $scope.SetDate = function()
-  {
-    $scope.Test = 20170401;
-    SetFirTaskTime($scope.Test);
-  }
-  
-  //选定星期或号数后，默认为离当前日期最近的日期
-  function SetFirTaskTime (CurrentTime)
-  {
-      var CuTimeStr = CurrentTime.toString();
-      var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);    
-
-      var CurrentDate = new Date(CurrentTime);
-      var WeekDay = CurrentDate.getDay(); //0-6 星期日为0
-      var Day = CurrentDate.getDate(); //1-31
-      for (i = 0;i < $scope.tasks.length; i++)
-      {
-          var Temp;
-          var SelectedDay = $scope.tasks[i].Days.indexOf($scope.tasks[i].SelectedDay);
-          var Date1 = new Date(CurrentTime); //日期为引用类型
-          if($scope.tasks[i].Type == "week")
-          {
-             var Date2;
-             if( SelectedDay >= WeekDay) //所选日期未过，选择本星期
-             {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay - WeekDay));
-             }
-             else //下个星期
-             {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay + 7 - WeekDay))
-             }
-             Temp = Date2;
-          }
-          else if($scope.tasks[i].Type == "month")
-          {
-            var Date3 = new Date(Date1.setDate(SelectedDay + 1));
-             if (SelectedDay + 1 < Day) //所选日期已过，选择下月
-             {
-                Date3 = new Date(Date3.setMonth(Date3.getMonth() + 1));
-             }
-             Temp = Date3;
-          }
-      $scope.tasks[i].TaskTime =  DateToInt(Temp);
-      }
-  }
-
- //日期转换为整数
-function DateToInt(Date1)
- {
-    var Year = Date1.getFullYear().toString();
-    var Month = (Date1.getMonth() + 1).toString();
-    var Day = Date1.getDate().toString();
-    if (Date1.getMonth() < 10)
-    {
-        Month = "0" + Month;
-    }
-    if(Date1.getDate() < 9)
-    {
-       Day = "0" + Day;
-    }
-    return parseInt(Year + Month + Day);
- }
+  ionic.DomUtil.ready(function(){
+        $http({
+            method  : 'POST',
+            url     : 'http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
+            params    : {'username':'admin','password':'bme319'},  // pass in data as strings
+            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+            }).success(function(data) {
+                //console.log(data);
+        });
+    })
 }])
