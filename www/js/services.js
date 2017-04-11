@@ -646,6 +646,34 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var serve={};
     var abort = $q.defer();
 
+    var Dict = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'dict'},{
+            getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
+            getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
+            getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000}
+        });
+    };
+
+    var Task1 = function(){
+        return $resource(CONFIG.baseUrl + ':path',{path:'tasks'},{
+            getTask:{method:'GET', params:{}, timeout: 100000}
+        });
+    };
+
+    var Task2 = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
+            changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
+            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000}
+        });
+    };
+
+    var Compliance = function(){
+        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{
+            postcompliance:{method:'POST', params:{}, timeout: 100000},
+            getcompliance:{method:'GET', params:{}, timeout: 100000}
+        });
+    };
+
     var Counsels = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
             getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
