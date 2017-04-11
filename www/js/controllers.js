@@ -697,7 +697,7 @@ initUserDetail();
               $scope.measureTask[i].Value = res;  
           }          
         }
-        console.log($scope.measureTask); 
+        //console.log($scope.measureTask); 
       }  
     });
   };
@@ -916,6 +916,14 @@ initUserDetail();
          Day = "0" + Day;
       }
       return parseInt(Year + Month + Day);
+   }
+
+   //编辑按钮
+   //$scope.EditFlag = false;
+   $scope.EnableEdit = function ()
+   {
+      $('select').attr("disabled", false);
+      //console.log($scope.EditFlag);
    }
 }])
 
