@@ -2155,7 +2155,7 @@ initUserDetail();
 }])
 
 //肾病保险主页面--TDY
-.controller('insuranceCtrl', ['$scope', '$state', function ($scope, $state) {
+.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory',function ($scope, $state,$ionicHistory) {
   var show = false;
 
   $scope.isShown = function() {
@@ -2195,7 +2195,7 @@ initUserDetail();
   }
 
   $scope.Back = function(){
-    $state.go("tab.tasklist")
+    $ionicHistory.goBack()
   }
 }])
 
