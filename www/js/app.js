@@ -261,7 +261,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         url: '/mine/ConsultRecord',
         views: {
           'tab-mine': {
-            templateUrl: 'partials/tabs/mine/ConsultRecord.html',
+            templateUrl: 'partials/tabs/mine/consultRecord.html',
             controller: 'ConsultRecordCtrl'
           }
 
