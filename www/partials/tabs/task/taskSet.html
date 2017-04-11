@@ -18,7 +18,8 @@
                 <p>{{item.Discription}}</p>               
             </a>                                                        
         </div>
-        <p>请选择任务执行时间</p>
+        <button ng-click = "EnableEdit()">编辑</button>
+       <!--  <p>请选择任务执行时间</p> -->
         <div class="list">
             <a class="item item-icon-right" ng-repeat = "item in tasks">
                 {{item.category}}
@@ -26,7 +27,7 @@
                 <p>{{item.Content}}</p>
                 <p>{{item.Detail}}</p>
                 <i class="icon ion-android-calendar">
-                    <select ng-model="item.SelectedDay">
+                    <select ng-model="item.SelectedDay" disabled="true">
                         <option ng-repeat="day in item.Days">{{day}}</option>
                     </select>                   
                 </i>
@@ -37,7 +38,7 @@
                 <p>一年1-2次</p>
                 <p>心电图，胸片，腹部泌尿系超声</p>             
                 <i class="icon ion-android-calendar">
-                    <select selected="1月">
+                    <select selected="1月" disabled="true">
                         <option ng-repeat="item in specialMonth">{{item}}</option>
                     </select>                   
                 </i>
@@ -45,7 +46,7 @@
             <a class="item item-icon-right">
                 {{HemoTask.category}}               
                 <i class="icon ion-android-calendar">
-                    <select ng-model="HemoTask.Freq">
+                    <select ng-model="HemoTask.Freq" disabled="true">
                         <option ng-repeat="item in HemoFreq">{{item}}</option>
                     </select>                   
                 </i>
