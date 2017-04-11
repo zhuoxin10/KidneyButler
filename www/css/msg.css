@@ -254,6 +254,26 @@
         border-width:1px 0px 0px 0px;
         /*margin: 3px 0px 2px 0px;*/
     }
+    .media-endl {
+        /*float: center;*/
+        position: relative;
+        /*display: table;*/
+        /*box-shadow:  inset 0px -1.5px 0px #d7d7d7;*/
+        /*vertical-align: middle;*/
+        text-align: center;
+        width: 100%;
+        /*min-height: 3em;*/
+        /*margin: 0px 0.7em;*/
+        /*border-width: 0px;*/
+        color:#448AFF;
+        font-size:0.9em;
+        /*-webkit-border-radius: 0.3em;*/
+        /*-moz-border-radius: 0.3em;*/
+        /*border-radius: 0.3em;*/
+        /*max-width: 70%;*/
+        /*word-break: normal;*/
+        /*word-wrap: break-word;*/
+    }
 /*image viewer ----------------------------------------------------------------------------*/    
     .image-modal {
         width: 100% !important;
