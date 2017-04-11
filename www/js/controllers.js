@@ -1678,7 +1678,7 @@ initUserDetail();
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
   //查询余额等等。。。。。
 
