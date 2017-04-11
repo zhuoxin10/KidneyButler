@@ -27,13 +27,7 @@
                  <a class="item item-icon-right" ng-repeat="item in SimpleTask">
                     {{item.Name}}   
                     <p>{{item.Frequency}}</p>                                     
-                    <i ng-if = "!item.Flag" class="icon">
-                        <select>
-                          <option>请选择</option>
- +                        <option>是</option>
-                          <option>否</option>
- +                      </select> 
-                    </i>
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px"  ng-click = "showPopupSelect('{{item.Name}}')"></i>     
                     <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
                 </a>
             </a>
