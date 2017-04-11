@@ -2,18 +2,20 @@
     <!-- display time -->
     <!-- <my-time></my-time> -->
     <div ng-if="msg.diff" class="msg-time"><span>{{msg.createTimeInMillis | msgdate}}</span></div>
-    <div class="media-card">
-        <div class="title">dfashf</div>
+    <div class="media-card" on-hold="emitEvent('holdmsg',msg._id,$event)" ng-click="emitEvent('viewcard',msg.content.contentStringMap.consultId,$event)">
+        <div class="title">患者使用在线咨询服务</div>
         <hr/>
         <div class="info">
-            <p><span>fsdfaf：</span>fddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</p>
-            <p><span>adfdsfasf</span> dffdf</p>
+            <p><span>疾病：</span>植骨</p>
+            <p><span>病情描述：</span> 何医生，您好，今天下午你帮我做了植骨手术，左下5,6，术后我觉得吞咽很痛，想请问一下，吞咽动作会不会拉伤伤口，谢谢</p>
+            <p><span>想获得的帮助：</span>请医生给我一些治疗上的建议</p>
+            <p><span>所就诊医院科室：</span>浙江省口腔医院，种植科</p>
         </div>
         <hr/>
-        <div class="img-info">图片</div>
-        <img ng-repeat="url in picurl" ng-src="{{url.src}}" ng-click="emitEvent('image','',url.src,url.hiRes)" />
+        <div class="img-info">资料照片（3）</div>
+        <img ng-repeat="url in picurl" hiRes="{{url.hiRes}}" ng-src="{{url.src}}"/>
+        <!-- <img ng-repeat="url in picurl" ng-src="{{url.src}}" ng-click="emitEvent('image','',url.src,url.hiRes)" /> -->
     </div>
-	<!-- <div my-small-spin="msg.status" class="status"></div> -->
+    <!-- <div my-small-spin="msg.status" class="status"></div> -->
     <div ng-if="msg.status=='send_fail'" class="msg-fail"><span><i class="icon ion-android-warning"></i>发送失败</span></div>
 </div>
-
