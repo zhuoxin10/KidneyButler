@@ -701,7 +701,30 @@ initUserDetail();
       }  
     });
   };
-
+//弹框内容为下拉框
+$scope.showPopupSelect = function(name) {
+           $scope.data = {}
+    var myPopup = $ionicPopup.show({
+       template: '<select>'
+                +'<option >请选择</option>'
+                +'<option >是</option>'
+                +'<option >否</option>'
+                +'</select>',     
+       title: name,
+       scope: $scope,
+       buttons: [
+         { text: '取消' },
+         {
+           text: '<b>保存</b>',
+           type: 'button-positive',
+           onTap: function(e) {            
+             }    
+         },
+       ]
+     });
+     myPopup.then(function(res) {
+    });
+  };
 
 
   //任务完成后设定下次任务执行时间,CurrentTime为整数
