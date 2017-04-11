@@ -5,12 +5,18 @@
 
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
   <ion-content padding="true" style="">
+    <div>
+         <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="allDoctors()">
+            更多医生
+        </button>
 
+    </div>
+    
     <ion-list>
       <ion-item ng-repeat="doctor in mydoctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.id)">
         <img ng-src="{{doctor.img}}">
         <span>{{doctor.name}}</span>
-        <span style="margin-left: 120px">{{doctor.department}}</span>
+        <span style="margin-left: 100px">{{doctor.department}}</span>
         <p>{{doctor.workUnit}}{{doctor.title}}</p>
         <p style="font-size: 12px">擅长：{{doctor.major}}</p>
         <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
@@ -28,12 +34,7 @@
       </ion-item>
     </ion-list>
 
-    <div>
-      <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="allDoctors()">
-            更多医生
-      </button>
-
-    </div>
+    
       
 
 

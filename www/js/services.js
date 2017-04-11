@@ -609,6 +609,27 @@ angular.module('kidney.services', ['ionic','ngResource'])
       time:"2017/01/04",
       description:"阿司匹林"
     },
+     {
+      id:3,
+      img:"img/healthInfo.jpg",
+      type:{Name:"病历",Type:4},
+      time:"2016/03/04",
+      description:"晕厥入院，在医院住了3天，双侧颈动脉无异常搏动，双侧颈静脉怒张，肝颈静脉回流征阳性，气管居中，甲状腺不肿大，未触及结节无压痛、震颤，上下均为闻及血管杂音。胸廓对称，桶状胸，乳房对称，无压痛及乳头分泌物，为触及包块。肋间隙增宽。"
+    },
+    {
+      id:4,
+      img:"img/healthInfo.jpg",
+      type:{Name:"化验",Type:3},
+      time:"2016/01/04",
+      description:"尿检"
+    },
+    {
+      id:5,
+      img:"img/healthInfo.jpg",
+      type:{Name:"检查",Type:1},
+      time:"2016/01/01",
+      description:"超声等检查我们不认其他医院的结果，几乎都要重做，因为这些结果的质量非常依赖于操作者的经验（operator-dependent），并且也取决于你做这个检查的目的——你希望找什么，才找得到什么，如果两次做目标不同，结果也可能不一样。国外喜欢把超声的图像刻成光盘拷贝给患者，以便以后再分析，可能也有拿到其他医院方便的意思。国内一般纸质报告，那上面的图是没法再分析的。"
+    }
   ]);
   self.getall = function(){
     var records = new Array();
@@ -821,6 +842,51 @@ angular.module('kidney.services', ['ionic','ngResource'])
       count1:35,
       count2:127
     },
+    {
+      id:"doc003",
+      img:"img/doctor3.PNG",
+      name:"李四",
+      department:"肾内科",
+      title:"副主任医师",
+      workUnit:"徐汇区中心医院",
+      major:"慢性肾病一体化治疗，尤其是肾移植",
+      description:"男，教授、副主任医师、硕士生导师，参与的研究课题获国家科技进步一等奖一项。浙江省科技进步一等奖三项。国内外专业刊物发表论文数篇。擅长急慢性肾功能衰竭的透析治疗以及临床肾移植。在肾移植手术及术后管理，排斥早期诊断及治疗方面有相当丰富的临床经验。",
+      charge1:20,
+      charge2:180,
+      score:"9.2",
+      count1:23,
+      count2:267
+    },
+    {
+      id:"doc004",
+      img:"img/doctor4.PNG",
+      name:"董星",
+      department:"血透室",
+      title:"主任医师",
+      workUnit:"上海第一人民医院东院",
+      major:"慢性肾炎、肾病综合症、紫癜性肾炎、狼疮性肾炎",
+      description:"女，主任医师、硕士生导师。获浙江省卫生科技创新奖三等奖 1项，在国内外杂志上公开发表论文10余篇，SCI收录论文1篇。",
+      charge1:30,
+      charge2:220,
+      score:"9.4",
+      count1:25,
+      count2:263
+    },
+    {
+      id:"doc005",
+      img:"img/doctor5.PNG",
+      name:"赵冰低",
+      department:"血液净化中心",
+      title:"副主任医师",
+      workUnit:"浙江大学医学院附属第二医院",
+      major:"免疫性肾病",
+      description:"男，副主任医师，擅长肾脏疑难疾病的综合诊治，尤其擅长免疫性肾病（系统性红斑狼疮肾炎、系统性血管炎、过敏性紫癜肾炎等）的诊治。主持或主参国家自然科学基金4项，参与课题获省科技进步一等奖１项，在国内外杂志上公开发表论文26篇，以第一作者发表SCI收录论文5篇。",
+      charge1:20,
+      charge2:200,
+      score:"8.9",
+      count1:16,
+      count2:78
+    }
   ]);
   
   self.getalldoc = function(){
