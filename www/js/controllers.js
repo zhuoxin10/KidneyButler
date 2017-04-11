@@ -1162,7 +1162,7 @@ initUserDetail();
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
   //根据患者ID查询其咨询记录,对response的长度加一定限制
   $scope.items =[
@@ -1520,7 +1520,7 @@ initUserDetail();
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
 
   //console.log(HealthInfo.getall());
