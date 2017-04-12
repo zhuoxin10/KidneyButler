@@ -772,6 +772,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Patient = Patient();
             serve.Doctor = Doctor();
             serve.Health = Health();
+            serve.User = User();
             serve.Comment = Comment();
             serve.VitalSign = VitalSign();
             serve.Account = Account();
@@ -787,6 +788,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Patient = Patient();
     serve.Doctor = Doctor();
     serve.Health = Health();
+    serve.User = User();
     serve.Comment = Comment();
     serve.VitalSign = VitalSign();
     serve.Account = Account();

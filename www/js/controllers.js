@@ -1,51 +1,17 @@
-angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker'])//,'ngRoute'
+angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','Health', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,Health) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User) {
   $scope.barwidth="width:0%";
-  //-------------测试test()----------------
 
+
+  //-------------评论页面----------------
   $scope.test = function(){
-    console.log("test for restful");
-       Health.createHealth({
-        userId:'U201704010003',
-        type:1,
-        time:'2014/02/22 11:03:37',
-        url:'c:/wf/img.jpg',
-        label:'b',
-        description:'wf',
-        comments:''
-      })
-    .then(
-      function(data)
-      {
-        console.log('data');
-        console.log(data);
-      },
-      function(err)
-      {
-        console.log('err');
-        console.log(err);
-      }
-    )
+    $state.go('tab.consult-comment');
 
   }
-
-
-
-
-
-
-
-
-
   //------------测试结束----------------------
+  
 
-
-
-
-
-  Storage.set('usernames',"18600001564")
-  Storage.set('passwords',"123")
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
 
@@ -57,31 +23,46 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     if((logOn.username!="") && (logOn.password!="")){
     	var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
     	//手机正则表达式验证
-    	if(!phoneReg.test(logOn.username)){$scope.logStatus="手机号验证失败！";}
+    	if(!phoneReg.test(logOn.username)){
+            $scope.logStatus="手机号验证失败！";
+            return;
+        }
     	else{
-    		var usernames = Storage.get('usernames').split(",");
-    		var index = usernames.indexOf(logOn.username);
+            Storage.set('USERNAME',logOn.username);
+    		var logPromise = User.logIn({username:logOn.username,password:logOn.password,role:"patient"});
+            logPromise.then(function(data){
+                if(data.results==1){
+                    if(data.mesg== "User doesn't Exist!"){
+                        $scope.logStatus="账号不存在！";
+                        return;
+                    }
+                    else if(data.mesg== "User password isn't correct!"){
+                        $scope.logStatus = "账号或密码错误！";
+                        return;
+                    }
+                }
+                else if(data.results.mesg=="login success!"){
+                    $scope.logStatus = "登录成功！";
+                    $ionicHistory.clearCache();
+                    $ionicHistory.clearHistory();
+                    Storage.set('TOKEN',data.results.token);//token作用目前还不明确
+                    Storage.set('isSignIn',true);
+                    Storage.set('UID',data.results.userId);
+                    $timeout(function(){$state.go('tab.tasklist');},500);
 
-        //console.log(usernames);
-    		//console.log(index);
-    		if(index>=0){//查找手机号是否注册过，是否在数据库里
-    			//判断密码是否正确
-    			
-    			var passwords = Storage.get('passwords').split(",");
-    			if(logOn.password != passwords[index]){$scope.logStatus = "密码错误！";}
-    			else{
-    				Storage.set('USERNAME',logOn.username);
-    				Storage.set('IsSignIn','YES');
-    				$scope.logStatus = "登录成功";
-            Storage.set('setPasswordState','sign');
-    				$ionicHistory.clearCache();
-    				$ionicHistory.clearHistory();
-    				$timeout(function(){$state.go('tab.tasklist');},500);
-    				}
-    		}
-    		else{
-    			$scope.logStatus = "手机号未激活，请注册！"
-    		}
+                }
+
+            },function(err){
+                if(err.results==null && err.status==0){
+                    $scope.logStatus = "网络错误！";
+                    return;
+                }
+                if(err.status==404){
+                    $scope.logStatus = "连接服务器失败！";
+                    return;
+                }
+
+            });
     	}
     	
 
@@ -90,102 +71,141 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     	$scope.logStatus="请输入完整信息！";
     }
   }
+
+  
   $scope.toRegister = function(){
   	
-    $state.go('phonevalid');
-    Storage.set('setPasswordState','register');   
+    $state.go('phonevalid',{phonevalidType:'register'});
    
   }
   $scope.toReset = function(){
-    $state.go('phonevalid');
-    Storage.set('setPasswordState','reset');
-   
+    $state.go('phonevalid',{phonevalidType:'reset'});
   } 
   
 }])
 
 
 //手机号码验证--PXY
-.controller('phonevalidCtrl', ['$scope','$state','$interval', 'Storage',  function($scope, $state,$interval,Storage) {
+.controller('phonevalidCtrl', ['$scope','$state','$interval', '$stateParams','Storage','User','$timeout', function($scope, $state,$interval,$stateParams,Storage,User,$timeout) {
   $scope.barwidth="width:0%";
+
+  
   $scope.Verify={Phone:"",Code:""};
   $scope.veritext="获取验证码";
   $scope.isable=false;
   var unablebutton = function(){      
      //验证码BUTTON效果
-    $scope.isable=true;
-    $scope.veritext="180S再次发送"; 
-    var time = 179;
-    var timer;
-    timer = $interval(function(){
-      if(time==0){
-        $interval.cancel(timer);
-        timer=undefined;        
-        $scope.veritext="获取验证码";       
-        $scope.isable=false;
-      }else{
-        $scope.veritext=time+"S再次发送";
-        time--;
-      }
-    },1000);
+        $scope.isable=true;
+        $scope.veritext="180S再次发送"; 
+        var time = 179;
+        var timer;
+        timer = $interval(function(){
+            if(time==0){
+                $interval.cancel(timer);
+                timer=undefined;        
+                $scope.veritext="获取验证码";       
+                $scope.isable=false;
+            }else{
+                $scope.veritext=time+"S再次发送";
+                time--;
+            }
+        },1000);
   }
   //发送验证码
-  var sendSMS = function(){
-      //结果分为1、验证码发送失败;2、发送成功，获取稍后
-    $scope.logStatus="您的验证码已发送，重新获取请稍后";
-    unablebutton();
-  }
-  //点击获取验证码
-  $scope.getcode=function(Verify){
-     $scope.logStatus='';
-    
-     if (Verify.Phone=="") {
-      
-      $scope.logStatus="手机号码不能为空！";
-      return;
-    }
-     var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-      //手机正则表达式验证
-     if(!phoneReg.test(Verify.Phone)){$scope.logStatus="手机号验证失败！";return;}
-     //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
-      //var usernames = Storage.get('usernames').split(",");
-      if(Storage.get('setPasswordState')=='register'){
-        if(usernames.indexOf(Verify.Phone)>=0){
-          $scope.logStatus = "该手机号码已经注册！";
-        }
-        else{sendSMS();}
-      }
-      else if(Storage.get('setPasswordState')=='reset'){
-        if(usernames.indexOf(Verify.Phone)<0){
-          $scope.logStatus = "该手机号码尚未注册！";
-        }
-        else{sendSMS();}
-      }
-  }
+    var sendSMS = function(phone){
+        var SMS = User.sendSMS({mobile:phone,smsType:1});
+            SMS.then(function(data){
+                unablebutton();
+                if(data.mesg.substr(0,8)=="您的邀请码已发送"){
+                    $scope.logStatus = "您的验证码已发送，重新获取请稍后";
+                }else{
+                    $scope.logStatus ="验证码发送成功！";
+                }
+            },function(err){
+                if(err.results==null && err.status==0){
+                    $scope.logStatus ="连接超时!";
+                    return;
+                }
+                $scope.logStatus = "验证码发送失败！";
 
-  //判断验证码和手机号是否正确
-  $scope.gotoReset = function(Verify){
-    $scope.logStatus = '';
-    if(Verify.Phone!="" && Verify.Code!=""){
-      var tempVerify = 5566;
-      //结果分为三种：(手机号验证失败)1验证成功；2验证码错误；3连接超时，验证失败
-      var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-      //手机正则表达式验证
-      if(phoneReg.test(Verify.Phone)){ 
-        if (Verify.Code == tempVerify) {
-        logStatus = "验证成功！";
-        Storage.set('USERNAME',Verify.Phone);
-        $state.go('setpassword');
+            });
+    }
+
+    // console.log($stateParams.phonevalidType);
+
+
+
+
+    //点击获取验证码
+    $scope.getcode=function(Verify){
+        $scope.logStatus='';
+    
+        if (Verify.Phone=="") {
+            $scope.logStatus="手机号码不能为空！";
+            return;
         }
-        else{$scope.logStatus = "验证码错误！";}
-      }
-      else{$scope.logStatus="手机号验证失败！";}
+        var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+        //手机正则表达式验证
+        if(!phoneReg.test(Verify.Phone)){
+            $scope.logStatus="手机号验证失败！";
+            return;
+        }
+
+        //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
+        if($stateParams.phonevalidType=='register'){
+            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+                if(data.results == 0){
+                    $scope.logStatus = "该手机号码已经注册！";
+                }else if(data.results == 1){
+                    sendSMS(Verify.Phone);
+                }
+            },function(){
+                $scope.logStatus="连接超时！";
+            });
+        }
+        else if($stateParams.phonevalidType=='reset'){
+            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+                if(data.results == 1){
+                    $scope.logStatus = "该账户不存在！";
+                }else if(data.results == 0){
+                    sendSMS(Verify.Phone);
+                }
+            },function(){
+                $scope.logStatus="连接超时！";
+            });
+        }
+    }
+
+    //判断验证码和手机号是否正确
+    $scope.gotoReset = function(Verify){
+
+        $scope.logStatus = '';
+        if(Verify.Phone!="" && Verify.Code!=""){
+        //结果分为三种：(手机号验证失败)1验证成功；2验证码错误；3连接超时，验证失败
+            var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+            //手机正则表达式验证
+            if(phoneReg.test(Verify.Phone)){ 
+                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                verifyPromise.then(function(data){
+                    if(data.results==0){
+                        $scope.logStatus = "验证成功";
+                        Storage.set('USERNAME',Verify.Phone);
+                        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType,phoneNumber:Verify.Phone});},500);
+                    }else{
+                        $scope.logStatus = data.mesg;
+                        return;
+                    }
+                },function(){
+                    $scope.logStatus = "连接超时！";
+                })
+            }
+            else{$scope.logStatus="手机号验证失败！";}
       
      
     
         
-    }
-    else{$scope.logStatus = "请输入完整信息！";}
+        }
+        else{$scope.logStatus = "请输入完整信息！";}
   }
 
  
@@ -196,67 +216,70 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //设置密码  --PXY 
-.controller('setPasswordCtrl', ['$scope','$state','$rootScope' ,'$timeout' ,'Storage',function($scope,$state,$rootScope,$timeout,Storage) {
-  $scope.barwidth="width:0%";
-  var setPassState=Storage.get('setPasswordState');
-  if(setPassState=='reset'){
-    $scope.headerText="重置密码";
-    $scope.buttonText="确认修改";
-  }else{
-    $scope.headerText="设置密码";
-    $scope.buttonText="下一步";
-  }
-  $scope.setPassword={newPass:"" , confirm:""};
-  $scope.resetPassword=function(setPassword){
-    $scope.logStatus='';
-    if((setPassword.newPass!="") && (setPassword.confirm!="")){
-      if(setPassword.newPass == setPassword.confirm){
-        var username = Storage.get('USERNAME');
-        //如果是注册
-        if(setPassState=='register'){
-          //结果分为连接超时或者注册成功
-          $rootScope.password=setPassword.newPass;
-          
-          //把新用户和密码写入
-          var usernames = Storage.get('usernames');
-          var passwords = Storage.get('passwords');
-          if(usernames == "" || usernames == null){
-            usernames = new Array();
-            passwords = new Array();            
-          }else{
-            usernames = usernames.split(",");
-            passwords = passwords.split(",");}
-                    
-          usernames.push(username);          
-          passwords.push(setPassword.newPass);
-          Storage.set('usernames',usernames);
-          Storage.set('passwords',passwords);
-          $scope.logStatus ="注册成功！";
-          $timeout(function(){$state.go('userdetail');} , 100);
-        }
-        else if(setPasswordState == 'reset'){
-          //如果是重置密码
-
-          
-          //结果分为连接超时或者修改成功
-           $scope.logStatus ="重置密码成功！";
-          //把新用户和密码写入
-          var usernames = Storage.get('usernames').split(",");
-          var index = usernames.indexOf(username);
-          var passwords = Storage.get('passwords').split(",");
-          passwords[index] = setPassword.newPass;
-         
-          Storage.set('passwords',passwords);
-          $timeout(function(){$state.go('signin');} , 100);
-          
-        }
-      }else{
-        $scope.logStatus="两次输入的密码不一致";
-      }
-    }else{
-      $scope.logStatus="请输入两遍新密码"
+.controller('setPasswordCtrl', ['$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
+    $scope.barwidth="width:0%";
+    $scope.BackMain = function(){
+        $state.go('signin');
     }
-  }
+    var setPassState=$stateParams.phonevalidType;
+    if(setPassState=='reset'){
+        $scope.headerText="重置密码";
+        $scope.buttonText="确认修改";
+    }else{
+        $scope.headerText="设置密码";
+        $scope.buttonText="下一步";
+    }
+    $scope.setPassword={newPass:"" , confirm:""};
+
+
+    $scope.resetPassword=function(setPassword){
+        $scope.logStatus='';
+        if((setPassword.newPass!="") && (setPassword.confirm!="")){
+            if(setPassword.newPass == setPassword.confirm){
+                var phone = $stateParams.phoneNumber;
+                console.log(phone);
+                //如果是注册
+                if(setPassState=='register'){
+                    //结果分为连接超时或者注册成功
+                    $rootScope.password=setPassword.newPass;
+                    var codePromise = User.register({phoneNo:phone,password:setPassword.newPass,role:"patient"});
+                    codePromise.then(function(data){
+                        if(data.results==0){
+                            Storage.set('USERNAME',phone);
+                            $scope.logStatus ="注册成功！";
+                            $timeout(function(){$state.go('userdetail');} , 500);
+                        }else{
+                            $scope.logStatus = "该手机号码已经注册！";
+                        }
+                    },function(){
+                        $scope.logStatus = "连接超时！";
+                    })
+                }else if(setPassState == 'reset'){
+                //如果是重置密码
+                //结果分为连接超时或者修改成功
+                    var codePromise = User.changePassword({phoneNo:phone,password:setPassword.newPass});
+                    codePromise.then(function(data){
+                        if(data.results==0){
+                            Storage.set('USERNAME',phone);
+                            $scope.logStatus ="重置密码成功！";
+                            $timeout(function(){$state.go('signin');} , 500);
+                        }else{
+                            $scope.logStatus =  "该账户不存在！";
+                        }
+                        
+                    },function(){
+                        $scope.logStatus = "连接超时！";
+                    })
+                    
+          
+                }
+            }else{
+            $scope.logStatus="两次输入的密码不一致";
+            }
+        }else{
+            $scope.logStatus="请输入两遍新密码";
+        }
+    }
 }])
 
 
@@ -2697,4 +2720,99 @@ $scope.showPopupSelect = function(name) {
                 //console.log(data);
         });
     })
+}])
+
+
+
+
+//写评论
+.controller('SetCommentCtrl',['$scope', '$ionicHistory', '$ionicLoading','Storage','$state',
+   function($scope, $ionicHistory,$ionicLoading,Storage,$state) {
+
+      // //初始化
+      $scope.comment={score:5, commentContent:""};
+      
+
+      $scope.nvGoback = function() {
+        $ionicHistory.goBack();
+       }
+       
+       //评论星星初始化
+      $scope.ratingsObject = {
+        iconOn: 'ion-ios-star',
+        iconOff: 'ion-ios-star-outline',
+        iconOnColor: '#FFD700',//rgb(200, 200, 100)
+        iconOffColor: 'rgb(200, 100, 100)',
+        rating: 5, 
+        minRating: 1,
+        readOnly:false,
+        callback: function(rating) {
+          $scope.ratingsCallback(rating);
+        }
+      };
+
+      //评论星星点击改变分数
+      $scope.ratingsCallback = function(rating) {
+        $scope.comment.score = rating;
+      };
+
+      //上传评论-有效性验证
+      $scope.deliverComment = function() {
+        if($scope.comment.selectedModoule=='')
+        {
+          $ionicLoading.show({
+              template: '请选择评价的模块',
+              noBackdrop: false,
+              duration: 1000,
+              hideOnStateChange: true
+            });
+        }
+        else if($scope.comment.commentContent.length <10)
+        {
+            $ionicLoading.show({
+              template: '输入字数不足10字',
+              noBackdrop: false,
+              duration: 1000,
+              hideOnStateChange: true
+            });
+        }
+        
+        else
+        {
+          SetComment();
+        }
+      };
+
+      //上传评论-restful调用
+     var SetComment= function()
+     {
+
+        var sendData={
+          "DoctorId": Storage.get("HealthCoachID"),
+          "CategoryCode": $scope.comment.selectedModoule,
+          "Value": Storage.get("UID"),
+          "Description": $scope.comment.commentContent,
+          "SortNo": $scope.comment.score ,
+          "piUserId": "sample string 6",
+          "piTerminalName": "sample string 7",
+          "piTerminalIP": "sample string 8",
+          "piDeviceType": 9
+        }
+       var promise =  Users.SetComment(sendData); 
+       promise.then(function(data){ 
+          if(data.result=="数据插入成功"){
+            $ionicLoading.show({
+              template: "评论成功！",
+              noBackdrop: false,
+              duration: 500,
+              hideOnStateChange: true
+            });
+            setTimeout(function(){
+              $ionicHistory.goBack();
+            },600);
+          }
+         },function(err) {   
+       }); 
+     } 
+      
 }])
