@@ -110,7 +110,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('setpassword', {
       cache:false,
       url: '/setpassword',
-      templateUrl: 'partials/login/setPassword.html',
+      templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
     .state('userdetail',{
@@ -128,6 +128,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('messagesDetail',{
       cache:false,
       url:'/messagesDetail',
+      params:{messageType:null},
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
     })
@@ -179,7 +180,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/myDoctors.html',
-          controller: 'myDoctorsCtrl'
+          controller: 'DoctorCtrl'
         }
       }
     })
@@ -199,7 +200,18 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/allDoctors.html',
-          controller: 'allDoctorsCtrl'
+          controller: 'DoctorCtrl'
+        }
+      }
+    })
+    .state('tab.DoctorDetail', {
+      url: '/DoctorDetail',
+      params:{doctorId:null},
+      views: {
+        'tab-consult': {
+          cache:false,
+          templateUrl: 'partials/tabs/consult/DoctorDetail.html',
+          controller: 'DoctorDetailCtrl'
         }
       }
     })
@@ -249,7 +261,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         url: '/mine/ConsultRecord',
         views: {
           'tab-mine': {
-            templateUrl: 'partials/tabs/mine/ConsultRecord.html',
+            templateUrl: 'partials/tabs/mine/consultRecord.html',
             controller: 'ConsultRecordCtrl'
           }
 
@@ -269,6 +281,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.myHealthInfoDetail', {
         url: '/mine/HealthInfoDetail/',
+        params: {id:null},
         views: {
           'tab-mine': {
             templateUrl: 'partials/tabs/mine/editHealthInfo.html',

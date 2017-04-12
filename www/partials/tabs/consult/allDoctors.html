@@ -32,7 +32,7 @@
     
     <ion-list>
 
-      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail({{doctor.id}})">
+      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.id)">
         <img ng-src="{{doctor.img}}">
         <span>{{doctor.name}}</span>
         <span style="margin-left: 120px">{{doctor.department}}</span>
@@ -45,8 +45,8 @@
           <span style="margin-left: 10px">问诊量：{{doctor.count2}}</span>
         </p>
         <p style="color:#181544;text-align: right;font-weight:bold;">
-          <span ng-click="question({{doctor.id}})"><i class="icon ion-help-circled"></i>咨询</span>
-          <span style="margin-left: 40px" ng-click="consult({{doctor.id}})"><i class="icon ion-person-stalker"></i>问诊</span>
+          <span><i class="icon ion-help-circled"></i>咨询</span>
+          <span style="margin-left: 40px"><i class="icon ion-person-stalker"></i>问诊</span>
 
         </p>
 

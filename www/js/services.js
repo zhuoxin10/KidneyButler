@@ -1,55 +1,32 @@
-angular.module('kidney.services', ['ionic'])
-
+angular.module('kidney.services', ['ionic','ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
-  baseUrl: 'http://121.43.107.106:9000/Api/v1/',
-  wsServerIP : "ws://" + "121.43.107.106" + ":4141",
-  role: "Patient",
-  //revUserId: "",
-  //TerminalName: "",
-  //TerminalIP: "",
-  DeviceType: '1',
-  ImageAddressIP: "http://121.43.107.106:8089",
-  ImageAddressFile : "/PersonalPhoto",
-  // ImageAddress = ImageAddressIP + ImageAddressFile + "/" + DoctorId + ".jpg";
-  consReceiptUploadPath: 'cons/receiptUpload',
-  userResUploadPath: 'user/resUpload',
-
-  cameraOptions: {
-    cam: {
-        quality: 60,
-        destinationType: 1,
-        sourceType: 1,
-        allowEdit: true,
-        encodingType: 0,
-        targetWidth: 1000,
-        targetHeight: 1000,
-        popoverOptions: false,
-        saveToPhotoAlbum: false
-    },
-    gallery: {
-        quality: 60,
-        destinationType: 1,
-        sourceType: 0,
-        allowEdit: true,
-        encodingType: 0,
-        targetWidth: 1000,
-        targetHeight: 1000
+    appKey: 'cf32b94444c4eaacef86903e',
+    baseUrl: 'http://121.43.107.106:4050/',
+    cameraOptions: {
+        cam: {
+            quality: 60,
+            destinationType: 1,
+            sourceType: 1,
+            allowEdit: true,
+            encodingType: 0,
+            targetWidth: 1000,
+            targetHeight: 1000,
+            popoverOptions: false,
+            saveToPhotoAlbum: false
+        },
+        gallery: {
+            quality: 60,
+            destinationType: 1,
+            sourceType: 0,
+            allowEdit: true,
+            encodingType: 0,
+            targetWidth: 1000,
+            targetHeight: 1000
+        }
     }
-  },
-
-  uploadOptions: {
-    // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-    // fileName: '.jpg',  // 后缀名, 在具体controller中会加上文件名; 这里不能用fileName, 否则将CONFIG.uploadOptions赋值给任何变量(引用赋值)后, 如果对该变量的同名属性fileName的修改都会修改CONFIG.uploadOptions.fileName
-    fileExt: '.jpg',  // 后缀名, 在具体controller中会加上文件名
-    httpMethod: 'POST',  // 'PUT'
-    mimeType: 'image/jpg',  // 'image/png'
-    //params: {_id: $stateParams.consId},
-    // chunkedMode: true,
-    //headers: {Authorization: 'Bearer ' + Storage.get('token')}
-  }
-  })
+})
 
 // 本地存储函数
 .factory('Storage', ['$window', function ($window) {
@@ -202,6 +179,7 @@ angular.module('kidney.services', ['ionic'])
     }
 
 }])
+
 //voice recorder XJZ
 .factory('voice', ['$filter', '$q', '$ionicLoading', '$cordovaFile', 'CONFIG', 'Storage', 'fs', function($filter, $q, $ionicLoading, $cordovaFile, CONFIG, Storage, fs) {
     //funtion audio(){};
@@ -437,6 +415,7 @@ angular.module('kidney.services', ['ionic'])
         } catch (exception) {
             console.log(exception);
         }
+
     }
 
     function onOpenNotification(event) {
@@ -587,25 +566,49 @@ angular.module('kidney.services', ['ionic'])
   }
 }])
 
-//缓存数据
+
+
+
+//--------健康信息的缓存数据--------
 .factory('HealthInfo', [function () {
   var self = this;
   var HealthTable= TAFFY([
-  {
-    id:1,
-    img:"img/healthInfo.jpg",
-    type:{Name:"检查",Type:1},
-    time:"2017/03/04",
-    description:"血常规检查"
-  },
-  {
-    id:2,
-    img:"img/healthInfo.jpg",
-    type:{Name:"用药",Type:3},
-    time:"2017/01/04",
-    description:"阿司匹林"
-  },
-]);
+    {
+      id:1,
+      img:"img/healthInfo.jpg",
+      type:{Name:"检查",Type:1},
+      time:"2017/03/04",
+      description:"血常规检查"
+    },
+    {
+      id:2,
+      img:"img/healthInfo.jpg",
+      type:{Name:"用药",Type:3},
+      time:"2017/01/04",
+      description:"阿司匹林"
+    },
+     {
+      id:3,
+      img:"img/healthInfo.jpg",
+      type:{Name:"病历",Type:4},
+      time:"2016/03/04",
+      description:"晕厥入院，在医院住了3天，双侧颈动脉无异常搏动，双侧颈静脉怒张，肝颈静脉回流征阳性，气管居中，甲状腺不肿大，未触及结节无压痛、震颤，上下均为闻及血管杂音。胸廓对称，桶状胸，乳房对称，无压痛及乳头分泌物，为触及包块。肋间隙增宽。"
+    },
+    {
+      id:4,
+      img:"img/healthInfo.jpg",
+      type:{Name:"化验",Type:3},
+      time:"2016/01/04",
+      description:"尿检"
+    },
+    {
+      id:5,
+      img:"img/healthInfo.jpg",
+      type:{Name:"检查",Type:1},
+      time:"2016/01/01",
+      description:"超声等检查我们不认其他医院的结果，几乎都要重做，因为这些结果的质量非常依赖于操作者的经验（operator-dependent），并且也取决于你做这个检查的目的——你希望找什么，才找得到什么，如果两次做目标不同，结果也可能不一样。国外喜欢把超声的图像刻成光盘拷贝给患者，以便以后再分析，可能也有拿到其他医院方便的意思。国内一般纸质报告，那上面的图是没法再分析的。"
+    }
+  ]);
   self.getall = function(){
     var records = new Array();
     HealthTable().each(function(r) {records.push(r)});
@@ -615,24 +618,1072 @@ angular.module('kidney.services', ['ionic'])
     HealthTable({id:removeId}).remove();
   }
   self.edit = function(editId,editInfo){
-    HealthTable({id:editId}).update({img:editInfo.img,type:editInfo.type,time:editInfo.time,description:editInfo.description});
+    HealthTable({id:editId}).update({img:editInfo.imgurl,type:editInfo.label,time:editInfo.date,description:editInfo.text});
   }
   self.new = function(newInfo){
     var last = HealthTable().last();
     var number = last.id++;
-    HealthTable.insert({id:number,img:newInfo.img,type:newInfo.type,time:newInfo.time,description:newInfo.description});
+    HealthTable.insert({id:number,img:newInfo.imgurl,type:newInfo.label,time:newInfo.date,description:newInfo.text});
   }
   self.search = function(searchId){
     var record = HealthTable({id:searchId}).first();
-    console.log(record);
     return record;
   }
   
   return self;
 }])
+//--------健康信息的缓存结束---------
 
 
 
+
+
+
+
+
+//数据模型
+.factory('Data',['$resource', '$q','$interval' ,'CONFIG' , function($resource,$q,$interval ,CONFIG){
+    var serve={};
+    var abort = $q.defer();
+
+    var Dict = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'dict'},{
+            getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
+            getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
+            getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000}
+        });
+    };
+
+    var Task1 = function(){
+        return $resource(CONFIG.baseUrl + ':path',{path:'tasks'},{
+            getTask:{method:'GET', params:{}, timeout: 100000}
+        });
+    };
+
+    var Task2 = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
+            changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
+            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000}
+        });
+    };
+
+    var Compliance = function(){
+        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{
+            postcompliance:{method:'POST', params:{}, timeout: 100000},
+            getcompliance:{method:'GET', params:{}, timeout: 100000}
+        });
+    };
+
+    var Counsels = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
+            getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
+            questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000}
+        });
+    };
+
+    var Patient =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'patient'},{
+            getPatientDetail:{method:'GET', params:{route: 'getPatientDetail'}, timeout: 100000},
+            getMyDoctors:{method:'GET',params:{route:'getMyDoctors'},timeout:10000},
+            getDoctorLists:{method:'GET',params:{route:'getDoctorLists'},timeout:10000},
+            getCounselRecords:{method:'GET',params:{route:'getCounselRecords'},timeout:10000},
+            insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
+            newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
+            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000}
+        });
+    }
+
+    var Doctor =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'doctor'},{
+            createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
+            getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
+            getDoctorInfo:{method:'GET', params:{route: 'getDoctorInfo'}, timeout: 100000},
+            getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
+            getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
+        });
+    }
+
+    var User = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'user'},{
+            register:{method:'POST', params:{route: 'register',phoneNo:'@phoneNo',password:'@password',role:'@role'}, timeout: 100000},
+            changePassword:{method:'POST', params:{route: 'reset',phoneNo:'@phoneNo',password:'@password'}, timeout: 100000},
+            logIn:{method:'POST', params:{route: 'login'}, timeout: 100000},
+            logOut:{method:'POST', params:{route: 'logout',userId:'@userId'}, timeout: 100000},
+            getUserId:{method:'GET', params:{route: 'getUserID',phoneNo:'@phoneNo'}, timeout: 100000},
+            sendSMS:{method:'POST', params:{route: 'sendSMS',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
+            verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
+
+        });
+    }
+
+    var Health = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'healthInfo'},{
+            createHealth:{method:'POST', params:{route: 'insertHealthInfo',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments'}, timeout: 100000},
+            modifyHealth:{method:'POST', params:{route:'modifyHealthDetail',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments',insertTime:'@insertTime'},timeout:100000},
+            getHealthDetail:{method:'GET', params:{route:'getHealthDetail',userId:'@userId',insertTime:'@insertTime'},timeout:100000},
+            getAllHealths:{method:'GET', params:{route:'getAllHealthInfo',userId:'@userId'},timeout:100000},
+            deleteHealth:{method:'POST', params:{route:'deleteHealthDetail',userId:'@userId',insertTime:'@insertTime'},timeout:100000}
+
+        });
+    }
+
+    var Comment =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'comment'},{
+            getComments:{method:'GET', params:{route: 'getComments'}, timeout: 100000}
+        });
+    }
+
+    var VitalSign =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'vitalSign'},{
+            getVitalSigns:{method:'GET', params:{route: 'getVitalSigns'}, timeout: 100000}
+        });
+    }
+
+    var Account =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'account'},{
+            getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000}
+        });
+    }
+
+    var Message =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'message'},{
+            getMessages:{method:'GET', params:{route: 'getMessages'}, timeout: 100000}
+        });
+    }
+
+    var Communication =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'communication'},{
+            getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
+            getTeam:{method:'GET', params:{route: 'getTeam'}, timeout: 100000},
+            insertMember:{method:'POST', params:{route: 'insertMember'}, timeout: 100000},
+            removeMember:{method:'POST', params:{route: 'removeMember'}, timeout: 100000}
+        });
+    }
+
+    serve.abort = function ($scope) {
+        abort.resolve();
+        $interval(function () {
+            abort = $q.defer();
+            serve.Dict = Dict();
+            serve.Task1 = Task1();
+            serve.Task2 = Task2();
+            serve.Compliance = Compliance();
+            serve.Counsels = Counsels();
+            serve.Patient = Patient();
+            serve.Doctor = Doctor();
+            serve.Health = Health();
+            serve.Comment = Comment();
+            serve.VitalSign = VitalSign();
+            serve.Account = Account();
+            serve.Message = Message();
+            serve.Communication = Communication();
+        }, 0, 1);
+    };
+    serve.Dict = Dict();
+    serve.Task1 = Task1();
+    serve.Task2 = Task2();
+    serve.Compliance = Compliance();
+    serve.Counsels = Counsels();
+    serve.Patient = Patient();
+    serve.Doctor = Doctor();
+    serve.Health = Health();
+    serve.Comment = Comment();
+    serve.VitalSign = VitalSign();
+    serve.Account = Account();
+    serve.Message = Message();
+    serve.Communication = Communication();
+    return serve;
+}])
+
+.factory('Dict', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+            //  category:'patient_class'
+           // }
+    self.getDiseaseType = function(params){
+        var deferred = $q.defer();
+        Data.Dict.getDiseaseType(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  level:'3',//1获取省份，2获取城市，3获取区县
+            //  province:"33", //定位到某个具体省份时需要输入
+            //  city:'01',  //定位到某个具体城市时需要输入
+            //  district:'02' //定位到某个具体区县时需要输入
+           // }
+    self.getDistrict = function(params){
+        var deferred = $q.defer();
+        Data.Dict.getDistrict(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  locationCode:'330103',//输入全部为空时获取全部医院信息，需要定位到某个具体地区时需要输入locationCode，定位到某个具体医院时需要输入hospitalCode
+            //  hostipalCode:"001"
+           // }
+    self.getHospital = function(params){
+        var deferred = $q.defer();
+        Data.Dict.getHospital(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    return self;
+}])
+
+.factory('Task', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+            //  userId:'U201704050002',//usderId="Admin"，sortNo为空时获取系统全部任务模板，sortNo="1"时获取指定任务模板，userId为用户ID时获取指定用户的任务信息
+            //  sortNo:'1'
+           // }
+    self.getTask = function(params){
+        var deferred = $q.defer();
+        Data.Task1.getTask(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  userId:'U201704050002',//unique
+            //  sortNo:1,
+            //  type:'Measure',
+            //  code:'BloodPressure',
+            //  status:'0'
+           // }
+    self.changeTaskstatus = function(params){
+        var deferred = $q.defer();
+        Data.Task2.changeTaskstatus(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  userId:'U201704050002',//unique
+            //  sortNo:1,
+            //  type:'Measure',
+            //  code:'BloodPressure',
+            //  startTime:'2017-12-12'
+           // }
+    self.changeTasktime = function(params){
+        var deferred = $q.defer();
+        Data.Task2.changeTasktime(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+.factory('Compliance', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+            // "userId": "U201704050002",
+            // "type": "Measure",
+            // "code": "Weight",
+            // "date": "2017-12-13",
+            // "status": 0,
+            // "description": ""
+           // }
+    self.postcompliance = function(params){
+        var deferred = $q.defer();
+        Data.Compliance.postcompliance(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  userId:'U201704050002',//date为空时获取指定用户的全部任务执行记录，date不为空时获取指定用户某一天的任务执行记录
+            //  date:'2017-12-13'
+           // }
+    self.getcompliance = function(params){
+        var deferred = $q.defer();
+        Data.Compliance.getcompliance(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+.factory('User', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+        // phoneNo:"18768113669",
+        // password:"123456",
+        // role:"patient"
+        //}
+        //000
+    self.register = function(params){
+        var deferred = $q.defer();
+        Data.User.register(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    //params->{
+        // phoneNo:"18768113669",
+        // password:"123",
+        //}
+        //001
+    self.changePassword = function(params){
+        var deferred = $q.defer();
+        Data.User.changePassword(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    //params->{
+        // username:"18768113669",
+        // password:"123456",
+        // role:"patient"
+        //}
+        //002
+    self.logIn = function(params){
+        var deferred = $q.defer();
+        Data.User.logIn(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+
+    //params->{userId:"U201704010002"}
+    //003
+    self.logOut = function(params){
+        var deferred = $q.defer();
+        Data.User.logOut(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    //params->{phoneNo:"18768113668"}
+    //004
+    self.getUserId = function(params){
+        var deferred = $q.defer();
+        Data.User.getUserId(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    //params->{
+        //mobile:"18768113660",
+        //smsType:1}
+    //005
+    self.sendSMS = function(params){
+        var deferred = $q.defer();
+        Data.User.sendSMS(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    //params->{
+        //mobile:"18868186038",
+        //smsType:1
+        //smsCode:234523}
+    //006
+    self.verifySMS = function(params){
+        var deferred = $q.defer();
+        Data.User.verifySMS(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+
+    
+    return self;
+}])
+
+
+.factory('Health', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+        // userId:"U201704010003",
+        //}
+        //011
+    self.getAllHealths = function(params){
+        var deferred = $q.defer();
+        Data.Health.getAllHealths(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    //params->{
+        // userId:"U201704010003",
+        // insertTime:"2017-04-11T05:43:36.965Z",
+        //}
+        //012
+    self.getHealthDetail = function(params){
+        var deferred = $q.defer();
+        Data.Health.getHealthDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    //params->{
+        // userId:"U201704010003",
+        // type:2,
+        // time:"2014/02/22",
+        // url:"c:/wf/img.jpg",
+        // description:"晕厥入院，在医院住了3天，双侧颈动脉无异常搏动，双侧颈静脉怒张，肝颈静脉回流征阳性，气管居中，甲状腺不肿大，未触及结节无压痛、震颤，上下均为闻及血管杂音。",
+        // }
+        //013
+    self.createHealth = function(params){
+        var deferred = $q.defer();
+        Data.Health.createHealth(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    //params->{
+        // userId:"U201704010003",
+        // insertTime:"2017-04-11T05:43:36.965Z",
+        // type:3,
+        // time:"2014/02/22",
+        // url:"c:/wf/img.jpg",
+        // description:"修改晕厥入院，在医院住了3天，双侧颈动脉无异常搏动，双侧颈静脉怒张，肝颈静脉回流征阳性，气管居中，甲状腺不肿大，未触及结节无压痛、震颤，上下均为闻及血管杂音。",
+        // }
+        //014
+    self.modifyHealth = function(params){
+    var deferred = $q.defer();
+        Data.Health.modifyHealth(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    //params->{
+        // userId:"U201704010003",
+        // insertTime:"2017-04-11T05:43:36.965Z",
+        //}
+        //015
+    self. deleteHealth = function(params){
+        var deferred = $q.defer();
+        Data.Health. deleteHealth(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    
+    return self;
+}])
+
+
+.factory('Patient', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01'}
+    self.getPatientDetail = function(params){
+        var deferred = $q.defer();
+        Data.Patient.getPatientDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{userId:'p01'}
+    self.getMyDoctors = function(params){
+        var deferred = $q.defer();
+        Data.Patient.getMyDoctors(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{workUnit:'浙江省人民医院'}
+    //        1:{workUnit:'浙江省人民医院',name:'医生01'}
+    self.getDoctorLists = function(params){
+        var deferred = $q.defer();
+        Data.Patient.getDoctorLists(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{userId:'p01'}
+    self.getCounselRecords = function(params){
+        var deferred = $q.defer();
+        Data.Patient.getCounselRecords(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{
+            //     patientId:'ppost01',
+            //     doctorId:'doc01',
+            //     diagname:'慢性肾炎',
+            //     diagtime:'2017-04-06',
+            //     diagprogress:'吃药',
+            //     diagcontent:'blabla啥啥啥的'
+            // }
+    self.insertDiagnosis = function(params){
+        var deferred = $q.defer();
+        Data.Patient.insertDiagnosis(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{
+            //     userId:'ppost01',
+            //     name:'患者xx',
+            //     birthday:'1987-03-25',
+            //     gender:2,
+            //     IDNo:123456123456781234,
+            //     height:183,
+            //     weight:70,
+            //     bloodType:2,
+            //     class:'class1',
+            //     class_info:'info_1',
+            //     operationTime:'2017-04-05',
+            //     hypertension:1,
+            //     photoUrl:'http://photo/ppost01.jpg'
+            // }
+    self.newPatientDetail = function(params){
+        var deferred = $q.defer();
+        Data.Patient.newPatientDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{
+                // userId:'ppost01',
+                // name:'新名字2',
+                // birthday:1987-03-03,
+                // gender:1,
+                // IDNo:123456123456781234,
+                // height:183,
+                // weight:70,
+                // bloodType:2,
+                // class:'class1',
+                // class_info:'info3',
+                // hypertension:1,
+                // photoUrl:'http://photo/ppost01.jpg'
+            // }
+    self.editPatientDetail = function(params){
+        var deferred = $q.defer();
+        Data.Patient.editPatientDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    return self;
+}])
+
+
+.factory('Doctor', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{
+           //   userId:'docpostTest',//unique
+           //   name:'姓名',
+           //   birthday:'1956-05-22',
+           //   gender:1,
+           //   workUnit:'浙江省人民医院',
+           //   department:'肾内科',
+           //   title:'副主任医师',
+           //   major:'慢性肾炎',
+           //   description:'经验丰富',
+           //   photoUrl:'http://photo/docpost3.jpg',
+           //   charge1:150,
+           //   charge2:50
+           // }
+    self.postDocBasic = function(params){
+        var deferred = $q.defer();
+        Data.Doctor.postDocBasic(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+           //   userId:'doc01'
+           // }
+    self.getPatientList = function(params){
+        var deferred = $q.defer();
+        Data.Doctor.getPatientList(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+           //   userId:'doc01'
+           // }
+    self.getDoctorInfo = function(params){
+        var deferred = $q.defer();
+        Data.Doctor.getDoctorInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+           //   userId:'doc01'
+           // }
+    self.getMyGroupList = function(params){
+        var deferred = $q.defer();
+        Data.Doctor.getMyGroupList(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+           //   teamId:'team1',
+           //   status:1
+           // }
+    self.getGroupPatientList = function(params){
+        var deferred = $q.defer();
+        Data.Doctor.getGroupPatientList(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Counsels', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'doc01',status:1}
+    //        1:{userId:'doc01'}
+    //        1:{userId:'doc01',type:1}
+    //        1:{userId:'doc01',status:1,type:1}
+    self.getCounsels = function(params){
+        var deferred = $q.defer();
+        Data.Counsels.getCounsel(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+    //              counselId:'counselpost02',
+    //              patientId:'p01',
+    //              doctorId:'doc01',
+    //              sickTime:'3天',
+    //              symptom:'腹痛',
+    //              symptomPhotoUrl:'http://photo/symptom1',
+    //              help:'帮助'
+    //          }
+    self.questionaire = function(params){
+        var deferred = $q.defer();
+        Data.Counsel.questionaire(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+.factory('Communication', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{counselId:'counsel01'}
+    self.getCounselReport = function(params){
+        var deferred = $q.defer();
+        Data.Communication.getCounselReport(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{teamId:'team1'}
+    self.getTeam = function(params){
+        var deferred = $q.defer();
+        Data.Communication.getTeam(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{
+            //      teamId:'teampost2',
+            //      membersuserId:'id1',
+            //      membersname:'name2'
+            //  }
+    self.insertMember = function(params){
+        var deferred = $q.defer();
+        Data.Communication.insertMember(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    //params->0:{
+            //      teamId:'teampost2',
+            //      membersuserId:'id2'
+            //  }
+    self.removeMember = function(params){
+        var deferred = $q.defer();
+        Data.Communication.removeMember(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    return self;
+}])
+.factory('Message', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{type:1}
+    self.getMessages = function(params){
+        var deferred = $q.defer();
+        Data.Message.getMessages(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+.factory('Account', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01'}
+    self.getAccountInfo = function(params){
+        var deferred = $q.defer();
+        Data.Account.getAccountInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+.factory('VitalSign', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01',type:'type1'}
+    self.getVitalSigns = function(params){
+        var deferred = $q.defer();
+        Data.VitalSign.getVitalSigns(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+.factory('Comment', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'doc01'}
+    self.getComments = function(params){
+        var deferred = $q.defer();
+        Data.Comment.getComments(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+//--------医生的缓存数据--------
+.factory('DoctorsInfo', [function () {
+  var self = this;
+  var DoctorTable= TAFFY([
+    {
+      id:"doc001",
+      img:"img/doctor1.PNG",
+      name:"李芳 ",
+      department:"肾脏内科",
+      title:"副主任医师",
+      workUnit:"浙江大学医学院附属第一医院",
+      major:"肾小球肾炎",
+      description:"女，教授、副主任医师，担任中华医学会肾脏病学分会副主任委员、卫生部中国肾移植科学登记系统管理委员会副主任委员兼秘书长、浙江省医学会肾脏病学分会主任委员、器官移植学分会副主任委员等学术职务。",
+      charge1:15,
+      charge2:100,
+      score:"9.0",
+      count1:30,
+      count2:100
+    },
+    {
+      id:"doc002",
+      img:"img/doctor2.PNG",
+      name:"张三",
+      department:"肾脏病中心",
+      title:"主任医师",
+      workUnit:"浙江大学医学院附属第二医院",
+      major:"临床难治肾病治疗",
+      description:"男，教授、主任医师、博士生导师，现任浙江大学附属第二医院党委副书记，浙江大学附属第一医院肾脏病中心主任。",
+      charge1:30,
+      charge2:200,
+      score:"9.3",
+      count1:35,
+      count2:127
+    },
+    {
+      id:"doc003",
+      img:"img/doctor3.PNG",
+      name:"李四",
+      department:"肾内科",
+      title:"副主任医师",
+      workUnit:"徐汇区中心医院",
+      major:"慢性肾病一体化治疗，尤其是肾移植",
+      description:"男，教授、副主任医师、硕士生导师，参与的研究课题获国家科技进步一等奖一项。浙江省科技进步一等奖三项。国内外专业刊物发表论文数篇。擅长急慢性肾功能衰竭的透析治疗以及临床肾移植。在肾移植手术及术后管理，排斥早期诊断及治疗方面有相当丰富的临床经验。",
+      charge1:20,
+      charge2:180,
+      score:"9.2",
+      count1:23,
+      count2:267
+    },
+    {
+      id:"doc004",
+      img:"img/doctor4.PNG",
+      name:"董星",
+      department:"血透室",
+      title:"主任医师",
+      workUnit:"上海第一人民医院东院",
+      major:"慢性肾炎、肾病综合症、紫癜性肾炎、狼疮性肾炎",
+      description:"女，主任医师、硕士生导师。获浙江省卫生科技创新奖三等奖 1项，在国内外杂志上公开发表论文10余篇，SCI收录论文1篇。",
+      charge1:30,
+      charge2:220,
+      score:"9.4",
+      count1:25,
+      count2:263
+    },
+    {
+      id:"doc005",
+      img:"img/doctor5.PNG",
+      name:"赵冰低",
+      department:"血液净化中心",
+      title:"副主任医师",
+      workUnit:"浙江大学医学院附属第二医院",
+      major:"免疫性肾病",
+      description:"男，副主任医师，擅长肾脏疑难疾病的综合诊治，尤其擅长免疫性肾病（系统性红斑狼疮肾炎、系统性血管炎、过敏性紫癜肾炎等）的诊治。主持或主参国家自然科学基金4项，参与课题获省科技进步一等奖１项，在国内外杂志上公开发表论文26篇，以第一作者发表SCI收录论文5篇。",
+      charge1:20,
+      charge2:200,
+      score:"8.9",
+      count1:16,
+      count2:78
+    }
+  ]);
+  
+  self.getalldoc = function(){
+    var records = new Array();
+    DoctorTable().each(function(r) {records.push(r)});
+    console.log(records);
+    return records;
+  }
+  
+  self.searchdoc = function(searchId){
+    var record = DoctorTable({id:searchId}).first();
+    return record;
+  }
+  
+  return self;
+}])
+//--------医生的缓存结束---------
 
 
 

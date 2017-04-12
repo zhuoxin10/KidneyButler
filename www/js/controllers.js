@@ -1,7 +1,51 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','Health', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,Health) {
   $scope.barwidth="width:0%";
+  //-------------测试test()----------------
+
+  $scope.test = function(){
+    console.log("test for restful");
+       Health.createHealth({
+        userId:'U201704010003',
+        type:1,
+        time:'2014/02/22 11:03:37',
+        url:'c:/wf/img.jpg',
+        label:'b',
+        description:'wf',
+        comments:''
+      })
+    .then(
+      function(data)
+      {
+        console.log('data');
+        console.log(data);
+      },
+      function(err)
+      {
+        console.log('err');
+        console.log(err);
+      }
+    )
+
+  }
+
+
+
+
+
+
+
+
+
+  //------------测试结束----------------------
+
+
+
+
+
+  Storage.set('usernames',"18600001564")
+  Storage.set('passwords',"123")
   if(Storage.get('USERNAME')!=null){
     $scope.logOn={username:Storage.get('USERNAME'),password:""};
 
@@ -104,7 +148,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //手机正则表达式验证
      if(!phoneReg.test(Verify.Phone)){$scope.logStatus="手机号验证失败！";return;}
      //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
-      var usernames = Storage.get('usernames').split(",");
+      //var usernames = Storage.get('usernames').split(",");
       if(Storage.get('setPasswordState')=='register'){
         if(usernames.indexOf(Verify.Phone)>=0){
           $scope.logStatus = "该手机号码已经注册！";
@@ -219,7 +263,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //个人信息--PXY
 .controller('userdetailCtrl',['$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover',function($scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover){
   $scope.barwidth="width:0%";
-//注册时可跳过个人信息
+  //注册时可跳过个人信息
   $scope.CanSkip = function(){
     if(Storage.get('setPasswordState')=='register'){
       return true;
@@ -235,7 +279,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    if (Storage.get("personalinfobackstate") == "mine")
+    {
+      $state.go("tab.mine")
+    }
+    else
+    {
+      $ionicHistory.goBack();
+    }
   }
 
   
@@ -282,6 +333,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         {Name:"血透",Type:6},
         ];
       //$scope.User.KidneyDisease={t:{Name:"肾移植",Type:1}};//默认选项
+
+      $scope.DiseaseDetails = {};
+      $scope.DiseaseDetails =
+      [
+        {Name:"稳定",Type:1},
+        {Name:"控制不佳",Type:2},
+      ]
 
 
 $scope.showProgress = function(){
@@ -339,7 +397,7 @@ var initUserDetail = function(){
     BloodType:{Name:"A型",Type:1},
     Hypertension:{Name:"是",Type:1},
     KidneyDisease:{t:{Name:"肾移植",Type:1}},
-    DiseaseDetail:"",
+    DiseaseDetail:{t:{Name:"稳定",Type:1}},
     OperationDate:"",
     Height:"",
     Weight:"",
@@ -584,7 +642,7 @@ initUserDetail();
 .controller('GoToMessageCtrl', ['$scope','$timeout','$state', function($scope, $timeout,$state) {
 
   $scope.GoToMessage = function(){
-    $state.go('messages');//message还没写，在app.js还没定义
+    $state.go('messages');
   }
   
 }])
@@ -619,7 +677,12 @@ initUserDetail();
                         "Frequency":"2次/1天", 
                         "Discription":"每天晨起或睡前安静状态下测量血压2次",
                         "Unit":"次/分",
-                        "Flag":false},                       
+                        "Flag":false},
+                        {"Name":"腹透方案",
+                        "Frequency":"3次/1天", 
+                        "Discription":"",
+                        "Unit":"次/分",
+                        "Flag":false},                           
                         {"Name":"超滤量",
                         "Frequency":"1次/1天", 
                         "Discription":"",
@@ -963,7 +1026,7 @@ $scope.showPopupSelect = function(name) {
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera) {
   $scope.barwidth="width:0%";
-
+  Storage.set("personalinfobackstate","mine")
   //页面跳转---------------------------------
   $scope.GoUserDetail = function(){
     $state.go('userdetail');
@@ -1005,11 +1068,11 @@ $scope.showPopupSelect = function(name) {
                     //Storage.clear();
                     Storage.set("IsSignIn","No");
                      Storage.set("USERNAME",USERNAME);
-                     $timeout(function () {
+                     //$timeout(function () {
                      $ionicHistory.clearCache();
                      $ionicHistory.clearHistory();
-                    }, 30);
-                    $ionicPopup.hide();
+                    //}, 30);
+                    //$ionicPopup.hide();
                 }
               }
             ]
@@ -1127,7 +1190,7 @@ $scope.showPopupSelect = function(name) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
   //根据患者ID查询其咨询记录,对response的长度加一定限制
   $scope.items =[
@@ -1144,12 +1207,35 @@ $scope.showPopupSelect = function(name) {
     time:"2017/03/01",
     response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
+  },
+  {
+    img:"img/doctor3.PNG",
+    name:"李四",
+    time:"2017/02/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor4.PNG",
+    name:"董星",
+    time:"2017/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor5.PNG",
+    name:"赵冰低",
+    time:"2016/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
   }
   
 
   ]
     
-
+  $scope.getConsultRecordDetail = function() {
+    $state.go("tab.consult-chat")
+  }
 
   
 }])
@@ -1428,11 +1514,11 @@ $scope.showPopupSelect = function(name) {
     }
 
     $scope.goChats = function() {
-        $ionicHistory.nextViewOptions({
-            disableBack: true
-        });
+        // $ionicHistory.nextViewOptions({
+        //     disableBack: true
+        // });
         // if($state.params.type=="1") $state.go('tab.doing');
-        $state.go('tab.myDoctors');
+        $ionicHistory.goBack();
     }
 
 
@@ -1462,7 +1548,7 @@ $scope.showPopupSelect = function(name) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
 
   //console.log(HealthInfo.getall());
@@ -1505,7 +1591,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -1521,12 +1607,9 @@ $scope.showPopupSelect = function(name) {
     {Name:"用药",Type:3},
     {Name:"病历",Type:4},
   ];
-  //判断是修改还是新增,参数传不进去
-  console.log($stateParams.id);
+  //判断是修改还是新增
   if($stateParams.id!=null && $stateParams!=""){
     //修改
-    console.log("健康详情");
-    console.log($stateParams.id);
     var info = HealthInfo.search($stateParams.id);
     $scope.health={
       label:info.type,
@@ -1545,11 +1628,41 @@ $scope.showPopupSelect = function(name) {
     }
   }
 
+  
+
+  $scope.HealthInfoSetup = function(information){
+    if(information.date!=""&&information.text!=""){
+        if($stateParams.id==null||$stateParams==""){
+            HealthInfo.new(information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+
+        }
+        else{
+            HealthInfo.edit($stateParams.id,information);
+            $ionicLoading.show({
+                template:'健康信息保存成功！',
+                duration:1000
+            });
+            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+        }
+    }
+    else{
+        $ionicLoading.show({
+            template:'信息填写不完整',
+            duration:1000
+        });
+    }
+
+}
+
 
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
   var weekDaysList=["日","一","二","三","四","五","六"];
-  // --------出生日期----------------
   var datePickerCallback = function (val) {
     if (typeof(val) === 'undefined') {
       console.log('No date selected');
@@ -1586,6 +1699,10 @@ $scope.showPopupSelect = function(name) {
       datePickerCallback(val);
     }
   };  
+//--------------
+
+
+
 
   
 }])
@@ -1597,7 +1714,7 @@ $scope.showPopupSelect = function(name) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.mine')
   }
   //查询余额等等。。。。。
 
@@ -1619,13 +1736,14 @@ $scope.showPopupSelect = function(name) {
   }
 
   $scope.getMessageDetail = function(type){
-    if(type == 2){
-      $state.go('messagesDetail');
-    }
+    $state.go('messagesDetail',{messageType:type});
+  }
 
+  $scope.getConsultRecordDetail = function () {
+    $state.go("tab.consult-chat")
   }
   //查询余额等等。。。。。
-  $scope.messages =[
+ $scope.messages =[
   {
     img:"img/pay.PNG",
     name:"支付消息",
@@ -1665,10 +1783,33 @@ $scope.showPopupSelect = function(name) {
     time:"2017/03/01",
     response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
+  },
+  {
+    img:"img/doctor3.PNG",
+    name:"李四",
+    time:"2017/02/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor4.PNG",
+    name:"董星",
+    time:"2017/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
+  },
+  {
+    img:"img/doctor5.PNG",
+    name:"赵冰低",
+    time:"2016/01/01",
+    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+
   }
   
 
   ]
+    
+
     
 
   
@@ -1676,92 +1817,196 @@ $scope.showPopupSelect = function(name) {
 
 
 //消息类型--PXY
-.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory','$stateParams',function($scope, $state,$ionicHistory,$stateParams) {
   $scope.barwidth="width:0%";
+  switch($stateParams.messageType){
+    case 1:
+    $scope.title = '支付消息';
+    $scope.messages = [
+    {
+        img:"img/pay.PNG",
+        time:"2017/04/01",
+        response:"恭喜你！成功充值50元，交易账号为0093842345."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/03/02",
+        response:"咨询支出20元，账户余额为10元，交易账号为0045252623."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/02/12",
+        response:"咨询支出20元，账户余额为30元，交易账号为004525212."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2017/02/02",
+        response:"恭喜你！成功充值50元，交易账号为0093840202."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/02/02",
+        response:"咨询支出10元，账户余额为0元，交易账号为0045250202."
+    },
+    {
+        img:"img/moneyout.PNG",
+        time:"2017/01/02",
+        response:"咨询支出10元，账户余额为10元，交易账号为0045250102."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/03/02",
+        response:"恭喜你！成功充值20元，交易账号为0093842356."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/01/02",
+        response:"恭喜你！成功充值20元，交易账号为009320163425."
+    },
+    {
+        img:"img/pay.PNG",
+        time:"2016/01/01",
+        response:"恭喜你！成功充值20元，交易账号为00325262423"
+    }];
+    break;
+    case 2:
+    $scope.title = '任务消息';
+    $scope.messages =[
+  
+    {
+        img:"img/bloodpressure.PNG",
+        time:"2017/03/21",
+        response:"今天还没有测量血压，请及时完成！"
+
+    },
+    {
+        img:"img/exercise.PNG",
+        time:"2017/03/11",
+        response:"今天建议运动半小时，建议以散步或慢跑的形式！"
+
+    },
+    {
+        img:"img/heartRoute.PNG",
+        time:"2017/02/10",
+        response:"今天还没有测量血管通路，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2017/01/11",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2017/01/01",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录心率，请及时完成！"
+
+    },
+    {
+        img:"img/urine.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录尿量，请及时完成！"
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录体温，请及时完成！"
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2016/10/01",
+        response:"今天还没有记录体重，请及时完成！"
+    }
+
+    ];
+    break;
+    case 3:
+    $scope.title = '警报消息';
+    $scope.messages =[
+  
+    {
+        img:"img/bloodpressure.PNG",
+        time:"2017/03/11",
+        response:"你的血压值已超出控制范围！"
+
+    },
+    {
+        img:"img/bloodpressure.PNG",
+        time:"2017/03/07",
+        response:"你的血压值已超出控制范围！"
+
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2017/02/07",
+        response:"你的体重值已超出控制范围！"
+
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2017/01/07",
+        response:"你的体温值已超出控制范围！"
+
+    },
+    {
+        img:"img/temperature.PNG",
+        time:"2016/11/07",
+        response:"你的体温值已超出控制范围！"
+
+    },
+    {
+        img:"img/exercise.PNG",
+        time:"2016/10/07",
+        response:"你已经超过一周没进行运动！"
+
+    },
+    {
+        img:"img/heartbeat.PNG",
+        time:"2016/05/07",
+        response:"你的心率不太正常，建议及时就医！"
+
+    },
+    {
+        img:"img/pounds.PNG",
+        time:"2016/02/07",
+        response:"你的体重值已超出控制范围！"
+
+    }
+
+    ];
+    break;
+
+  }
 
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-  $scope.messages =[
-  
-  {
-    img:"img/bloodpressure.PNG",
-    time:"2017/03/21",
-    response:"今天还没有测量血压，请及时完成！"
-
-  },
-  {
-    img:"img/exercise.PNG",
-    time:"2017/03/11",
-    response:"今天建议运动半小时，建议以散步或慢跑的形式！"
-
-  }]
 
   
 }])
   
-//我的医生--PXY
-.controller('myDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
-  $scope.barwidth="width:0%";
-
-
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
-
-  $scope.allDoctors = function(){
-    $state.go('tab.AllDoctors');
-  }
-
-  $scope.question = function(){
-    $state.go("tab.consultquestion1")
-  }
-
-  $scope.consult = function(){
-    $state.go("tab.consultquestion1")
-  }
   
-}])
 
 
-//所有医生--PXY
-.controller('allDoctorsCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+
+//医生列表--PXY
+.controller('DoctorCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo',function($scope, $state,$ionicHistory,DoctorsInfo) {
   $scope.barwidth="width:0%";
-  console.log("test")
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-//清空搜索框
+  //清空搜索框
   $scope.clearSearch = function(){  
     $scope.searchCont = {};  
     //清空之后获取所有医生  
-}  
+  }  
 
   $scope.search = function(){
   //如果筛选条件还未清空的话，是在已筛选里搜索？
@@ -1826,36 +2071,39 @@ $scope.showPopupSelect = function(name) {
     Type:0
   };
 
+  $scope.allDoctors = function(){
+    $state.go('tab.AllDoctors');
+  }
 
-  $scope.doctors=[
-  {
-    id:"doc001",
-    img:"img/doctor1.PNG",
-    name:"李芳 ",
-    department:"肾脏内科",
-    title:"副主任医师",
-    workUnit:"浙江大学医学院附属第一医院",
-    major:"肾小球肾炎",
-    charge1:15,
-    charge2:100,
-    score:"9.0",
-    count1:30,
-    count2:100
-  },
-  {
-    id:"doc002",
-    img:"img/doctor2.PNG",
-    name:"张三",
-    department:"肾脏病中心",
-    title:"主任医师",
-    workUnit:"浙江大学医学院附属第二医院",
-    major:"临床难治肾病治疗",
-    charge1:30,
-    charge2:200,
-    score:"9.3",
-    count1:35,
-    count2:127
-  }];
+
+  $scope.getDoctorDetail = function(ele, id) {
+        if (ele.target.innerText == '咨询') $state.go("tab.consultquestion1");
+        else if (ele.target.innerText == '问诊') $state.go("tab.consultquestion1");
+        else $state.go('tab.DoctorDetail',{doctorId:id});
+  }
+
+
+  $scope.doctors = DoctorsInfo.getalldoc();
+  $scope.mydoctors = DoctorsInfo.getalldoc();
+
+  $scope.question = function(){
+    $state.go("tab.consultquestion1")
+  }
+
+  $scope.consult = function(){
+    $state.go("tab.consultquestion1")
+  }
+
+
+}])
+
+
+.controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','$stateParams',function($scope, $state,$ionicHistory,DoctorsInfo,$stateParams) {
+  $scope.Goback = function(){
+    $ionicHistory.goBack();
+  }
+    var doc = DoctorsInfo.searchdoc($stateParams.doctorId);
+    $scope.doctor = doc;
 
   $scope.question = function(){
     $state.go("tab.consultquestion1")
@@ -1943,7 +2191,7 @@ $scope.showPopupSelect = function(name) {
 }])
 
 //肾病保险主页面--TDY
-.controller('insuranceCtrl', ['$scope', '$state', function ($scope, $state) {
+.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory',function ($scope, $state,$ionicHistory) {
   var show = false;
 
   $scope.isShown = function() {
@@ -1983,7 +2231,7 @@ $scope.showPopupSelect = function(name) {
   }
 
   $scope.Back = function(){
-    $state.go("tab.tasklist")
+    $ionicHistory.goBack()
   }
 }])
 
@@ -2428,6 +2676,10 @@ $scope.showPopupSelect = function(name) {
   $scope.backtoDisease = function(){
     $state.go("tab.consultquestion2")
   } 
+
+  $scope.Submitquestion = function(){
+    $state.go("tab.consult-chat", { docId: "doc01" })
+  }
 }])
 
 

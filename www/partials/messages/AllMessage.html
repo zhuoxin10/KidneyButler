@@ -12,7 +12,7 @@
 
     <ion-list>
       <ion-item ng-repeat="message in messages" class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail({{message.type}})">
-        <img ng-src="{{message.img}}">
+        <img image-red-point='true' ng-src="{{message.img}}">
         <h2>{{message.name}}</h2>
         <p style="text-align: right">{{message.time}}</p>
         <p>{{message.response}}</p>

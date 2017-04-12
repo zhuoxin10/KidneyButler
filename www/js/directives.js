@@ -179,3 +179,39 @@ angular.module('kidney.directives', ['kidney.services'])
         }
     }
 })
+
+
+//未读消息的小红点
+.directive('headRedPoint', function($compile, $timeout){
+   // Runs during compile
+   return {
+      restrict: 'A', 
+      replace: false,
+      link: function(scope, element, attrs, controller) {
+          var key = attrs.headRedPoint || false;
+          var template ="<span ng-class={true:'head-red-point',false:''}["+key+"]></span>";
+          var html = $compile(template)(scope);  
+          $timeout(function() {
+            var test = angular.element(element).parent().append(html)
+          },100)
+                     
+       }
+   };
+})
+
+.directive('imageRedPoint', function($compile, $timeout){
+   // Runs during compile
+   return {
+      restrict: 'A', 
+      replace: false,
+      link: function(scope, element, attrs, controller) {
+          var key = attrs.imageRedPoint || false;
+          var template ="<span ng-class={true:'image-red-point',false:''}["+key+"]></span>";
+          var html = $compile(template)(scope);  
+          $timeout(function() {
+            var test = angular.element(element).parent().append(html)
+          },100)
+                     
+       }
+   };
+})
