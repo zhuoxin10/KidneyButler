@@ -650,7 +650,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'dict'},{
             getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
             getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
-            getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000}
+            getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000},
+            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
         });
     };
 
@@ -849,7 +850,21 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
-
+    //params->{
+            //  category:'healthInfoType'
+           // }
+    self.getHeathLabelInfo = function(params){
+        var deferred = $q.defer();
+        Data.Dict.getHeathLabelInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
     return self;
 }])
 
@@ -1164,9 +1179,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
         // insertTime:"2017-04-11T05:43:36.965Z",
         //}
         //015
-    self. deleteHealth = function(params){
+    self.deleteHealth = function(params){
         var deferred = $q.defer();
-        Data.Health. deleteHealth(
+        Data.Health.deleteHealth(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1442,7 +1457,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     //          }
     self.questionaire = function(params){
         var deferred = $q.defer();
-        Data.Counsel.questionaire(
+        Data.Counsels.questionaire(
             params,
             function(data, headers){
                 deferred.resolve(data);

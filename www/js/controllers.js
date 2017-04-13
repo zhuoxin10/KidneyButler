@@ -2,7 +2,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //登录--PXY
 .controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User) {
   $scope.barwidth="width:0%";
-
+  Storage.set("personalinfobackstate","logOn")
 
   //-------------评论页面----------------
   $scope.test = function(){
@@ -463,7 +463,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.LastDiagnosisTime=yyyy+'/'+m+'/'+d;
+      $scope.User.LastDiagnosisTime=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -502,7 +502,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.OperationDate=yyyy+'/'+m+'/'+d;
+      $scope.User.OperationDate=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject2 = {
@@ -539,7 +539,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.Birthday=yyyy+'/'+m+'/'+d;
+      $scope.User.Birthday=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject3 = {
@@ -1048,9 +1048,10 @@ $scope.showPopupSelect = function(name) {
   }])
 
 //我的 页面--PXY
-.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera) {
+.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient) {
   $scope.barwidth="width:0%";
   Storage.set("personalinfobackstate","mine")
+  var patientId = Storage.get('UID')
   //页面跳转---------------------------------
   $scope.GoUserDetail = function(){
     $state.go('userdetail');
@@ -1112,18 +1113,33 @@ $scope.showPopupSelect = function(name) {
     $state.go('changePassword');
   }
 
-
+  $scope.imgurl = ""
   //根据用户ID查询用户头像
-  var readImage = function(){
-    var PhotoAddress = Storage.get("user.image");
-    if(PhotoAddress=="" || PhotoAddress == null){
-      $scope.imgurl = "img/DefaultAvatar.jpg";
-    }
-    else{
-      $scope.imgurl = PhotoAddress;//待修改，读取头像地址
-    }
-  }
-  readImage();
+  Patient.getPatientDetail({userId: patientId}).then(
+      function(data)
+      {
+        if (data.results != null)
+        {
+          if (data.results.photoUrl == null || data.results.photoUrl == "")
+          {
+            $scope.imgurl = "img/DefaultAvatar.jpg"
+          }
+          else
+          {
+            $scope.imgurl = data.results.photoUrl
+          }
+        }
+        else
+        {
+          $scope.imgurl = "img/DefaultAvatar.jpg"
+        }
+        console.log($scope.imgurl)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
 
   // 上传头像的点击事件----------------------------
   $scope.onClickCamera = function($event){
@@ -1568,20 +1584,44 @@ $scope.showPopupSelect = function(name) {
 
 
 //健康信息--PXY
-.controller('HealthInfoCtrl', ['$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo',function($scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo) {
+.controller('HealthInfoCtrl', ['$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
   $scope.barwidth="width:0%";
-
+  var patientId = Storage.get('UID')
   $scope.Goback = function(){
     $state.go('tab.mine')
   }
 
+  //从字典中搜索选中的对象。
+  // var searchObj = function(code,array){
+  //     for (var i = 0; i < array.length; i++) {
+  //       if(array[i].Type == code || array[i].type == code || array[i].code == code) return array[i];
+  //     };
+  //     return "未填写";
+  // }
   //console.log(HealthInfo.getall());
 
-  $scope.items = HealthInfo.getall();
+  $scope.items = ""//HealthInfo.getall();
   
 
-
-  $scope.DeleteHealth = function(number){
+  Health.getAllHealths({userId:patientId}).then(
+    function(data)
+    {
+      if (data.results != "" && data.results!= null)
+      {
+        $scope.items = data.results
+        for (var i = 0; i < $scope.items.length; i++){
+          $scope.items[i].acture = $scope.items[i].insertTime
+          $scope.items[i].time = $scope.items[i].time.substr(0,10)
+          $scope.items[i].url = [$scope.items[i].url]
+        }
+      };
+    },
+    function(err)
+    {
+      console.log(err);
+    }
+  )
+  $scope.DeleteHealth = function(item){
     //console.log(number);
      //  confirm 对话框
     
@@ -1594,8 +1634,29 @@ $scope.showPopupSelect = function(name) {
     confirmPopup.then(function(res) {
       if(res) 
         {
-          HealthInfo.remove(number);
-          $scope.items = HealthInfo.getall();
+          Health.deleteHealth({userId:patientId,insertTime:item.acture}).then(
+            function(data)
+            {
+              if (data.results == 0)
+              {
+                for (var i = 0; i < $scope.items.length; i++){
+                  if (item.acture == $scope.items[i].acture)
+                  {
+                    $scope.items.splice(i,1)
+                    break;
+                  }
+                }
+              }
+              
+              console.log($scope.items)
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
+          // HealthInfo.remove(number);
+          // $scope.items = HealthInfo.getall();
         } 
       });
   }
@@ -1615,63 +1676,96 @@ $scope.showPopupSelect = function(name) {
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage) {
   $scope.barwidth="width:0%";
-
+  var patientId = Storage.get('UID')
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
 
+    //从字典中搜索选中的对象。
+  var searchObj = function(code,array){
+    for (var i = 0; i < array.length; i++) {
+      if(array[i].Type == code || array[i].type == code || array[i].code == code) return array[i];
+    };
+    return "未填写";
+  }
+
   // 获取标签类别
   $scope.labels = {}; // 初始化
-  $scope.labels =
-  [
-    {Name:"检查",Type:1},
-    {Name:"化验",Type:2},
-    {Name:"用药",Type:3},
-    {Name:"病历",Type:4},
-  ];
+  Dict.getHeathLabelInfo({category:"healthInfoType"}).then(
+    function(data)
+    {
+      $scope.labels = data.results.details
+      console.log($scope.labels);
+    },
+    function(err)
+    {
+      console.log(err);
+    }
+  )
   //判断是修改还是新增
   if($stateParams.id!=null && $stateParams!=""){
     //修改
-    var info = HealthInfo.search($stateParams.id);
-    $scope.health={
-      label:info.type,
-      date:info.time,
-      text:info.description,
-      imgurl:info.img
-    }
+    var info = $stateParams.id;
+    Health.getHealthDetail({userId:patientId,insertTime:info.acture}).then(
+      function(data)
+      {
+        if (data.results != "" && data.results != null)
+        {
+          $scope.health = data.results
+          if ($scope.health.type != null && $scope.health.type != "")
+          {
+            $scope.health.type = searchObj($scope.health.type,$scope.labels)
+          }
+        }
+        console.log($scope.labels);
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
   }
   else{
     //新增
     $scope.health={
-      label:{Name:"检查",Type:1},
+      label:"",
       date:"",
       text:"",
-      imgurl:"img/healthInfo.jpg"
+      imgurl:""
     }
   }
 
   
 
-  $scope.HealthInfoSetup = function(information){
-    if(information.date!=""&&information.text!=""){
+  $scope.HealthInfoSetup = function(){
+    if($scope.health.label!=""&&$scope.health.text!=""&&$scope.health.date!=""){
         if($stateParams.id==null||$stateParams==""){
-            HealthInfo.new(information);
-            $ionicLoading.show({
-                template:'健康信息保存成功！',
-                duration:1000
-            });
-            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
-
+            Health.createHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
+              function(data)
+              {
+                console.log(data.results);
+                $state.go('tab.myHealthInfo');
+              },
+              function(err)
+              {
+                console.log(err);
+              }
+            )
         }
         else{
-            HealthInfo.edit($stateParams.id,information);
-            $ionicLoading.show({
-                template:'健康信息保存成功！',
-                duration:1000
-            });
-            $timeout(function(){$state.go('tab.myHealthInfo');},1000);
+            Health.modifyHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
+              function(data)
+              {
+                console.log(data.results);
+                $state.go('tab.myHealthInfo');
+              },
+              function(err)
+              {
+                console.log(err);
+              }
+            )
         }
     }
     else{
@@ -1698,7 +1792,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.health.date=yyyy+'/'+m+'/'+d;
+      $scope.health.date=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject4 = {
@@ -1734,19 +1828,34 @@ $scope.showPopupSelect = function(name) {
 
 
 //增值服务--PXY
-.controller('MoneyCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+.controller('MoneyCtrl', ['$scope','$state','$ionicHistory','Account','Storage',function($scope, $state,$ionicHistory,Account,Storage) {
   $scope.barwidth="width:0%";
-
+  var patientId = Storage.get('UID')
   $scope.Goback = function(){
     $state.go('tab.mine')
   }
+
+  $scope.freeTimesRemain ="0";
+  $scope.TimesRemain ="0";
+  $scope.Balance = "0";
   //查询余额等等。。。。。
-
- $scope.freeTimesRemain ="0";
- $scope.TimesRemain ="3";
- $scope.Balance = "87";
-
-  
+  Account.getAccountInfo({userId:patientId}).then(
+    function(data)
+    {
+      if (data.results != "" && data.result != null)
+      {
+        $scope.freeTimesRemain = data.results.freeTimes
+        $scope.TimesRemain = data.results.times
+        $scope.Balance = data.results.money
+      }
+      
+      // console.log($scope.BasicInfo)
+    },
+    function(err)
+    {
+      console.log(err);
+    }
+  )
 }])
 
 
@@ -2204,13 +2313,13 @@ $scope.showPopupSelect = function(name) {
       }
     )
 
-  $scope.question = function(){
-    $state.go("tab.consultquestion1")
-  }
+  // $scope.question = function(){
+  //   $state.go("tab.consultquestion1")
+  // }
 
-  $scope.consult = function(){
-    $state.go("tab.consultquestion1")
-  }
+  // $scope.consult = function(){
+  //   $state.go("tab.consultquestion1")
+  // }
 
 
 }])
@@ -2236,11 +2345,11 @@ $scope.showPopupSelect = function(name) {
     )
 
   $scope.question = function(){
-    $state.go("tab.consultquestion1")
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
   }
 
   $scope.consult = function(){
-    $state.go("tab.consultquestion1")
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
   }
 }])
 
@@ -2262,7 +2371,6 @@ $scope.showPopupSelect = function(name) {
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-  console.log("hi");
 
   $scope.ishide=true;
   $scope.change={oldPassword:"",newPassword:"",confirmPassword:""};
@@ -2551,10 +2659,11 @@ $scope.showPopupSelect = function(name) {
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter) {
+.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','Counsels',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,Counsels) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
+  var DoctorId = $stateParams.DoctorId
   // var patientId = "U201702080016"
   $scope.Genders =
   [
@@ -2705,35 +2814,29 @@ $scope.showPopupSelect = function(name) {
       console.log(err);
     }
   )
-  $scope.Questionare = 
-  {
-    "PatientID": patientId,
-    "FirstDiseaseTime": null,
-    "LastHospital": null,
-    "LastDiagnosisTime": null,
-    "LastDiagnosis": null,
-    "WantedHelp": null,
-    "Title": null
-  }
 
-  $scope.images = 
-  [
-    {
-      "image":"img/1.jpg"
-    },
-    {
-      "image":"img/2.jpg"
-    },
-    {
-      "image":"img/3.jpg"
-    },
-    {
-      "image":"img/4.jpg"
-    },
-    {
-      "image":"img/5.jpg"
-    },
-  ]
+  $scope.Questionare = {
+    "LastDiseaseTime":"",
+    "LastHospital":"",
+    "LastVisitDate":"",
+    "LastDiagnosis":"",
+    "title":"",
+    "help":""
+  }
+  // console.log(angular.toJson($scope.Questionare))
+  if (Storage.get('tempquestionare') !== "" && Storage.get('tempquestionare') !== null)
+  {
+    $scope.Questionare = angular.fromJson(Storage.get('tempquestionare'))
+  }
+  console.log($scope.Questionare)
+  // console.log(Storage.get('tempquestionare'))
+
+  $scope.images = []
+  if (Storage.get('tempimgrul') !== "" && Storage.get('tempimgrul') !== null)
+  {
+    $scope.images = Storage.get('tempimgrul')
+  }
+  console.log($scope.images)
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
   var weekDaysList=["日","一","二","三","四","五","六"];
@@ -2750,7 +2853,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.LastDiagnosisTime=yyyy+'-'+m+'-'+d;
+      $scope.Questionare.LastVisitDate=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -2863,7 +2966,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.FirstDiseaseTime=yyyy+'-'+m+'-'+d;
+      $scope.Questionare.LastDiseaseTime=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -2943,15 +3046,47 @@ $scope.showPopupSelect = function(name) {
   }
 
   $scope.nexttoquestion = function(){
+    Storage.set('tempquestionare',angular.toJson($scope.Questionare))
+    Storage.set('tempimgrul',$scope.images)
     $state.go("tab.consultquestion3")
   }
 
   $scope.backtoDisease = function(){
+    Storage.set('tempquestionare',angular.toJson($scope.Questionare))
     $state.go("tab.consultquestion2")
   } 
 
   $scope.Submitquestion = function(){
-    $state.go("tab.consult-chat", { docId: "doc01" })
+    var temp = {
+      "counselId":"counselpost888",
+      "patientId":patientId,
+      "doctorId":"doc01", 
+      "hospital":$scope.Questionare.LastHospital, 
+      "visitDate":$scope.Questionare.LastVisitDate,
+      "diagnosis":"", 
+      "diagnosisPhotoUrl":[], 
+      "sickTime":$scope.Questionare.LastDiseaseTime, 
+      "symptom":$scope.Questionare.title, 
+      "symptomPhotoUrl":$scope.images, 
+      "help":$scope.Questionare.help
+    }
+    Counsels.questionaire(temp).then(
+      function(data)
+      {
+        if (data.result == "新建成功")
+        {
+          Storage.rm('tempquestionare')
+          Storage.rm('tempimgrul')
+          $state.go("tab.consult-chat", { docId: "doc01" })
+        }
+        console.log(data.results)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+    
   }
 }])
 
