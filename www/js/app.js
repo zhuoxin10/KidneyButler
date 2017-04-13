@@ -104,12 +104,14 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('phonevalid', { 
       cache: false,
       url: '/phonevalid',
+      params:{phonevalidType:null},
       templateUrl: 'partials/login/phonevalid.html',
       controller: 'phonevalidCtrl'
     })
     .state('setpassword', {
       cache:false,
       url: '/setpassword',
+      params:{phonevalidType:null,phoneNumber:null},
       templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
@@ -194,6 +196,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }
       }
     })
+    .state('tab.consult-comment', {
+      url: '/consult/comment',
+      views: {
+        'tab-consult': {
+          cache:false,
+          templateUrl: 'partials/tabs/consult/commentDoctor.html',
+          controller: 'SetCommentCtrl'
+        }
+      }
+    })
     .state('tab.AllDoctors', {
       url: '/AllDoctors',
       views: {
@@ -205,8 +217,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       }
     })
     .state('tab.DoctorDetail', {
-      url: '/DoctorDetail',
-      params:{doctorId:null},
+      url: '/DoctorDetail/:DoctorId',
       views: {
         'tab-consult': {
           cache:false,

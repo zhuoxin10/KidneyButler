@@ -11,10 +11,10 @@
 
      <ion-list>
       <ion-item  class="item-thumbnail-left">
-        <img ng-src="{{doctor.img}}">
+        <img ng-src="{{doctor.img || 'img/doctor3.PNG'}}">
         <span>{{doctor.name}}</span>
-        <span style="margin-left: 120px">{{doctor.department}}</span>
-        <p>{{doctor.workUnit}}{{doctor.title}}</p>
+        <span style="float: right">{{doctor.department}}</span>
+        <p>{{doctor.workUnit}}  {{doctor.title}}</p>
        
         <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
         <p style="color:#2B67F5;font-size: 12px">
