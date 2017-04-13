@@ -735,7 +735,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var VitalSign =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'vitalSign'},{
-            getVitalSigns:{method:'GET', params:{route: 'getVitalSigns'}, timeout: 100000}
+            getVitalSigns:{method:'GET', params:{route: 'getVitalSigns'}, timeout: 100000},
+            insertVitalSign:{method:'POST', params:{route: 'insertVitalSign'}, timeout: 100000}
         });
     }
 
@@ -1561,6 +1562,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getVitalSigns = function(params){
         var deferred = $q.defer();
         Data.VitalSign.getVitalSigns(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    self.insertVitalSign = function(params){
+        var deferred = $q.defer();
+        Data.VitalSign.insertVitalSign(
             params,
             function(data, headers){
                 deferred.resolve(data);
