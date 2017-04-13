@@ -14,15 +14,27 @@
   <ion-content padding="true" style="">
 
     <ion-list>
-      <ion-item ng-repeat="item in items" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail({{item.id}})">
-        <img ng-src="{{item.img}}">
-        <p style="text-align: right">{{item.time}}</p>
-        <h2>{{item.type.Name}}</h2>
+      <ion-item ng-repeat="item in items">
+        <div class="row">
+          <div class="col-25">
+          <div ng-repeat = "img in item.url">
+            <img ng-src="{{img}}" style="width: 100%">
+          </div>
+          </div>
+          <div class="col-75">
+            <div>
+              <h2 style="float:left;margin-left:3%">{{item.label}}</h2>
+              <p style="text-align:right">{{item.time}}</p>
+            </div>
+            <div>
+              <p style="margin-left:3%">{{item.description}}</p>
+            </div>
+          </div>
+        </div>  
         
-        <p>{{item.description}}</p>
         <div style="text-align: right">
-          <button class="button button-clear" style="color:#666" ng-click="DeleteHealth({{item.id}})"><i class="icon ion-trash-a"></i></button>
-          <button class="button button-clear" style="color:#666" ng-click="EditHealth({{item.id}})"><i class="icon ion-edit"></i></button>
+          <button class="button button-clear" style="color:#666" ng-click="DeleteHealth(item)"><i class="icon ion-trash-a"></i></button>
+          <button class="button button-clear" style="color:#666" ng-click="EditHealth(item)"><i class="icon ion-edit"></i></button>
         </div>
 
       </ion-item>
