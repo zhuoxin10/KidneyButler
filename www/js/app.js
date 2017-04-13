@@ -217,8 +217,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       }
     })
     .state('tab.DoctorDetail', {
-      url: '/DoctorDetail',
-      params:{doctorId:null},
+      url: '/DoctorDetail/:DoctorId',
       views: {
         'tab-consult': {
           cache:false,

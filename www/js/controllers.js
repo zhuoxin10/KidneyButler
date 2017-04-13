@@ -21,15 +21,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.signIn = function(logOn) {  
     $scope.logStatus='';
     if((logOn.username!="") && (logOn.password!="")){
-    	var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-    	//手机正则表达式验证
-    	if(!phoneReg.test(logOn.username)){
+      var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+      //手机正则表达式验证
+      if(!phoneReg.test(logOn.username)){
             $scope.logStatus="手机号验证失败！";
             return;
         }
-    	else{
+      else{
             Storage.set('USERNAME',logOn.username);
-    		var logPromise = User.logIn({username:logOn.username,password:logOn.password,role:"patient"});
+        var logPromise = User.logIn({username:logOn.username,password:logOn.password,role:"patient"});
             logPromise.then(function(data){
                 if(data.results==1){
                     if(data.mesg== "User doesn't Exist!"){
@@ -63,18 +63,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
 
             });
-    	}
-    	
+      }
+      
 
     }
     else{
-    	$scope.logStatus="请输入完整信息！";
+      $scope.logStatus="请输入完整信息！";
     }
   }
 
   
   $scope.toRegister = function(){
-  	
+    
     $state.go('phonevalid',{phonevalidType:'register'});
    
   }
@@ -88,7 +88,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //手机号码验证--PXY
 .controller('phonevalidCtrl', ['$scope','$state','$interval', '$stateParams','Storage','User','$timeout', function($scope, $state,$interval,$stateParams,Storage,User,$timeout) {
   $scope.barwidth="width:0%";
-
+  Storage.set("personalinfobackstate","register")
   
   $scope.Verify={Phone:"",Code:""};
   $scope.veritext="获取验证码";
@@ -304,6 +304,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.Goback = function(){
     if (Storage.get("personalinfobackstate") == "mine")
     {
+
       $state.go("tab.mine")
     }
     else
@@ -1751,7 +1752,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //消息中心--PXY
-.controller('messageCtrl', ['$scope','$state','$ionicHistory',function($scope, $state,$ionicHistory) {
+.controller('messageCtrl', ['$scope','$state','$ionicHistory', function($scope, $state,$ionicHistory) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -2020,7 +2021,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo',function($scope, $state,$ionicHistory,DoctorsInfo) {
+.controller('DoctorCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','Dict','Patient','$location',function($scope, $state,$ionicHistory,DoctorsInfo,Dict,Patient,$location) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -2036,78 +2037,172 @@ $scope.showPopupSelect = function(name) {
   }
   //省、市、医院三级查询，联动
 
-  $scope.Provinces=[
-  {
-    Name:"省份",
-    Type:0
-  },
-  {
-    Name:"浙江",
-    Type:1
-  },
-  {
-    Name:"江苏",
-    Type:2
-  }];
+  // $scope.Provinces=[
+  // {
+  //   name:"省份",
+  //   province:0
+  // },
+  // {
+  //   name:"浙江",
+  //   province:1
+  // },
+  // {
+  //   name:"江苏",
+  //   province:2
+  // }];
+  // $scope.Cities=[
+  // {
+  //   name:"地市",
+  //   city:0
+  // },
+  // {
+  //   name:"杭州",
+  //   city:1
+  // },
+  // {
+  //   name:"苏州",
+  //   city:2
+  // }];
+  // $scope.Districts=[
+  // {
+  //   name:"区县",
+  //   district:0
+  // },
+  // {
+  //   name:"上城区",
+  //   district:1
+  // },
+  // {
+  //   name:"下城区",
+  //   district:2
+  // }];
+  // $scope.Hospitals=[
+  // {
+  //   Name:"医院",
+  //   Type:0
+  // },
+  // {
+  //   Name:"浙一",
+  //   Type:1
+  // },
+  // {
+  //   Name:"浙二",
+  //   Type:2
+  // }];
+  $scope.Provinces="";
+  $scope.Cities="";
+  $scope.Districts="";
+  $scope.Hospitals="";
+  Dict.getDistrict({level:"1",province:"",city:"",district:""}).then(
+      function(data)
+      {
+        $scope.Provinces = data.results
+        console.log($scope.Provinces)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
 
-  $scope.province={
-    Name:"省份",
-    Type:0
-  };
+  $scope.getCity = function (province) {
+    console.log($scope.Province)
+    Dict.getDistrict({level:"2",province:province.province,city:"",district:""}).then(
+      function(data)
+      {
+        $scope.Cities = data.results
+        console.log($scope.Cities)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  }
+  
+  $scope.getDistrict = function (city) {
+    Dict.getDistrict({level:"3",province:city.province,city:city.city,district:""}).then(
+      function(data)
+      {
+        $scope.Districts = data.results
+        console.log($scope.Districts)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  }
 
-  $scope.Cities=[
-  {
-    Name:"地市",
-    Type:0
-  },
-  {
-    Name:"杭州",
-    Type:1
-  },
-  {
-    Name:"苏州",
-    Type:2
-  }];
+  $scope.getHospital = function (district) {
+    var locationCode = district.province + district.city + district.district
+    console.log(locationCode)
+    Dict.getHospital({locationCode: locationCode,hostipalCode:""}).then(
+      function(data)
+      {
+        $scope.Hospitals = data.results
+        console.log($scope.Hospitals)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  }
+  
+  $scope.getDoctorByHospital = function (hospital) {
 
-
-  $scope.city={
-    Name:"地市",
-    Type:0
-  };
-
-  $scope.Hospitals=[
-  {
-    Name:"医院",
-    Type:0
-  },
-  {
-    Name:"浙一",
-    Type:1
-  },
-  {
-    Name:"浙二",
-    Type:2
-  }];
-
-  $scope.hospital={
-    Name:"医院",
-    Type:0
-  };
-
+    Patient.getDoctorLists({workUnit: hospital.hospitalName}).then(
+      function(data)
+      {
+        $scope.doctors = data.results
+        console.log($scope.doctors)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  }
   $scope.allDoctors = function(){
     $state.go('tab.AllDoctors');
   }
 
 
   $scope.getDoctorDetail = function(ele, id) {
-        if (ele.target.innerText == '咨询') $state.go("tab.consultquestion1");
-        else if (ele.target.innerText == '问诊') $state.go("tab.consultquestion1");
-        else $state.go('tab.DoctorDetail',{doctorId:id});
+    // var path = '#/tab/DoctorDetail/' + id;
+    // console.log(path)
+    if (ele.target.innerText == '咨询') $state.go("tab.consultquestion1");
+    else if (ele.target.innerText == '问诊') $state.go("tab.consultquestion1");
+    else $state.go('tab.DoctorDetail',{DoctorId:id})
+    // else $location.path(path)
   }
 
 
-  $scope.doctors = DoctorsInfo.getalldoc();
-  $scope.mydoctors = DoctorsInfo.getalldoc();
+  $scope.doctors = "";
+  $scope.mydoctors = "";
+  Patient.getDoctorLists().then(
+      function(data)
+      {
+        $scope.doctors = data.results
+        console.log($scope.doctors)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  Patient.getMyDoctors({userId:"p01"}).then(
+      function(data)
+      {
+        $scope.mydoctors = data.results.doctors
+        console.log($scope.mydoctors)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
 
   $scope.question = function(){
     $state.go("tab.consultquestion1")
@@ -2121,12 +2216,24 @@ $scope.showPopupSelect = function(name) {
 }])
 
 
-.controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','DoctorsInfo','$stateParams',function($scope, $state,$ionicHistory,DoctorsInfo,$stateParams) {
+.controller('DoctorDetailCtrl', ['$scope','$state','$ionicHistory','$stateParams','DoctorsInfo','$stateParams','Doctor',function($scope, $state,$ionicHistory,$stateParams,DoctorsInfo,$stateParams,Doctor) {
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-    var doc = DoctorsInfo.searchdoc($stateParams.doctorId);
-    $scope.doctor = doc;
+  var DoctorId = $stateParams.DoctorId
+
+  $scope.doctor = "";
+  Doctor.getDoctorInfo({userId:DoctorId}).then(
+      function(data)
+      {
+        $scope.doctor = data.results[0].doctorId
+        console.log($scope.doctor)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
 
   $scope.question = function(){
     $state.go("tab.consultquestion1")
@@ -2444,10 +2551,11 @@ $scope.showPopupSelect = function(name) {
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$state', function ($scope, $state) {
-  $scope.showProgress = true
-  $scope.showSurgicalTime = true
-
+.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter) {
+  $scope.showProgress = false
+  $scope.showSurgicalTime = false
+  var patientId = Storage.get('UID')
+  // var patientId = "U201702080016"
   $scope.Genders =
   [
     {Name:"男",Type:1},
@@ -2468,35 +2576,138 @@ $scope.showPopupSelect = function(name) {
     {Name:"否",Type:2}
   ]
 
-  $scope.Diseases =
-  [
-    {Name:"肾移植",Type:1},
-    {Name:"CKD1-2期",Type:2},
-    {Name:"CKD3-4期",Type:3},
-    {Name:"CDK5期未透析",Type:4},
-    {Name:"腹透",Type:5},
-    {Name:"血透",Type:6}
-  ]
-
-  $scope.BasicInfo = 
-  {
-    "PatientID": null,
-    "Name": null,
-    "Gender": null,
-    "BloodType": null,
-    "Hypertension": null,
-    "KidneyDisease": null,
-    "DiseaseDetail": null,
-    "OperationDate": null,
-    "Height": null,
-    "Weight": null,
-    "Birthday": null,
-    "IDCard": null
+  //从字典中搜索选中的对象。
+  var searchObj = function(code,array){
+      for (var i = 0; i < array.length; i++) {
+        if(array[i].Type == code || array[i].type == code || array[i].code == code) return array[i];
+      };
+      return "未填写";
   }
 
+  $scope.Diseases = ""
+  $scope.DiseaseDetails = ""
+  
+  $scope.getDiseaseDetail = function(Disease) {
+    if (Disease.typeName == "肾移植")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+    }
+    else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = false
+    }
+    else
+    {
+      $scope.showProgress = true
+      $scope.showSurgicalTime = false
+      $scope.DiseaseDetails = Disease.details
+    }
+  }
+  $scope.BasicInfo = 
+  {
+    "userId": patientId,
+    "name": null,
+    "gender": null,
+    "bloodType": null,
+    "hypertension": null,
+    "class": null,
+    "class_info": null,
+    "height": null,
+    "weight": null,
+    "birthday": null,
+    "IDNo": null
+  }
+  Patient.getPatientDetail({userId: patientId}).then(
+      function(data)
+      {
+        if (data.results != null)
+        {
+          $scope.BasicInfo.userId = data.results.userId
+          $scope.BasicInfo.name = data.results.name
+          $scope.BasicInfo.gender = data.results.gender
+          $scope.BasicInfo.bloodType = data.results.bloodType
+          $scope.BasicInfo.hypertension = data.results.hypertension
+          $scope.BasicInfo.class = data.results.class
+          $scope.BasicInfo.class_info = data.results.class_info
+          $scope.BasicInfo.height = data.results.height
+          $scope.BasicInfo.birthday = data.results.birthday
+          $scope.BasicInfo.IDNo = data.results.IDNo
+        }
+        if ($scope.BasicInfo.gender != null)
+        {
+          $scope.BasicInfo.gender = searchObj($scope.BasicInfo.gender,$scope.Genders)
+        }
+        if ($scope.BasicInfo.bloodType != null)
+        {
+          $scope.BasicInfo.bloodType = searchObj($scope.BasicInfo.bloodType,$scope.BloodTypes)
+        }
+        if ($scope.BasicInfo.hypertension != null)
+        {
+          $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
+        }
+        if ($scope.BasicInfo.birthday != null)
+        {
+          $scope.BasicInfo.birthday = $scope.BasicInfo.birthday.substr(0,10)
+        }
+        VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
+          function(data)
+          {
+            var n = data.results.length - 1
+            var m = data.results[n].data.length - 1
+            $scope.BasicInfo.weight = data.results[n].data[m].value
+            // console.log($scope.BasicInfo)
+          },
+          function(err)
+          {
+            console.log(err);
+          }
+        )
+        console.log($scope.BasicInfo)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  Dict.getDiseaseType({category:'patient_class'}).then(
+    function(data)
+    {
+      $scope.Diseases = data.results[0].content
+      if ($scope.BasicInfo.class != null)
+      {
+        $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
+        if ($scope.BasicInfo.class.typeName == "血透")
+        {
+          $scope.showProgress = false
+          $scope.showSurgicalTime = false
+          $scope.BasicInfo.class_info == null
+        }
+        else if ($scope.BasicInfo.class.typeName == "肾移植")
+        {
+          $scope.showProgress = false
+          $scope.showSurgicalTime = true
+          $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
+        }
+        else
+        {
+          $scope.showProgress = true
+          $scope.showSurgicalTime = false
+          $scope.DiseaseDetails = $scope.BasicInfo.class.details
+          $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
+        }
+      }
+      console.log($scope.Diseases)
+    },
+    function(err)
+    {
+      console.log(err);
+    }
+  )
   $scope.Questionare = 
   {
-    "PatientID": null,
+    "PatientID": patientId,
     "FirstDiseaseTime": null,
     "LastHospital": null,
     "LastDiagnosisTime": null,
@@ -2539,7 +2750,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.LastDiagnosisTime=yyyy+'/'+m+'/'+d;
+      $scope.Questionare.LastDiagnosisTime=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -2578,7 +2789,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.BasicInfo.OperationDate=yyyy+'/'+m+'/'+d;
+      $scope.BasicInfo.class_info=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject2 = {
@@ -2615,7 +2826,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.BasicInfo.Birthday=yyyy+'/'+m+'/'+d;
+      $scope.BasicInfo.birthday=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject3 = {
@@ -2652,7 +2863,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.FirstDiseaseTime=yyyy+'/'+m+'/'+d;
+      $scope.Questionare.FirstDiseaseTime=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -2681,9 +2892,48 @@ $scope.showPopupSelect = function(name) {
   };  
   // --------datepicker设置结束----------------
   $scope.submit = function(){
-    $state.go("tab.consultquestion2")
+    $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
+    $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
+    $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
+    if ($scope.BasicInfo.class.typeName == "血透")
+    {
+      $scope.BasicInfo.class_info == null
+    }
+    else if ($scope.BasicInfo.class.typeName == "肾移植")
+    {
+      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
+    }
+    else
+    {
+      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
+    }
+    $scope.BasicInfo.class = $scope.BasicInfo.class.type
+    Patient.editPatientDetail($scope.BasicInfo).then(
+      function(data)
+      {
+        console.log(data.results)
+        $state.go("tab.consultquestion2")
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+    var now = new Date()
+    now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+    VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(
+      function(data)
+      {
+        $scope.BasicInfo.weight = data.results
+        console.log($scope.BasicInfo)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
   }
-
+  
   $scope.SKip = function(){
     $state.go("tab.consultquestion2")
   }
@@ -2721,9 +2971,6 @@ $scope.showPopupSelect = function(name) {
         });
     })
 }])
-
-
-
 
 //写评论
 .controller('SetCommentCtrl',['$scope', '$ionicHistory', '$ionicLoading','Storage','$state',

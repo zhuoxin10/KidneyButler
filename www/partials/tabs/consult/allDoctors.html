@@ -12,11 +12,17 @@
   <ion-content padding="true" style="">
 
       <div style="text-align: center;">
-        <select ng-model="province" ng-options="Province.Name for Province in Provinces track by Province.Type" style="width:30%">     
+        <select ng-model="Province.province" ng-options="Province.name for Province in Provinces track by Province.province" style="width:30%" ng-change="getCity(Province.province)"> 
+          <option selected value="">省份</option>    
         </select>
-        <select ng-model="city" ng-options="City.Name for City in Cities track by City.Type" style="width:30%">     
+        <select ng-model="City.city" ng-options="City.name for City in Cities track by City.city" style="width:30%" ng-change="getDistrict(City.city)"> 
+          <option selected value="">城市</option>     
         </select>
-        <select ng-model="hospital" ng-options="Hospital.Name for Hospital in Hospitals track by Hospital.Type" style="width:30%">     
+        <select ng-model="District.district" ng-options="District.name for District in Districts track by District.district" style="width:30%" ng-change="getHospital(District.district)">     
+          <option selected value="">区县</option> 
+        </select>
+        <select ng-model="Hospital.hostipalCode" ng-options="Hospital.hospitalName for Hospital in Hospitals track by Hospital.hostipalCode" style="width:50%" ng-change="getDoctorByHospital(Hospital.hostipalCode)">     
+          <option selected value="">医院</option> 
         </select>
       </div>
           
@@ -32,11 +38,11 @@
     
     <ion-list>
 
-      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.id)">
-        <img ng-src="{{doctor.img}}">
+      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.userId)">
+        <img ng-src="{{doctor.photoUrl  || 'img/doctor3.PNG'}}">
         <span>{{doctor.name}}</span>
-        <span style="margin-left: 120px">{{doctor.department}}</span>
-        <p>{{doctor.workUnit}}{{doctor.title}}</p>
+        <span style="float: right">{{doctor.department}}</span>
+        <p>{{doctor.workUnit}}  {{doctor.title}}</p>
         <p style="font-size: 12px">擅长：{{doctor.major}}</p>
         <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
         <p style="color:#2B67F5;font-size: 12px">
