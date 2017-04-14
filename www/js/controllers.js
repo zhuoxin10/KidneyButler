@@ -4,12 +4,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.barwidth="width:0%";
   Storage.set("personalinfobackstate","logOn")
 
-  //-------------评论页面----------------
-  $scope.test = function(){
-    $state.go('tab.consult-comment');
-
-  }
-  //------------测试结束----------------------
+  
   
 
   if(Storage.get('USERNAME')!=null){
@@ -46,7 +41,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $ionicHistory.clearCache();
                     $ionicHistory.clearHistory();
                     Storage.set('TOKEN',data.results.token);//token作用目前还不明确
-                    Storage.set('isSignIn',true);
+                    Storage.set('isSignIn',"Yes");
                     Storage.set('UID',data.results.userId);
                     $timeout(function(){$state.go('tab.tasklist');},500);
 
@@ -1418,52 +1413,72 @@ $scope.showPopupSelect = function(name) {
 }])
 
 //咨询记录--PXY
-.controller('ConsultRecordCtrl', ['$scope','$timeout','$state','$ionicHistory',function($scope, $timeout,$state,$ionicHistory) {
+.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
     $state.go('tab.mine')
   }
   //根据患者ID查询其咨询记录,对response的长度加一定限制
-  $scope.items =[
-  {
-    img:"img/doctor1.PNG",
-    name:"李芳",
-    time:"2017/03/04",
-    response:"您好,糖尿病患者出现肾病的,一般会出现低蛋白血症.低蛋白血症患者一般会出现浮肿.治疗浮肿时就需要适当的补充蛋白,但我们一般提倡使用优质蛋白,我不知道您的蛋白粉是不是植物蛋白,所以您还是慎重一点好."
 
-  },
-  {
-    img:"img/doctor2.PNG",
-    name:"张三",
-    time:"2017/03/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+    //var patientID = Storage.get('UID');
+    var patientID = 'p01';
 
-  },
-  {
-    img:"img/doctor3.PNG",
-    name:"李四",
-    time:"2017/02/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
-  },
-  {
-    img:"img/doctor4.PNG",
-    name:"董星",
-    time:"2017/01/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+    //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
+    var FilterDoctor = function(arr){
+        var result =[];
+        var hash ={};
+        for(var i =arr.length-1; i>=0; i--){
+            var elem = arr[i].doctorId.userId;
+            if(!hash[elem]){
+                result.push(arr[i]);
+                hash[elem] = true;
+            }
+        }
+        return result;
+    }
+    var promise = Patient.getCounselRecords({userId:patientID});
+    promise.then(function(data){
+        if(data.results!=""){
 
-  },
-  {
-    img:"img/doctor5.PNG",
-    name:"赵冰低",
-    time:"2016/01/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+            FilteredDoctors = FilterDoctor(data.results);
+            console.log(FilteredDoctors);
 
-  }
-  
 
-  ]
+            items = new Array();
+            for(x in FilteredDoctors){
+                var doctor = FilteredDoctors[x];
+                console.log(doctor);
+
+                var messages = doctor.messages;
+                console.log("messages:" + messages);
+
+
+                var res = "您已发起咨询，医生暂未回复，请稍后！";
+                for(var i = messages.length-1;i>=0;i--){
+                    if(messages[i].sender==doctor.doctorId.userId){
+                        res = messages[i].content;
+                    }
+                }
+                if(doctor.doctorId.photoUrl==""){
+                    doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
+                }
+                var consultTime = doctor.time.substr(0,10);
+                
+                var item ={img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+                items.push(item);
+
+            }
+            $scope.items = items;
+
+        }else{
+            console.log('没有咨询记录');
+        }
+    },function(err){
+        console.log(err);
+
+    });
     
   $scope.getConsultRecordDetail = function() {
     $state.go("tab.consult-chat")
@@ -1471,6 +1486,8 @@ $scope.showPopupSelect = function(name) {
 
   
 }])
+
+
 //聊天 XJZ 
 .controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http) {
     $scope.input = {
@@ -2053,7 +2070,8 @@ $scope.showPopupSelect = function(name) {
 
 
 //消息中心--PXY
-.controller('messageCtrl', ['$scope','$state','$ionicHistory', function($scope, $state,$ionicHistory) {
+//消息中心--PXY
+.controller('messageCtrl', ['Patient','Storage','$scope','$state','$ionicHistory', function(Patient,Storage,$scope, $state,$ionicHistory) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -2091,54 +2109,79 @@ $scope.showPopupSelect = function(name) {
     time:"2017/03/11",
     response:"你的血压值已超出控制范围！"
 
-  }]
+  }];
 
 
-  $scope.consults =[
-  {
-    img:"img/doctor1.PNG",
-    name:"李芳",
-    time:"2017/03/04",
-    response:"您好,糖尿病患者出现肾病的,一般会出现低蛋白血症.低蛋白血症患者一般会出现浮肿.治疗浮肿时就需要适当的补充蛋白,但我们一般提倡使用优质蛋白,我不知道您的蛋白粉是不是植物蛋白,所以您还是慎重一点好."
+  //根据患者ID查询其咨询记录,对response的长度加一定限制
 
-  },
-  {
-    img:"img/doctor2.PNG",
-    name:"张三",
-    time:"2017/03/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+    //var patientID = Storage.get('UID');
+    var patientID = 'p01';
 
-  },
-  {
-    img:"img/doctor3.PNG",
-    name:"李四",
-    time:"2017/02/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
 
-  },
-  {
-    img:"img/doctor4.PNG",
-    name:"董星",
-    time:"2017/01/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+    //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
+    var FilterDoctor = function(arr){
+        var result =[];
+        var hash ={};
+        for(var i =arr.length-1; i>=0; i--){
+            var elem = arr[i].doctorId.userId;
+            if(!hash[elem]){
+                result.push(arr[i]);
+                hash[elem] = true;
+            }
+        }
+        return result;
+    }
+    var promise = Patient.getCounselRecords({userId:patientID});
+    promise.then(function(data){
+        if(data.results!=""){
 
-  },
-  {
-    img:"img/doctor5.PNG",
-    name:"赵冰低",
-    time:"2016/01/01",
-    response:"糖尿病肾损害的发生发展分5期.Ⅰ期,为糖尿病初期,肾体积增大,肾小球滤过滤增高,肾小球入球小动脉扩张,肾小球内压升高.Ⅱ期,肾小球毛细血管基底膜增厚,尿白蛋白排泄率多正常,或间歇性升高。"
+            FilteredDoctors = FilterDoctor(data.results);
+            console.log(FilteredDoctors);
 
-  }
+
+            items = new Array();
+            for(x in FilteredDoctors){
+                var doctor = FilteredDoctors[x];
+                console.log(doctor);
+
+                var messages = doctor.messages;
+                console.log("messages:" + messages);
+
+
+                var res = "您已发起咨询，医生暂未回复，请稍后！";
+                for(var i = messages.length-1;i>=0;i--){
+                    if(messages[i].sender==doctor.doctorId.userId){
+                        res = messages[i].content;
+                    }
+                }
+                if(doctor.doctorId.photoUrl==""){
+                    doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
+                }
+                var consultTime = doctor.time.substr(0,10);
+                
+                var item ={img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+                items.push(item);
+
+            }
+            $scope.consults = items;
+
+        }else{
+            console.log('没有咨询记录');
+        }
+    },function(err){
+        console.log(err);
+
+    });
+
+
   
-
-  ]
     
 
     
 
   
 }])
+
 
 
 //消息类型--PXY
