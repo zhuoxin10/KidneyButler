@@ -284,7 +284,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //个人信息--PXY
-.controller('userdetailCtrl',['$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover',function($scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover){
+.controller('userdetailCtrl',['$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter',function($scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter){
   $scope.barwidth="width:0%";
   //注册时可跳过个人信息
   $scope.CanSkip = function(){
@@ -313,70 +313,198 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
   }
 
-  
-     
-     //初始待选项出现一条空白
-      // 获取性别类型
-      $scope.Genders = {};// 初始化
-      $scope.Genders =
-        [
-        {Name:"男",Type:1},
-        {Name:"女",Type:2}
-        ]
-      ; 
-      //$scope.User.Gender =$scope.Genders[0];//默认选项
-      // 获取血型类型
-      $scope.BloodTypes = {}; // 初始化
-      $scope.BloodTypes =
-        [
-        {Name:"A型",Type:1},
-        {Name:"B型",Type:2},
-        {Name:"AB型",Type:3},
-        {Name:"O型",Type:4}
-        ]
-      ; 
-      //$scope.User.BloodType={Name:"A型",Type:1};//默认选项
-      // 获取是否高血压类型
-      $scope.Hypers = {}; // 初始化
-      $scope.Hypers =
-      [
-        {Name:"是",Type:1},
-        {Name:"否",Type:2},
-        ];
-      
-      //$scope.User.Hypertension={Name:"是",Type:1};//默认选项
-      // 获取肾病类型
-      $scope.Diseases = {}; // 初始化
-      $scope.Diseases =
-      [
-        {Name:"肾移植",Type:1},
-        {Name:"CKD1-2期",Type:2},
-        {Name:"CKD3-4期",Type:3},
-        {Name:"CDK5期未透析",Type:4},
-        {Name:"腹透",Type:5},
-        {Name:"血透",Type:6},
-        ];
-      //$scope.User.KidneyDisease={t:{Name:"肾移植",Type:1}};//默认选项
+  $scope.showProgress = false
+  $scope.showSurgicalTime = false
+  var patientId = Storage.get('UID')
+  // var patientId = "U201702080016"
+  $scope.Genders =
+  [
+    {Name:"男",Type:1},
+    {Name:"女",Type:2}
+  ]
 
-      $scope.DiseaseDetails = {};
-      $scope.DiseaseDetails =
-      [
-        {Name:"稳定",Type:1},
-        {Name:"控制不佳",Type:2},
-      ]
+  $scope.BloodTypes =
+  [
+    {Name:"A型",Type:1},
+    {Name:"B型",Type:2},
+    {Name:"AB型",Type:3},
+    {Name:"O型",Type:4}
+  ]
 
+  $scope.Hypers =
+  [
+    {Name:"是",Type:1},
+    {Name:"否",Type:2}
+  ]
 
-$scope.showProgress = function(){
-  //console.log($scope.User.KidneyDisease.t.Type);
-  if($scope.User.KidneyDisease.t.Type == 1){
-    //console.log("肾移植");
-    return false;}
-  else{
-    //console.log("疾病进程");
-    return true;}
-}
+  //从字典中搜索选中的对象。
+  var searchObj = function(code,array){
+      for (var i = 0; i < array.length; i++) {
+        if(array[i].Type == code || array[i].type == code || array[i].code == code) return array[i];
+      };
+      return "未填写";
+  }
 
-      
+  $scope.Diseases = ""
+  $scope.DiseaseDetails = ""
+
+  $scope.getDiseaseDetail = function(Disease) {
+    if (Disease.typeName == "肾移植")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+    }
+    else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = false
+    }
+    else
+    {
+      $scope.showProgress = true
+      $scope.showSurgicalTime = false
+      $scope.DiseaseDetails = Disease.details
+    }
+  }
+
+  $scope.User = 
+  {
+    "userId": patientId,
+    "name": null,
+    "gender": null,
+    "bloodType": null,
+    "hypertension": null,
+    "class": null,
+    "class_info": null,
+    "height": null,
+    "weight": null,
+    "birthday": null,
+    "IDNo": null,
+    "operationTime":null,
+    "lastVisittime":null,
+    "lastVisithospital":null,
+    "lastVisitdiagnosis":null
+  }
+  var newpatientflag = false
+  Patient.getPatientDetail({userId:patientId}).then(
+    function(data)
+    {
+      if (data.results != null)
+      {
+        Patient.getPatientDetail({userId: patientId}).then(
+          function(data)
+          {
+            if (data.results != null)
+            {
+              $scope.User.userId = data.results.userId
+              $scope.User.name = data.results.name
+              $scope.User.gender = data.results.gender
+              $scope.User.bloodType = data.results.bloodType
+              $scope.User.hypertension = data.results.hypertension
+              $scope.User.class = data.results.class
+              $scope.User.class_info = data.results.class_info
+              $scope.User.height = data.results.height
+              $scope.User.birthday = data.results.birthday
+              $scope.User.IDNo = data.results.IDNo
+              $scope.User.operationTime = data.results.operationTime
+              $scope.User.lastVisittime = data.results.lastVisittime
+              $scope.User.lastVisithospital = data.results.lastVisithospital
+              $scope.User.lastVisitdiagnosis = data.results.lastVisitdiagnosis
+            }
+            if ($scope.User.gender != null)
+            {
+              $scope.User.gender = searchObj($scope.User.gender,$scope.Genders)
+            }
+            if ($scope.User.bloodType != null)
+            {
+              $scope.User.bloodType = searchObj($scope.User.bloodType,$scope.BloodTypes)
+            }
+            if ($scope.User.hypertension != null)
+            {
+              $scope.User.hypertension = searchObj($scope.User.hypertension,$scope.Hypers)
+            }
+            if ($scope.User.birthday != null)
+            {
+              $scope.User.birthday = $scope.User.birthday.substr(0,10)
+            }
+            if ($scope.User.operationTime != null)
+            {
+              $scope.User.operationTime = $scope.User.operationTime.substr(0,10)
+            }
+            VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
+              function(data)
+              {
+                var n = data.results.length - 1
+                var m = data.results[n].data.length - 1
+                $scope.User.weight = data.results[n].data[m].value
+                // console.log($scope.BasicInfo)
+              },
+              function(err)
+              {
+                console.log(err);
+              }
+            )
+            Dict.getDiseaseType({category:'patient_class'}).then(
+              function(data)
+              {
+                $scope.Diseases = data.results[0].content
+                if ($scope.User.class != null)
+                {
+                  $scope.User.class = searchObj($scope.User.class,$scope.Diseases)
+                  if ($scope.User.class.typeName == "血透")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = false
+                    $scope.User.class_info == null
+                  }
+                  else if ($scope.User.class.typeName == "肾移植")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = true
+                  }
+                  else
+                  {
+                    $scope.showProgress = true
+                    $scope.showSurgicalTime = false
+                    $scope.DiseaseDetails = $scope.User.class.details
+                    $scope.User.class_info = searchObj($scope.User.class_info[0],$scope.DiseaseDetails)              
+                  }
+                }
+                // console.log($scope.Diseases)
+              },
+              function(err)
+              {
+                console.log(err);
+              }
+            )
+            console.log($scope.User)
+          },
+          function(err)
+          {
+            console.log(err);
+          }
+        )
+      }
+      else
+      {
+        newpatientflag = true
+        Dict.getDiseaseType({category:'patient_class'}).then(
+          function(data)
+          {
+            $scope.Diseases = data.results[0].content
+          },
+          function(err)
+          {
+            console.log(err);
+          }
+        )
+      }
+    },
+    function(err)
+    {
+      console.log(err);
+    }
+  )      
 
   
 
@@ -384,61 +512,62 @@ $scope.showProgress = function(){
   
 
 
-var initUserDetail = function(){
-  $ionicLoading.show({
-          template: '<ion-spinner style="height:2em;width:2em"></ion-spinner>'
-         });
-//先到个人信息表里查询有无此人，如果有从数据库读取个人信息显示在页面，如果没有则全显示空（注册用户）
-//初始化
-  var someone = Storage.get("user.name");
-  if(someone!== null){
-    //localStorage存储json对象需要和字符串之间进行相互转化
-    var blood = JSON.parse(Storage.get("user.bloodtype"));
-    var sex = JSON.parse(Storage.get("user.gender"));
-    var disease = JSON.parse(Storage.get("user.kiddisease"));
-    var hyperten = JSON.parse(Storage.get("user.hypertension"));
-    $scope.User={
-    Name:Storage.get("user.name"),
-    Gender:sex,
-    BloodType:blood,
-    Hypertension:hyperten,
-    KidneyDisease:{t:disease},
-    DiseaseDetail:Storage.get("user.diseasedetail"),
-    OperationDate:Storage.get("user.operationdate"),
-    Height:Storage.get("user.height"),
-    Weight:Storage.get("user.weight"),
-    Birthday:Storage.get("user.birthday"),
-    IDCard:Storage.get("user.idcard"),
-    LastHospital:Storage.get("user.hospital"),
-    LastDiagnosisTime:Storage.get("user.diagnosisitime"),
-    LastDiagnosis:Storage.get("user.diagnosis")};
+// var initUserDetail = function(){
+//   $ionicLoading.show({
+//           template: '<ion-spinner style="height:2em;width:2em"></ion-spinner>'
+//          });
+// //先到个人信息表里查询有无此人，如果有从数据库读取个人信息显示在页面，如果没有则全显示空（注册用户）
+// //初始化
 
-  }
-  else{
-    $scope.User={
-    Name:"",
-    Gender:{Name:"男",Type:1},//默认选项
-    BloodType:{Name:"A型",Type:1},
-    Hypertension:{Name:"是",Type:1},
-    KidneyDisease:{t:{Name:"肾移植",Type:1}},
-    DiseaseDetail:{t:{Name:"稳定",Type:1}},
-    OperationDate:"",
-    Height:"",
-    Weight:"",
-    Birthday:"",
-    IDCard:"",
-    LastHospital:"",
-    LastDiagnosisTime:"",
-    LastDiagnosis:""};
+//   var someone = Storage.get("user.name");
+//   if(someone!== null){
+//     //localStorage存储json对象需要和字符串之间进行相互转化
+//     var blood = JSON.parse(Storage.get("user.bloodtype"));
+//     var sex = JSON.parse(Storage.get("user.gender"));
+//     var disease = JSON.parse(Storage.get("user.kiddisease"));
+//     var hyperten = JSON.parse(Storage.get("user.hypertension"));
+//     $scope.User={
+//     Name:Storage.get("user.name"),
+//     Gender:sex,
+//     BloodType:blood,
+//     Hypertension:hyperten,
+//     KidneyDisease:{t:disease},
+//     DiseaseDetail:Storage.get("user.diseasedetail"),
+//     OperationDate:Storage.get("user.operationdate"),
+//     Height:Storage.get("user.height"),
+//     Weight:Storage.get("user.weight"),
+//     Birthday:Storage.get("user.birthday"),
+//     IDCard:Storage.get("user.idcard"),
+//     LastHospital:Storage.get("user.hospital"),
+//     LastDiagnosisTime:Storage.get("user.diagnosisitime"),
+//     LastDiagnosis:Storage.get("user.diagnosis")};
 
-  }
+//   }
+//   else{
+//     $scope.User={
+//     Name:"",
+//     Gender:{Name:"男",Type:1},//默认选项
+//     BloodType:{Name:"A型",Type:1},
+//     Hypertension:{Name:"是",Type:1},
+//     KidneyDisease:{t:{Name:"肾移植",Type:1}},
+//     DiseaseDetail:{t:{Name:"稳定",Type:1}},
+//     OperationDate:"",
+//     Height:"",
+//     Weight:"",
+//     Birthday:"",
+//     IDCard:"",
+//     LastHospital:"",
+//     LastDiagnosisTime:"",
+//     LastDiagnosis:""};
+
+// //   }
   
 
-  setTimeout(function(){$ionicLoading.hide();},400);
+//   setTimeout(function(){$ionicLoading.hide();},400);
 
-}
+// }
 
-initUserDetail();
+// initUserDetail();
   
 
   
@@ -463,7 +592,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.LastDiagnosisTime=yyyy+'-'+m+'-'+d;
+      $scope.User.lastVisittime=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -502,7 +631,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.OperationDate=yyyy+'-'+m+'-'+d;
+      $scope.User.operationTime=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject2 = {
@@ -539,7 +668,7 @@ initUserDetail();
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.Birthday=yyyy+'-'+m+'-'+d;
+      $scope.User.birthday=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject3 = {
@@ -568,93 +697,156 @@ initUserDetail();
 
 
    //////////////////////////////////////////////////////////////////////////
-      $scope.change = function(d)
-      {
-        console.log(d);
-      }
+      // $scope.change = function(d)
+      // {
+      //   console.log(d);
+      // }
 
       
       //////////////////////////////////////////////////////////////////////////
       // 修改信息后的保存
-  var InsertUserDetail = function(User){
-    console.log(User.BloodType);
-    Storage.set("user.name",User.Name);
-    Storage.set("user.gender",JSON.stringify(User.Gender));
-    Storage.set("user.bloodtype",JSON.stringify(User.BloodType));
-    Storage.set("user.hypertension",JSON.stringify(User.Hypertension));
-    Storage.set("user.kiddisease",JSON.stringify(User.KidneyDisease.t));
-    Storage.set("user.diseasedetail",User.DiseaseDetail);
-    Storage.set("user.operationdate",User.OperationDate);
-    Storage.set("user.height",User.Height);
-    Storage.set("user.weight",User.Weight);
-    Storage.set("user.birthday",User.Birthday);
-    Storage.set("user.idcard",User.IDCard);
-    Storage.set("user.hospital" ,User.LastHospital);
-    Storage.set("user.diagnosisitime",User.LastDiagnosisTime);
-    Storage.set("user.diagnosis",User.LastDiagnosis);
-    $ionicPopup.alert({
-      title: '保存成功',
-      template: '个人信息修改完成！'
-    })
+  // var InsertUserDetail = function(User){
+  //   console.log(User.BloodType);
+  //   Storage.set("user.name",User.Name);
+  //   Storage.set("user.gender",JSON.stringify(User.Gender));
+  //   Storage.set("user.bloodtype",JSON.stringify(User.BloodType));
+  //   Storage.set("user.hypertension",JSON.stringify(User.Hypertension));
+  //   Storage.set("user.kiddisease",JSON.stringify(User.KidneyDisease.t));
+  //   Storage.set("user.diseasedetail",User.DiseaseDetail);
+  //   Storage.set("user.operationdate",User.OperationDate);
+  //   Storage.set("user.height",User.Height);
+  //   Storage.set("user.weight",User.Weight);
+  //   Storage.set("user.birthday",User.Birthday);
+  //   Storage.set("user.idcard",User.IDCard);
+  //   Storage.set("user.hospital" ,User.LastHospital);
+  //   Storage.set("user.diagnosisitime",User.LastDiagnosisTime);
+  //   Storage.set("user.diagnosis",User.LastDiagnosis);
+  //   $ionicPopup.alert({
+  //     title: '保存成功',
+  //     template: '个人信息修改完成！'
+  //   })
     
-  }
+  // }
      
 
 
-  $scope.infoSetup = function(User){
+  $scope.infoSetup = function(){
     //console.log(User.Name);
-    if (User.Name!=undefined && User.Name!='') {
+    if ($scope.User.name!=undefined && $scope.User.name!='') {
       //如果必填信息不为空
-      console.log("不为空");
+      // console.log("不为空");
       var IDreg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
       var PositiveReg = /^\d+(?=\.{0,1}\d+$|$)/;
 
 
-      if (User.IDCard!='' && IDreg.test(User.IDCard) == false){
-            console.log("身份证");
+      if ($scope.User.IDNo!='' && IDreg.test($scope.User.IDNo) == false){
+            // console.log("身份证");
             $ionicLoading.show({
-            template: '保存失败,请输入正确的身份证号',
+            template: '请输入正确的身份证号',
             duration:1000
             });
       }
-      else if((User.Height!='' && PositiveReg.test(User.Height) == false )||(User.Weight!=''&&PositiveReg.test(User.Weight) == false) ){
-          console.log("身高体重");
+      else if(($scope.User.height!='' && PositiveReg.test($scope.User.height) == false )||($scope.User.weight!=''&&PositiveReg.test($scope.User.weight) == false) ){
+          // console.log("身高体重");
           $ionicLoading.show({
-            template: '保存失败,请输入正确的身高体重',
+            template: '请输入正确的身高体重',
             duration:1000
             });
       }
     
-      else if(User.KidneyDisease.t.Type==1){
-        if(User.OperationDate==""){
-          console.log("手术");
+      else if($scope.User.class.type == ""){
           $ionicLoading.show({
-            template: '保存失败,请输入手术日期',
+            template: '请选择疾病类型',
             duration:1000
             });
-        }
-        else{InsertUserDetail(User);}
       }
-      else if(User.KidneyDisease.t.Type!=1){
-        if(User.DiseaseDetail==""){
-          console.log("进程");
-          $ionicLoading.show({
-            template: '保存失败,请输入疾病进程',
-            duration:1000
-            });
+      else{
+        if (newpatientflag == true)
+        {
+          $scope.User.gender = $scope.User.gender.Type
+          $scope.User.bloodType = $scope.User.bloodType.Type
+          $scope.User.hypertension = $scope.User.hypertension.Type
+          if ($scope.User.class.typeName == "血透")
+          {
+            $scope.User.class_info == null
+          }
+          else
+          {
+            $scope.User.class_info = $scope.User.class_info.code
+          }
+          $scope.User.class = $scope.User.class.type
+          Patient.newPatientDetail($scope.User).then(
+            function(data)
+            {
+              console.log(data.results)
+              $state.go("tab.mine")
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
+          var now = new Date()
+          now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+          VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+            function(data)
+            {
+              $scope.User.weight = data.results
+              console.log($scope.User)
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
         }
-        else{InsertUserDetail(User);}
+        else
+        {
+          $scope.User.gender = $scope.User.gender.Type
+          $scope.User.bloodType = $scope.User.bloodType.Type
+          $scope.User.hypertension = $scope.User.hypertension.Type
+          if ($scope.User.class.typeName == "血透")
+          {
+            $scope.User.class_info == null
+          }
+          else
+          {
+            $scope.User.class_info = $scope.User.class_info.code
+          }
+          $scope.User.class = $scope.User.class.type
+          Patient.editPatientDetail($scope.User).then(
+            function(data)
+            {
+              console.log(data.results)
+              $state.go("tab.mine")
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
+          var now = new Date()
+          now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+          VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+            function(data)
+            {
+              $scope.User.weight = data.results
+              console.log($scope.User)
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
+        }
       }
-
     }
     else{
-      console.log("不完整");
       $ionicLoading.show({
-        template: '保存失败,信息填写不完整',
+        template: '信息填写不完整,请完善必填信息',
         duration:1000
       });
     }
-
   }
 
 
@@ -2335,7 +2527,7 @@ $scope.showPopupSelect = function(name) {
   Doctor.getDoctorInfo({userId:DoctorId}).then(
       function(data)
       {
-        $scope.doctor = data.results[0].doctorId
+        $scope.doctor = data.result
         console.log($scope.doctor)
       },
       function(err)
@@ -2723,6 +2915,7 @@ $scope.showPopupSelect = function(name) {
     "hypertension": null,
     "class": null,
     "class_info": null,
+    "operationTime": null,
     "height": null,
     "weight": null,
     "birthday": null,
@@ -2743,6 +2936,7 @@ $scope.showPopupSelect = function(name) {
           $scope.BasicInfo.height = data.results.height
           $scope.BasicInfo.birthday = data.results.birthday
           $scope.BasicInfo.IDNo = data.results.IDNo
+          $scope.BasicInfo.operationTime = data.results.operationTime
         }
         if ($scope.BasicInfo.gender != null)
         {
@@ -2797,7 +2991,6 @@ $scope.showPopupSelect = function(name) {
         {
           $scope.showProgress = false
           $scope.showSurgicalTime = true
-          $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
         }
         else
         {
@@ -2892,7 +3085,7 @@ $scope.showPopupSelect = function(name) {
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.BasicInfo.class_info=yyyy+'-'+m+'-'+d;
+      $scope.BasicInfo.operationTime=yyyy+'-'+m+'-'+d;
     }
   };
   $scope.datepickerObject2 = {
@@ -3011,24 +3204,31 @@ $scope.showPopupSelect = function(name) {
       $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
     }
     $scope.BasicInfo.class = $scope.BasicInfo.class.type
-    Patient.editPatientDetail($scope.BasicInfo).then(
-      function(data)
-      {
-        console.log(data.results)
-        $state.go("tab.consultquestion2")
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
     var now = new Date()
     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
     VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(
       function(data)
       {
-        $scope.BasicInfo.weight = data.results
-        console.log($scope.BasicInfo)
+        if(data.result == "修改成功" || data.result == "新建或修改成功")
+        {
+          $scope.BasicInfo.weight = data.results
+          Patient.editPatientDetail($scope.BasicInfo).then(
+            function(data)
+            {
+              if(data.result == "修改成功" || data.result == "新建或修改成功")
+              {
+                console.log(data.results)
+                $state.go("tab.consultquestion2")
+              }
+            },
+            function(err)
+            {
+              console.log(err);
+            }
+          )
+          console.log($scope.BasicInfo)
+        }
+        
       },
       function(err)
       {
