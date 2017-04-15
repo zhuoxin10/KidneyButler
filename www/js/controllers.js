@@ -2661,7 +2661,7 @@ $scope.showPopupSelect = function(name) {
   Doctor.getDoctorInfo({userId:DoctorId}).then(
       function(data)
       {
-        $scope.doctor = data.result
+        $scope.doctor = data.results
         console.log($scope.doctor)
       },
       function(err)
