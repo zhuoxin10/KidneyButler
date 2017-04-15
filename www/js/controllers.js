@@ -2415,7 +2415,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location) {
+.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -2575,7 +2575,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -2589,7 +2589,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -2600,7 +2600,7 @@ $scope.showPopupSelect = function(name) {
 
 
   $scope.doctors = "";
-  $scope.mydoctors = "";
+  $scope.doctor = "";
   Patient.getDoctorLists().then(
       function(data)
       {
@@ -2612,17 +2612,29 @@ $scope.showPopupSelect = function(name) {
         console.log(err);
       }
     )
-  Patient.getMyDoctors({userId:"p01"}).then(
-      function(data)
-      {
-        $scope.mydoctors = data.results.doctors
-        console.log($scope.mydoctors)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+  //获取我的主管医生信息，目前暂时为写死的医生ID
+  Doctor.getDoctorInfo({userId:"U201702070041"}).then(
+    function(data)
+    {
+      $scope.doctor = data.results
+      console.log($scope.doctor)
+    },
+    function(err)
+    {
+      console.log(err)
+    }
+  )
+  // Patient.getMyDoctors({userId:"p01"}).then(
+  //     function(data)
+  //     {
+  //       $scope.mydoctors = data.results.doctors
+  //       console.log($scope.mydoctors)
+  //     },
+  //     function(err)
+  //     {
+  //       console.log(err);
+  //     }
+  //   )
 
   // $scope.question = function(){
   //   $state.go("tab.consultquestion1")
@@ -3363,7 +3375,7 @@ $scope.showPopupSelect = function(name) {
               if(data.result == "修改成功" || data.result == "新建或修改成功")
               {
                 console.log(data.results)
-                $state.go("tab.consultquestion2")
+                $state.go("tab.consultquestion2",{DoctorId:DoctorId})
               }
             },
             function(err)
@@ -3383,22 +3395,22 @@ $scope.showPopupSelect = function(name) {
   }
   
   $scope.SKip = function(){
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1")
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
   }
 
   $scope.nexttoquestion = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
     Storage.set('tempimgrul',$scope.images)
-    $state.go("tab.consultquestion3")
+    $state.go("tab.consultquestion3",{DoctorId:DoctorId})
   }
 
   $scope.backtoDisease = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   } 
 
   $scope.Submitquestion = function(){
@@ -3424,11 +3436,12 @@ $scope.showPopupSelect = function(name) {
           JM.sendCustom('single',DoctorId,CONFIG.crossKey,temp)
           .then(function(){
 
-            $state.go("tab.consult-chat", { docId: "doc01" })
+            $state.go("tab.consult-chat",{DoctorId:DoctorId});
 
           },function(err){
 
           })
+
         }
         console.log(data.results)
       },
