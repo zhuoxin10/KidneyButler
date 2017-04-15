@@ -2418,7 +2418,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location) {
+.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -2603,7 +2603,7 @@ $scope.showPopupSelect = function(name) {
 
 
   $scope.doctors = "";
-  $scope.mydoctors = "";
+  $scope.doctor = "";
   Patient.getDoctorLists().then(
       function(data)
       {
@@ -2615,17 +2615,29 @@ $scope.showPopupSelect = function(name) {
         console.log(err);
       }
     )
-  Patient.getMyDoctors({userId:"p01"}).then(
-      function(data)
-      {
-        $scope.mydoctors = data.results.doctors
-        console.log($scope.mydoctors)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+  //获取我的主管医生信息，目前暂时为写死的医生ID
+  Doctor.getDoctorInfo({userId:"U201702070041"}).then(
+    function(data)
+    {
+      $scope.doctor = data.results
+      console.log($scope.doctor)
+    },
+    function(err)
+    {
+      console.log(err)
+    }
+  )
+  // Patient.getMyDoctors({userId:"p01"}).then(
+  //     function(data)
+  //     {
+  //       $scope.mydoctors = data.results.doctors
+  //       console.log($scope.mydoctors)
+  //     },
+  //     function(err)
+  //     {
+  //       console.log(err);
+  //     }
+  //   )
 
   // $scope.question = function(){
   //   $state.go("tab.consultquestion1")
