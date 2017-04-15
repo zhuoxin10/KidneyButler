@@ -3050,6 +3050,41 @@ $scope.showPopupSelect = function(name) {
       $scope.DiseaseDetails = Disease.details
     }
   }
+  var initialDict = function(){
+    Dict.getDiseaseType({category:'patient_class'}).then(
+      function(data)
+      {
+        $scope.Diseases = data.results[0].content
+        if ($scope.BasicInfo.class != null)
+        {
+          $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
+          if ($scope.BasicInfo.class.typeName == "血透")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = false
+            $scope.BasicInfo.class_info == null
+          }
+          else if ($scope.BasicInfo.class.typeName == "肾移植")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = true
+          }
+          else
+          {
+            $scope.showProgress = true
+            $scope.showSurgicalTime = false
+            $scope.DiseaseDetails = $scope.BasicInfo.class.details
+            $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
+          }
+        }
+        console.log($scope.Diseases)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+  }
   $scope.BasicInfo = 
   {
     "userId": patientId,
@@ -3065,6 +3100,7 @@ $scope.showPopupSelect = function(name) {
     "birthday": null,
     "IDNo": null
   }
+  initialDict()
   Patient.getPatientDetail({userId: patientId}).then(
       function(data)
       {
@@ -3098,6 +3134,7 @@ $scope.showPopupSelect = function(name) {
         {
           $scope.BasicInfo.birthday = $scope.BasicInfo.birthday.substr(0,10)
         }
+        initialDict()
         VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
           function(data)
           {
@@ -3118,39 +3155,6 @@ $scope.showPopupSelect = function(name) {
         console.log(err);
       }
     )
-  Dict.getDiseaseType({category:'patient_class'}).then(
-    function(data)
-    {
-      $scope.Diseases = data.results[0].content
-      if ($scope.BasicInfo.class != null)
-      {
-        $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
-        if ($scope.BasicInfo.class.typeName == "血透")
-        {
-          $scope.showProgress = false
-          $scope.showSurgicalTime = false
-          $scope.BasicInfo.class_info == null
-        }
-        else if ($scope.BasicInfo.class.typeName == "肾移植")
-        {
-          $scope.showProgress = false
-          $scope.showSurgicalTime = true
-        }
-        else
-        {
-          $scope.showProgress = true
-          $scope.showSurgicalTime = false
-          $scope.DiseaseDetails = $scope.BasicInfo.class.details
-          $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
-        }
-      }
-      console.log($scope.Diseases)
-    },
-    function(err)
-    {
-      console.log(err);
-    }
-  )
 
   $scope.Questionare = {
     "LastDiseaseTime":"",
@@ -3402,7 +3406,6 @@ $scope.showPopupSelect = function(name) {
 
   $scope.Submitquestion = function(){
     var temp = {
-      "counselId":"counselpost888",
       "patientId":patientId,
       "doctorId":"doc01", 
       "hospital":$scope.Questionare.LastHospital, 
