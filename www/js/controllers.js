@@ -3258,7 +3258,6 @@ $scope.showPopupSelect = function(name) {
 
   $scope.Submitquestion = function(){
     var temp = {
-      "counselId":"counselpost888",
       "patientId":patientId,
       "doctorId":"doc01", 
       "hospital":$scope.Questionare.LastHospital, 
