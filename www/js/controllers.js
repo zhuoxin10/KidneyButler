@@ -1,6 +1,6 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM) {
   $scope.barwidth="width:0%";
   Storage.set("personalinfobackstate","logOn")
 
@@ -37,6 +37,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     }
                 }
                 else if(data.results.mesg=="login success!"){
+                    //jmessage login
+                    JM.login(data.results.userId);
+
                     $scope.logStatus = "登录成功！";
                     $ionicHistory.clearCache();
                     $ionicHistory.clearHistory();
@@ -1503,17 +1506,18 @@ $scope.showPopupSelect = function(name) {
     $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
     //render msgs 
     $scope.$on('$ionicView.beforeEnter', function() {
-        $state.params.chatId='13709553333';
-        if($state.params.type=='0') $scope.params.hidePanel=false;
-        // if (window.JMessage) {
-        //     window.JMessage.enterSingleConversation($state.params.chatId, "");
-        //     getMsg(30);
-        // }
-        getMsg(30);
+        // $state.params.chatId='13709553333';
+        // if($state.params.type=='0') $scope.params.hidePanel=false;
+        if (window.JMessage) {
+            window.JMessage.enterSingleConversation($state.params.chatId, "");
+            getMsg(15);
+        }
+        // getMsg(30);
     });
     $scope.$on('$ionicView.enter', function() {
         $rootScope.conversation.type = 'single';
         $rootScope.conversation.id = $state.params.chatId;
+        imgModalInit();
     })
     // function msgsRender(first,last){
     //     while(first!=last){
@@ -1522,26 +1526,6 @@ $scope.showPopupSelect = function(name) {
     //     }
     // }
     function getMsg(num){
-      if (!window.JMessage){
-        function msgsRender(first,last){
-                $scope.msgs[first].diff=true;
-                while(first!=last){
-                    $scope.msgs[first+1].diff=($scope.msgs[first+1].createTimeInMillis-$scope.msgs[first].createTimeInMillis)>300000?true:false;
-                    first++;
-                }
-            }
-            $http.get("data/sampleMsgs.json").success(function(data) {
-                $scope.msgs = data;
-                // $scope.$apply(function(){
-                    msgsRender(0,data.length-1);
-                // });
-                // 
-
-            });
-            return;
-      }
-
-
         window.JMessage.getHistoryMessages("single",$state.params.chatId,"",$scope.params.msgCount,num,
             function(response){
                 // console.log(response);
@@ -1564,10 +1548,8 @@ $scope.showPopupSelect = function(name) {
                     setTimeout(function(){
                         $scope.scrollHandle.scrollBottom(true);
                     },100);
-                    // $ionicScrollDelegate.scrollBottom();
                     $scope.params.msgCount+=res.length;
                 }
-                
             },
             function(err){
                 $scope.$broadcast('scroll.refreshComplete');
@@ -1587,16 +1569,19 @@ $scope.showPopupSelect = function(name) {
                         if(j==$scope.params.msgCount){
                             $scope.params.msgCount+=i+1;
                         while(i>-1){
+                            if(i!=res.length-1){
+                              
                             res[i].diff= (res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                            }
                             $scope.msgs.push(res[i]);
                             i--;
                         }
                             // for(var k=0;k<i)
                             // $scope.msgs=$scope.msgs.concat(res.slice(0,i+1));
                             // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
-                            // break;
+                            break;
                         }else if($scope.msgs[j]['_id']==res[i]['_id']){
-                            $scope.msgs[j].status=res[i].status;
+                            $scope.msgs[j]=res[i];
                             ++j;--i;
                         }else{
                              ++j;
@@ -1621,7 +1606,7 @@ $scope.showPopupSelect = function(name) {
     });
 
     $scope.DisplayMore = function() {
-        getMsg(30);
+        getMsg(15);
     }
     $scope.scrollBottom = function() {
         $scope.scrollHandle.scrollBottom(true);
@@ -1629,16 +1614,28 @@ $scope.showPopupSelect = function(name) {
 
 
     //view image
-    $scope.zoomMin = 1;
-    $scope.imageUrl = '';
-    $scope.sound = {};
-    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
-        scope: $scope
-    }).then(function(modal) {
-        $scope.modal = modal;
-        // $scope.modal.show();
-        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
-    });
+    function imgModalInit(){
+        $scope.zoomMin = 1;
+        $scope.imageUrl = '';
+        $scope.sound = {};
+        $ionicModal.fromTemplateUrl('templates/msg/imageViewer.html', {
+            scope: $scope
+        }).then(function(modal) {
+            $scope.modal = modal;
+            // $scope.modal.show();
+            $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+        });
+    }
+    // $scope.zoomMin = 1;
+    // $scope.imageUrl = '';
+    // $scope.sound = {};
+    // $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+    //     scope: $scope
+    // }).then(function(modal) {
+    //     $scope.modal = modal;
+    //     // $scope.modal.show();
+    //     $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+    // });
 
     function onImageLoad(path) {
         $scope.$apply(function() {
@@ -1656,12 +1653,12 @@ $scope.showPopupSelect = function(name) {
         $scope.imageHandle.zoomTo(1, true);
         $scope.imageUrl = args[2];
         $scope.modal.show();
-        if (args[1] == 'img') {
+        // if (args[1] == 'img') {
             window.JMessage.getOriginImageInSingleConversation($state.params.chatId, args[3], onImageLoad, onImageLoadFail);
-        } else {
+        // } else {
             // getImage(url,onImageLoad,onImageLoadFail)
-            $scope.imageUrl = args[3];
-        }
+            // $scope.imageUrl = args[3];
+        // }
     })
     $scope.closeModal = function() {
         $scope.imageHandle.zoomTo(1, true);
@@ -1717,7 +1714,7 @@ $scope.showPopupSelect = function(name) {
     function onSendErr(err) {
         console.log(err);
         alert('[send msg]:err');
-        viewUpdate(20);
+        viewUpdate(10);
     }
     $scope.submitMsg = function() {
             window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, '', onSendSuccess, onSendErr);
@@ -1763,11 +1760,11 @@ $scope.showPopupSelect = function(name) {
     }
 
     $scope.goChats = function() {
-        // $ionicHistory.nextViewOptions({
-        //     disableBack: true
-        // });
-        // if($state.params.type=="1") $state.go('tab.doing');
-        $ionicHistory.goBack();
+        $ionicHistory.nextViewOptions({
+            disableBack: true
+        });
+        $state.go('tab.myDoctors');
+        // $ionicHistory.goBack();
     }
 
 
@@ -3424,7 +3421,14 @@ $scope.showPopupSelect = function(name) {
         {
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
-          $state.go("tab.consult-chat", { docId: "doc01" })
+          JM.sendCustom('single',DoctorId,CONFIG.crossKey,temp)
+          .then(function(){
+
+            $state.go("tab.consult-chat", { docId: "doc01" })
+
+          },function(err){
+
+          })
         }
         console.log(data.results)
       },

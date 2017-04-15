@@ -2,7 +2,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
-    appKey: 'cf32b94444c4eaacef86903e',
+    appKey: 'fe7b9ba069b80316653274e4',
+    crossKey: 'cf32b94444c4eaacef86903e',
     baseUrl: 'http://121.43.107.106:4050/',
     cameraOptions: {
         cam: {
@@ -266,110 +267,142 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return audio;
 }])
 //jmessage XJZ
-.factory('JM', ['Storage', function(Storage) {
+.factory('JM', ['Storage','$q', function(Storage,$q) {
     var ConversationList = [];
     var messageLIsts = {};
+    function pGen(u){
+        return md5(u,"kidney").substr(4,10);
+    }
 
     function checkIsLogin() {
-        console.log("checkIsLogin...");
-        window.JMessage.getMyInfo(function(response) {
-            console.log("user is login" + response);
-            var myInfo = JSON.parse(response);
-            window.JMessage.username = myInfo.userName;
-            window.JMessage.nickname = myInfo.nickname;
-            window.JMessage.gender = myInfo.mGender;
-            usernameForConversation = myInfo.userName;
-            // gotoConversation();
-        }, function(response) {
-            console.log("User is not login.");
-            window.JMessage.username = "";
-            window.JMessage.nickname = "";
-            window.JMessage.gender = "unknown";
+        return $q(function(resolve,reject){
+            window.JMessage.getMyInfo(function(response) {
+                console.log("user is login" + response);
+                var myInfo = JSON.parse(response);
+                window.JMessage.username = myInfo.userName;
+                // window.JMessage.nickname = myInfo.nickname;
+                // window.JMessage.gender = myInfo.mGender;
+                // usernameForConversation = myInfo.userName;
+                resolve(myInfo.userName);
+            }, function(response) {
+
+                console.log("User is not login.");
+                window.JMessage.username = "";
+                window.JMessage.nickname = "";
+                window.JMessage.gender = "unknown";
+                reject('not login')
+            });
+        });
+        // console.log("checkIsLogin...");
+        
+    }
+
+    // function getPushRegistrationID() {
+    //     try {
+    //         window.JPush.getRegistrationID(onGetRegistrationID);
+    //         if (device.platform != "Android") {
+    //             window.JPush.setDebugModeFromIos();
+    //             window.JPush.setApplicationIconBadgeNumber(0);
+    //         } else {
+    //             window.JPush.setDebugMode(true);
+    //         }
+    //     } catch (exception) {
+    //         console.log(exception);
+    //     }
+    // }
+
+    // function updateUserInfo() {
+    //     window.JMessage.getMyInfo(
+    //         function(response) {
+    //             var myInfo = JSON.parse(response);
+    //             console.log("user is login" + response);
+    //             window.JMessage.username = myInfo.userName;
+    //             window.JMessage.nickname = myInfo.nickname;
+    //             window.JMessage.gender = myInfo.mGender;
+    //             $('#myInfoUsername').val(myInfo.userName);
+    //             $('#myInfoNickname').val(myInfo.nickname);
+    //             $('#myInfoGender').val(myInfo.gender);
+    //         }, null);
+    // }
+
+    // function getUserDisplayName() {
+    //     if (window.JMessage.nickname.length == 0) {
+    //         return window.JMessage.username;
+    //     } else {
+    //         return window.JMessage.nickname;
+    //     }
+    // }
+
+    function login(user) {
+        return $q(function(resolve,reject){
+            console.log(user);
+            console.log(pGen(user));
+
+            // console.log(ionic.Platform)
+            // console.log(ionic.Platform.platforms[0]=="browser")
+            if(ionic.Platform.platforms[0]!="browser")
+            if(window.JMessage){
+                window.JMessage.login(user, pGen(user),
+                    function(response) {
+                        window.JMessage.username = user;
+                        resolve(user);
+                    }, function(err){
+                        console.log(err);
+                        reject(err);
+                    });
+
+
+            }
+
         });
     }
 
-    function getPushRegistrationID() {
-        try {
-            window.JPush.getRegistrationID(onGetRegistrationID);
-            if (device.platform != "Android") {
-                window.JPush.setDebugModeFromIos();
-                window.JPush.setApplicationIconBadgeNumber(0);
-            } else {
-                window.JPush.setDebugMode(true);
-            }
-        } catch (exception) {
-            console.log(exception);
-        }
+    function register(user) {
+        return $q(function(resolve,reject){
+            window.JMessage.register(user, pGen(user),
+                function(response) {
+                  window.JMessage.login(user, pGen(user),
+                    function(response) {
+                        window.JMessage.username = user;
+                        resolve(user);
+                    }, function(err){
+                        console.log(err);
+                        reject(err);
+                    });
+                    // console.log("login callback success" + response);
+                    // resolve(user);
+                },
+                function(response) {
+                    console.log("login callback fail" + response);
+                    reject(response)
+                }
+            );
+        });
+        
     }
 
-    function updateUserInfo() {
-        window.JMessage.getMyInfo(
-            function(response) {
-                var myInfo = JSON.parse(response);
-                console.log("user is login" + response);
-                window.JMessage.username = myInfo.userName;
-                window.JMessage.nickname = myInfo.nickname;
-                window.JMessage.gender = myInfo.mGender;
-                $('#myInfoUsername').val(myInfo.userName);
-                $('#myInfoNickname').val(myInfo.nickname);
-                $('#myInfoGender').val(myInfo.gender);
-            }, null);
-    }
+    // function updateConversationList() {
+    //     $('#conversationList').empty().listview('refresh');
+    //     console.log("updateConversationList");
+    //     window.JMessage.getConversationList(
+    //         function(response) {
+    //             conversationList = JSON.parse(response);
+    //         },
+    //         function(response) {
+    //             alert("Get conversation list failed.");
+    //             console.log(response);
+    //         });
+    // }
 
-    function getUserDisplayName() {
-        if (window.JMessage.nickname.length == 0) {
-            return window.JMessage.username;
-        } else {
-            return window.JMessage.nickname;
-        }
-    }
-
-    function login() {
-        var username = $("#loginUsername").val();
-        var password = $("#loginPassword").val();
-        window.JMessage.login(username, password,
-            function(response) {
-                window.JMessage.username = username;
-                alert("login ok");
-                gotoConversation();
-            }, null);
-    }
-
-    function register(userID, passwd) {
-        window.JMessage.register(userID, passwd,
-            function(response) {
-                console.log("login callback success" + response);
-                alert("register ok");
-            },
-            function(response) {
-                console.log("login callback fail" + response);
-                alert(response);
-            }
-        );
-    }
-
-    function updateConversationList() {
-        $('#conversationList').empty().listview('refresh');
-        console.log("updateConversationList");
-        window.JMessage.getConversationList(
-            function(response) {
-                conversationList = JSON.parse(response);
-            },
-            function(response) {
-                alert("Get conversation list failed.");
-                console.log(response);
-            });
-    }
-
-    function onReceiveMessage(message) {
-        console.log("onReceiveSingleMessage");
-        if (device.platform == "Android") {
-            message = window.JMessage.message;
-            console.log(JSON.stringify(message));
-        }
-        // messageArray.unshift(message);
-        //refreshConversation();
-    }
+    // function onReceiveMessage(message) {
+    //     console.log("onReceiveSingleMessage");
+    //     if (device.platform == "Android") {
+    //         message = window.JMessage.message;
+    //         console.log(JSON.stringify(message));
+    //     }
+    //     // messageArray.unshift(message);
+    //     //refreshConversation();
+    // }
     // function getMessageHistory(username) {
     //     $('#messageList').empty().listview('refresh');
     //     //读取的是从 0 开始的 50 条聊天记录，可按实现需求传不同的值。
@@ -415,7 +448,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
         } catch (exception) {
             console.log(exception);
         }
-
     }
 
     function onOpenNotification(event) {
@@ -463,44 +495,137 @@ angular.module('kidney.services', ['ionic','ngResource'])
         }
     }
 
-    function onSetTagsWithAlias(event) {
-        try {
-            console.log("onSetTagsWithAlias");
-            var result = "result code:" + event.resultCode + " ";
-            result += "tags:" + event.tags + " ";
-            result += "alias:" + event.alias + " ";
-            $("#tagAliasResult").html(result);
-        } catch (exception) {
-            console.log(exception)
-        }
-    }
+    // function onSetTagsWithAlias(event) {
+    //     try {
+    //         console.log("onSetTagsWithAlias");
+    //         var result = "result code:" + event.resultCode + " ";
+    //         result += "tags:" + event.tags + " ";
+    //         result += "alias:" + event.alias + " ";
+    //         $("#tagAliasResult").html(result);
+    //     } catch (exception) {
+    //         console.log(exception)
+    //     }
+    // }
 
-    function setTagWithAlias() {
-        try {
-            var username = $("#loginUsername").val();
-            var tag1 = $("#tagText1").val();
-            var tag2 = $("#tagText2").val();
-            var tag3 = $("#tagText3").val();
-            var alias = $("#aliasText").val();
-            var dd = [];
-            if (tag1 != "") {
-                dd.push(tag1);
+    // function setTagWithAlias() {
+    //     try {
+    //         var username = $("#loginUsername").val();
+    //         var tag1 = $("#tagText1").val();
+    //         var tag2 = $("#tagText2").val();
+    //         var tag3 = $("#tagText3").val();
+    //         var alias = $("#aliasText").val();
+    //         var dd = [];
+    //         if (tag1 != "") {
+    //             dd.push(tag1);
+    //         }
+    //         if (tag2 != "") {
+    //             dd.push(tag2);
+    //         }
+    //         if (tag3 != "") {
+    //             dd.push(tag3);
+    //         }
+    //         window.JPush.setTagsWithAlias(dd, alias);
+    //     } catch (exception) {
+    //         console.log(exception);
+    //     }
+    // }
+    function newGroup(name,des,members){
+        return $q(function(resolve,reject){
+            window.JMessage.createGroup('abcde','fg',
+            // window.JMessage.createGroup(name,des,
+                function(data){
+                    console.log(data);
+                    // members=$rootScope.newMember;
+                    var idStr=[];
+                    for(var i in members) idStr.push(members[i].userId);
+                    idStr.join(',');
+                    // window.JMessage.addGroupMembers(groupId,idStr,
+                    window.JMessage.addGroupMembers('22818577','user004,',
+                        function(data){
+                            console.log(data);
+                            upload();
+                        },function(err){
+                            $ionicLoading.show({ template: '失败addGroupMembers', duration: 1500 });
+                            console.log(err);
+                        })
+                },function(err){
+                    $ionicLoading.show({ template: '失败createGroup', duration: 1500 });
+                    console.log(err);
+                })
+        })
+    }
+    function sendCustom(type,toUser,key,data){
+        return $q(function(resolve,reject){
+            if(type='single'){
+                window.JMessage.sendSingleCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else if(type='group'){
+                window.JMessage.sendGroupCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else{
+                reject('wrong type')
             }
-            if (tag2 != "") {
-                dd.push(tag2);
+        })
+    }
+    function sendContact(type,toUser,data){
+        return $q(function(resolve,reject){
+            if(type='single'){
+                window.JMessage.sendSingleCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else if(type='group'){
+                window.JMessage.sendGroupCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else{
+                reject('wrong type')
             }
-            if (tag3 != "") {
-                dd.push(tag3);
+        })
+    }
+    function sendEndl(type,toUser,data){
+        return $q(function(resolve,reject){
+            if(type='single'){
+                window.JMessage.sendSingleCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else if(type='group'){
+                window.JMessage.sendGroupCustomMessage(toUser,data,key,
+                    function(data){
+                        resolve(data);
+                    },function(err){
+                        reject(err);
+                    });
+            }else{
+                reject('wrong type')
             }
-            window.JPush.setTagsWithAlias(dd, alias);
-        } catch (exception) {
-            console.log(exception);
-        }
+        })
     }
     return {
         init: function() {
             window.JPush.init();
-            checkIsLogin();
+            // checkIsLogin()
+            // .then(function(data){
+
+            // },function(err){
+            //     if(Storage.get('UID')) login(Storage.get('UID'));
+            // })
             getPushRegistrationID();
             // document.addEventListener("jmessage.onReceiveMessage", onReceiveMessage, false);
             // document.addEventListener("deviceready", onDeviceReady, false);
@@ -513,29 +638,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
             // document.addEventListener("jpush.receiveMessage",
             //     onReceivePushMessage, false);
         },
+        login:login,
         register: register,
         checkIsLogin: checkIsLogin,
         getPushRegistrationID: getPushRegistrationID,
-        updateUserInfo: function() {
-            window.JMessage.getMyInfo(
-                function(response) {
-                    var myInfo = JSON.parse(response);
-                    console.log("user is login" + response);
-                    window.JMessage.username = myInfo.userName;
-                    window.JMessage.nickname = myInfo.nickname;
-                    window.JMessage.gender = myInfo.mGender;
-                    $('#myInfoUsername').val(myInfo.userName);
-                    $('#myInfoNickname').val(myInfo.nickname);
-                    $('#myInfoGender').val(myInfo.gender);
-                }, null);
-        },
-        getUserDisplayName: function() {
-            if (window.JMessage.nickname.length == 0) {
-                return window.JMessage.username;
-            } else {
-                return window.JMessage.nickname;
-            }
-        }
     }
 }])
 //获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
