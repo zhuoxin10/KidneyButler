@@ -2578,7 +2578,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -2592,7 +2592,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -3378,7 +3378,7 @@ $scope.showPopupSelect = function(name) {
               if(data.result == "修改成功" || data.result == "新建或修改成功")
               {
                 console.log(data.results)
-                $state.go("tab.consultquestion2")
+                $state.go("tab.consultquestion2",{DoctorId:DoctorId})
               }
             },
             function(err)
@@ -3398,22 +3398,22 @@ $scope.showPopupSelect = function(name) {
   }
   
   $scope.SKip = function(){
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1")
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
   }
 
   $scope.nexttoquestion = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
     Storage.set('tempimgrul',$scope.images)
-    $state.go("tab.consultquestion3")
+    $state.go("tab.consultquestion3",{DoctorId:DoctorId})
   }
 
   $scope.backtoDisease = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   } 
 
   $scope.Submitquestion = function(){
@@ -3436,7 +3436,7 @@ $scope.showPopupSelect = function(name) {
         {
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
-          $state.go("tab.consult-chat", { docId: "doc01" })
+          $state.go("tab.consult-chat",{DoctorId:DoctorId})
         }
         console.log(data.results)
       },
