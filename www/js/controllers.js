@@ -2761,7 +2761,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
             $scope.messages = messages;
         }else{
-            $scope.messages = "您暂时没有收到消息！";
+            // $scope.messages = "您暂时没有收到消息！";
         }
         
 
