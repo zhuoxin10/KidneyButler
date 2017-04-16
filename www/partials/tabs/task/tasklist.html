@@ -12,9 +12,9 @@
                 <a class="item item-icon-right" ng-repeat="item in Tasks.Measure">
                     {{item.Name}} 
                     <p>{{item.Freq}}</p>
-                    <p>{{item.content}}</p> 
+                    <p>{{item.instruction}}</p> 
                     <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup(item, 'input')"></i>
-                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i> 
                 </a>              
             </a>
             <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
@@ -22,7 +22,8 @@
                 <a class="item item-icon-right" ng-repeat = "item in Tasks.Other">
                     {{item.Name}}
                     <p>{{item.Freq}}</p> 
-                    <p>任务时间：{{item.startTime}}</p>                 
+                    <p>任务时间：{{item.startTime}}</p>
+                    <p>{{item.instruction}}</p>                  
                     <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup(item, 'textarea')"></i>
                     <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>                 
                 </a>                        
