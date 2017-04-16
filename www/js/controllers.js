@@ -4039,10 +4039,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     else if ($scope.BasicInfo.class_info != null)
     {
-      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
-    }
-    else
-    {
       $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
     }
     $scope.BasicInfo.class = $scope.BasicInfo.class.type
