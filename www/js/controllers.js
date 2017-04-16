@@ -679,7 +679,7 @@ initUserDetail();
   $scope.Tasks = {}; //任务
 
    $scope.$on('$ionicView.enter', function() {
-        GetDoneTask();
+        //GetDoneTask();
         ChangeLongFir();
   });  
   
@@ -854,7 +854,8 @@ initUserDetail();
           {
               $scope.Tasks.Measure[j].Name = NameMatch($scope.Tasks.Measure[j].code);
               $scope.Tasks.Measure[j].Freq = $scope.Tasks.Measure[j].frequencyTimes + $scope.Tasks.Measure[j].frequencyUnits +$scope.Tasks.Measure[j].times + $scope.Tasks.Measure[j].timesUnits;
-              $scope.Tasks.Measure[j].Flag = false;                    
+              $scope.Tasks.Measure[j].Flag = false;   
+              $scope.Tasks.Measure[j].instruction = "";                
           }
        }
        else //复诊
@@ -864,6 +865,7 @@ initUserDetail();
           newTask.Name = NameMatch(newTask.type);
           newTask.Freq = newTask.frequencyTimes + newTask.frequencyUnits +newTask.times + newTask.timesUnits;
           newTask.Flag = false;
+          newTask.instruction = "";
           $scope.Tasks.Other.push(newTask);                                
        }       
     }
@@ -1138,6 +1140,23 @@ initUserDetail();
        myPopup.then(function(res) {
         if(res)
         {
+              for (var i=0;i<$scope.Tasks.Measure.length;i++)
+              {
+                if ($scope.Tasks.Measure[i].Name == task.Name)
+                {
+                   $scope.Tasks.Measure[i].instruction = res;
+                   break;
+                }
+              }
+              for (var i=0;i<$scope.Tasks.Other.length;i++)
+              {
+                if ($scope.Tasks.Other[i].Name == task.Name)
+                {
+                   $scope.Tasks.Other[i].instruction = res;
+                   break;
+                }
+              }
+
           //向任务表中插入数据
           var item = {
                       "userId": UserId,
@@ -1233,7 +1252,7 @@ initUserDetail();
 //页面刷新
     $scope.Refresh = function()
     {
-        $window.location.reload();
+        //$window.location.reload();
     }
 }])
 
