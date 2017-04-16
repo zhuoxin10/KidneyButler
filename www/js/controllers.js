@@ -342,14 +342,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   $scope.Diseases = ""
   $scope.DiseaseDetails = ""
-
+  $scope.timename = ""
   $scope.getDiseaseDetail = function(Disease) {
     if (Disease.typeName == "肾移植")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = true
+      $scope.timename = "手术日期"
     }
     else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "插管日期"
+    }
+    else if (Disease.typeName == "腹透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "开始日期"
+    }
+    else if (Disease.typeName == "ckd5期未透析")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = false
@@ -443,19 +456,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               function(data)
               {
                 $scope.Diseases = data.results[0].content
+                $scope.Diseases.push($scope.Diseases[0])
+                $scope.Diseases.shift()
                 if ($scope.User.class != null)
                 {
                   $scope.User.class = searchObj($scope.User.class,$scope.Diseases)
                   if ($scope.User.class.typeName == "血透")
                   {
                     $scope.showProgress = false
-                    $scope.showSurgicalTime = false
-                    $scope.User.class_info == null
+                    $scope.showSurgicalTime = true
+                    $scope.timename = "插管日期"
                   }
                   else if ($scope.User.class.typeName == "肾移植")
                   {
                     $scope.showProgress = false
                     $scope.showSurgicalTime = true
+                    $scope.timename = "手术日期"
+                  }
+                  else if ($scope.User.class.typeName == "腹透")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = true
+                    $scope.timename = "开始日期"
+                  }
+                  else if ($scope.User.class.typeName == "ckd5期未透析")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = false
                   }
                   else
                   {
@@ -487,6 +514,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           function(data)
           {
             $scope.Diseases = data.results[0].content
+            $scope.Diseases.push($scope.Diseases[0])
+            $scope.Diseases.shift()
           },
           function(err)
           {
@@ -761,11 +790,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.User.gender = $scope.User.gender.Type
           $scope.User.bloodType = $scope.User.bloodType.Type
           $scope.User.hypertension = $scope.User.hypertension.Type
-          if ($scope.User.class.typeName == "血透")
+          if ($scope.User.class.typeName == "ckd5期未透析")
           {
             $scope.User.class_info == null
           }
-          else
+          else if ($scope.User.class_info != null)
           {
             $scope.User.class_info = $scope.User.class_info.code
           }
@@ -800,11 +829,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.User.gender = $scope.User.gender.Type
           $scope.User.bloodType = $scope.User.bloodType.Type
           $scope.User.hypertension = $scope.User.hypertension.Type
-          if ($scope.User.class.typeName == "血透")
+          if ($scope.User.class.typeName == "ckd5期未透析")
           {
             $scope.User.class_info == null
           }
-          else
+          else if ($scope.User.class_info != null)
           {
             $scope.User.class_info = $scope.User.class_info.code
           }
@@ -3604,6 +3633,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
   var DoctorId = $stateParams.DoctorId
+  console.log("Attention:"+DoctorId)
   // var patientId = "U201702080016"
   $scope.Genders =
   [
@@ -3635,14 +3665,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   $scope.Diseases = ""
   $scope.DiseaseDetails = ""
-  
+  $scope.timename = ""
   $scope.getDiseaseDetail = function(Disease) {
     if (Disease.typeName == "肾移植")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = true
+      $scope.timename = "手术日期"
     }
     else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "插管日期"
+    }
+    else if (Disease.typeName == "腹透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "开始日期"
+    }
+    else if (Disease.typeName == "ckd5期未透析")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = false
@@ -3659,19 +3702,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       function(data)
       {
         $scope.Diseases = data.results[0].content
+        $scope.Diseases.push($scope.Diseases[0])
+        $scope.Diseases.shift()
         if ($scope.BasicInfo.class != null)
         {
           $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
           if ($scope.BasicInfo.class.typeName == "血透")
           {
             $scope.showProgress = false
-            $scope.showSurgicalTime = false
-            $scope.BasicInfo.class_info == null
+            $scope.showSurgicalTime = true
+            $scope.timename = "插管日期"
           }
           else if ($scope.BasicInfo.class.typeName == "肾移植")
           {
             $scope.showProgress = false
             $scope.showSurgicalTime = true
+            $scope.timename = "手术日期"
+          }
+          else if ($scope.BasicInfo.class.typeName == "腹透")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = true
+            $scope.timename = "开始日期"
+          }
+          else if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = false
           }
           else
           {
@@ -3681,13 +3738,46 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
           }
         }
-        console.log($scope.Diseases)
+        // console.log($scope.Diseases)
       },
       function(err)
       {
         console.log(err);
       }
     )
+    // Dict.getDiseaseType({category:'patient_class'}).then(
+    //   function(data)
+    //   {
+    //     $scope.Diseases = data.results[0].content
+    //     if ($scope.BasicInfo.class != null)
+    //     {
+    //       $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
+    //       if ($scope.BasicInfo.class.typeName == "血透")
+    //       {
+    //         $scope.showProgress = false
+    //         $scope.showSurgicalTime = false
+    //         $scope.BasicInfo.class_info == null
+    //       }
+    //       else if ($scope.BasicInfo.class.typeName == "肾移植")
+    //       {
+    //         $scope.showProgress = false
+    //         $scope.showSurgicalTime = true
+    //       }
+    //       else
+    //       {
+    //         $scope.showProgress = true
+    //         $scope.showSurgicalTime = false
+    //         $scope.DiseaseDetails = $scope.BasicInfo.class.details
+    //         $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
+    //       }
+    //     }
+    //     console.log($scope.Diseases)
+    //   },
+    //   function(err)
+    //   {
+    //     console.log(err);
+    //   }
+    // )
   }
   $scope.BasicInfo = 
   {
@@ -3943,11 +4033,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
     $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
     $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
-    if ($scope.BasicInfo.class.typeName == "血透")
+    if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
     {
       $scope.BasicInfo.class_info == null
     }
-    else if ($scope.BasicInfo.class.typeName == "肾移植")
+    else if ($scope.BasicInfo.class_info != null)
     {
       $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
     }
