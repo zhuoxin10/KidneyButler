@@ -2566,6 +2566,7 @@ $scope.showPopupSelect = function(name) {
   $scope.getDoctorDetail = function(ele, id) {
     // var path = '#/tab/DoctorDetail/' + id;
     // console.log(path)
+    console.log()
     if (ele.target.innerText == '咨询') {
         var question = $ionicPopup.confirm({
             title:"咨询确认",
@@ -3004,11 +3005,12 @@ $scope.showPopupSelect = function(name) {
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','Counsels',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,Counsels) {
+.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','Counsels','JM','CONFIG',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,Counsels,JM,CONFIG) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
   var DoctorId = $stateParams.DoctorId
+
   // var patientId = "U201702080016"
   $scope.Genders =
   [
@@ -3429,18 +3431,41 @@ $scope.showPopupSelect = function(name) {
     Counsels.questionaire(temp).then(
       function(data)
       {
+        console.log(data);
         if (data.result == "新建成功")
         {
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
-          JM.sendCustom('single',DoctorId,CONFIG.crossKey,temp)
-          .then(function(){
+          temp.consultId=data.results.counselId;
+          window.JMessage.
+          window.JMessage.sendSingleCustomMessage(DoctorId,temp,CONFIG.crossKey,
+                                      function(data){
+                                        console.log(data)
+                                        // $state.go("tab.consult-chat",{docId:DoctorId});
+                        // resolve(data);
+                    },function(err){
+                        // reject(err);
+                                        console.log(err)
 
-            $state.go("tab.consult-chat",{DoctorId:DoctorId});
+                    });
+          // window.JMessage.sendSingleTextMessage(DoctorId,'temp',CONFIG.crossKey,
+          //                             function(data){
+          //                               console.log(data)
+          //                               // $state.go("tab.consult-chat",{docId:DoctorId});
+          //               // resolve(data);
+          //           },function(err){
+          //               // reject(err);
+          //                               console.log(err)
 
-          },function(err){
+          //           });
+          // JM.sendCustom('single',DoctorId,CONFIG.crossKey,temp)
+          // .then(function(data){
+          //   console.log(data);
+          //   $state.go("tab.consult-chat",{DoctorId:DoctorId});
 
-          })
+          // },function(err){
+
+          // })
 
         }
         console.log(data.results)

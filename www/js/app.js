@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
   $ionicPlatform.ready(function() {
 
 
@@ -234,7 +234,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           templateUrl: 'partials/tabs/consult/consultquestion1.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
     .state('tab.consultquestion2', {
       url: '/consultquestion2',
@@ -244,7 +245,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           templateUrl: 'partials/tabs/consult/consultquestion2.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
     .state('tab.consultquestion3', {
       url: '/consultquestion3',
@@ -254,7 +256,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           templateUrl: 'partials/tabs/consult/consultquestion3.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
 
     .state('tab.mine', {

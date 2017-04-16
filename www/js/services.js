@@ -348,7 +348,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
                         resolve(user);
                     }, function(err){
                         console.log(err);
-                        reject(err);
+                        // reject(err);
+                        register(user);
                     });
 
 
@@ -555,16 +556,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
         })
     }
     function sendCustom(type,toUser,key,data){
+      console.log(data);
+
         return $q(function(resolve,reject){
             if(type='single'){
                 window.JMessage.sendSingleCustomMessage(toUser,data,key,
-                    function(data){
+                                      function(data){
                         resolve(data);
                     },function(err){
                         reject(err);
                     });
             }else if(type='group'){
-                window.JMessage.sendGroupCustomMessage(toUser,data,key,
+                window.JMessage.sendGroupCustomMessage(toUser,data,
                     function(data){
                         resolve(data);
                     },function(err){
@@ -638,6 +641,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             // document.addEventListener("jpush.receiveMessage",
             //     onReceivePushMessage, false);
         },
+        sendCustom:sendCustom,
         login:login,
         register: register,
         checkIsLogin: checkIsLogin,
