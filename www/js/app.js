@@ -228,6 +228,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion1', {
       url: '/consultquestion1',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -238,6 +239,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion2', {
       url: '/consultquestion2',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -248,6 +250,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion3', {
       url: '/consultquestion3',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -322,36 +325,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
             controller: 'TaskSetCtrl'
           }
         }           
-    })
-    
-    
-     .state('task', {
-           url: '/task',
-           abstract: true,
-           template:'<ion-nav-view/>'
-         })
-
-    .state('task.r', {
-        url: '/:t',   
-        templateUrl: 'partials/tabs/task/taskFill.html',
-        controller: 'TaskFillCtrl'     
-        // templateUrl:function($stateParams)
-        // {
-        //   switch($stateParams.t)
-        //   {
-        //       case 'taskSet':return "partials/tabs/task/taskSet.html";break; //任务情况填写页面
-        //       default:return "partials/tabs/task/taskFill.html";break; //任务设置页面
-        //   }
-        // },
-        // controllerProvider:function($stateParams)
-        // {
-        //   switch($stateParams.t)
-        //   {
-        //       case 'taskSet':return "TaskSetCtrl";break;
-        //       default:return "TaskFillCtrl";break;
-        //   }
-        // }                
-      })
+    })  
 
      //肾病保险
   $stateProvider

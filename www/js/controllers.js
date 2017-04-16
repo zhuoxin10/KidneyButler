@@ -342,14 +342,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   $scope.Diseases = ""
   $scope.DiseaseDetails = ""
-
+  $scope.timename = ""
   $scope.getDiseaseDetail = function(Disease) {
     if (Disease.typeName == "肾移植")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = true
+      $scope.timename = "手术日期"
     }
     else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "插管日期"
+    }
+    else if (Disease.typeName == "腹透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "开始日期"
+    }
+    else if (Disease.typeName == "ckd5期未透析")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = false
@@ -443,19 +456,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               function(data)
               {
                 $scope.Diseases = data.results[0].content
+                $scope.Diseases.push($scope.Diseases[0])
+                $scope.Diseases.shift()
                 if ($scope.User.class != null)
                 {
                   $scope.User.class = searchObj($scope.User.class,$scope.Diseases)
                   if ($scope.User.class.typeName == "血透")
                   {
                     $scope.showProgress = false
-                    $scope.showSurgicalTime = false
-                    $scope.User.class_info == null
+                    $scope.showSurgicalTime = true
+                    $scope.timename = "插管日期"
                   }
                   else if ($scope.User.class.typeName == "肾移植")
                   {
                     $scope.showProgress = false
                     $scope.showSurgicalTime = true
+                    $scope.timename = "手术日期"
+                  }
+                  else if ($scope.User.class.typeName == "腹透")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = true
+                    $scope.timename = "开始日期"
+                  }
+                  else if ($scope.User.class.typeName == "ckd5期未透析")
+                  {
+                    $scope.showProgress = false
+                    $scope.showSurgicalTime = false
                   }
                   else
                   {
@@ -487,6 +514,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           function(data)
           {
             $scope.Diseases = data.results[0].content
+            $scope.Diseases.push($scope.Diseases[0])
+            $scope.Diseases.shift()
           },
           function(err)
           {
@@ -761,11 +790,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.User.gender = $scope.User.gender.Type
           $scope.User.bloodType = $scope.User.bloodType.Type
           $scope.User.hypertension = $scope.User.hypertension.Type
-          if ($scope.User.class.typeName == "血透")
+          if ($scope.User.class.typeName == "ckd5期未透析")
           {
             $scope.User.class_info == null
           }
-          else
+          else if ($scope.User.class_info != null)
           {
             $scope.User.class_info = $scope.User.class_info.code
           }
@@ -800,11 +829,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.User.gender = $scope.User.gender.Type
           $scope.User.bloodType = $scope.User.bloodType.Type
           $scope.User.hypertension = $scope.User.hypertension.Type
-          if ($scope.User.class.typeName == "血透")
+          if ($scope.User.class.typeName == "ckd5期未透析")
           {
             $scope.User.class_info == null
           }
-          else
+          else if ($scope.User.class_info != null)
           {
             $scope.User.class_info = $scope.User.class_info.code
           }
@@ -856,383 +885,975 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $state.go('messages');
   }
   
+
 }])
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task) {
   $scope.barwidth="width:0%";
+  var UserId = Storage.get('UID');//U201511120002
+  $scope.Tasks = {}; //任务
+
+   $scope.$on('$ionicView.enter', function() {
+        //GetDoneTask();
+        ChangeLongFir();
+  });  
   
-  $scope.measureTask = [{"Name":"体温",
-                         "Frequency":"1次/1天", 
-                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                         "Unit":"摄氏度",
-                         "Flag":true,
-                         "Value":37.5},
-                        {"Name":"体重",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"kg",
-                        "Flag":true,
-                        "Value":54},
-                        {"Name":"血压",
-                        "Frequency":"2次/1天", 
-                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
-                        "Unit":"mmHg",
-                        "Flag":false},
-                        {"Name":"尿量",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"ml",
-                        "Flag":false},
-                        {"Name":"心率",
-                        "Frequency":"2次/1天", 
-                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
-                        "Unit":"次/分",
-                        "Flag":false},
-                        {"Name":"腹透方案",
-                        "Frequency":"3次/1天", 
-                        "Discription":"",
-                        "Unit":"次/分",
-                        "Flag":false},                           
-                        {"Name":"超滤量",
-                        "Frequency":"1次/1天", 
-                        "Discription":"",
-                        "Unit":"次/分",
-                        "Flag":false},
-                        {"Name":"有无浮肿",
-                        "Frequency":"1次/1天", 
-                        "Discription":"",
-                        "Unit":"次/分",
-                        "Flag":false}
-                        ];
-  //只用选择是或否                      
-  $scope.SimpleTask = [{"Name":"引流是否通畅", "Frequency":"1次/1天", "Falg":false},{"Name":"腹透液是否澄清", "Frequency":"1次/1天", "Flag":true}];
-  //console.log($scope.category);
-  //分为已完成和未完成任务（标志位）；今日任务，全部任务（由时间区分）
-  $scope.fillTask = [{"Name":"血管通路情况",
-                        "Frequency":"1周/1次", 
-                        "Discription":"填写上周透析时内瘘／深静脉导管使用情况",
-                        "Unit":"",
-                        "Flag":false}];
-  $scope.RevisitTask = [{"Name":"复诊",
-                        "Frequency":"1周/1次", 
-                        "Discription":"",
-                        "Unit":"",
-                        "Flag":false}];
 
-  $scope.TestTask = [{"Name":"化验",
-                        "Frequency":"1周/1次", 
-                        "Discription":"血常规、血生化、尿常规、尿生化、移植肾彩超、血药浓度",
-                        "Unit":"",
-                        "Flag":false}];
+  //获取对应任务模板
+   function GetTask(TaskCode)
+   { 
+     console.log(1);
+     var promise =  Task.getTask({userId:'Admin',sortNo:TaskCode[0]});
+     promise.then(function(data){
+       if(data.results.length != 0)
+       {
+          $scope.Tasks.Other = {};
+          var AllTasks = data.results[0].task;          
+          for(var i=0; i<AllTasks.length;i++)
+          {
+             if (AllTasks[i].type == 'Measure') //测量
+             {
+                $scope.Tasks.Measure = AllTasks[i].details;
+                for(var j=0;j<$scope.Tasks.Measure.length;j++)
+                {
+                    $scope.Tasks.Measure[j].Name = NameMatch($scope.Tasks.Measure[j].code);                    
+                }
+             }            
+             else if(AllTasks[i].type == 'ReturnVisit') //复诊
+             {
+                $scope.Tasks.ReturnVisit = AllTasks[i].details[TaskCode[1]];
+                $scope.Tasks.ReturnVisit = TimeSelectBind($scope.Tasks.ReturnVisit);                         
+             }
+             else if(AllTasks[i].type == 'LabTest') //化验
+             {
+                $scope.Tasks.LabTest = AllTasks[i].details[TaskCode[2]];
+                $scope.Tasks.LabTest = TimeSelectBind($scope.Tasks.LabTest);               
+             }
+             else if(AllTasks[i].type == 'SpecialEvaluate') //特殊评估
+             {
+                $scope.Tasks.SpecialEvaluate = AllTasks[i].details[0];                
+                for(j=1;j< AllTasks[i].details.length;j++)
+                {
+                    $scope.Tasks.SpecialEvaluate.instruction += '，' + AllTasks[i].details[j].instruction;
+                }
+                $scope.Tasks.SpecialEvaluate = TimeSelectBind($scope.Tasks.SpecialEvaluate);               
+             }
+             //console.log($scope.Tasks);            
+          }         
+       }
+     },function(){
+                    
+     })
+   }
+  //任务暂且写死
+  $scope.Tasks = [
+        {
+          "type": "Measure",
+          "details": [
+            {
+              "code": "Temperature",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "Weight",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "BloodPressure",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 2,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "Vol",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "HeartRate",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 2,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            }
+          ]
+        },
+        {
+          "type": "ReturnVisit",
+          "details": [            
+            {
+              "code": "TimeInterval_3",
+              "instruction": "术后时间>3年",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 2,
+              "frequencyUnits": "月"
+            }
+          ]
+        },
+        {
+          "type": "LabTest",
+          "details": [
+            {
+              "code": "LabTest_3",
+              "instruction": "术后时间>3年",
+              "content": "血常规、血生化、尿常规、尿生化、移植肾彩超、血药浓度",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 2,
+              "frequencyUnits": "周"
+            }
+          ]
+        },
+        {
+          "type": "SpecialEvaluate",
+          "details": [
+            {
+              "code": "ECG",
+              "instruction": "",
+              "content": "心电图，胸片，移植肾B超",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "年"
+            }            
+          ]
+        }
+      ];
+  function Temp()
+  {
+    $scope.Tasks.Other = [];
+    for (var i=0;i<$scope.Tasks.length;i++)
+    {
+       var task = $scope.Tasks[i];
+       if(task.type == 'Measure')
+       {
+          $scope.Tasks.Measure = task.details;
+          for(var j=0;j<$scope.Tasks.Measure.length;j++)
+          {
+              $scope.Tasks.Measure[j].Name = NameMatch($scope.Tasks.Measure[j].code);
+              $scope.Tasks.Measure[j].Freq = $scope.Tasks.Measure[j].frequencyTimes + $scope.Tasks.Measure[j].frequencyUnits +$scope.Tasks.Measure[j].times + $scope.Tasks.Measure[j].timesUnits;
+              $scope.Tasks.Measure[j].Flag = false;   
+              $scope.Tasks.Measure[j].instruction = "";                
+          }
+       }
+       else //复诊
+       {
+          var newTask = task.details[0];
+          newTask.type = task.type;
+          newTask.Name = NameMatch(newTask.type);
+          newTask.Freq = newTask.frequencyTimes + newTask.frequencyUnits +newTask.times + newTask.timesUnits;
+          newTask.Flag = false;
+          newTask.instruction = "";
+          $scope.Tasks.Other.push(newTask);                                
+       }       
+    }
+    //console.log($scope.Tasks);
+  }  
+  //名称转换
+   function NameMatch(name)
+   {
+     var Tbl = [
+                 {Name:'体温', Code:'Temperature'},
+                 {Name:'体重', Code:'Weight'},
+                 {Name:'血压', Code:'BloodPressure'},
+                 {Name:'尿量', Code:'Vol'},
+                 {Name:'心率', Code:'HeartRate'},
+                 {Name:'复诊', Code:'ReturnVisit'},
+                 {Name:'化验', Code:'LabTest'},
+                 {Name:'特殊评估', Code:'SpecialEvaluate'}
+                ];
+      for (var i=0;i<Tbl.length;i++)
+      {
+         if(Tbl[i].Code == name)
+         {
+            name = Tbl[i].Name
+            break;
+         }
+      }
+      return name;
+   }
+   
+  //获取今日已执行任务
+    function GetDoneTask()
+    {               
+         var nowDay = ChangeTimeForm(new Date());
+         var promise1 = Compliance.getcompliance({userId:UserId, date:nowDay});
+         promise1.then(function(data){
+           if(data.results)
+           {
+              var doneTasks = data.results;  
+              //console.log(doneTasks);                
+              for(i=0;i< doneTasks.length;i++)
+              {  
+                  var Code = doneTasks[i].code;               
+                  for (var j=0;j<$scope.Tasks.Measure.length;j++)
+                  {
+                     if($scope.Tasks.Measure[j].code == Code)
+                     {                        
+                        $scope.Tasks.Measure[j].Flag = true;
+                        break;
+                     }
+                     else if($scope.Tasks.Other[j].code == Code)
+                     {
+                        $scope.Tasks.Other[j].Flag = true;
+                        break;
+                     }
+                  }
+              }                            
+           }              
+           //console.log(data.results);      
+          
+         },function(){
                         
-  //医生排班表
-  $scope.Docweek = ["周一","周二","周三","周四","周五","周六","周日"];
-  $scope.TblColor1 = ["gray", "green", "gray" ,"gray", "green", "green", "gray"];
-  $scope.TblColor2 = ["gray", "green", "green" ,"green", "gray", "gray", "gray"];
+         })
+    }   
 
+  //插入任务    
+    function Postcompliance(task)
+    {              
+         var promise1 = Compliance.postcompliance(task);
+         promise1.then(function(data){
+           if(data.results)
+           {
+              //console.log(data.results);
+              var Code = data.results.code;
+              var time;
+              for (var i=0;i<$scope.Tasks.Measure.length;i++)
+              {
+                if ($scope.Tasks.Measure[i].code == Code)
+                {
+                   $scope.Tasks.Measure[i].Flag = true;
+                   time = SetNextTime($scope.Tasks.Measure[i].frequencyTimes, $scope.Tasks.Measure[i].frequencyUnits, $scope.Tasks.Measure[i].times);
+                   //$scope.Tasks.Measure[i].Value = data.results.description;                 
+                   break;
+                }
+              }
+              for (var i=0;i<$scope.Tasks.Other.length;i++)
+              {
+                if ($scope.Tasks.Other[i].code == Code)
+                {
+                   $scope.Tasks.Other[i].Flag = true;
+                   time = SetNextTime($scope.Tasks.Other[i].frequencyTimes, $scope.Tasks.Other[i].frequencyUnits, $scope.Tasks.Other[i].times);                   
+                   break;
+                }
+              }
+              //设定下次任务执行时间
+              var timeStr = ChangeTimeForm(time);
+              var item = {
+                  userId:UserId,//unique
+                  sortNo:1,
+                  type:task.type,
+                  code:task.code,
+                  startTime:timeStr
+               };
+               ChangeTasktime(item);
+
+           }                        
+         },function(){                        
+         });
+    }
+    
+  //设定下次任务执行时间（长期任务）
+    function SetNextTaskTime(Type, Addition)
+    {      
+      var Date1 = new Date(CurrentTime);
+      var Date2;
+      if(Type == "周") //周
+      {
+          Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+      }
+      else if(Type == '月') //月
+      {
+          Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
+      }
+      else //年
+      {
+          Date2 = new Date(Date1.setMonth(Date1.getFullYear() + Addition));
+      }    
+      return Date2;
+    }
+
+  //修改任务执行时间
+    function ChangeTasktime(task)
+    {
+      /*var promise = Task.changeTasktime(task);
+       promise.then(function(data){
+         //console.log(data);
+         if(data.results)
+         {
+          console.log(data.results);
+         };
+       },function(){                    
+       })*/
+    }
+    //ChangeTasktime();
+
+  Temp();                        
+
+  //修改长期任务第一次时间  
+    function ChangeLongFir()
+    {
+        for (var i=0;i<$scope.Tasks.Other.length;i++)
+        {
+          if($scope.Tasks.Other[i].startTime == '2050-11-02T07:58:51.718Z') //未设定时间时
+          {
+            $scope.Tasks.Other[i].startTime = SetTaskTime($scope.Tasks.Other[i].frequencyUnits, $scope.Tasks.Other[i].times);
+          }
+        }
+        //console.log($scope.Tasks.Other);
+        /*for (var i=0;i<$scope.Tasks.Other.length;i++)
+        {
+          if($scope.Tasks.Other[i].startTime != '2050-11-02T07:58:51.718Z') //修改任务执行时间
+          {
+             var task = {
+                userId:UserId,//unique
+                sortNo:1,
+                type:$scope.Tasks.Other[i].type,
+                code:$scope.Tasks.Other[i].code,
+                startTime:$scope.Tasks.Other[i].startTime
+              };
+
+              ChangeTasktime(task);
+          }
+        }*/
+    }
+  
+  //设定长期任务第一次时间
+   function SetTaskTime (Type, Times)
+   {
+      //暂时就用本地时间
+      var CurrentDate = new Date();
+      var NewDate;
+      var WeekDay = CurrentDate.getDay(); //0-6 0为星期日
+      var Day = CurrentDate.getDate(); //1-31
+      var Month = CurrentDate.getMonth(); //0-11,0为1月
+      
+      var Num = 0;     
+      if(Type == "周")
+      {
+         Num = 1;//默认周一
+
+         if(Num >= WeekDay) //所选日期未过，选择本星期
+         {
+            NewDate = new Date(CurrentDate.setDate(Day + Num - WeekDay));
+         }
+         else //下个星期
+         {
+            NewDate = new Date(CurrentDate.setDate(Day + Num + 7 - WeekDay));
+         }        
+      }
+      else if(Type == "月")
+      {
+         Num = 1; //默认1日
+         NewDate = new Date(CurrentDate.setDate(Num));
+         if (Num < Day) //所选日期已过，选择下月
+         {
+            NewDate = new Date(CurrentDate.setMonth(CurrentDate.getMonth() + 1));
+         }         
+      }
+      else if(Type == "年")
+      {
+         if(Times == 2) //一年2次 -- 6月1次
+         {
+            Num = 1;
+            NewDate = new Date(CurrentDate.setDate(Num));
+            if (Num < Day) //所选日期已过，选择下月
+            {
+              NewDate = new Date(CurrentDate.setMonth(CurrentDate.getMonth() + 1));
+            }  
+         }
+         else
+         {
+             Num = 0; //默认1月
+             NewDate = new Date(CurrentDate.setMonth(Num));
+             if(Num < Month)//所选日期已过，选择明年
+             {
+                NewDate = new Date(CurrentDate.setYear(CurrentDate.getFullYear() + 1));
+             }
+             }
+         
+      }
+      //console.log(ChangeTimeForm(NewDate));
+      return ChangeTimeForm(NewDate);
+   }
+
+  //弹框格式
+   var PopTemplate = {
+                        Input:'<input type="text" ng-model="data.value">',
+                        Textarea:'<textarea type="text" ng-model="data.value" rows="10" cols="100"></textarea>',
+                        Select:'<select ng-model = "data.value"><option >请选择</option><option >是</option><option >否</option></select>'
+                    };//Textarea：VascularAccess；
   
   //自定义弹窗
-  $scope.measureResult = [{"Name":"","Value":""}];
-  $scope.showPopup = function(name) {
-           $scope.data = {}
-    var myPopup = $ionicPopup.show({
-       template: '<input type="text" ng-model="data.value">',     
-       title: '请填写'+ name,
-       scope: $scope,
-       buttons: [
-         { text: '取消' },
-         {
-           text: '<b>保存</b>',
-           type: 'button-positive',
-           onTap: function(e) {
-             if (!$scope.data.value) {
-               // 不允许用户关闭，除非输入内容
-               e.preventDefault();
-             } else {
-              return $scope.data.value;
-             }  
-             }    
-         },
-       ]
-     });
-     myPopup.then(function(res) {
-      if(res)
+    $scope.showPopup = function(task, flag) {
+      $scope.data = {};
+      //console.log(task);
+      var Template = PopTemplate.Input;
+      var word = "";
+      if(flag == 'textarea')
       {
-        //填写测量任务后标志位更新
-        $scope.measureResult.Name = name;
-        $scope.measureResult.Value = res;
-        console.log(res.value);
-        for (i = 0; i<$scope.measureTask.length; i++)
+          Template = PopTemplate.Textarea;
+          word = "情况";
+      }
+      var myPopup = $ionicPopup.show({
+         template: Template,     
+         title: '请填写'+ task.Name + word,
+         scope: $scope,
+         buttons: [
+           { text: '取消' },
+           {
+             text: '<b>保存</b>',
+             type: 'button-positive',
+             onTap: function(e) {
+               if (!$scope.data.value) {
+                 // 不允许用户关闭，除非输入内容
+                 e.preventDefault();
+               } else {
+                return $scope.data.value;
+               }  
+               }    
+           },
+         ]
+       });
+       myPopup.then(function(res) {
+        if(res)
         {
-          if ($scope.measureTask[i].Name == name)
-          {
-              $scope.measureTask[i].Flag = true;      
-              $scope.measureTask[i].Value = res;  
-          }          
-        }
-        //console.log($scope.measureTask); 
-      }  
-    });
-  };
-//弹框内容为下拉框
-$scope.showPopupSelect = function(name) {
-           $scope.data = {}
-    var myPopup = $ionicPopup.show({
-       template: '<select>'
-                +'<option >请选择</option>'
-                +'<option >是</option>'
-                +'<option >否</option>'
-                +'</select>',     
-       title: name,
-       scope: $scope,
-       buttons: [
-         { text: '取消' },
-         {
-           text: '<b>保存</b>',
-           type: 'button-positive',
-           onTap: function(e) {            
-             }    
-         },
-       ]
-     });
-     myPopup.then(function(res) {
-    });
-  };
+              for (var i=0;i<$scope.Tasks.Measure.length;i++)
+              {
+                if ($scope.Tasks.Measure[i].Name == task.Name)
+                {
+                   $scope.Tasks.Measure[i].instruction = res;
+                   break;
+                }
+              }
+              for (var i=0;i<$scope.Tasks.Other.length;i++)
+              {
+                if ($scope.Tasks.Other[i].Name == task.Name)
+                {
+                   $scope.Tasks.Other[i].instruction = res;
+                   break;
+                }
+              }
 
-
+          //向任务表中插入数据
+          var item = {
+                      "userId": UserId,
+                      "type": task.type,
+                      "code": task.code,
+                      "date": ChangeTimeForm(new Date()),
+                      "status": 0,
+                      "description": res
+                    };
+          
+          //console.log($scope.measureTask); 
+          Postcompliance(item);
+        }  
+      });
+    };
+ 
   //任务完成后设定下次任务执行时间,CurrentTime为整数
-  function SetNextTime(CurrentTime, Freq)
-  {
-      var NextTime = 0;
-      //假定频率格式为2周/1次
-      var FreqUnit = Freq.substr(1,1);
-      var FreqNum = Freq.substr(0,1);
-      if (FreqUnit == "周")
-      {
-          NextTime = DateCalc("week", CurrentTime, parseInt(FreqNum)*7);
-      }
-      else if(FreqUnit == "月")
-      {
-          NextTime = DateCalc("month", CurrentTime, parseInt(FreqNum));
-      }
-      console.log(NextTime);
-      return NextTime;
-  }
+    function SetNextTime(FreqTimes, Unit, Times)
+    {
+        var NextTime;       
+        if (Unit == "周")
+        {
+            NextTime = DateCalc("周",FreqTimes*7);
+        }
+        else if(Unit == "月")
+        {
+            NextTime = DateCalc("月", FreqTimes);
+        }
+        else //年
+        {
+            NextTime = DateCalc("年", FreqTimes);
+            if((FreqTimes == 1)&&(Times == 2))
+            {
+              NextTime = DateCalc("月", 6);//1年2次转为6月1次
+            }
+        } 
+        //console.log(NextTime);     
+        return NextTime;
+    }
 
   //日期延后计算
-  function DateCalc(Type, CurrentTime, Addition)
-  {
-    var CuTimeStr = CurrentTime.toString();
-    var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);
-    var Date1 = new Date(CurrentTime);
-    var Date2;
-    if(Type == "week") //周
-    {
-        Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+    function DateCalc(Type, Addition)
+    {      
+      var Date1 = new Date();
+      var Date2;
+      if(Type == "周") //周
+      {
+          Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+      }
+      else if(Type == "月")
+      {
+          Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
+      }
+      else //年
+      {
+          Date2 = new Date(Date1.setYear(Date1.getFullYear() + Addition));
+      }     
+      return Date2;
     }
-    else //月
-    {
-        Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
-    }
-    var Ret = DateToInt(Date2);
-    return Ret;
-  }
+ 
+ //医生排班表数据
+    $scope.Docweek = ["周一","周二","周三","周四","周五","周六","周日"];
+    $scope.TblColor1 = ["gray", "green", "gray" ,"gray", "green", "green", "gray"];
+    $scope.TblColor2 = ["gray", "green", "green" ,"green", "gray", "gray", "gray"];
 
- //测试函数
- $scope.Test=function()
- {
-  $scope.TestTime = SetNextTime(20170331, "2月/次");
- }
-
- //日期转换为整数
- function DateToInt(Date1)
- {
-    var Year = Date1.getFullYear().toString();
-    var Month = (Date1.getMonth() + 1).toString();
-    var Day = Date1.getDate().toString();
-    if (Date1.getMonth() < 10)
-    {
-        Month = "0" + Month;
-    }
-    if(Date1.getDate() < 9)
-    {
-       Day = "0" + Day;
-    }
-    return parseInt(Year + Month + Day);
- }
-
-  //填写记录时页面跳转
-   $scope.ToDetailPage=function(name)
-   {
-     $state.go('task.r',{t:name});
-   }
  //弹窗：医生排班表
-  $ionicModal.fromTemplateUrl('templates/modal.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-     }).then(function(modal) {
-      $scope.modal = modal;
-    });
-     $scope.openModal = function() {
-     $scope.modal.show();
-   };
-   $scope.closeModal = function() {
-     $scope.modal.hide();
-   };
-   //清除
-   $scope.$on('$destroy', function() {
-     $scope.modal.remove();
-   });  
+    $ionicModal.fromTemplateUrl('templates/modal.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+       }).then(function(modal) {
+        $scope.modal = modal;
+      });
+       $scope.openModal = function() {
+       $scope.modal.show();
+     };
+     $scope.closeModal = function() {
+       $scope.modal.hide();
+     };
+     //清除
+     $scope.$on('$destroy', function() {
+       $scope.modal.remove();
+     });  
 
+ //修改日期格式Date → yyyy-mm-dd
+   function ChangeTimeForm(date)
+   {
+      var mon = date.getMonth() + 1;
+      var day = date.getDate();
+      var nowDay = date.getFullYear() + "-" + (mon<10?"0"+mon:mon) + "-" +(day<10?"0"+day:day);
+      return nowDay;
+   }
+
+//页面刷新
+    $scope.Refresh = function()
+    {
+        //$window.location.reload();
+    }
 }])
 
 //任务设置--GL
-.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', function($scope, $state, $ionicHistory) {
+.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', 'Storage', 'Patient', 'Task', function($scope, $state, $ionicHistory, Storage, Patient, Task) {
+  var UserId = Storage.get('UID'); 
+  var TmpMatchTbl = {};  //模板匹配表
+  var DisaClass={}; //疾病进程 
+  $scope.Tasks = {};
+  $scope.$on('$ionicView.enter', function() {
+        Temp();
+  });  
   
-  $scope.weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-  $scope.monthDays = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
-  $scope.specialMonth = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-  
-  $scope.tasks=[{category:"复诊", Freq:"2周一次", Content:"", Detail:""},
-                {category:"化验", Freq:"2月一次", Content:"血常规、血生化、尿常规、尿生化", Detail:""}];
-  $scope.HemoTask = {category:"血透排班",Freq:"1周2次"};
-  $scope.HemoFreq = ["1周2次", "1周3次"];
-
-  $scope.SimpleWeek = ["周一","周二","周三","周四","周五","周六","周日"];
-  for (i = 0;i<$scope.tasks.length;i++)
-  {
-    if ($scope.tasks[i].Freq.substr(1,1) == "周")
-    {
-      $scope.tasks[i].Days = $scope.weekDays;
-      $scope.tasks[i].Type = "week"; 
-      $scope.tasks[i].SelectedDay = "星期一"; //默认时间
-    }
-    else if($scope.tasks[i].Freq.substr(1,1) == "月")
-    {
-      $scope.tasks[i].Days = $scope.monthDays;
-      $scope.tasks[i].Type = "month"; 
-      $scope.tasks[i].SelectedDay = "1日";//默认时间
-    }
-  }
-  console.log($scope.tasks);
-  $scope.SetDate = function()
-  {
-    // $scope.Test = 20170401;
-    // SetFirTaskTime($scope.Test);
-    //$state.go('tab.tasklist');
-    $ionicHistory.goBack();
-  }
-
-  $scope.Goback = function(){
-    $ionicHistory.goBack();
-  }
-  $scope.measureTask = [{"Name":"体温",
-                         "Frequency":"1次/1天", 
-                         "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                         "Unit":"摄氏度",
-                         "Flag":false},
-                        {"Name":"体重",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"kg",
-                        "Flag":false},
-                        {"Name":"血压",
-                        "Frequency":"2次/1天", 
-                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
-                        "Unit":"mmHg",
-                        "Flag":false},
-                        {"Name":"尿量",
-                        "Frequency":"1次/1天", 
-                        "Discription":"每日在早饭前，大小便之后测量并记录一次。每次在同一时间、穿同样的衣服测量",
-                        "Unit":"ml",
-                        "Flag":false},
-                        {"Name":"心率",
-                        "Frequency":"2次/1天", 
-                        "Discription":"每天晨起或睡前安静状态下测量血压2次",
-                        "Unit":"次/分",
-                        "Flag":false}
-                        ];
-  $scope.fillTask = [{"Name":"血管通路情况",
-                        "Frequency":"1周/1次", 
-                        "Discription":"填写上周透析时内瘘／深静脉导管使用情况",
-                        "Unit":"",
-                        "Flag":false}];
-  //选定星期或号数后，默认为离当前日期最近的日期
-  function SetFirTaskTime (CurrentTime)
-  {
-      var CuTimeStr = CurrentTime.toString();
-      var CurrentTime = CuTimeStr.substr(0,4) + "-" + CuTimeStr.substr(4,2) + "-" + CuTimeStr.substr(6,2);    
-
-      var CurrentDate = new Date(CurrentTime);
-      var WeekDay = CurrentDate.getDay(); //0-6 星期日为0
-      var Day = CurrentDate.getDate(); //1-31
-      for (i = 0;i < $scope.tasks.length; i++)
-      {
-          var Temp;
-          var SelectedDay = $scope.tasks[i].Days.indexOf($scope.tasks[i].SelectedDay);
-          var Date1 = new Date(CurrentTime); //日期为引用类型
-          if($scope.tasks[i].Type == "week")
+  //获取患者任务模板
+   function GetTask(TaskCode)
+   { 
+     var promise =  Task.getTask({userId:UserId});
+     promise.then(function(data){
+       if(data.results.length != 0)
+       {          
+          var AllTasks = data.results[0].task;          
+          for(var i=0; i<AllTasks.length;i++)
           {
-             var Date2;
-             if( SelectedDay >= WeekDay) //所选日期未过，选择本星期
+             if (AllTasks[i].type == 'Measure') //测量
              {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay - WeekDay));
-             }
-             else //下个星期
+                $scope.Tasks.Measure = AllTasks[i].details;
+                for(var j=0;j<$scope.Tasks.Measure.length;j++)
+                {
+                    $scope.Tasks.Measure[j].Name = NameMatch($scope.Tasks.Measure[j].code);                    
+                }
+             }            
+             else if(AllTasks[i].type == 'ReturnVisit') //复诊
              {
-                Date2 = new Date(Date1.setDate(Day + SelectedDay + 7 - WeekDay))
+                $scope.Tasks.ReturnVisit = AllTasks[i].details[TaskCode[1]];
+                $scope.Tasks.ReturnVisit = TimeSelectBind($scope.Tasks.ReturnVisit);                         
              }
-             Temp = Date2;
-          }
-          else if($scope.tasks[i].Type == "month")
-          {
-            var Date3 = new Date(Date1.setDate(SelectedDay + 1));
-             if (SelectedDay + 1 < Day) //所选日期已过，选择下月
+             else if(AllTasks[i].type == 'LabTest') //化验
              {
-                Date3 = new Date(Date3.setMonth(Date3.getMonth() + 1));
+                $scope.Tasks.LabTest = AllTasks[i].details[TaskCode[2]];
+                $scope.Tasks.LabTest = TimeSelectBind($scope.Tasks.LabTest);               
              }
-             Temp = Date3;
-          }
-      $scope.tasks[i].TaskTime =  DateToInt(Temp);
-      }
-  }
-
- //日期转换为整数
-  function DateToInt(Date1)
-   {
-      var Year = Date1.getFullYear().toString();
-      var Month = (Date1.getMonth() + 1).toString();
-      var Day = Date1.getDate().toString();
-      if (Date1.getMonth() < 10)
-      {
-          Month = "0" + Month;
-      }
-      if(Date1.getDate() < 9)
-      {
-         Day = "0" + Day;
-      }
-      return parseInt(Year + Month + Day);
+             else if(AllTasks[i].type == 'SpecialEvaluate') //特殊评估
+             {
+                $scope.Tasks.SpecialEvaluate = AllTasks[i].details[0];                
+                for(j=1;j< AllTasks[i].details.length;j++)
+                {
+                    $scope.Tasks.SpecialEvaluate.instruction += '，' + AllTasks[i].details[j].instruction;
+                }
+                $scope.Tasks.SpecialEvaluate = TimeSelectBind($scope.Tasks.SpecialEvaluate);               
+             }
+             //console.log($scope.Tasks);            
+          }         
+       }
+     },function(){
+                    
+     })
    }
 
+  //任务先写死
+  $scope.Tasks = [
+        {
+          "type": "Measure",
+          "details": [
+            {
+              "code": "Temperature",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "Weight",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "BloodPressure",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 2,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "Vol",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            },
+            {
+              "code": "HeartRate",
+              "instruction": "",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 2,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "天"
+            }
+          ]
+        },
+        {
+          "type": "ReturnVisit",
+          "details": [            
+            {
+              "code": "TimeInterval_3",
+              "instruction": "术后时间>3年",
+              "content": "",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 2,
+              "frequencyUnits": "月"
+            }
+          ]
+        },
+        {
+          "type": "LabTest",
+          "details": [
+            {
+              "code": "LabTest_3",
+              "instruction": "术后时间>3年",
+              "content": "血常规、血生化、尿常规、尿生化、移植肾彩超、血药浓度",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 2,
+              "frequencyUnits": "周"
+            }
+          ]
+        },
+        {
+          "type": "SpecialEvaluate",
+          "details": [
+            {
+              "code": "ECG",
+              "instruction": "",
+              "content": "心电图，胸片，移植肾B超",
+              "startTime": "2050-11-02T07:58:51.718Z",
+              "endTime": "2050-11-02T07:58:51.718Z",
+              "times": 1,
+              "timesUnits": "次",
+              "frequencyTimes": 1,
+              "frequencyUnits": "年"
+            }            
+          ]
+        }
+      ];
+  
+  
+  function Temp()
+  {
+    for (var i=0;i<$scope.Tasks.length;i++)
+    {
+       var task = $scope.Tasks[i];
+       var temp;
+       if(task.type == 'Measure')
+       {
+          $scope.Tasks.Measure = task.details;
+          for(var j=0;j<$scope.Tasks.Measure.length;j++)
+          {
+              $scope.Tasks.Measure[j].Name = NameMatch($scope.Tasks.Measure[j].code);
+              temp = $scope.Tasks.Measure[j];
+              $scope.Tasks.Measure[j].Freq = temp.frequencyTimes + temp.frequencyUnits + temp.times + temp.timesUnits;                    
+          }
+       }
+       else if(task.type == 'ReturnVisit') //复诊
+       {
+          $scope.Tasks.ReturnVisit = task.details[0];
+          temp = $scope.Tasks.ReturnVisit;
+          $scope.Tasks.ReturnVisit.Freq = temp.frequencyTimes + temp.frequencyUnits + temp.times + temp.timesUnits;    
+          $scope.Tasks.ReturnVisit = TimeSelectBind($scope.Tasks.ReturnVisit);                         
+       }
+       else if(task.type == 'LabTest') //化验
+       {
+          $scope.Tasks.LabTest =task.details[0];
+          temp = $scope.Tasks.LabTest;
+          $scope.Tasks.LabTest.Freq = temp.frequencyTimes + temp.frequencyUnits + temp.times + temp.timesUnits;    
+          $scope.Tasks.LabTest = TimeSelectBind($scope.Tasks.LabTest);               
+       }
+       else if(task.type == 'SpecialEvaluate') //特殊评估
+       {
+          $scope.Tasks.SpecialEvaluate = task.details[0];  
+          temp = $scope.Tasks.SpecialEvaluate;
+          $scope.Tasks.SpecialEvaluate.Freq = temp.frequencyTimes + temp.frequencyUnits + temp.times + temp.timesUnits;    
+          $scope.Tasks.SpecialEvaluate = TimeSelectBind($scope.Tasks.SpecialEvaluate);                
+       }
+    }
+    //console.log($scope.Tasks);
+  }
+  
+  //名称转换
+   function NameMatch(name)
+   {
+     var Tbl = [
+                 {Name:'体温', Code:'Temperature'},
+                 {Name:'体重', Code:'Weight'},
+                 {Name:'血压', Code:'BloodPressure'},
+                 {Name:'尿量', Code:'Vol'},
+                 {Name:'心率', Code:'HeartRate'},
+                 {Name:'复诊', Code:'ReturnVisit'},
+                 {Name:'化验', Code:'LabTest'},
+                 {Name:'特殊评估', Code:'SpecialEvaluate'}
+                ];
+      for (var i=0;i<Tbl.length;i++)
+      {
+         if(Tbl[i].Code == name)
+         {
+            name = Tbl[i].Name
+            break;
+         }
+      }
+      return name;
+   }
+
+  //时间下拉框绑定
+   function TimeSelectBind(item)
+   {
+        var Unit = item.frequencyUnits;
+        if (Unit == "周")
+        {
+          item.Days = $scope.Week;
+          item.Type = "week"; 
+          item.SelectedDay = "星期一"; //默认时间
+        }
+        else if(Unit == "月")
+        {
+          item.Days = $scope.Days;
+          item.Type = "month"; 
+          item.SelectedDay = "1日";//默认时间
+        }
+        else if(Unit == '年')
+        {
+          item.Days = $scope.Month;
+          item.Type = "year"; 
+          item.SelectedDay = "1月";//默认时间
+        }
+        return item;     
+   }
+
+  //时间下拉框数据
+   $scope.Week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+   $scope.Days = ["1日","2日","3日","4日","5日","6日","7日","8日","9日","10日","11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日"];
+   $scope.Month = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+  
+  //页面跳转
+   $scope.SetDate = function()
+   {
+     $scope.Tasks.ReturnVisit.startTime =  SetTaskTime($scope.Tasks.ReturnVisit. SelectedDay, $scope.Tasks.ReturnVisit.frequencyUnits);
+     $scope.Tasks.LabTest.startTime =  SetTaskTime($scope.Tasks.LabTest. SelectedDay, $scope.Tasks.LabTest.frequencyUnits);
+     $scope.Tasks.SpecialEvaluate.startTime =  SetTaskTime($scope.Tasks.SpecialEvaluate. SelectedDay, $scope.Tasks.SpecialEvaluate.frequencyUnits);
+     //console.log($scope.Tasks);
+      var Tasks = [                                      
+                    {
+                        userId:UserId,//unique
+                        sortNo:1,
+                        type:$scope.Tasks.ReturnVisit.type,
+                        code:$scope.Tasks.ReturnVisit.code,
+                        startTime:$scope.Tasks.ReturnVisit.startTime
+                    },
+                    {
+                        userId:UserId,//unique
+                        sortNo:1,
+                        type:$scope.Tasks.LabTest.type,
+                        code:$scope.Tasks.LabTest.code,
+                        startTime:$scope.Tasks.LabTest.startTime
+                    },
+                    {
+                        userId:UserId,//unique
+                        sortNo:1,
+                        type:$scope.Tasks.SpecialEvaluate.type,
+                        code:$scope.Tasks.SpecialEvaluate.code,
+                        startTime:$scope.Tasks.SpecialEvaluate.startTime
+                    }
+                 ];
+     for (var i=0;i<Tasks.length;i++)
+     {
+        ChangeTasktime(Tasks[i]);
+     }
+     $ionicHistory.goBack();
+   }
+
+   $scope.Goback = function(){
+     $ionicHistory.goBack();
+   }
+  
+  //修改任务执行时间
+    function ChangeTasktime(task)
+    {     
+     /* var promise = Task.changeTasktime(task);
+       promise.then(function(data){
+         //console.log(data);
+         if(data.results)
+         {
+          console.log(data.results);
+         };
+       },function(){                    
+       })*/
+    }
+    //ChangeTasktime();
+
+  //选定星期或号数后，默认为离当前日期最近的日期
+   function SetTaskTime (SelectedDay, Type)
+   {
+      //暂时就用本地时间
+      var CurrentDate = new Date();
+      var NewDate;
+      var WeekDay = CurrentDate.getDay(); //0-6 0为星期日
+      var Day = CurrentDate.getDate(); //1-31
+      var Month = CurrentDate.getMonth(); //0-11,0为1月
+      
+      var Num = 0;     
+      if(Type == "周")
+      {
+         Num = $scope.Week.indexOf(SelectedDay);
+
+         if(Num >= WeekDay) //所选日期未过，选择本星期
+         {
+            NewDate = new Date(CurrentDate.setDate(Day + Num - WeekDay));
+         }
+         else //下个星期
+         {
+            NewDate = new Date(CurrentDate.setDate(Day + Num + 7 - WeekDay));
+         }        
+      }
+      else if(Type == "月")
+      {
+         Num = $scope.Days.indexOf(SelectedDay) + 1;
+         NewDate = new Date(CurrentDate.setDate(Num));
+         if (Num < Day) //所选日期已过，选择下月
+         {
+            NewDate = new Date(CurrentDate.setMonth(CurrentDate.getMonth() + 1));
+         }         
+      }
+      else if(Type == "年")
+      {
+         Num = $scope.Month.indexOf(SelectedDay);
+         NewDate = new Date(CurrentDate.setMonth(Num));
+         if(Num < Month)//所选日期已过，选择明年
+         {
+            NewDate = new Date(CurrentDate.setYear(CurrentDate.getFullYear() + 1));
+         }
+      }
+      //console.log(NewDate);
+      return ChangeTimeForm(NewDate);
+   }
+ 
    //编辑按钮
-   //$scope.EditFlag = false;
    $scope.EnableEdit = function ()
    {
       $('select').attr("disabled", false);
-      //console.log($scope.EditFlag);
+   }   
+
+  //修改日期格式Date → yyyy-mm-dd
+   function ChangeTimeForm(date)
+   {
+      var mon = date.getMonth() + 1;
+      var day = date.getDate();
+      var nowDay = date.getFullYear() + "-" + (mon<10?"0"+mon:mon) + "-" +(day<10?"0"+day:day);
+      return nowDay;
    }
+
 }])
 
-//任务执行填写--GL
-.controller('TaskFillCtrl', ['$scope', '$state', '$stateParams', function($scope, $state, $stateParams) {
-    $scope.Title = $stateParams.t;
-    $scope.FillOk = function()
-    {
-      //console.log("确定填写");
-      $state.go('tab.tasklist');
-    }
-  }])
 
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient) {
@@ -2418,7 +3039,7 @@ $scope.showPopupSelect = function(name) {
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location) {
+.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -2578,7 +3199,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -2592,7 +3213,7 @@ $scope.showPopupSelect = function(name) {
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
 
         })
@@ -2603,7 +3224,7 @@ $scope.showPopupSelect = function(name) {
 
 
   $scope.doctors = "";
-  $scope.mydoctors = "";
+  $scope.doctor = "";
   Patient.getDoctorLists().then(
       function(data)
       {
@@ -2615,17 +3236,29 @@ $scope.showPopupSelect = function(name) {
         console.log(err);
       }
     )
-  Patient.getMyDoctors({userId:"p01"}).then(
-      function(data)
-      {
-        $scope.mydoctors = data.results.doctors
-        console.log($scope.mydoctors)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+  //获取我的主管医生信息，目前暂时为写死的医生ID
+  Doctor.getDoctorInfo({userId:"U201702070041"}).then(
+    function(data)
+    {
+      $scope.doctor = data.results
+      console.log($scope.doctor)
+    },
+    function(err)
+    {
+      console.log(err)
+    }
+  )
+  // Patient.getMyDoctors({userId:"p01"}).then(
+  //     function(data)
+  //     {
+  //       $scope.mydoctors = data.results.doctors
+  //       console.log($scope.mydoctors)
+  //     },
+  //     function(err)
+  //     {
+  //       console.log(err);
+  //     }
+  //   )
 
   // $scope.question = function(){
   //   $state.go("tab.consultquestion1")
@@ -2649,7 +3282,7 @@ $scope.showPopupSelect = function(name) {
   Doctor.getDoctorInfo({userId:DoctorId}).then(
       function(data)
       {
-        $scope.doctor = data.result
+        $scope.doctor = data.results
         console.log($scope.doctor)
       },
       function(err)
@@ -3000,6 +3633,7 @@ $scope.showPopupSelect = function(name) {
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
   var DoctorId = $stateParams.DoctorId
+  console.log("Attention:"+DoctorId)
   // var patientId = "U201702080016"
   $scope.Genders =
   [
@@ -3031,14 +3665,27 @@ $scope.showPopupSelect = function(name) {
 
   $scope.Diseases = ""
   $scope.DiseaseDetails = ""
-  
+  $scope.timename = ""
   $scope.getDiseaseDetail = function(Disease) {
     if (Disease.typeName == "肾移植")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = true
+      $scope.timename = "手术日期"
     }
     else if (Disease.typeName == "血透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "插管日期"
+    }
+    else if (Disease.typeName == "腹透")
+    {
+      $scope.showProgress = false
+      $scope.showSurgicalTime = true
+      $scope.timename = "开始日期"
+    }
+    else if (Disease.typeName == "ckd5期未透析")
     {
       $scope.showProgress = false
       $scope.showSurgicalTime = false
@@ -3049,6 +3696,88 @@ $scope.showPopupSelect = function(name) {
       $scope.showSurgicalTime = false
       $scope.DiseaseDetails = Disease.details
     }
+  }
+  var initialDict = function(){
+    Dict.getDiseaseType({category:'patient_class'}).then(
+      function(data)
+      {
+        $scope.Diseases = data.results[0].content
+        $scope.Diseases.push($scope.Diseases[0])
+        $scope.Diseases.shift()
+        if ($scope.BasicInfo.class != null)
+        {
+          $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
+          if ($scope.BasicInfo.class.typeName == "血透")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = true
+            $scope.timename = "插管日期"
+          }
+          else if ($scope.BasicInfo.class.typeName == "肾移植")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = true
+            $scope.timename = "手术日期"
+          }
+          else if ($scope.BasicInfo.class.typeName == "腹透")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = true
+            $scope.timename = "开始日期"
+          }
+          else if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
+          {
+            $scope.showProgress = false
+            $scope.showSurgicalTime = false
+          }
+          else
+          {
+            $scope.showProgress = true
+            $scope.showSurgicalTime = false
+            $scope.DiseaseDetails = $scope.BasicInfo.class.details
+            $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
+          }
+        }
+        // console.log($scope.Diseases)
+      },
+      function(err)
+      {
+        console.log(err);
+      }
+    )
+    // Dict.getDiseaseType({category:'patient_class'}).then(
+    //   function(data)
+    //   {
+    //     $scope.Diseases = data.results[0].content
+    //     if ($scope.BasicInfo.class != null)
+    //     {
+    //       $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
+    //       if ($scope.BasicInfo.class.typeName == "血透")
+    //       {
+    //         $scope.showProgress = false
+    //         $scope.showSurgicalTime = false
+    //         $scope.BasicInfo.class_info == null
+    //       }
+    //       else if ($scope.BasicInfo.class.typeName == "肾移植")
+    //       {
+    //         $scope.showProgress = false
+    //         $scope.showSurgicalTime = true
+    //       }
+    //       else
+    //       {
+    //         $scope.showProgress = true
+    //         $scope.showSurgicalTime = false
+    //         $scope.DiseaseDetails = $scope.BasicInfo.class.details
+    //         $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
+    //       }
+    //     }
+    //     console.log($scope.Diseases)
+    //   },
+    //   function(err)
+    //   {
+    //     console.log(err);
+    //   }
+    // )
   }
   $scope.BasicInfo = 
   {
@@ -3065,6 +3794,7 @@ $scope.showPopupSelect = function(name) {
     "birthday": null,
     "IDNo": null
   }
+  initialDict()
   Patient.getPatientDetail({userId: patientId}).then(
       function(data)
       {
@@ -3098,6 +3828,7 @@ $scope.showPopupSelect = function(name) {
         {
           $scope.BasicInfo.birthday = $scope.BasicInfo.birthday.substr(0,10)
         }
+        initialDict()
         VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
           function(data)
           {
@@ -3118,39 +3849,6 @@ $scope.showPopupSelect = function(name) {
         console.log(err);
       }
     )
-  Dict.getDiseaseType({category:'patient_class'}).then(
-    function(data)
-    {
-      $scope.Diseases = data.results[0].content
-      if ($scope.BasicInfo.class != null)
-      {
-        $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
-        if ($scope.BasicInfo.class.typeName == "血透")
-        {
-          $scope.showProgress = false
-          $scope.showSurgicalTime = false
-          $scope.BasicInfo.class_info == null
-        }
-        else if ($scope.BasicInfo.class.typeName == "肾移植")
-        {
-          $scope.showProgress = false
-          $scope.showSurgicalTime = true
-        }
-        else
-        {
-          $scope.showProgress = true
-          $scope.showSurgicalTime = false
-          $scope.DiseaseDetails = $scope.BasicInfo.class.details
-          $scope.BasicInfo.class_info = searchObj($scope.BasicInfo.class_info[0],$scope.DiseaseDetails)              
-        }
-      }
-      console.log($scope.Diseases)
-    },
-    function(err)
-    {
-      console.log(err);
-    }
-  )
 
   $scope.Questionare = {
     "LastDiseaseTime":"",
@@ -3335,15 +4033,11 @@ $scope.showPopupSelect = function(name) {
     $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
     $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
     $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
-    if ($scope.BasicInfo.class.typeName == "血透")
+    if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
     {
       $scope.BasicInfo.class_info == null
     }
-    else if ($scope.BasicInfo.class.typeName == "肾移植")
-    {
-      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info
-    }
-    else
+    else if ($scope.BasicInfo.class_info != null)
     {
       $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
     }
@@ -3362,7 +4056,7 @@ $scope.showPopupSelect = function(name) {
               if(data.result == "修改成功" || data.result == "新建或修改成功")
               {
                 console.log(data.results)
-                $state.go("tab.consultquestion2")
+                $state.go("tab.consultquestion2",{DoctorId:DoctorId})
               }
             },
             function(err)
@@ -3382,27 +4076,26 @@ $scope.showPopupSelect = function(name) {
   }
   
   $scope.SKip = function(){
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1")
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
   }
 
   $scope.nexttoquestion = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
     Storage.set('tempimgrul',$scope.images)
-    $state.go("tab.consultquestion3")
+    $state.go("tab.consultquestion3",{DoctorId:DoctorId})
   }
 
   $scope.backtoDisease = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    $state.go("tab.consultquestion2")
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
   } 
 
   $scope.Submitquestion = function(){
     var temp = {
-      "counselId":"counselpost888",
       "patientId":patientId,
       "doctorId":"doc01", 
       "hospital":$scope.Questionare.LastHospital, 
@@ -3421,7 +4114,7 @@ $scope.showPopupSelect = function(name) {
         {
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
-          $state.go("tab.consult-chat", { docId: "doc01" })
+          $state.go("tab.consult-chat",{DoctorId:DoctorId})
         }
         console.log(data.results)
       },

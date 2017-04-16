@@ -1,53 +1,34 @@
 <!-- 任务视图中的列表-tab -->
 <ion-view view-title='任务'>
-<!-- <ion-nav-buttons side="primary">
-        <a class="button icon-left ion-android-settings button-clear" href="#/task/taskSet"></a> 
-    </ion-nav-buttons> -->
+<ion-nav-buttons side="primary">
+        <a class="button icon-left ion-ios-refresh-empty button-clear" ng-click="Refresh()"></a> 
+    </ion-nav-buttons>
     
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
     <ion-content class="padding">
         <div class="list">
             <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
                 测量
-                <a class="item item-icon-right" ng-repeat="item in measureTask">
+                <a class="item item-icon-right" ng-repeat="item in Tasks.Measure">
                     {{item.Name}} 
-                    <p>{{item.Value}}<span ng-if = "item.Flag">{{item.Unit}}</span></p>               
-                    <p>{{item.Frequency}}</p>
-                    <p>{{item.Discription}}</p>
-                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup('{{item.Name}}')"></i>
-                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
-                </a>
-                <a class="item item-icon-right" ng-repeat="item in fillTask">
-                    {{item.Name}}                     
-                    <p>{{item.Frequency}}</p>
-                    <p>{{item.Discription}}</p>
-                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "ToDetailPage('{{item.Name}}')"></i>
-                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
-                </a>
-                 <a class="item item-icon-right" ng-repeat="item in SimpleTask">
-                    {{item.Name}}   
-                    <p>{{item.Frequency}}</p>                                     
-                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px"  ng-click = "showPopupSelect('{{item.Name}}')"></i>     
-                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
-                </a>
-            </a>
-            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
-                复诊 <button ng-click = "openModal()">查看医生排班</button>
-                <a class="item item-icon-right" ng-repeat="item in RevisitTask">
-                    {{item.Name}}                                
-                    <p>{{item.Frequency}}</p>
-                    <p>{{item.Discription}}</p>                    
+                    <p>{{item.Freq}}</p>
+                    <p>{{item.instruction}}</p> 
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup(item, 'input')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i> 
                 </a>              
             </a>
             <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
-                化验
-                <a class="item item-icon-right" ng-repeat="item in TestTask">
-                    {{item.Name}}                                
-                    <p>{{item.Frequency}}</p>
-                    <p>{{item.Discription}}</p>                    
-                </a>              
-            </a>           
-        </div>        
+                其他 <button ng-click = "openModal()">查看医生排班</button>
+                <a class="item item-icon-right" ng-repeat = "item in Tasks.Other">
+                    {{item.Name}}
+                    <p>{{item.Freq}}</p> 
+                    <p>任务时间：{{item.startTime}}</p>
+                    <p>{{item.instruction}}</p>                  
+                    <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup(item, 'textarea')"></i>
+                    <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>                 
+                </a>                        
+            </a>                  
+        </div>    
         <!-- <button ng-click="Test()">测试</button>
         <h>{{TestTime}}</h> -->
     </ion-content> 
