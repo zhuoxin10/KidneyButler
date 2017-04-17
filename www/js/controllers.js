@@ -2117,18 +2117,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.input = {
         text: ''
     }
-    $scope.params = {
-        msgCount: 0,
-        helpDivHeight: 30,
-        hidePanel: true,
-        moreMsgs:true
-    }
-    $scope.msgs = [];
+    // $scope.params = {
+    //     msgCount: 0,
+    //     helpDivHeight: 30,
+    //     hidePanel: true,
+    //     moreMsgs:true
+    // }
+    // $scope.msgs = [];
     $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
     //render msgs 
     $scope.$on('$ionicView.beforeEnter', function() {
         // $state.params.chatId='13709553333';
+        $scope.msgs = [];
+        $scope.params = {
+            msgCount: 0,
+            helpDivHeight: 30,
+            hidePanel: true,
+            moreMsgs:true
+        }
         console.log($state.params.chatId);
+        console.log($state.params.msgCount);
         // if($state.params.type=='0') $scope.params.hidePanel=false;
         if (window.JMessage) {
             window.JMessage.enterSingleConversation($state.params.chatId, CONFIG.crossKey);
@@ -2206,6 +2214,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
                             break;
                         }else if(j<$scope.params.msgCount && $scope.msgs[j]['_id']==res[i]['_id']){
+                            res[i].diff=$scope.msgs[j].diff;
                             $scope.msgs[j]=res[i];
                             ++j;--i;
                         }else{
@@ -2311,8 +2320,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.sound.play();
     })
     $scope.$on('profile', function(event, args) {
-            console.log(args)
             event.stopPropagation();
+            $state.go('tab.DoctorDetail',{DoctorId:args[1]});
         })
 
     //病例Panel
@@ -4128,15 +4137,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.rm('tempimgrul')
           temp.consultId=data.results.counselId;
           temp.type='card';
-          window.JMessage.sendSingleCustomMessage(DoctorId, temp, CONFIG.crossKey,
-          function(data) {
-              console.log(data)
-              $state.go("tab.consult-chat", { chatId: DoctorId });
-          },
-          function(err) {
-              console.log(err)
+          if (window.JMessage) {
+            window.JMessage.sendSingleCustomMessage(DoctorId, temp, CONFIG.crossKey,
+            function(data) {
+                console.log(data)
+                $state.go("tab.consult-chat", { chatId: DoctorId });
+            },
+            function(err) {
+                console.log(err)
 
-          });
+            });
+          }
+
+          
         }
         console.log(data.results)
       },
