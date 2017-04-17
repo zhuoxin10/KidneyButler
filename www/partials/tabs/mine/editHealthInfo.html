@@ -14,7 +14,7 @@
   <ion-list>
     <label  class="item item-input item-select">
         <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>类别</div>
-        <select ng-model="health.label" ng-options="label.Name for label in labels track by label.Type" style="width:100%">
+        <select ng-model="health.label" ng-options="label.name for label in labels track by label.code" style="width:100%">
         </select>
     </label>
 
@@ -41,7 +41,7 @@
 
 
 
-  <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="HealthInfoSetup(health)">
+  <button style="margin-top:10px" class="button button-block button-balanced" ng-click ="HealthInfoSetup()">
             保存
       </button>
 

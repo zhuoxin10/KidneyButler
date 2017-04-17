@@ -3,43 +3,16 @@
       <ion-nav-buttons side="left">
         <button class="button button-icon icon ion-chevron-left" ng-click="goChats()"></button>
       </ion-nav-buttons>
-      <!-- <ion-nav-buttons side="right">
-        <button class="button button-icon icon ion-clipboard" ng-click="togglePanel()"></button>
-      </ion-nav-buttons> -->
     </ion-nav-bar>
-<!--     <div style="position:absolute;top:44px;width:100%;margin:0;" ng-hide="params.hidePanel" class="list card ng-hide hide-animate">
-        <div class="item item-avatar">
-            <img ng-src="img/avatar.png">
-            <div>
-                <div style="display:inline-block;margin-right:1.2em;font-size:1.25em">ABC </div>
-                <div style="display:inline-block">男的女的几岁</div>
-                <div style="display:inline-block;float:right;color:#999;font-size:0.8em">4/09/17 13:01</div>
-            </div>
-            <p style="width:75%;display:inline-block;"><i class="icon ion-android-car"></i>The cordova.plugins.Keyboard object provides functions to make interacting with the keyboard easier, and fires events to indicate that the keyboard will hide/show.</p>
-        </div>
-        <div class="item item-body">
 
-        <div style="display:inline-block;margin-right:1.2em;font-size:1.25em">啥病啊，没事吧</div>
-        <div style="display:inline-block;float:right"><i style="color:#00E676" class="icon ion-android-pin"></i> 位置</div>
-        <div style="word-break:normal;word-wrap: break-word;border-bottom:1px #ccc solid;padding-bottom:0.4em;margin:0.5em 0">惊了，睡一觉起来居然上了十大。
-首先的确如很多回复的同学们所说，LZ比较懒，也比较笨，我也没有任何埋怨谁的意思，就像有位同学所说，帮是情分，不帮是本分，我只是觉得自己很无力而已，一个弱者蹲在地上的自我叹息。
-然后这个毕设……课题比较奇葩，我们实验室的学长都没有做这个的，我遇到问题（比如某某仪器的使用准许）都是去其他实验室寻求帮助，都是些素不相识的学长。总之就是，比较熟的学长爱莫能助，可能帮到我的学长压根就不认识我。
-最后非常感谢各位的建议，我会尽力去改变自己，努力做好这个毕设
-       </div>
 
-            <img style="height:3.5em;width:3.5em;margin-right:0.8em" ng-repeat="pic in content.pics" ng-src="{{pic}}" ng-click="viewPic(this.pic)" />
-        </div>
+    <ion-content delegate-handle="myContentScroll" class="gray-back">
+        <ion-refresher on-refresh="DisplayMore()"></ion-refresher>
+        <div class="text-center padding hide-animate ng-hide" ng-hide="params.moreMsgs">没有更多消息了</div>
+        <my-message ng-repeat="msg in msgs track by $index" msg="msg" msgindex='{{$index}}'></my-message>
+        <div style="float:left;width:100%;" ng-style="{'padding-top':'{{params.helpDivHeight}}px'}"></div>
+    </ion-content>
 
-    </div> -->
-
-  <ion-content delegate-handle="myContentScroll" class="gray-back">
-
-      <ion-refresher on-refresh="DisplayMore()"></ion-refresher>
-      <div class="text-center padding hide-animate" ng-hide="params.moreMsgs">没有更多消息了</div>
-    <my-message  ng-repeat="msg in msgs track by $index" msg="msg" msgindex='{{$index}}'></my-message>
-    <div style="float:left;width:100%;" ng-style="{'padding-top':'{{params.helpDivHeight}}px'}"></div>
-
-</ion-content>
 
   <form name="sendMessageForm" novalidate>
         <ion-footer-bar class="input-box" style="position:absolute" keyboard-attach>

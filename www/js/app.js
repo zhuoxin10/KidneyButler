@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
   $ionicPlatform.ready(function() {
 
 
@@ -187,7 +187,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       }
     })
     .state('tab.consult-chat', {
-      url: '/consult/chat/:docId',
+      url: '/consult/chat/:chatId',
       views: {
         'tab-consult': {
           cache:false,
@@ -228,33 +228,39 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion1', {
       url: '/consultquestion1',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/consultquestion1.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
     .state('tab.consultquestion2', {
       url: '/consultquestion2',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/consultquestion2.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
     .state('tab.consultquestion3', {
       url: '/consultquestion3',
+      params:{DoctorId:null},
       views: {
         'tab-consult': {
           cache:false,
           templateUrl: 'partials/tabs/consult/consultquestion3.html',
           controller: 'consultquestionCtrl'
         }
-      }
+      },
+      params:{DoctorId:null}
     })
 
     .state('tab.mine', {

@@ -1,4 +1,4 @@
-<ion-view cache-view="false" title="我的医生" >
+<ion-view cache-view="false" title="我的医生" show-tabs>
 
   
 
@@ -13,17 +13,17 @@
     </div>
     
     <ion-list>
-      <ion-item ng-repeat="doctor in mydoctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.doctorId.userId)">
-        <img ng-src="{{doctor.doctorId.photoUrl  || 'img/doctor3.PNG'}}">
-        <span>{{doctor.doctorId.name}}</span>
-        <span style="float: right">{{doctor.doctorId.department}}</span>
-        <p>{{doctor.doctorId.workUnit}}  {{doctor.doctorId.title}}</p>
-        <p style="font-size: 12px">擅长：{{doctor.doctorId.major}}</p>
-        <p style="font-size: 12px">收费：<span>咨询{{doctor.doctorId.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.doctorId.charge2}}元一次</span></p>
+      <ion-item class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.userId)">
+        <img ng-src="{{doctor.photoUrl  || 'img/doctor3.PNG'}}">
+        <span>{{doctor.name}}</span>
+        <span style="float: right">{{doctor.department}}</span>
+        <p>{{doctor.workUnit}}  {{doctor.title}}</p>
+        <p style="font-size: 12px">擅长：{{doctor.major}}</p>
+        <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
         <p style="color:#2B67F5;font-size: 12px">
-          <i class="icon ion-star"></i><span>{{doctor.doctorId.score}}</span>
-          <span style="margin-left: 10px">咨询量：{{doctor.doctorId.count1}}</span>
-          <span style="margin-left: 10px">问诊量：{{doctor.doctorId.count2}}</span>
+          <i class="icon ion-star"></i><span>{{doctor.score}}</span>
+          <span style="margin-left: 10px">咨询量：{{doctor.count1}}</span>
+          <span style="margin-left: 10px">问诊量：{{doctor.count2}}</span>
         </p>
         <p style="color:#181544;text-align: right;font-weight:bold;">
           <span "><i class="icon ion-help-circled"></i>咨询</span>

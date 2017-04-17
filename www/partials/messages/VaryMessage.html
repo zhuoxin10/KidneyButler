@@ -11,9 +11,10 @@
   <ion-content padding="true" style="">
 
     <ion-list>
-      <ion-item ng-repeat="message in messages" class="item-thumbnail-left item-text-wrap">
-        <img ng-src="{{message.img}}">
+      <ion-item ng-repeat="message in messages" class=" item-text-wrap">
         <p style="text-align: center">{{message.time}}</p>
+        <h2>{{message.title}}</h2>
+
         <p>{{message.response}}</p>
       </ion-item>
 
