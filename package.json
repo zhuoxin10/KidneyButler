@@ -43,7 +43,6 @@
     "phonegap-plugin-barcodescanner"
   ],
   "cordovaPlatforms": [
-    "ios",
     "android"
   ],
   "scripts": {
