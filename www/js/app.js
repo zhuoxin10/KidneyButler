@@ -37,19 +37,10 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     if (window.JMessage) {
         // window.Jmessage.init();
         JM.init();
-        window.JMessage.login('18868800011', '123456',
-        function(response) {
-            window.JMessage.username = '18868800011';
-            //gotoConversation();
-        },
-        function(err) {
-            console.log(err);
-            // JM.register($scope.useruserID, $scope.passwd);
-        });
         document.addEventListener('jmessage.onOpenMessage', function(msg) {
             console.info('[jmessage.onOpenMessage]:');
             console.log(msg);
-            $state.go('tab.chat-detail', { chatId: msg.fromName, fromUser: msg.fromUser });
+            $state.go('tab.consult-chat', { chatId: msg.targetID});
         }, false);
         document.addEventListener('jmessage.onReceiveMessage', function(msg) {
             console.info('[jmessage.onReceiveMessage]:');
@@ -60,20 +51,20 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
                 // console.log(JSON.stringify(message));
             }
         }, false);
-        document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
-            console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
-            // $rootScope.$broadcast('receiveMessage',msg);
-            if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
-                if (device.platform == "Android") {
-                    window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
-                        // message = window.JMessage.message;
-                        // console.log(JSON.stringify(message));
-                } else {
-                    window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
-                }
-            }
+        // document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
+        //     console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
+        //     // $rootScope.$broadcast('receiveMessage',msg);
+        //     if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
+        //         if (device.platform == "Android") {
+        //             window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
+        //                 // message = window.JMessage.message;
+        //                 // console.log(JSON.stringify(message));
+        //         } else {
+        //             window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
+        //         }
+        //     }
 
-        }, false);
+        // }, false);
 
     }
     window.addEventListener('native.keyboardshow', function(e) {
