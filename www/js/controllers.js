@@ -2131,7 +2131,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.msgs = [];
         $scope.params = {
             msgCount: 0,
-            helpDivHeight: 30,
+            helpDivHeight: 60,
             hidePanel: true,
             moreMsgs:true
         }
@@ -2403,14 +2403,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 30;
+        $scope.params.helpDivHeight = height + 60;
         setTimeout(function() {
             $scope.scrollHandle.scrollBottom();
         }, 100);
 
     })
     $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 30;
+        $scope.params.helpDivHeight = 60;
         // $ionicScrollDelegate.scrollBottom();
     })
     $scope.$on('$ionicView.leave', function() {
@@ -4135,10 +4135,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         {
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
-          temp.consultId=data.results.counselId;
-          temp.type='card';
+          var msgdata={
+            counsel:data.results,
+            type:'card',
+            patientId:patientId,
+            doctorId:DoctorId,
+            fromId:patientId,
+            targetId:DoctorId
+          }
+          // temp.consultId=data.results.counselId;
+          // temp.type='card';
           if (window.JMessage) {
-            window.JMessage.sendSingleCustomMessage(DoctorId, temp, CONFIG.crossKey,
+            window.JMessage.sendSingleCustomMessage(DoctorId, msgdata, CONFIG.crossKey,
             function(data) {
                 console.log(data)
                 $state.go("tab.consult-chat", { chatId: DoctorId });
@@ -4148,7 +4156,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
             });
           }
-
           
         }
         console.log(data.results)

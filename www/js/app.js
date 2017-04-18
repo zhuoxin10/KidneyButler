@@ -37,6 +37,11 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     if (window.JMessage) {
         // window.Jmessage.init();
         JM.init();
+        document.addEventListener('jmessage.onUserLogout',function(data){
+          console.error(Storage.get(UID) +' log out');
+          alert('jmessage user log out: '+Storage.get(UID));
+
+        })
         document.addEventListener('jmessage.onOpenMessage', function(msg) {
             console.info('[jmessage.onOpenMessage]:');
             console.log(msg);
