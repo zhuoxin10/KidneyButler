@@ -1867,7 +1867,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //我的 页面--PXY
-.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient) {
+.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload) {
   $scope.barwidth="width:0%";
   Storage.set("personalinfobackstate","mine")
   var patientId = Storage.get('UID')
@@ -1969,10 +1969,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   var photo_upload_display = function(imgURI){
    // 给照片的名字加上时间戳
     var temp_photoaddress = Storage.get("USERNAME") + "_" + new Date().getTime() + ".jpg";
+    console.log(temp_photoaddress)
     Camera.uploadPicture(imgURI, temp_photoaddress).then(function(r){
             // 上传照片
-      Storage.set("user.image",imgURI);
-      readImage();
+      // Storage.set("user.image",imgURI);
+      // readImage();
 
         
     }) // 上传照片结束
@@ -2013,7 +2014,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
        $scope.closePopover();
     };      
     $scope.choosePhotos = function() {
-      Camera.getPictureFromPhotos().then(function(data) {
+      Camera.getPictureFromPhotos('gallery').then(function(data) {
           // data里存的是图像的地址
           // console.log(data);
           var imgURI = data; 
@@ -2023,16 +2024,35 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           var imgURI = undefined;
         });// 从相册获取照片结束
       }; // function结束
+
+
+
+      // //选择图片
+      // $scope.uploadPic = function(file) {
+      //   console.log(file)
+      //   Upload.upload({
+      //         url: 'http://121.43.107.106:4050/upload',
+      //         data: {file: file, 'username': "test0000"}
+      //     }).then(function (resp) {
+      //         console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+      //     }, function (resp) {
+      //         console.log('Error status: ' + resp.status);
+      //     }, function (evt) {
+      //         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+      //         console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+      //     });
+
+      // }
+
       // 照相机的点击事件----------------------------------
       $scope.getPhoto = function() {
         // console.log("要拍照了！");
         $scope.takePicture();
         $scope.closePopover();
       };
+      $scope.isShow=true;
       $scope.takePicture = function() {
-       Camera.getPicture().then(function(data) {
-          // data里存的是图像的地址
-          // console.log(data);
+       Camera.getPicture('cam').then(function(data) {
           var imgURI = data;
           photo_upload_display(imgURI);
         }, function(err) {
@@ -2043,7 +2063,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 }])
-
 //咨询记录--PXY
 .controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory) {
   $scope.barwidth="width:0%";
@@ -2527,7 +2546,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera) {
   $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
   $scope.Goback = function(){
@@ -2673,7 +2692,89 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       datePickerCallback(val);
     }
   };  
-//--------------
+//--------------copy from minectrl
+  // 上传头像的点击事件----------------------------
+  $scope.onClickCamera = function($event){
+    $scope.openPopover($event);
+  };
+ 
+ // 上传照片并将照片读入页面-------------------------
+  var photo_upload_display = function(imgURI){
+   // 给照片的名字加上时间戳
+    var temp_photoaddress = Storage.get("USERNAME") + "_" + new Date().getTime() + ".jpg";
+    console.log(temp_photoaddress)
+    Camera.uploadPicture(imgURI, temp_photoaddress).then(function(r){
+            // 上传照片
+      // Storage.set("user.image",imgURI);
+      // readImage();
+
+        
+    }) // 上传照片结束
+  };
+//-----------------------上传头像---------------------
+      // ionicPopover functions 弹出框的预定义
+        //--------------------------------------------
+        // .fromTemplateUrl() method
+  $ionicPopover.fromTemplateUrl('my-popover.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+  $scope.openPopover = function($event) {
+    $scope.popover.show($event);
+  };
+  $scope.closePopover = function() {
+    $scope.popover.hide();
+  };
+  //Cleanup the popover when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.popover.remove();
+  });
+  // Execute action on hide popover
+  $scope.$on('popover.hidden', function() {
+    // Execute action
+  });
+  // Execute action on remove popover
+  $scope.$on('popover.removed', function() {
+    // Execute action
+  });
+
+  // 相册键的点击事件---------------------------------
+  $scope.onClickCameraPhotos = function(){        
+   // console.log("选个照片"); 
+   $scope.choosePhotos();
+   $scope.closePopover();
+  };      
+  $scope.choosePhotos = function() {
+  Camera.getPictureFromPhotos('gallery').then(function(data) {
+      // data里存的是图像的地址
+      // console.log(data);
+      var imgURI = data; 
+      photo_upload_display(imgURI);
+    }, function(err) {
+      // console.err(err);
+      var imgURI = undefined;
+    });// 从相册获取照片结束
+  }; // function结束
+
+
+  // 照相机的点击事件----------------------------------
+  $scope.getPhoto = function() {
+    // console.log("要拍照了！");
+    $scope.takePicture();
+    $scope.closePopover();
+  };
+  $scope.isShow=true;
+  $scope.takePicture = function() {
+   Camera.getPicture('cam').then(function(data) {
+      var imgURI = data;
+      photo_upload_display(imgURI);
+    }, function(err) {
+        // console.err(err);
+        var imgURI = undefined;
+    })// 照相结束
+  }; // function结束
 
 
 
@@ -3655,7 +3756,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','Counsels','JM','CONFIG',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,Counsels,JM,CONFIG) {
+.controller('consultquestionCtrl', ['$scope', '$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG',function ($scope, $state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
@@ -4166,8 +4267,92 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(err);
       }
     )
-    
   }
+
+  //--------------copy from minectrl
+  // 上传头像的点击事件----------------------------
+  $scope.addnewimage = function($event){
+    $scope.openPopover($event);
+  };
+ 
+ // 上传照片并将照片读入页面-------------------------
+  var photo_upload_display = function(imgURI){
+   // 给照片的名字加上时间戳
+    var temp_photoaddress = Storage.get("USERNAME") + "_" + new Date().getTime() + ".jpg";
+    console.log(temp_photoaddress)
+    Camera.uploadPicture(imgURI, temp_photoaddress).then(function(r){
+            // 上传照片
+      // Storage.set("user.image",imgURI);
+      // readImage();
+
+        
+    }) // 上传照片结束
+  };
+//-----------------------上传头像---------------------
+      // ionicPopover functions 弹出框的预定义
+        //--------------------------------------------
+        // .fromTemplateUrl() method
+  $ionicPopover.fromTemplateUrl('my-popover.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+  $scope.openPopover = function($event) {
+    $scope.popover.show($event);
+  };
+  $scope.closePopover = function() {
+    $scope.popover.hide();
+  };
+  //Cleanup the popover when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.popover.remove();
+  });
+  // Execute action on hide popover
+  $scope.$on('popover.hidden', function() {
+    // Execute action
+  });
+  // Execute action on remove popover
+  $scope.$on('popover.removed', function() {
+    // Execute action
+  });
+
+  // 相册键的点击事件---------------------------------
+  $scope.onClickCameraPhotos = function(){        
+   // console.log("选个照片"); 
+   $scope.choosePhotos();
+   $scope.closePopover();
+  };      
+  $scope.choosePhotos = function() {
+  Camera.getPictureFromPhotos('gallery').then(function(data) {
+      // data里存的是图像的地址
+      // console.log(data);
+      var imgURI = data; 
+      photo_upload_display(imgURI);
+    }, function(err) {
+      // console.err(err);
+      var imgURI = undefined;
+    });// 从相册获取照片结束
+  }; // function结束
+
+
+  // 照相机的点击事件----------------------------------
+  $scope.getPhoto = function() {
+    // console.log("要拍照了！");
+    $scope.takePicture();
+    $scope.closePopover();
+  };
+  $scope.isShow=true;
+  $scope.takePicture = function() {
+   Camera.getPicture('cam').then(function(data) {
+      var imgURI = data;
+      photo_upload_display(imgURI);
+    }, function(err) {
+        // console.err(err);
+        var imgURI = undefined;
+    })// 照相结束
+  }; // function结束
+
 }])
 
 
