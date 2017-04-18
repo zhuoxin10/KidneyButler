@@ -18,7 +18,7 @@
         <p>{{message.response}}</p>
       </ion-item>
 
-      <ion-item ng-repeat="consult in consults" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail()">
+      <ion-item ng-repeat="consult in consults" class="item-thumbnail-left item-text-wrap" ng-click="getConsultRecordDetail($event,consult.docId)">
         <img ng-src="{{consult.img}}">
         <h2>{{consult.name}}</h2>
         <p style="text-align: right">{{consult.time}}</p>

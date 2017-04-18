@@ -92,6 +92,12 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl: 'partials/login/signin.html',
       controller: 'SignInCtrl'
     })
+    .state('agreement', {
+      cache: false,
+      url: '/agreeOrNot',
+      templateUrl: 'partials/login/agreement.html',
+      controller: 'AgreeCtrl'
+    })
     .state('phonevalid', { 
       cache: false,
       url: '/phonevalid',
@@ -124,18 +130,6 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       params:{messageType:null},
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
-    })
-    .state('about',{
-      cache:false,
-      url:'/about',
-      templateUrl:'partials/about.html',
-      controller:'aboutCtrl'
-    })
-    .state('changePassword',{
-      cache:false,
-      url:'/changePassword',
-      templateUrl:'partials/changePassword.html',
-      controller:'changePasswordCtrl'
     });   
     
     //主页面    
@@ -309,6 +303,28 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 
         }     
          
+    })
+     .state('tab.about',{
+      cache:false,
+      url:'/mine/about',
+      views:{
+        'tab-mine':{
+            templateUrl:'partials/about.html',
+            controller:'aboutCtrl'
+        }
+      }
+      
+    })
+    .state('tab.changePassword',{
+        cache:false,
+        url:'/mine/changePassword',
+        views:{
+            'tab-mine':{
+                templateUrl:'partials/changePassword.html',
+                controller:'changePasswordCtrl'
+            }
+        }
+      
     })
 
     .state('tab.taskSet', {
