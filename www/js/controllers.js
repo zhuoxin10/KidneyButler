@@ -2117,18 +2117,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.input = {
         text: ''
     }
-    $scope.params = {
-        msgCount: 0,
-        helpDivHeight: 30,
-        hidePanel: true,
-        moreMsgs:true
-    }
-    $scope.msgs = [];
+    // $scope.params = {
+    //     msgCount: 0,
+    //     helpDivHeight: 30,
+    //     hidePanel: true,
+    //     moreMsgs:true
+    // }
+    // $scope.msgs = [];
     $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
     //render msgs 
     $scope.$on('$ionicView.beforeEnter', function() {
         // $state.params.chatId='13709553333';
+        $scope.msgs = [];
+        $scope.params = {
+            msgCount: 0,
+            helpDivHeight: 30,
+            hidePanel: true,
+            moreMsgs:true
+        }
         console.log($state.params.chatId);
+        console.log($state.params.msgCount);
         // if($state.params.type=='0') $scope.params.hidePanel=false;
         if (window.JMessage) {
             window.JMessage.enterSingleConversation($state.params.chatId, CONFIG.crossKey);
@@ -2192,8 +2200,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             $scope.params.msgCount+=i+1;
                         while(i>-1){
                             if(i!=res.length-1){
-                              
-                            res[i].diff= (res[i+1].createTimeInMillis-res[i].createTimeInMillis)>300000?true:false;
+                                res[i].diff= (res[i].createTimeInMillis-res[i+1].createTimeInMillis)>300000?true:false;
+                            }else if($scope.msgs.length){
+                                res[i].diff= (res[i].createTimeInMillis-$scope.msgs[$scope.msgs.length-1].createTimeInMillis)>300000?true:false;
+                            }else{
+                                res[i].diff=true;
                             }
                             $scope.msgs.push(res[i]);
                             i--;
@@ -2202,7 +2213,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             // $scope.msgs=$scope.msgs.concat(res.slice(0,i+1));
                             // msgsRender($scope.msgs.length-res.length,$scope.msgs.length-1);
                             break;
-                        }else if($scope.msgs[j]['_id']==res[i]['_id']){
+                        }else if(j<$scope.params.msgCount && $scope.msgs[j]['_id']==res[i]['_id']){
+                            res[i].diff=$scope.msgs[j].diff;
                             $scope.msgs[j]=res[i];
                             ++j;--i;
                         }else{
@@ -2308,8 +2320,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.sound.play();
     })
     $scope.$on('profile', function(event, args) {
-            console.log(args)
             event.stopPropagation();
+            $state.go('tab.DoctorDetail',{DoctorId:args[1]});
         })
 
     //病例Panel
@@ -4105,7 +4117,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.Submitquestion = function(){
     var temp = {
       "patientId":patientId,
-      "doctorId":"doc01", 
+      "doctorId":DoctorId, 
       "hospital":$scope.Questionare.LastHospital, 
       "visitDate":$scope.Questionare.LastVisitDate,
       "diagnosis":"", 
@@ -4124,35 +4136,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
           temp.consultId=data.results.counselId;
-          // window.JMessage.sendSingleCustomMessage(DoctorId,temp,CONFIG.crossKey,
-          //                             function(data){
-          //                               console.log(data)
-          //                               // $state.go("tab.consult-chat",{docId:DoctorId});
-          //               // resolve(data);
-          //           },function(err){
-          //               // reject(err);
-          //                               console.log(err)
+          temp.type='card';
+          if (window.JMessage) {
+            window.JMessage.sendSingleCustomMessage(DoctorId, temp, CONFIG.crossKey,
+            function(data) {
+                console.log(data)
+                $state.go("tab.consult-chat", { chatId: DoctorId });
+            },
+            function(err) {
+                console.log(err)
 
-          //           });
-          window.JMessage.sendSingleTextMessage(DoctorId,'医生好',CONFIG.crossKey,
-                                      function(data){
-                                        console.log(data)
-                                        $state.go("tab.consult-chat",{chatId:DoctorId});
-                        // resolve(data);
-                    },function(err){
-                        // reject(err);
-                                        console.log(err)
+            });
+          }
 
-                    });
-          // JM.sendCustom('single',DoctorId,CONFIG.crossKey,temp)
-          // .then(function(data){
-          //   console.log(data);
-          //   $state.go("tab.consult-chat",{DoctorId:DoctorId});
-
-          // },function(err){
-
-          // })
-
+          
         }
         console.log(data.results)
       },

@@ -267,7 +267,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return audio;
 }])
 //jmessage XJZ
-.factory('JM', ['Storage','$q', function(Storage,$q) {
+.factory('JM', ['Storage','$q','Patient', function(Storage,$q,Patient) {
     var ConversationList = [];
     var messageLIsts = {};
     function pGen(u){
@@ -334,37 +334,47 @@ angular.module('kidney.services', ['ionic','ngResource'])
     // }
 
     function login(user) {
-        return $q(function(resolve,reject){
-            console.log(user);
-            console.log(pGen(user));
+        return $q(function(resolve, reject) {
+            if (window.JMessage) {
 
-            // console.log(ionic.Platform)
-            // console.log(ionic.Platform.platforms[0]=="browser")
-            if(ionic.Platform.platforms[0]!="browser")
-            if(window.JMessage){
-                window.JMessage.login(user, pGen(user),
-                    function(response) {
-                        window.JMessage.username = user;
-                        resolve(user);
-                    }, function(err){
-                        console.log(err);
-                        // reject(err);
-                        register(user);
-                    });
+                Patient.getPatientDetail({ userId: user })
+                .then(function(data) {
+                    console.log(user);
+                    console.log(pGen(user));
+                    if (ionic.Platform.platforms[0] != "browser")
+                        window.JMessage.login(user, pGen(user),
+                            function(response) {
+                                window.JMessage.updateMyInfo('nickname', data.results.name);
+                                window.JMessage.nickname = data.results.name;
+                                window.JMessage.username = user;
+                                resolve(user);
+                            },
+                            function(err) {
+                                console.log(err);
+                                // reject(err);
+                                register(user, data.results.name);
+                            });
 
 
+                }, function(err) {
+
+                })
             }
+
 
         });
     }
 
-    function register(user) {
+
+    function register(user,nick) {
         return $q(function(resolve,reject){
             window.JMessage.register(user, pGen(user),
                 function(response) {
                   window.JMessage.login(user, pGen(user),
                     function(response) {
+                        window.JMessage.updateMyInfo('nickname',nick)
                         window.JMessage.username = user;
+                        window.JMessage.nickname = nick;
                         resolve(user);
                     }, function(err){
                         console.log(err);
@@ -379,7 +389,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
                 }
             );
         });
-        
     }
 
     // function updateConversationList() {
