@@ -82,6 +82,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   
 }])
 
+//签署协议--PXY
+.controller('AgreeCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User) {
+
+}])
+
 
 //手机号码验证--PXY
 .controller('phonevalidCtrl', ['$scope','$state','$interval', '$stateParams','Storage','User','$timeout', function($scope, $state,$interval,$stateParams,Storage,User,$timeout) {
@@ -1909,8 +1914,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $state.go('signin');
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
-                    //Storage.clear();
-                    Storage.set("IsSignIn","No");
+                    Storage.clear();
+                    Storage.set("isSignIn","No");
                      Storage.set("USERNAME",USERNAME);
                      //$timeout(function () {
                      $ionicHistory.clearCache();
@@ -1925,11 +1930,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.About = function(){
-    $state.go('about');
+    $state.go('tab.about');
   }
 
   $scope.ChangePassword = function(){
-    $state.go('changePassword');
+    $state.go('tab.changePassword');
   }
 
   $scope.imgurl = ""
@@ -2117,7 +2122,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
                 var consultTime = doctor.time.substr(0,10);
                 
-                var item ={img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+                var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
                 items.push(item);
 
             }
@@ -2131,9 +2136,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     });
     
-  $scope.getConsultRecordDetail = function() {
-    $state.go("tab.consult-chat")
-  }
+    $scope.getConsultRecordDetail = function(ele,doctorId) {
+        if(ele.target.nodeName == "IMG"){
+        $state.go("tab.DoctorDetail",{DoctorId:doctorId});
+        }else{
+        $state.go("tab.consult-chat");
+        }
+    
+    };
 
   
 }])
@@ -2830,9 +2840,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $state.go('messagesDetail',{messageType:type});
     }
 
-    $scope.getConsultRecordDetail = function() {
+    $scope.getConsultRecordDetail = function(ele,doctorId) {
+        if(ele.target.nodeName == "IMG"){
+        $state.go("tab.DoctorDetail",{DoctorId:doctorId});
+        }else{
         $state.go("tab.consult-chat");
-    }
+        }
+    
+    };
 
 
   //只取每种类型消息的最新一条，由于原本顺序为降序排列，所以只要滤去重复的消息类型就好了
@@ -2938,7 +2953,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
                 var consultTime = doctor.time.substr(0,10);
                 
-                var item ={img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+                var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
                 items.push(item);
 
             }
@@ -3172,7 +3187,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $ionicHistory.goBack();
   }
   //清空搜索框
-  $scope.clearSearch = function(){  
+  $scope.searchCont = {};
+  $scope.clearSearch = function(){ 
     $scope.searchCont = {};  
     //清空之后获取所有医生  
   }  
@@ -3317,8 +3333,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.getDoctorDetail = function(ele, id) {
     // var path = '#/tab/DoctorDetail/' + id;
     // console.log(path)
-    console.log()
-    if (ele.target.innerText == '咨询') {
+    // console.log(ele.target.nodeName);
+    if(ele.target.nodeName =="IMG"){
+        console.log(id);
+      $state.go('tab.DoctorDetail',{DoctorId:id});
+    }
+    else if (ele.target.innerText == '咨询') {
         var question = $ionicPopup.confirm({
             title:"咨询确认",
             template:"进入咨询后，您有三次询问医生的次数。确认付费咨询？",
@@ -3404,7 +3424,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
-  var DoctorId = $stateParams.DoctorId
+  var DoctorId = $stateParams.DoctorId;
+  console.log(DoctorId);
 
   $scope.doctor = "";
   Doctor.getDoctorInfo({userId:DoctorId}).then(
