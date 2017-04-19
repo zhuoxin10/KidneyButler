@@ -1,22 +1,18 @@
 <div class="msgbox msgbox-card">
-    <!-- display time -->
-    <!-- <my-time></my-time> -->
     <div ng-if="msg.diff" class="msg-time"><span>{{msg.createTimeInMillis | msgdate}}</span></div>
-    <div class="media-card" on-hold="emitEvent('holdmsg',msg._id,$event)" ng-click="emitEvent('viewcard',msg.content.contentStringMap.consultId,$event)">
+    <div class="media-card" on-hold="emitEvent('holdmsg',msg._id,$event)" ng-click="emitEvent('viewcard',counsel.consultId,$event)">
         <div class="title">患者使用在线咨询服务</div>
         <hr/>
         <div class="info">
-            <p><span>症状symptom：</span>{{msg.content.contentStringMap.symptom}}</p>
-            <p><span>sickTime</span> {{msg.content.contentStringMap.sickTime}}</p>
-            <p><span>hospital</span>{{msg.content.contentStringMap.hospital}}</p>
-            <p><span>visitDate</span>{{msg.content.contentStringMap.visitDate}}</p>
-            <p><span>help</span>{{msg.content.contentStringMap.help}}</p>
+            <p><span>症状symptom：</span>{{counsel.symptom}}</p>
+            <p><span>sickTime</span> {{counsel.sickTime}}</p>
+            <p><span>hospital</span>{{counsel.hospital}}</p>
+            <p><span>visitDate</span>{{counsel.visitDate}}</p>
+            <p><span>help</span>{{counsel.help}}</p>
         </div>
         <hr/>
         <div class="img-info">资料照片（3）</div>
         <img ng-repeat="url in picurl" hiRes="{{url.hiRes}}" ng-src="{{url.src}}"/>
-        <!-- <img ng-repeat="url in picurl" ng-src="{{url.src}}" ng-click="emitEvent('image','',url.src,url.hiRes)" /> -->
     </div>
-    <!-- <div my-small-spin="msg.status" class="status"></div> -->
     <div ng-if="msg.status=='send_fail'" class="msg-fail"><span><i class="icon ion-android-warning"></i>发送失败</span></div>
 </div>
