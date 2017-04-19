@@ -31,7 +31,7 @@
 
 
     <ion-item style="border:none; text-align:center; margin-top:30px" >
-         <img ng-src="{{health.imgurl}}" name="Photo" ng-click="onClickCamera($event)" style="height:70%; width:70%" />
+         <img ng-src="{{filepath}}" ng-repeat="filepath in health.imgurl" name="Photo" ng-click="showoriginal(filepath)"  style="height:30%; width:30%"  ng-show="showflag" />
          <div>
            <button class="button button-clear" style="color:#666" ng-click="onClickCamera($event)" ><i class="icon ion-camera"></i>上传照片</button>
          </div>
