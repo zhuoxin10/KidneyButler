@@ -22,7 +22,19 @@ angular.module('kidney.directives', ['kidney.services'])
                     // $scope.customMsgUrl=JSON.parse($scope.msg.content.contentStringMap.picurl);
                     // $scope.customMsg=JSON.parse($scope.customMsg);
                     // console.log($scope.customMsgUrl);
+                    
                     type=$scope.msg.content.contentStringMap.type;
+                    if(type=='card'){
+                      try{
+                            console.log($scope.msg.content.contentStringMap);
+                            console.log(JSON.parse($scope.msg.content.contentStringMap.counsel));
+                            $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
+                            $scope.picurl=picArr;
+                        }catch(e){
+                            
+                        }
+                      // console.log(JSON.parse($scope.msg.content.contentStringMap));
+                    }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
                 }
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
@@ -47,7 +59,7 @@ angular.module('kidney.directives', ['kidney.services'])
             //         $scope.$emit('viewImage',type,thumb,url);
             //     }
             // };
-            $scope.picurl=picArr;
+            
             // $scope.playVoice = function(){
 
             // }
