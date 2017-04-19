@@ -396,6 +396,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     "weight": null,
     "birthday": null,
     "IDNo": null,
+    "allergic":null,
     "operationTime":null,
     "lastVisittime":null,
     "lastVisithospital":null,
@@ -422,6 +423,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               $scope.User.height = data.results.height
               $scope.User.birthday = data.results.birthday
               $scope.User.IDNo = data.results.IDNo
+              $scope.User.allergic = data.results.allergic
               $scope.User.operationTime = data.results.operationTime
               $scope.User.lastVisittime = data.results.lastVisittime
               $scope.User.lastVisithospital = data.results.lastVisithospital
