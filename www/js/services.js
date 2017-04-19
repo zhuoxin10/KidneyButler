@@ -658,11 +658,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
     }
 }])
 //获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
-.factory('Camera', ['$q','$cordovaCamera','CONFIG','fs',function($q,$cordovaCamera,CONFIG,fs) { 
+.factory('Camera', ['$q','$cordovaCamera','$cordovaFileTransfer','CONFIG','fs',function($q,$cordovaCamera,$cordovaFileTransfer,CONFIG,fs) { 
   return {
     getPicture: function(type){
+      console.log(type);
         return $q(function(resolve, reject) {
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
               // file manipulation
               var tail=imageUrl.lastIndexOf('?');
               if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
@@ -681,6 +683,58 @@ angular.module('kidney.services', ['ionic','ngResource'])
               reject('fail to get image');
           });
       })
+    },
+    getPictureFromPhotos: function(type){
+      console.log(type);
+        return $q(function(resolve, reject) {
+            $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
+              // file manipulation
+              var tail=imageUrl.lastIndexOf('?');
+              if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
+              else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
+              fs.mvMedia('image',fileName,'.jpg')
+              .then(function(res){
+                console.log(res);
+                //res: file URL
+                resolve(res);
+              },function(err){
+                console.log(err);
+                reject(err);
+              })
+          }, function(err) {
+            console.log(err);
+              reject('fail to get image');
+          });
+      })
+    },
+    uploadPicture : function(fileURL, temp_photoaddress){
+      var win = function (r) {
+          console.log("Code = " + r.responseCode);
+          console.log("Response = " + r.response);
+          console.log("Sent = " + r.bytesSent);
+      }
+
+      var fail = function (error) {
+          alert("An error has occurred: Code = " + error.code);
+          console.log("upload error source " + error.source);
+          console.log("upload error target " + error.target);
+      }
+
+      var options = new FileUploadOptions();
+      options.fileKey = "file";
+      options.fileName = fileURL.substr(fileURL.lastIndexOf('/') + 1);
+      options.mimeType = "image/jpeg";
+
+      // var params = {};
+      // params.value1 = "test";
+      // params.value2 = "param";
+
+      // options.params = params;
+
+      var ft = new FileTransfer();
+      ft.upload(fileURL, encodeURI("http://121.43.107.106:4050/upload"), win, fail, options);
+
     }
   }
 }])
