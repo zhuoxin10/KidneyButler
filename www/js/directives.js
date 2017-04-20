@@ -1,7 +1,7 @@
 angular.module('kidney.directives', ['kidney.services'])
 //消息模版，用于所有消息类型
 //XJZ
-.directive('myMessage',['Storage',function(Storage){
+.directive('myMessage',['Storage','CONFIG',function(Storage,CONFIG){
     var picArr=[
                 {"src":"img/1.jpg","hiRes":"img/2.jpg"},
                 {"src":"img/3.jpg","hiRes":"img/4.jpg"},
@@ -26,8 +26,6 @@ angular.module('kidney.directives', ['kidney.services'])
                     type=$scope.msg.content.contentStringMap.type;
                     if(type=='card'){
                       try{
-                            console.log($scope.msg.content.contentStringMap);
-                            console.log(JSON.parse($scope.msg.content.contentStringMap.counsel));
                             $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
                             $scope.picurl=picArr;
                         }catch(e){
@@ -37,6 +35,7 @@ angular.module('kidney.directives', ['kidney.services'])
                     }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
                 }
+                $scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
                 return 'partials/tabs/consult/msg/'+type+'.html';
