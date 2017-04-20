@@ -100,6 +100,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('agreement', {
       cache: false,
       url: '/agreeOrNot',
+      params:{last:null},
+
       templateUrl: 'partials/login/agreement.html',
       controller: 'AgreeCtrl'
     })
@@ -120,6 +122,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('userdetail',{
       cache:false,
       url:'mine/userdetail',
+      params:{last:null},
       templateUrl:'partials/login/userDetail.html',
       controller:'userdetailCtrl'
     })
