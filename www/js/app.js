@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova'])
+angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload'])
 
 .run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
   $ionicPlatform.ready(function() {
@@ -97,6 +97,12 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl: 'partials/login/signin.html',
       controller: 'SignInCtrl'
     })
+    .state('agreement', {
+      cache: false,
+      url: '/agreeOrNot',
+      templateUrl: 'partials/login/agreement.html',
+      controller: 'AgreeCtrl'
+    })
     .state('phonevalid', { 
       cache: false,
       url: '/phonevalid',
@@ -129,18 +135,6 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       params:{messageType:null},
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
-    })
-    .state('about',{
-      cache:false,
-      url:'/about',
-      templateUrl:'partials/about.html',
-      controller:'aboutCtrl'
-    })
-    .state('changePassword',{
-      cache:false,
-      url:'/changePassword',
-      templateUrl:'partials/changePassword.html',
-      controller:'changePasswordCtrl'
     });   
     
     //主页面    
@@ -314,6 +308,28 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 
         }     
          
+    })
+     .state('tab.about',{
+      cache:false,
+      url:'/mine/about',
+      views:{
+        'tab-mine':{
+            templateUrl:'partials/about.html',
+            controller:'aboutCtrl'
+        }
+      }
+      
+    })
+    .state('tab.changePassword',{
+        cache:false,
+        url:'/mine/changePassword',
+        views:{
+            'tab-mine':{
+                templateUrl:'partials/changePassword.html',
+                controller:'changePasswordCtrl'
+            }
+        }
+      
     })
 
     .state('tab.taskSet', {

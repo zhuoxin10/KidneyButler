@@ -30,12 +30,35 @@
       </label>
     </div>
     <div class="row row-wrap">
-      <div class="col col-20" ng-repeat="image in images">
-          <img ng-src={{image}} class='img-responsive' style="width: 90%;height:90%" /> <i class="icon ion-close-circled" style="width: 10%;float: right" ng-click="deleteimg($index)"></i>
+      <div class="col col-20" ng-repeat="image in images track by $index">
+          <img ng-src={{image}} class='img-responsive' style="width: 90%;height:90%" ng-click="showoriginal($index)" /> <i class="icon ion-close-circled" style="width: 10%;float: right" ng-click="deleteimg($index)"></i>
       </div>
       <div class="col col-20">
-          <button class="button button-icon icon ion-plus-round" ng-click="addnewimage()"></button>
+          <button class="button button-icon icon ion-plus-round" ng-click="addnewimage($event)"></button>
       </div>
+                <!-- 上传照片的弹出框 -->
+      <script id="my-popover.html" type="text/ng-template">
+        <ion-popover-view>
+          <ion-header-bar class="bar-calm">
+              <h1 class="title">上传头像</h1>
+          </ion-header-bar>
+        <ion-content>
+          <ion-list> 
+            <div class = "padding">
+              <button class="button button-block button-primary " ng-click="getPhoto()"><i class="icon ion-camera"></i>
+                  拍照
+              </button>
+            
+              <button class="button button-block button-primary " ng-click="onClickCameraPhotos()"><i class="icon ion-image"></i>
+                  相册
+              </button>
+             
+            </div>
+          </ion-list>
+        </ion-content>
+      </ion-popover-view>
+    </script>
+    <!-- 上传照片的弹出框 -->
     </div>
 
     

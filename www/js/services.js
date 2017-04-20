@@ -660,11 +660,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
     }
 }])
 //获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
-.factory('Camera', ['$q','$cordovaCamera','CONFIG','fs',function($q,$cordovaCamera,CONFIG,fs) { 
+.factory('Camera', ['$q','$cordovaCamera','$cordovaFileTransfer','CONFIG','fs',function($q,$cordovaCamera,$cordovaFileTransfer,CONFIG,fs) { 
   return {
     getPicture: function(type){
+      console.log(type);
         return $q(function(resolve, reject) {
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
               // file manipulation
               var tail=imageUrl.lastIndexOf('?');
               if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
@@ -683,6 +685,60 @@ angular.module('kidney.services', ['ionic','ngResource'])
               reject('fail to get image');
           });
       })
+    },
+    getPictureFromPhotos: function(type){
+      console.log(type);
+        return $q(function(resolve, reject) {
+            $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
+              // file manipulation
+              var tail=imageUrl.lastIndexOf('?');
+              if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
+              else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
+              fs.mvMedia('image',fileName,'.jpg')
+              .then(function(res){
+                console.log(res);
+                //res: file URL
+                resolve(res);
+              },function(err){
+                console.log(err);
+                reject(err);
+              })
+          }, function(err) {
+            console.log(err);
+              reject('fail to get image');
+          });
+      })
+    },
+    uploadPicture : function(imgURI, temp_photoaddress){
+        return $q(function(resolve, reject) {
+          var uri = encodeURI("http://121.43.107.106:4050/upload")
+            // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
+            var options = {
+              fileKey : "file",
+              fileName : temp_photoaddress,
+              chunkedMode : true,
+              mimeType : "image/jpeg"
+            };
+            // var q = $q.defer();
+            //console.log("jinlaile");
+            $cordovaFileTransfer.upload(uri,imgURI,options)
+              .then( function(r){
+                console.log("Code = " + r.responseCode);
+                console.log("Response = " + r.response);
+                console.log("Sent = " + r.bytesSent);
+                // var result = "上传成功";
+                resolve(r.response);        
+              }, function(error){
+                console.log(error);
+                alert("An error has occurred: Code = " + error.code);
+                console.log("upload error source " + error.source);
+                console.log("upload error target " + error.target);
+                reject(error);          
+              }, function (progress) {
+                console.log(progress);
+              })
+        })
     }
   }
 }])
@@ -785,7 +841,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Task2 = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
             changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
-            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000}
+            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000},
+            insertTask:{method:'POST', params:{route: 'insertTaskModel'}, timeout: 100000}
+
         });
     };
 
@@ -1036,6 +1094,22 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.changeTasktime = function(params){
         var deferred = $q.defer();
         Data.Task2.changeTasktime(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  userId:'U201704050002',//unique
+            //  sortNo:1,
+           // }
+    self.insertTask = function(params){
+        var deferred = $q.defer();
+        Data.Task2.insertTask(
             params,
             function(data, headers){
                 deferred.resolve(data);
