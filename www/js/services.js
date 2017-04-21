@@ -870,7 +870,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getCounselRecords:{method:'GET',params:{route:'getCounselRecords'},timeout:10000},
             insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
-            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000}
+            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
+            bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000}
         });
     }
 
@@ -1566,6 +1567,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.editPatientDetail = function(params){
         var deferred = $q.defer();
         Data.Patient.editPatientDetail(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    self.bindingMyDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Patient.bindingMyDoctor(
             params,
             function(data, headers){
                 deferred.resolve(data);
