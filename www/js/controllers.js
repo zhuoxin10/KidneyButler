@@ -987,7 +987,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','$cordovaBarcodeScanner','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task','Patient', function($scope, $timeout,$state,$cordovaBarcodeScanner,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task,Patient) {
   $scope.barwidth="width:0%";
   var UserId = Storage.get('UID');//U201511120002
   $scope.Tasks = {}; //任务
@@ -1568,6 +1568,22 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {
         //$window.location.reload();
     }
+    //获取二维码信息
+  $scope.scanbarcode = function () {
+    $cordovaBarcodeScanner.scan().then(function(imageData) {
+        // alert(imageData.text);
+        Patient.bindingMyDoctor({"patientId":imageData.text,"doctorId":'doc01'}).then(function(res){
+          //
+          alert(imageData.text);
+          alert(res.result);
+       },function(){                    
+       })
+        console.log("Barcode Format -> " + imageData.format);
+        console.log("Cancelled -> " + imageData.cancelled);
+    }, function(error) {
+        console.log("An error happened -> " + error);
+    });
+  };
 }])
 
 //任务设置--GL
@@ -2593,7 +2609,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
   //console.log(HealthInfo.getall());
 
-  $scope.items = ""//HealthInfo.getall();
+  $scope.items = []//HealthInfo.getall();
   
 
   Health.getAllHealths({userId:patientId}).then(
@@ -2605,10 +2621,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         for (var i = 0; i < $scope.items.length; i++){
           $scope.items[i].acture = $scope.items[i].insertTime
           $scope.items[i].time = $scope.items[i].time.substr(0,10)
-          if ($scope.items[i].url != "")
-          {
-            $scope.items[i].url = [$scope.items[i].url]
-          }
+          // if ($scope.items[i].url != ""&&$scope.items[i].url!=null)
+          // {
+          //   $scope.items[i].url = [$scope.items[i].url]
+          // }
         }
       };
     },
@@ -2651,6 +2667,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               console.log(err);
             }
           )
+          //20140421 zxf
+          var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
+          for(var i=0;i<healthinfotimes.length;i++){
+            if(healthinfotimes[i].time==item.acture){
+              healthinfotimes.splice(i, 1)
+              break;
+            }
+          }
+          Storage.set('consulthealthinfo',angular.toJson(healthinfotimes))
           // HealthInfo.remove(number);
           // $scope.items = HealthInfo.getall();
         } 
@@ -2666,6 +2691,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     console.log(editId);
     $state.go('tab.myHealthInfoDetail',{id:editId});
   }
+
 
   
 }])
@@ -2704,7 +2730,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     text:null,
     imgurl:null
   }
-
+  $scope.health.imgurl=[]
   Dict.getHeathLabelInfo({category:"healthInfoType"}).then(
     function(data)
     {
@@ -2713,6 +2739,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       if($stateParams.id!=null && $stateParams!=""){
         //修改
         var info = $stateParams.id;
+        console.log(info)
         Health.getHealthDetail({userId:patientId,insertTime:info.acture}).then(
           function(data)
           {
@@ -2725,10 +2752,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }
               $scope.health.date = data.results.time
               $scope.health.text = data.results.description
-              if (data.results.url[0] != "")
+              if (data.results.url != ""&&data.results.url!=null)
               {
-                $scope.showflag=false;
+                console.log(data.results.url)
                 $scope.health.imgurl = data.results.url
+                // $scope.showflag=true;
               }
             }
             console.log($scope.health);
@@ -2759,26 +2787,42 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 // Storage.set('localhealthinfoimg',angular.toJson(testtt))
 //进入之后local有数据但是不显示
-  $scope.health.imgurl=[];
-  var tmpimgurl=Storage.get('localhealthinfoimg');
-  console.log(tmpimgurl)
-  if(tmpimgurl!=""&&tmpimgurl!=null){
-    console.log(tmpimgurl)
-    $scope.health.imgurl=angular.fromJson(tmpimgurl);
-    console.log($scope.health.imgurl)
-    $scope.showflag=true;
-  }
+  // $scope.health.imgurl=[];
+  // var tmpimgurl=Storage.get('localhealthinfoimg');
+  // console.log(tmpimgurl)
+  // if(tmpimgurl!=""&&tmpimgurl!=null){
+  //   console.log(tmpimgurl)
+  //   $scope.health.imgurl=angular.fromJson(tmpimgurl);
+  //   console.log($scope.health.imgurl)
+  //   $scope.showflag=true;
+  // }
 
   
-
+  console.log($ionicHistory.backView())
   $scope.HealthInfoSetup = function(){
     if($scope.health.label!=""&&$scope.health.text!=""&&$scope.health.date!=""){
+      console.log($stateParams.id)
         if($stateParams.id==null||$stateParams==""){
             Health.createHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
               function(data)
               {
                 console.log(data.results);
-                $state.go('tab.myHealthInfo');
+                console.log(data.results.insertTime)
+                var healthinfoToconsult=[]
+                //从咨询过来的需要返回对应的健康信息
+                if($ionicHistory.backView()!=null&&$ionicHistory.backView().stateName=='tab.consultquestion2'){
+                  if(Storage.get('consulthealthinfo')==''||Storage.get('consulthealthinfo')==null||Storage.get('consulthealthinfo')=='undefined'){
+                    healthinfoToconsult.push({'time':data.results.insertTime})
+                  }else{
+                    healthinfoToconsult=angular.fromJson(Storage.get('consulthealthinfo'))
+                    healthinfoToconsult.push({'time':data.results.insertTime})
+                  }
+                  Storage.set('consulthealthinfo',angular.toJson(healthinfoToconsult))
+                  console.log(Storage.get('consulthealthinfo'))
+                }
+
+
+                $ionicHistory.goBack()
               },
               function(err)
               {
@@ -2787,11 +2831,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             )
         }
         else{
-            Health.modifyHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
+            var curdate=new Date();
+            Health.modifyHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:"",insertTime:$stateParams.id.insertTime}).then(
               function(data)
               {
                 console.log(data.results);
-                $state.go('tab.myHealthInfo');
+                $ionicHistory.goBack()
               },
               function(err)
               {
@@ -2858,7 +2903,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
  // 上传照片并将照片读入页面-------------------------
   var photo_upload_display = function(imgURI){
    // 给照片的名字加上时间戳
-    var temp_photoaddress = Storage.get("USERNAME") + "_" + new Date().getTime() + ".jpg";
+    var temp_photoaddress = Storage.get("UID") + "_" + new Date().getTime() + "healthinfo.jpg";
     console.log(temp_photoaddress)
     Camera.uploadPicture(imgURI, temp_photoaddress)
     .then(function(res){
@@ -2866,9 +2911,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //图片路径
       $scope.health.imgurl.push("http://121.43.107.106:8052/"+String(data.path_resized))
       // $state.reload("tab.mine")
-      Storage.set('localhealthinfoimg',angular.toJson($scope.health.imgurl));
+      // Storage.set('localhealthinfoimg',angular.toJson($scope.health.imgurl));
       console.log($scope.health.imgurl)
-      $scope.showflag=true;
+      // $scope.showflag=true;
     },function(err){
       console.log(err);
       reject(err);
@@ -2971,6 +3016,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     console.log(originalfilepath)
     $scope.healthinfoimgurl=originalfilepath;
   }
+  $scope.deleteimg=function(index){
+    //somearray.removeByValue("tue");
+    console.log($scope.health.imgurl)
+    $scope.health.imgurl.splice(index, 1)
+    // Storage.set('tempimgrul',angular.toJson($scope.images));
+  }
 
   $scope.$on('$ionicView.leave', function() {
     $scope.modal.remove();
@@ -2980,6 +3031,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   
 }])
+
 
 
 
@@ -4144,22 +4196,94 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG',function ($scope, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG) {
+.controller('consultquestionCtrl', ['$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health',function ($scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
   var DoctorId = $stateParams.DoctorId
 
-  //20140719 zxf
-  $scope.$on('$ionicView.enter', function() {
-  $scope.healthinfoimgurl = '';
-  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-    }).then(function(modal) {
-      $scope.modal = modal;
-    });
-  })
+
+
+
+  //20140421 zxf
+  $scope.items = []//HealthInfo.getall();
+  var healthinfotimes=[]
+  if(Storage.get('consulthealthinfo')!=''&&Storage.get('consulthealthinfo')!='undefined'&&Storage.get('consulthealthinfo')!=null){
+    healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
+  }
+  console.log(healthinfotimes)
+  for(var i=0;i<healthinfotimes.length;i++){
+    Health.getHealthDetail({userId:Storage.get('UID'),insertTime:healthinfotimes[i].time}).then(
+          function(data)
+          {
+            if(data.results!=null){
+              $scope.items.push(data.results)
+              $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
+              $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
+              // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
+            }
+          },
+          function(err)
+          {
+            console.log(err);
+          }
+        )
+  }
+
+  //跳转修改健康信息
+  $scope.gotoEditHealth=function(ele,editId){
+    console.log(ele)
+    console.log(ele.target)
+    if(ele.target.nodeName=="I"){
+      var confirmPopup = $ionicPopup.confirm({
+      title: '删除提示',
+      template: '记录删除后将无法恢复，确认删除？',
+      cancelText:'取消',
+      okText:'删除'
+      });
+
+      confirmPopup.then(function(res) {
+        if(res) 
+          {
+            Health.deleteHealth({userId:patientId,insertTime:item.acture}).then(
+              function(data)
+              {
+                if (data.results == 0)
+                {
+                  for (var i = 0; i < $scope.items.length; i++){
+                    if (item.acture == $scope.items[i].acture)
+                    {
+                      $scope.items.splice(i,1)
+                      break;
+                    }
+                  }
+                }
+                
+                console.log($scope.items)
+              },
+              function(err)
+              {
+                console.log(err);
+              }
+            )
+            //20140421 zxf
+            var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
+            for(var i=0;i<healthinfotimes.length;i++){
+              if(healthinfotimes[i].time==item.acture){
+                healthinfotimes.splice(i, 1)
+                break;
+              }
+            }
+            Storage.set('consulthealthinfo',angular.toJson(healthinfotimes))
+            // HealthInfo.remove(number);
+            // $scope.items = HealthInfo.getall();
+          } 
+        });
+    }else{
+      $state.go('tab.myHealthInfoDetail',{id:editId});
+    }
+    
+  }
 
   console.log("Attention:"+DoctorId)
   // var patientId = "U201702080016"
@@ -4385,6 +4509,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     "LastDiagnosis":"",
     "title":"",
     "help":""
+  }
+  if(Storage.get('consultcacheinfo')!=null&&Storage.get('consultcacheinfo')!=""&&Storage.get('consultcacheinfo')!='undefined'){
+    $scope.Questionare=angular.fromJson(Storage.get('consultcacheinfo'))
   }
   // console.log(angular.toJson($scope.Questionare))
   if (Storage.get('tempquestionare') !== "" && Storage.get('tempquestionare') !== null)
@@ -4631,13 +4758,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   } 
 
   $scope.Submitquestion = function(){
+    // Storage.set('consultcacheinfo',angular.toJson([]));
     var temp = {
       "patientId":patientId,
       "doctorId":DoctorId, 
       "hospital":$scope.Questionare.LastHospital, 
       "visitDate":$scope.Questionare.LastVisitDate,
       "diagnosis":"", 
-      "diagnosisPhotoUrl":[], 
+      "diagnosisPhotoUrl":$scope.images, 
       "sickTime":$scope.Questionare.LastDiseaseTime, 
       "symptom":$scope.Questionare.title, 
       "symptomPhotoUrl":$scope.images, 
@@ -4683,135 +4811,71 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     )
   }
 
-  //--------------copy from minectrl
+  //删除健康信息
+  // $scope.DeleteHealth = function(item){
+  // //console.log(number);
+  //  //  confirm 对话框
+  //   var confirmPopup = $ionicPopup.confirm({
+  //     title: '删除提示',
+  //     template: '记录删除后将无法恢复，确认删除？',
+  //     cancelText:'取消',
+  //     okText:'删除'
+  //   });
+
+  //   confirmPopup.then(function(res) {
+  //     if(res) 
+  //       {
+  //         Health.deleteHealth({userId:patientId,insertTime:item.acture}).then(
+  //           function(data)
+  //           {
+  //             if (data.results == 0)
+  //             {
+  //               for (var i = 0; i < $scope.items.length; i++){
+  //                 if (item.acture == $scope.items[i].acture)
+  //                 {
+  //                   $scope.items.splice(i,1)
+  //                   break;
+  //                 }
+  //               }
+  //             }
+              
+  //             console.log($scope.items)
+  //           },
+  //           function(err)
+  //           {
+  //             console.log(err);
+  //           }
+  //         )
+  //         //20140421 zxf
+  //         var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
+  //         for(var i=0;i<healthinfotimes.length;i++){
+  //           if(healthinfotimes[i].time==item.acture){
+  //             healthinfotimes.splice(i, 1)
+  //             break;
+  //           }
+  //         }
+  //         Storage.set('consulthealthinfo',angular.toJson(healthinfotimes))
+  //         // HealthInfo.remove(number);
+  //         // $scope.items = HealthInfo.getall();
+  //       } 
+  //     });
+  // }
+  // $scope.Questionare = {
+  //   "LastDiseaseTime":"",
+  //   "LastHospital":"",
+  //   "LastVisitDate":"",
+  //   "LastDiagnosis":"",
+  //   "title":"",
+  //   "help":""
+  // }
   // 上传头像的点击事件----------------------------
   $scope.addnewimage = function($event){
-    $scope.openPopover($event);
+    Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
+    $state.go('tab.myHealthInfoDetail')
+    // $scope.openPopover($event);
   };
  
- // 上传照片并将照片读入页面-------------------------
-  var photo_upload_display = function(imgURI){
-   // 给照片的名字加上时间戳
-    var temp_photoaddress = Storage.get("USERNAME") + "_" + new Date().getTime() + ".jpg";
-    console.log(temp_photoaddress)
-    Camera.uploadPicture(imgURI, temp_photoaddress)
-    .then(function(res){
-      var data=angular.fromJson(res)
-      //图片路径
-      $scope.images.push("http://121.43.107.106:8052/"+String(data.path_resized))
-      Storage.set('tempimgrul',angular.toJson($scope.images));
-      console.log($scope.images)
-    },function(err){
-      console.log(err);
-      reject(err);
-    })
-  };
-//-----------------------上传头像---------------------
-      // ionicPopover functions 弹出框的预定义
-        //--------------------------------------------
-        // .fromTemplateUrl() method
-  $ionicPopover.fromTemplateUrl('my-popover.html', {
-    scope: $scope,
-    animation: 'slide-in-up'
-  }).then(function(popover) {
-    $scope.popover = popover;
-  });
-  $scope.openPopover = function($event) {
-    $scope.popover.show($event);
-  };
-  $scope.closePopover = function() {
-    $scope.popover.hide();
-  };
-  //Cleanup the popover when we're done with it!
-  $scope.$on('$destroy', function() {
-    $scope.popover.remove();
-  });
-  // Execute action on hide popover
-  $scope.$on('popover.hidden', function() {
-    // Execute action
-  });
-  // Execute action on remove popover
-  $scope.$on('popover.removed', function() {
-    // Execute action
-  });
 
-  // 相册键的点击事件---------------------------------
-  $scope.onClickCameraPhotos = function(){        
-   // console.log("选个照片"); 
-   $scope.choosePhotos();
-   $scope.closePopover();
-  };      
-  $scope.choosePhotos = function() {
-  Camera.getPictureFromPhotos('gallery').then(function(data) {
-      // data里存的是图像的地址
-      // console.log(data);
-      var imgURI = data; 
-      photo_upload_display(imgURI);
-    }, function(err) {
-      // console.err(err);
-      var imgURI = undefined;
-    });// 从相册获取照片结束
-  }; // function结束
-
-
-  // 照相机的点击事件----------------------------------
-  $scope.getPhoto = function() {
-    // console.log("要拍照了！");
-    $scope.takePicture();
-    $scope.closePopover();
-  };
-  $scope.isShow=true;
-  $scope.takePicture = function() {
-   Camera.getPicture('cam').then(function(data) {
-      var imgURI = data;
-      photo_upload_display(imgURI);
-    }, function(err) {
-        // console.err(err);
-        var imgURI = undefined;
-    })// 照相结束
-  }; // function结束
-
-  //点击图片显示原图
-  $scope.openModal = function() {
-    $scope.modal.show();
-  };
-  $scope.closeModal = function() {
-    $scope.modal.hide();
-  };
-  //Cleanup the modal when we're done with it!
-  $scope.$on('$destroy', function() {
-    $scope.modal.remove();
-  });
-  // Execute action on hide modal
-  $scope.$on('modal.hidden', function() {
-    // Execute action
-  });
-  // Execute action on remove modal
-  $scope.$on('modal.removed', function() {
-    // Execute action
-  });
-
-  //点击图片返回
-  $scope.imggoback = function(){
-    $scope.modal.hide();
-  };
-  $scope.showoriginal=function(imagessubscript){
-    $scope.openModal();
-    console.log(imagessubscript)
-    console.log($scope.images[imagessubscript])
-    var originalfilepath="http://121.43.107.106:8052/uploads/photos/"+$scope.images[imagessubscript].slice($scope.images[imagessubscript].lastIndexOf('/')+1).substr(7)
-    console.log(originalfilepath)
-    $scope.healthinfoimgurl=originalfilepath;
-  }
-  $scope.deleteimg=function(index){
-    //somearray.removeByValue("tue");
-    console.log($scope.images)
-    $scope.images.splice(index, 1)
-    Storage.set('tempimgrul',angular.toJson($scope.images));
-  }
-  $scope.$on('$ionicView.leave', function() {
-    $scope.modal.remove();
-  })
 
 }])
 
