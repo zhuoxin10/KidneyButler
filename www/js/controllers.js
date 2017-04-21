@@ -1936,7 +1936,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.ChangePassword = function(){
-    $state.go('changePassword');
+    $state.go('tab.changePassword');
   }
   $scope.myAvatar = ""
   //根据用户ID查询用户头像
@@ -2878,346 +2878,226 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
+// //消息中心--PXY
+  // .controller('messageCtrl', ['Message','Patient','Storage','$scope','$state','$ionicHistory', function(Message,Patient,Storage,$scope, $state,$ionicHistory) {
+  //     $scope.barwidth="width:0%";
+  //     $scope.haveMessage="";
+
+  //     $scope.Goback = function(){
+  //         $ionicHistory.goBack();
+  //     } 
+
+  //     $scope.getMessageDetail = function(type){
+  //         $state.go('messagesDetail',{messageType:type});
+  //     }
+
+  //     $scope.getConsultRecordDetail = function(ele,doctorId) {
+  //         if(ele.target.nodeName == "IMG"){
+  //         $state.go("tab.DoctorDetail",{DoctorId:doctorId});
+  //         }else{
+  //         $state.go("tab.consult-chat");
+  //         }
+      
+  //     };
+
+
+  //   //只取每种类型消息的最新一条，由于原本顺序为降序排列，所以只要滤去重复的消息类型就好了
+  //     var FilterType = function(arr){
+  //         var result =[];
+  //         var hash ={};
+  //         for(var i =arr.length-1; i>=0; i--){
+  //             var elem = arr[i].type;
+  //             if(!hash[elem]){
+  //                 result.push(arr[i]);
+  //                 hash[elem] = true;
+  //             }
+  //         }
+  //         return result;
+  //     }
+  //     // var user = "U201704120001";
+  //     var user = Storage.get('UID');
+  //     var messPromise = Message.getMessages({userId:user,type:""});
+  //     messPromise.then(function(data){
+  //         // console.log(data);
+  //         if(data.results!=""){
+  //             var filtered = FilterType(data.results);
+
+
+  //             // console.log("filtered:"+filtered);
+  //             var messages = new Array();
+  //             for(x in filtered){
+  //                 var photo = "",title = "";
+  //                 switch(filtered[x].type){
+  //                     case 1:
+  //                         photo = "img/pay.PNG";
+  //                         title = "支付消息";
+  //                         break;
+  //                     case 2:
+  //                         photo = "img/alert.PNG";
+  //                         title =  "警报消息";
+  //                         break;
+  //                     case 3:
+  //                         photo = "img/task.PNG";
+  //                         title = "任务消息";
+  //                         break;
+
+  //                 }
+  //                 var item = {img:photo,name:title,type:filtered[x].type,time:filtered[x].time.substr(0,10),response:filtered[x].description};
+  //                 messages.push(item);
+
+  //             }
+  //             $scope.messages = messages;
+  //         }else{
+  //             // $scope.messages = "您暂时没有收到消息！";
+  //         }
+          
+
+
+
+  //     },function(err){
+  //         console.log(err)
+  //     });
+  //   //根据患者ID查询其咨询记录,对response的长度加一定限制
+
+  //     var patientID = Storage.get('UID');
+  //     // var patientID = 'p01';
+
+
+  //     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
+  //     var FilterDoctor = function(arr){
+  //         var result =[];
+  //         var hash ={};
+  //         for(var i =arr.length-1; i>=0; i--){
+  //             var elem = arr[i].doctorId.userId;
+  //             if(!hash[elem]){
+  //                 result.push(arr[i]);
+  //                 hash[elem] = true;
+  //             }
+  //         }
+  //         return result;
+  //     }
+  //     var promise = Patient.getCounselRecords({userId:patientID});
+  //     promise.then(function(data){
+  //         if(data.results!=""){
+
+  //             FilteredDoctors = FilterDoctor(data.results);
+  //             // console.log(FilteredDoctors);
+
+
+  //             items = new Array();
+  //             for(x in FilteredDoctors){
+  //                 var doctor = FilteredDoctors[x];
+  //                 // console.log(doctor);
+
+  //                 var messages = doctor.messages;
+  //                 // console.log("messages:" + messages);
+
+
+  //                 var res = "您已发起咨询，医生暂未回复，请稍后！";
+  //                 for(var i = messages.length-1;i>=0;i--){
+  //                     if(messages[i].sender==doctor.doctorId.userId){
+  //                         res = messages[i].content;
+  //                     }
+  //                 }
+  //                 if(doctor.doctorId.photoUrl==""){
+  //                     doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
+  //                 }
+  //                 var consultTime = doctor.time.substr(0,10);
+                  
+  //                 var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+  //                 items.push(item);
+
+  //             }
+  //             $scope.consults = items;
+
+  //         }else{
+  //             console.log('没有咨询记录');
+  //         }
+  //     },function(err){
+  //         console.log(err);
+
+  //     });
+// }])
+
 //消息中心--PXY
-.controller('messageCtrl', ['Message','Patient','Storage','$scope','$state','$ionicHistory', function(Message,Patient,Storage,$scope, $state,$ionicHistory) {
+.controller('messageCtrl', ['$scope','$state','$ionicHistory','Dict','Message','Storage',function($scope, $state,$ionicHistory,Dict,Message,Storage) {
     $scope.barwidth="width:0%";
-    $scope.haveMessage="";
-
-    $scope.Goback = function(){
-        $ionicHistory.goBack();
-    } 
-
-    $scope.getMessageDetail = function(type){
-        $state.go('messagesDetail',{messageType:type});
-    }
-
-    $scope.getConsultRecordDetail = function(ele,doctorId) {
-        if(ele.target.nodeName == "IMG"){
-        $state.go("tab.DoctorDetail",{DoctorId:doctorId});
-        }else{
-        $state.go("tab.consult-chat");
-        }
-    
-    };
-
-
-  //只取每种类型消息的最新一条，由于原本顺序为降序排列，所以只要滤去重复的消息类型就好了
-    var FilterType = function(arr){
-        var result =[];
-        var hash ={};
-        for(var i =arr.length-1; i>=0; i--){
-            var elem = arr[i].type;
-            if(!hash[elem]){
-                result.push(arr[i]);
-                hash[elem] = true;
-            }
-        }
-        return result;
-    }
-    // var user = "U201704120001";
-    var user = Storage.get('UID');
-    var messPromise = Message.getMessages({userId:user,type:""});
-    messPromise.then(function(data){
-        // console.log(data);
-        if(data.results!=""){
-            var filtered = FilterType(data.results);
-
-
-            // console.log("filtered:"+filtered);
-            var messages = new Array();
-            for(x in filtered){
-                var photo = "",title = "";
-                switch(filtered[x].type){
-                    case 1:
-                        photo = "img/pay.PNG";
-                        title = "支付消息";
-                        break;
-                    case 2:
-                        photo = "img/alert.PNG";
-                        title =  "警报消息";
-                        break;
-                    case 3:
-                        photo = "img/task.PNG";
-                        title = "任务消息";
-                        break;
-
+    //get all message types
+    Dict.typeOne({category:'MessageType'})
+    .then(function(data)
+    {
+        // console.log(data.results.details)
+        var messages={};
+        angular.forEach(data.results.details,function(value,key)
+        {
+            // console.log(value)
+            messages[value.inputCode]={name:value.name,code:value.code,values:[]};
+        })
+        // console.log(messages)
+        Message.getMessages({userId:'U201704120001',type:""})//Storage.get('UID')
+        .then(function(data)
+        {
+            // console.log(data)
+            angular.forEach(data.results,function(value,key)
+            {
+                // console.log(value)
+                if(value.type==1)//支付消息
+                {
+                    messages.ZF.values.push(value)
                 }
-                var item = {img:photo,name:title,type:filtered[x].type,time:filtered[x].time.substr(0,10),response:filtered[x].description};
-                messages.push(item);
-
-            }
-            $scope.messages = messages;
-        }else{
-            // $scope.messages = "您暂时没有收到消息！";
-        }
-        
-
-
-
-    },function(err){
+                else if(value.type==2)//警报消息
+                {
+                    messages.JB.values.push(value)
+                }
+                else if(value.type==3)//任务消息
+                {   
+                    messages.RW.values.push(value)
+                }
+                else if(value.type==4)//聊天消息
+                {
+                    messages.LT.values.push(value)
+                }
+                else if(value.type==5)//保险消息
+                {
+                    messages.BX.values.push(value)
+                }
+            })
+            console.log(messages)
+            Storage.set("allMessages",angular.toJson(messages));
+            $scope.messages=messages;
+        },function(err)
+        {
+            console.log(err)
+        })
+    },function(err)
+    {
         console.log(err)
-    });
-  //根据患者ID查询其咨询记录,对response的长度加一定限制
-
-    var patientID = Storage.get('UID');
-    // var patientID = 'p01';
-
-
-    //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
-    var FilterDoctor = function(arr){
-        var result =[];
-        var hash ={};
-        for(var i =arr.length-1; i>=0; i--){
-            var elem = arr[i].doctorId.userId;
-            if(!hash[elem]){
-                result.push(arr[i]);
-                hash[elem] = true;
-            }
-        }
-        return result;
-    }
-    var promise = Patient.getCounselRecords({userId:patientID});
-    promise.then(function(data){
-        if(data.results!=""){
-
-            FilteredDoctors = FilterDoctor(data.results);
-            // console.log(FilteredDoctors);
-
-
-            items = new Array();
-            for(x in FilteredDoctors){
-                var doctor = FilteredDoctors[x];
-                // console.log(doctor);
-
-                var messages = doctor.messages;
-                // console.log("messages:" + messages);
-
-
-                var res = "您已发起咨询，医生暂未回复，请稍后！";
-                for(var i = messages.length-1;i>=0;i--){
-                    if(messages[i].sender==doctor.doctorId.userId){
-                        res = messages[i].content;
-                    }
-                }
-                if(doctor.doctorId.photoUrl==""){
-                    doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
-                }
-                var consultTime = doctor.time.substr(0,10);
-                
-                var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
-                items.push(item);
-
-            }
-            $scope.consults = items;
-
-        }else{
-            console.log('没有咨询记录');
-        }
-    },function(err){
-        console.log(err);
-
-    });
-
-
-  
-    
-
-    
-
-  
-}])
-
-
-//消息类型--PXY
-.controller('VaryMessageCtrl', ['Message','Storage','$scope','$state','$ionicHistory','$stateParams',function(Message,Storage,$scope, $state,$ionicHistory,$stateParams) {
-    $scope.barwidth="width:0%";
-
-    var user = "U201704120001";
-    //var user = storage.get('UID');
-    var typedmess = Message.getMessages({userId:"U201704120001",type:$stateParams.messageType});
-    typedmess.then(function(data){
-        if(data.results!=""){
-            // console.log(data.results);
-
-            var letter = new Array();
-            for(x in data.results){
-                var item = {time:data.results[x].time.substr(0,10),title:data.results[x].title,response:data.results[x].description};
-                letter.push(item);
-            }
-            $scope.messages = letter;
-        }
-    },function(err){
-        console.log(err);
     })
 
-
-
-    switch($stateParams.messageType){
-        case 1:
-        $scope.title = '支付消息';
-
-    // $scope.messages = [
-    // {
-    //     img:"img/pay.PNG",
-    //     time:"2017/04/01",
-    //     response:"恭喜你！成功充值50元，交易账号为0093842345."
-    // },
-    // {
-    //     img:"img/moneyout.PNG",
-    //     time:"2017/03/02",
-    //     response:"咨询支出20元，账户余额为10元，交易账号为0045252623."
-    // },
-    // {
-    //     img:"img/moneyout.PNG",
-    //     time:"2017/02/12",
-    //     response:"咨询支出20元，账户余额为30元，交易账号为004525212."
-    // },
-    // {
-    //     img:"img/pay.PNG",
-    //     time:"2017/02/02",
-    //     response:"恭喜你！成功充值50元，交易账号为0093840202."
-    // },
-    // {
-    //     img:"img/moneyout.PNG",
-    //     time:"2017/02/02",
-    //     response:"咨询支出10元，账户余额为0元，交易账号为0045250202."
-    // },
-    // {
-    //     img:"img/moneyout.PNG",
-    //     time:"2017/01/02",
-    //     response:"咨询支出10元，账户余额为10元，交易账号为0045250102."
-    // },
-    // {
-    //     img:"img/pay.PNG",
-    //     time:"2016/03/02",
-    //     response:"恭喜你！成功充值20元，交易账号为0093842356."
-    // },
-    // {
-    //     img:"img/pay.PNG",
-    //     time:"2016/01/02",
-    //     response:"恭喜你！成功充值20元，交易账号为009320163425."
-    // },
-    // {
-    //     img:"img/pay.PNG",
-    //     time:"2016/01/01",
-    //     response:"恭喜你！成功充值20元，交易账号为00325262423"
-    // }];
-        break;
-        case 3:
-        $scope.title = '任务消息';
-    // $scope.messages =[
-  
-    // {
-    //     img:"img/bloodpressure.PNG",
-    //     time:"2017/03/21",
-    //     response:"今天还没有测量血压，请及时完成！"
-
-    // },
-    // {
-    //     img:"img/exercise.PNG",
-    //     time:"2017/03/11",
-    //     response:"今天建议运动半小时，建议以散步或慢跑的形式！"
-
-    // },
-    // {
-    //     img:"img/heartRoute.PNG",
-    //     time:"2017/02/10",
-    //     response:"今天还没有测量血管通路，请及时完成！"
-
-    // },
-    // {
-    //     img:"img/heartbeat.PNG",
-    //     time:"2017/01/11",
-    //     response:"今天还没有记录心率，请及时完成！"
-
-    // },
-    // {
-    //     img:"img/heartbeat.PNG",
-    //     time:"2017/01/01",
-    //     response:"今天还没有记录心率，请及时完成！"
-
-    // },
-    // {
-    //     img:"img/heartbeat.PNG",
-    //     time:"2016/10/01",
-    //     response:"今天还没有记录心率，请及时完成！"
-
-    // },
-    // {
-    //     img:"img/urine.PNG",
-    //     time:"2016/10/01",
-    //     response:"今天还没有记录尿量，请及时完成！"
-    // },
-    // {
-    //     img:"img/temperature.PNG",
-    //     time:"2016/10/01",
-    //     response:"今天还没有记录体温，请及时完成！"
-    // },
-    // {
-    //     img:"img/pounds.PNG",
-    //     time:"2016/10/01",
-    //     response:"今天还没有记录体重，请及时完成！"
-    // }
-
-    // ];
-        break;
-        case 2:
-        $scope.title = '警报消息';
-    // $scope.messages =[
-  
-    // {
-    //     img:"img/bloodpressure.PNG",
-    //     time:"2017/03/11",
-    //     response:"你的血压值已超出控制范围！"
-
-    // },
-    // {
-    //     img:"img/bloodpressure.PNG",
-    //     time:"2017/03/07",
-    //     response:"你的血压值已超出控制范围！"
-
-    // },
-    // {
-    //     img:"img/pounds.PNG",
-    //     time:"2017/02/07",
-    //     response:"你的体重值已超出控制范围！"
-
-    // },
-    // {
-    //     img:"img/temperature.PNG",
-    //     time:"2017/01/07",
-    //     response:"你的体温值已超出控制范围！"
-
-    // },
-    // {
-    //     img:"img/temperature.PNG",
-    //     time:"2016/11/07",
-    //     response:"你的体温值已超出控制范围！"
-
-    // },
-    // {
-    //     img:"img/exercise.PNG",
-    //     time:"2016/10/07",
-    //     response:"你已经超过一周没进行运动！"
-
-    // },
-    // {
-    //     img:"img/heartbeat.PNG",
-    //     time:"2016/05/07",
-    //     response:"你的心率不太正常，建议及时就医！"
-
-    // },
-    // {
-    //     img:"img/pounds.PNG",
-    //     time:"2016/02/07",
-    //     response:"你的体重值已超出控制范围！"
-
-    // }
-
-    // ];
-        break;
-
+    $scope.Goback = function(){
+      $ionicHistory.goBack();
     }
+
+    $scope.getMessageDetail = function(type){
+        Storage.set("getMessageType",type);
+        $state.go('messagesDetail');
+    }
+}])
+//消息类型--PXY
+.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory','Storage',function($scope, $state,$ionicHistory,Storage) {
+
+    var messageType = Storage.get("getMessageType")
+    $scope.messages=angular.fromJson(Storage.get("allMessages"))[messageType]
+    console.log($scope.messages)
+
+    if(messageType=='ZF')
+        $scope.avatar='payment.png'
+    else if(messageType=='JB')
+        $scope.avatar='alert.png'
+    else if(messageType=='RW')
+        $scope.avatar='task.png'
+    else if(messageType=='BX')
+        $scope.avatar='security.png'
 
     $scope.Goback = function(){
         $ionicHistory.goBack();
@@ -3225,6 +3105,203 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   
 }])
+// //消息类型--PXY
+// .controller('VaryMessageCtrl', ['Message','Storage','$scope','$state','$ionicHistory','$stateParams',function(Message,Storage,$scope, $state,$ionicHistory,$stateParams) {
+//     $scope.barwidth="width:0%";
+
+//     var user = "U201704120001";
+//     //var user = storage.get('UID');
+//     var typedmess = Message.getMessages({userId:"U201704120001",type:$stateParams.messageType});
+//     typedmess.then(function(data){
+//         if(data.results!=""){
+//             // console.log(data.results);
+
+//             var letter = new Array();
+//             for(x in data.results){
+//                 var item = {time:data.results[x].time.substr(0,10),title:data.results[x].title,response:data.results[x].description};
+//                 letter.push(item);
+//             }
+//             $scope.messages = letter;
+//         }
+//     },function(err){
+//         console.log(err);
+//     })
+
+
+
+//     switch($stateParams.messageType){
+//         case 1:
+//         $scope.title = '支付消息';
+
+//     // $scope.messages = [
+//     // {
+//     //     img:"img/pay.PNG",
+//     //     time:"2017/04/01",
+//     //     response:"恭喜你！成功充值50元，交易账号为0093842345."
+//     // },
+//     // {
+//     //     img:"img/moneyout.PNG",
+//     //     time:"2017/03/02",
+//     //     response:"咨询支出20元，账户余额为10元，交易账号为0045252623."
+//     // },
+//     // {
+//     //     img:"img/moneyout.PNG",
+//     //     time:"2017/02/12",
+//     //     response:"咨询支出20元，账户余额为30元，交易账号为004525212."
+//     // },
+//     // {
+//     //     img:"img/pay.PNG",
+//     //     time:"2017/02/02",
+//     //     response:"恭喜你！成功充值50元，交易账号为0093840202."
+//     // },
+//     // {
+//     //     img:"img/moneyout.PNG",
+//     //     time:"2017/02/02",
+//     //     response:"咨询支出10元，账户余额为0元，交易账号为0045250202."
+//     // },
+//     // {
+//     //     img:"img/moneyout.PNG",
+//     //     time:"2017/01/02",
+//     //     response:"咨询支出10元，账户余额为10元，交易账号为0045250102."
+//     // },
+//     // {
+//     //     img:"img/pay.PNG",
+//     //     time:"2016/03/02",
+//     //     response:"恭喜你！成功充值20元，交易账号为0093842356."
+//     // },
+//     // {
+//     //     img:"img/pay.PNG",
+//     //     time:"2016/01/02",
+//     //     response:"恭喜你！成功充值20元，交易账号为009320163425."
+//     // },
+//     // {
+//     //     img:"img/pay.PNG",
+//     //     time:"2016/01/01",
+//     //     response:"恭喜你！成功充值20元，交易账号为00325262423"
+//     // }];
+//         break;
+//         case 3:
+//         $scope.title = '任务消息';
+//     // $scope.messages =[
+  
+//     // {
+//     //     img:"img/bloodpressure.PNG",
+//     //     time:"2017/03/21",
+//     //     response:"今天还没有测量血压，请及时完成！"
+
+//     // },
+//     // {
+//     //     img:"img/exercise.PNG",
+//     //     time:"2017/03/11",
+//     //     response:"今天建议运动半小时，建议以散步或慢跑的形式！"
+
+//     // },
+//     // {
+//     //     img:"img/heartRoute.PNG",
+//     //     time:"2017/02/10",
+//     //     response:"今天还没有测量血管通路，请及时完成！"
+
+//     // },
+//     // {
+//     //     img:"img/heartbeat.PNG",
+//     //     time:"2017/01/11",
+//     //     response:"今天还没有记录心率，请及时完成！"
+
+//     // },
+//     // {
+//     //     img:"img/heartbeat.PNG",
+//     //     time:"2017/01/01",
+//     //     response:"今天还没有记录心率，请及时完成！"
+
+//     // },
+//     // {
+//     //     img:"img/heartbeat.PNG",
+//     //     time:"2016/10/01",
+//     //     response:"今天还没有记录心率，请及时完成！"
+
+//     // },
+//     // {
+//     //     img:"img/urine.PNG",
+//     //     time:"2016/10/01",
+//     //     response:"今天还没有记录尿量，请及时完成！"
+//     // },
+//     // {
+//     //     img:"img/temperature.PNG",
+//     //     time:"2016/10/01",
+//     //     response:"今天还没有记录体温，请及时完成！"
+//     // },
+//     // {
+//     //     img:"img/pounds.PNG",
+//     //     time:"2016/10/01",
+//     //     response:"今天还没有记录体重，请及时完成！"
+//     // }
+
+//     // ];
+//         break;
+//         case 2:
+//         $scope.title = '警报消息';
+//     // $scope.messages =[
+  
+//     // {
+//     //     img:"img/bloodpressure.PNG",
+//     //     time:"2017/03/11",
+//     //     response:"你的血压值已超出控制范围！"
+
+//     // },
+//     // {
+//     //     img:"img/bloodpressure.PNG",
+//     //     time:"2017/03/07",
+//     //     response:"你的血压值已超出控制范围！"
+
+//     // },
+//     // {
+//     //     img:"img/pounds.PNG",
+//     //     time:"2017/02/07",
+//     //     response:"你的体重值已超出控制范围！"
+
+//     // },
+//     // {
+//     //     img:"img/temperature.PNG",
+//     //     time:"2017/01/07",
+//     //     response:"你的体温值已超出控制范围！"
+
+//     // },
+//     // {
+//     //     img:"img/temperature.PNG",
+//     //     time:"2016/11/07",
+//     //     response:"你的体温值已超出控制范围！"
+
+//     // },
+//     // {
+//     //     img:"img/exercise.PNG",
+//     //     time:"2016/10/07",
+//     //     response:"你已经超过一周没进行运动！"
+
+//     // },
+//     // {
+//     //     img:"img/heartbeat.PNG",
+//     //     time:"2016/05/07",
+//     //     response:"你的心率不太正常，建议及时就医！"
+
+//     // },
+//     // {
+//     //     img:"img/pounds.PNG",
+//     //     time:"2016/02/07",
+//     //     response:"你的体重值已超出控制范围！"
+
+//     // }
+
+//     // ];
+//         break;
+
+//     }
+
+//     $scope.Goback = function(){
+//         $ionicHistory.goBack();
+//     }
+
+  
+// }])
   
   
   
@@ -3535,7 +3612,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //修改密码--PXY
-.controller('changePasswordCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
+.controller('changePasswordCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','User', function($scope, $timeout,$state,Storage,$ionicHistory,User) {
    
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -3549,17 +3626,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.logStatus1='';
     if(change.oldPassword!=""){
         var username = Storage.get('USERNAME');
-        var usernames = Storage.get('usernames').split(",");
-        var index = usernames.indexOf(username);
-        var passwords = Storage.get('passwords').split(",");
-        if(passwords[index]!=change.oldPassword){
-          $scope.logStatus1 = "密码错误！";
-        }
-        else{
-          $scope.logStatus1='验证成功';
-          $timeout(function(){$scope.ishide=false;} , 500);
+        User.logIn({username:username,password:$scope.change.oldPassword,role:'patient'})
+        .then(function(succ)
+        {
+          console.log(succ)
+          if(succ.mesg=="User password isn't correct!")
+          {
+            $scope.logStatus1='验证失败，密码错误！'
+          }
+          else
+          {
+            $scope.ishide=false;
+          }
+        },function(err)
+        {
+          console.log(err)
+        })
+        // var usernames = Storage.get('usernames').split(",");
+        // var index = usernames.indexOf(username);
+        // var passwords = Storage.get('passwords').split(",");
+        // if(passwords[index]!=change.oldPassword){
+        //   $scope.logStatus1 = "密码错误！";
+        // }
+        // else{
+        //   $scope.logStatus1='验证成功';
+        //   $timeout(function(){$scope.ishide=false;} , 500);
 
-        }
+        // }
         
         
     }
@@ -3573,20 +3666,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.logStatus2='';
     if((change.newPassword!="") && (change.confirmPassword!="")){
       if(change.newPassword == change.confirmPassword){
+        User.changePassword({phoneNo:Storage.get('USERNAME'),password:change.newPassword})
+        .then(function(succ)
+        {
+          console.log(succ)
+          if(succ.mesg=="password reset success!")
+          {
+            $scope.logStatus2 ="修改密码成功！";
+            $state.go('tab.mine');
+          }
+        },function(err)
+        {
+          console.log(err)
+        })
 
-          //把新用户和密码写入
-          var username = Storage.get('USERNAME');
-          var usernames = Storage.get('usernames').split(",");
-          var index = usernames.indexOf(username);
-          var passwords = Storage.get('passwords').split(",");
-          passwords[index] = change.newPassword;
+          // //把新用户和密码写入
+          // var username = Storage.get('USERNAME');
+          // var usernames = Storage.get('usernames').split(",");
+          // var index = usernames.indexOf(username);
+          // var passwords = Storage.get('passwords').split(",");
+          // passwords[index] = change.newPassword;
          
-          Storage.set('passwords',passwords);
-          $scope.logStatus2 ="修改密码成功！";
-          $timeout(function(){$scope.change={originalPassword:"",newPassword:"",confirmPassword:""};
-          $state.go('tab.tasklist');
-          $scope.ishide=true;
-          } , 500);
+          // Storage.set('passwords',passwords);
+          // $scope.logStatus2 ="修改密码成功！";
+          // $timeout(function(){$scope.change={originalPassword:"",newPassword:"",confirmPassword:""};
+          // $state.go('tab.tasklist');
+          // $scope.ishide=true;
+          // } , 500);
       }else{
         $scope.logStatus2="两次输入的密码不一致";
       }

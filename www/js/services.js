@@ -826,7 +826,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
             getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
             getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000},
-            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
+            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000},
+            typeOne:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
         });
     };
 
@@ -1033,6 +1034,21 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getHeathLabelInfo = function(params){
         var deferred = $q.defer();
         Data.Dict.getHeathLabelInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+    //    category:'MessageType'
+    //}
+    self.typeOne = function(params){
+        var deferred = $q.defer();
+        Data.Dict.typeOne(
             params,
             function(data, headers){
                 deferred.resolve(data);
