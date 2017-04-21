@@ -828,7 +828,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
             getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
             getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000},
-            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
+            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000},
+            typeOne:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
         });
     };
 
@@ -857,7 +858,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Counsels = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
             getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
-            questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000}
+            questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000},
+            getStatus:{method:'POST', params:{route: 'getStatus'}, timeout: 100000}
+
         });
     };
 
@@ -869,7 +872,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getCounselRecords:{method:'GET',params:{route:'getCounselRecords'},timeout:10000},
             insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
-            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000}
+            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
+            bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000}
         });
     }
 
@@ -892,6 +896,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getUserId:{method:'GET', params:{route: 'getUserID',phoneNo:'@phoneNo'}, timeout: 100000},
             sendSMS:{method:'POST', params:{route: 'sendSMS',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
             verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
+            getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
+            updateAgree:{method:'POST', params:{route: 'updateUserAgreement'}, timeout: 100000},
 
         });
     }
@@ -922,7 +928,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Account =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'account'},{
-            getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000}
+            getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000},
+            getCounts:{method:'GET', params:{route: 'getCounts'}, timeout: 100000},
+            modifyCounts:{method:'POST', params:{route: 'modifyCounts'}, timeout: 100000}
         });
     }
 
@@ -1035,6 +1043,21 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getHeathLabelInfo = function(params){
         var deferred = $q.defer();
         Data.Dict.getHeathLabelInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+    //    category:'MessageType'
+    //}
+    self.typeOne = function(params){
+        var deferred = $q.defer();
+        Data.Dict.typeOne(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1285,6 +1308,36 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     }
+    //params->{userId:"U201703310032"}
+    //036
+    self.getAgree = function(params){
+        var deferred = $q.defer();
+        Data.User.getAgree(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    
+    //params->{userId:"U201703310032",agreement:"0"}
+    //037
+    self.updateAgree = function(params){
+        var deferred = $q.defer();
+        Data.User.updateAgree(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
 
 
     
@@ -1525,6 +1578,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    self.bindingMyDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Patient.bindingMyDoctor(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
     return self;
 }])
@@ -1662,6 +1727,23 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params->0:{
+    //              patientId:'p01',
+    //              doctorId:'doc01',
+    //              type:1//1->咨询 2->问诊
+    //          }
+    self.getStatus = function(params){
+        var deferred = $q.defer();
+        Data.Counsels.getStatus(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
     return self;
 }])
 
@@ -1755,6 +1837,39 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getAccountInfo = function(params){
         var deferred = $q.defer();
         Data.Account.getAccountInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+    //    patientId:'p01',
+    //    doctorId:"doc01"
+    // }
+    self.getCounts = function(params){
+        var deferred = $q.defer();
+        Data.Account.getCounts(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+    //    patientId:'p01',
+    //    doctorId:"doc02",
+    //    modify:-1
+    // }
+    self.modifyCounts = function(params){
+        var deferred = $q.defer();
+        Data.Account.modifyCounts(
             params,
             function(data, headers){
                 deferred.resolve(data);

@@ -1,4 +1,33 @@
-<ion-view title="{{title}}">
+<ion-view view-title="{{messages.name}}消息">
+
+    <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+    <ion-content padding="true" style="">
+
+    <div class="card" ng-show="messages.values.length==0">
+        <div class="item item-text-wrap">
+            暂时没有此类消息
+        </div>
+    </div>
+
+    <div class="list card" ng-repeat="message in messages.values">
+
+        <div class="item item-avatar">
+            <img ng-src="img/{{avatar}}">
+            <h2>{{message.title}}</h2>
+            <p>{{message.time|dateFormat:"YYYY-MM-DD h:m"}}</p>
+        </div>
+
+        <div class="item item-body item-text-wrap">
+            <p>
+                {{message.description}}
+            </p>
+        </div>
+
+    </div>           
+  </ion-content>
+          
+</ion-view>
+<!-- <ion-view title="{{title}}">
 
   <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
       <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
@@ -19,13 +48,7 @@
       </ion-item>
 
 
-    </ion-list>
-    
-    
-    
-
-
-           
+    </ion-list> 
   </ion-content>
           
-</ion-view>
+</ion-view> -->
