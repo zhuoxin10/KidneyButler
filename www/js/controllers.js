@@ -4341,6 +4341,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             counsel:data.results,
             type:'card',
             patientId:patientId,
+            patientName:$scope.BasicInfo.name,
             doctorId:DoctorId,
             fromId:patientId,
             targetId:DoctorId
