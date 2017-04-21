@@ -139,7 +139,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //手机号码验证--PXY
 .controller('phonevalidCtrl', ['$scope','$state','$interval', '$stateParams','Storage','User','$timeout', function($scope, $state,$interval,$stateParams,Storage,User,$timeout) {
   $scope.barwidth="width:0%";
-  Storage.set("personalinfobackstate","register")
+  // Storage.set("personalinfobackstate","register")
   
   $scope.Verify={Phone:"",Code:""};
   $scope.veritext="获取验证码";
@@ -237,29 +237,29 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //手机正则表达式验证
             if(phoneReg.test(Verify.Phone)){ 
                 //测试用
-                // if(Verify.Code==5566){
-                //     $scope.logStatus = "验证成功";
-                //     Storage.set('USERNAME',Verify.Phone);
-                //     if($stateParams.phonevalidType == 'register'){
-                //         $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                //     }else{
-                //        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500); 
-                //     }
-                    
-                // }else{$scope.logStatus = "验证码错误";}
-                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
-                verifyPromise.then(function(data){
-                    if(data.results==0){
-                        $scope.logStatus = "验证成功";
-                        Storage.set('USERNAME',Verify.Phone);
-                        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType,phoneNumber:Verify.Phone});},500);
+                if(Verify.Code==5566){
+                    $scope.logStatus = "验证成功";
+                    Storage.set('USERNAME',Verify.Phone);
+                    if($stateParams.phonevalidType == 'register'){
+                        $timeout(function(){$state.go('agreement',{last:'register'});},500);
                     }else{
-                        $scope.logStatus = data.mesg;
-                        return;
+                       $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500); 
                     }
-                },function(){
-                    $scope.logStatus = "连接超时！";
-                })
+                    
+                }else{$scope.logStatus = "验证码错误";}
+                // var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                // verifyPromise.then(function(data){
+                //     if(data.results==0){
+                //         $scope.logStatus = "验证成功";
+                //         Storage.set('USERNAME',Verify.Phone);
+                //         $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType,phoneNumber:Verify.Phone});},500);
+                //     }else{
+                //         $scope.logStatus = data.mesg;
+                //         return;
+                //     }
+                // },function(){
+                //     $scope.logStatus = "连接超时！";
+                // })
             }
             else{$scope.logStatus="手机号验证失败！";}
       
@@ -1973,7 +1973,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload) {
   $scope.barwidth="width:0%";
-  Storage.set("personalinfobackstate","mine")
+  // Storage.set("personalinfobackstate","mine")
   
   var patientId = Storage.get('UID')
   //页面跳转---------------------------------
@@ -3501,83 +3501,102 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Storage','Account',function($scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Storage,Account) {
+.controller('DoctorCtrl', ['$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
   //清空搜索框
   $scope.searchCont = {};
+
   $scope.clearSearch = function(){ 
     $scope.searchCont = {};  
-    //清空之后获取所有医生  
+    //清空之后获取所有医生 
+    ChangeSearch();
+
   }  
 
-  $scope.search = function(){
-  //如果筛选条件还未清空的话，是在已筛选里搜索？
-  }
-  //省、市、医院三级查询，联动
+ 
+    $scope.Provinces={};
+    $scope.Cities={};
+    $scope.Districts={};
+    $scope.Hospitals={};
 
-  // $scope.Provinces=[
-  // {
-  //   name:"省份",
-  //   province:0
-  // },
-  // {
-  //   name:"浙江",
-  //   province:1
-  // },
-  // {
-  //   name:"江苏",
-  //   province:2
-  // }];
-  // $scope.Cities=[
-  // {
-  //   name:"地市",
-  //   city:0
-  // },
-  // {
-  //   name:"杭州",
-  //   city:1
-  // },
-  // {
-  //   name:"苏州",
-  //   city:2
-  // }];
-  // $scope.Districts=[
-  // {
-  //   name:"区县",
-  //   district:0
-  // },
-  // {
-  //   name:"上城区",
-  //   district:1
-  // },
-  // {
-  //   name:"下城区",
-  //   district:2
-  // }];
-  // $scope.Hospitals=[
-  // {
-  //   Name:"医院",
-  //   Type:0
-  // },
-  // {
-  //   Name:"浙一",
-  //   Type:1
-  // },
-  // {
-  //   Name:"浙二",
-  //   Type:2
-  // }];
-  $scope.Provinces="";
-  $scope.Cities="";
-  $scope.Districts="";
-  $scope.Hospitals="";
-  Dict.getDistrict({level:"1",province:"",city:"",district:""}).then(
+    $scope.doctors = [];
+    $scope.doctor = "";
+    $scope.moredata=true;
+
+    var pagecontrol = {skip:0,limit:10};
+    var alldoctors = new Array();
+
+
+
+    $scope.loadMore=function(params){
+          // $scope.$apply(function() {
+        if(!params){
+            params={province:"",city:"",district:"",hospital:"",name:""};
+        }
+        console.log(params);
+         Patient.getDoctorLists({skip:pagecontrol.skip,limit:pagecontrol.limit,province:params.province,city:params.city,district:params.district,workUnit:params.hospital,name:params.name})
+                  .then(function(data){
+                    console.log(data.results);
+                    $scope.$broadcast('scroll.infiniteScrollComplete');
+                    
+                    alldoctors=alldoctors.concat(data.results);
+                    $scope.doctors=alldoctors;
+                    if(alldoctors.length==0){
+                        console.log("aaa")
+                        $ionicLoading.show({ 
+                            template: '没有医生', duration: 1000 
+                        })
+                    }
+                    // $scope.nexturl=data.nexturl;
+                     var skiploc=data.nexturl.indexOf('skip');
+                    pagecontrol.skip=data.nexturl.substring(skiploc+5);
+                    console.log(pagecontrol.skip);
+                    if(data.results.length<pagecontrol.limit){$scope.moredata=false}else{$scope.moredata=true};
+                  },function(err){
+                      console.log(err);
+                  })
+          // });
+       }
+
+
+  // Patient.getDoctorLists().then(
+  //     function(data)
+  //     {
+  //       $scope.doctors = data.results
+  //       console.log($scope.doctors)
+  //     },
+  //     function(err)
+  //     {
+  //       console.log(err);
+  //     }
+  //   )
+    var ChangeSearch = function(){
+        pagecontrol = {skip:0,limit:10};
+        alldoctors = new Array();
+        console.log($scope.Province);
+        var _province = ($scope.Province&&$scope.Province.province)? $scope.Province.province.name:"";
+        var _city = ($scope.City&&$scope.City.city)? $scope.City.city.name:"";
+        var _district = ($scope.District&&$scope.District.district)? $scope.District.district.name:"";
+        console.log($scope.Hospital);
+        var _hospital = ($scope.Hospital&&$scope.Hospital.hostipalCode)? $scope.Hospital.hostipalCode.hospitalName:"";
+        var params = {province:_province,city:_city,district:_district,workUnit:_hospital,name:($scope.searchCont.t||"")};
+        $scope.loadMore(params);
+    }
+
+
+    $scope.search = function(){
+        // console.log("清空了");
+        ChangeSearch();
+    } 
+
+    Dict.getDistrict({level:"1",province:"",city:"",district:""}).then(
       function(data)
       {
-        $scope.Provinces = data.results
+        $scope.Provinces = data.results;
+        // $scope.Province.province = "";
         console.log($scope.Provinces)
       },
       function(err)
@@ -3587,63 +3606,123 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     )
 
   $scope.getCity = function (province) {
-    console.log($scope.Province)
-    Dict.getDistrict({level:"2",province:province.province,city:"",district:""}).then(
-      function(data)
-      {
-        $scope.Cities = data.results
-        console.log($scope.Cities)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+    // console.log($scope.Province)
+    if(province!=null){
+        Dict.getDistrict({level:"2",province:province.province,city:"",district:""}).then(
+          function(data)
+          {
+            $scope.Cities = data.results;
+            console.log($scope.Cities);
+            
+          },
+          function(err)
+          {
+            console.log(err);
+          }
+        );
+    }else{
+        $scope.Cities = {};
+        $scope.Districts ={};
+        $scope.Hospitals = {};
+    }
+    ChangeSearch();
   }
   
-  $scope.getDistrict = function (city) {
-    Dict.getDistrict({level:"3",province:city.province,city:city.city,district:""}).then(
+  $scope.getDistrict = function (province,city) {
+    console.log(province);
+    if(city!=null){
+        Dict.getDistrict({level:"3",province:city.province,city:city.city,district:""}).then(
       function(data)
       {
-        $scope.Districts = data.results
-        console.log($scope.Districts)
+        $scope.Districts = data.results;
+        console.log($scope.Districts);
+
+        
+
+        // var params = {province:province.name,city:city.name,district:"",hospital:"",name:($scope.searchCont.t||"")};
+        // initialSearch();
+        // $scope.loadMore(params);
+
+        // Patient.getDoctorLists({province:province.name,city:city.name}).then(
+        //     function(data){
+        //         console.log(data.results);
+        //         $scope.doctors = data.results;
+        //     },function(err){
+        //         console.log(err);
+        //     })
+        
       },
       function(err)
       {
         console.log(err);
       }
-    )
+    );
+    }else{
+        $scope.Districts = {};
+        $scope.Hospitals = {};
+    }
+    ChangeSearch();
   }
 
-  $scope.getHospital = function (district) {
-    var locationCode = district.province + district.city + district.district
+  $scope.getHospital = function (province,city,district) {
+    // console.log(district.name);
+    if(district!=null){
+        var locationCode = district.province + district.city + district.district
     console.log(locationCode)
     Dict.getHospital({locationCode: locationCode,hostipalCode:""}).then(
       function(data)
       {
-        $scope.Hospitals = data.results
-        console.log($scope.Hospitals)
+        $scope.Hospitals = data.results;
+        console.log($scope.Hospitals);
+
+        // var params = {province:province.name,city:city.name,district:district.name,hospital:"",name:($scope.searchCont.t||"")};
+        // initialSearch();
+        // $scope.loadMore(params);
+
+        // Patient.getDoctorLists({province:province.name,city:city.name,district:district.name}).then(
+        //     function(data){
+        //         console.log(data.results);
+        //         $scope.doctors = data.results;
+        //     },function(err){
+        //         console.log(err);
+        //     })
       },
       function(err)
       {
         console.log(err);
       }
     )
+    }else{
+        $scope.Hospitals = {};
+    }
+        ChangeSearch();
+
+    
   }
   
-  $scope.getDoctorByHospital = function (hospital) {
+  $scope.getDoctorByHospital = function (province,city,district,hospital) {
+        ChangeSearch();
+        // if(hospital){
+        //     var workUnit = hospital.hospitalName;
+        // }else{
+        //     var workUnit ="";
+        // }
+        // var params = {province:province.name,city:city.name,district:district.name,hospital:workUnit,name:($scope.searchCont.t||"")};
 
-    Patient.getDoctorLists({workUnit: hospital.hospitalName}).then(
-      function(data)
-      {
-        $scope.doctors = data.results
-        console.log($scope.doctors)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+        // initialSearch();
+        // $scope.loadMore(params);
+
+    // Patient.getDoctorLists({workUnit: hospital.hospitalName}).then(
+    //   function(data)
+    //   {
+    //     $scope.doctors = data.results
+    //     console.log($scope.doctors)
+    //   },
+    //   function(err)
+    //   {
+    //     console.log(err);
+    //   }
+    // )
   }
   $scope.allDoctors = function(){
     $state.go('tab.AllDoctors');
@@ -3659,103 +3738,31 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       $state.go('tab.DoctorDetail',{DoctorId:id});
     }
     else if (ele.target.innerText == '咨询') {
-        //获得剩余咨询次数
-        // console.log(123)
-        var consultCount=0;
-        var templateText="";
-        var okText="确认";
-        Account.getCounts({patientId:Storage.get('UID'),doctorId:id})
-        .then(function(data)
-        {
-            console.log(data)
-            consultCount=data.result;
-
-            if(consultCount>0)
-            {
-                templateText="您还剩余"+consultCount+"次咨询，确认进行咨询？"
-                okText="确认";
+        var question = $ionicPopup.confirm({
+            title:"咨询确认",
+            template:"进入咨询后，您有三次询问医生的次数。确认付费咨询？",
+            okText:"确认",
+            cancelText:"取消"
+        });
+        question.then(function(res){
+            if(res){
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
-            else
-            {
-                templateText="您的咨询次数已用尽，请进行充值"
-                okText="去充值";
-            }
-            var question = $ionicPopup.confirm({
-                title:"咨询确认",
-                template:templateText,
-                okText:okText,
-                cancelText:"取消"
-            });
-            question.then(function(res){
-                if(res){
-                    if(consultCount>0)//进行咨询
-                    {
-                        //查询是否有未完成咨询
-                        var status=true;
-                        if(status)//有->直接进聊天界面
-                        {
 
-                        }
-                        else//没有->问卷
-                        {
-                            $state.go("tab.consultquestion1",{DoctorId:id});
-                        }
-                    }
-                    else//去支付
-                    {
-                        Storage.set('payFor',1);//1->充咨询次数 2->充问诊
-                        $state.go("payment");
-                    }
-                }
-
-            })
-        },function(err)
-        {
-            console.log(err)
         })
     }
     else if (ele.target.innerText == '问诊'){
-        var template="";
-        var okText="";
-        //查询是否有未完成的问诊
-        Counsels.getStatus({doctorId:id,patientId:Storage.get('UID'),type:2})
-        .then(function(data)
-        {
-            console.log(data)
-            data.status=0
-            if(data.status==0)//没有未结束的，要去充钱了
-            {
-                template="您需要充值才能开始问诊，医生结束前您可以提无限次问题！";
-                okText="去充值";
+        var question = $ionicPopup.confirm({
+            title:"问诊确认",
+            template:"进入问诊后，当天您询问医生的次数不限。确认付费问诊？",
+            okText:"确认",
+            cancelText:"取消"
+        });
+        question.then(function(res){
+            if(res){
+                $state.go("tab.consultquestion1",{DoctorId:id});
             }
-            else//还有未结束的，先让你进去看看
-            {
-                template="您将继续上次的问诊，医生结束前您可以提无限次问题！";
-                okText="确认";
-            }
-            var question = $ionicPopup.confirm({
-                title:"问诊确认",
-                template:template,
-                okText:okText,
-                cancelText:"取消"
-            });
-            question.then(function(res){
-                if(res){
-                    if(data.status==0)//去充钱
-                    {
-                        Storage.set('payFor',2);//1->充咨询次数 2->充问诊
-                        $state.go("payment");
-                    }
-                    else//填问卷
-                    {
-                        $state.go("tab.consultquestion1",{DoctorId:id});
-                    }
-                }
 
-            })
-        },function(err)
-        {
-            console.log(err)
         })
     } 
     else $state.go('tab.DoctorDetail',{DoctorId:id})
@@ -3763,19 +3770,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
 
-  $scope.doctors = "";
-  $scope.doctor = "";
-  Patient.getDoctorLists().then(
-      function(data)
-      {
-        $scope.doctors = data.results
-        console.log($scope.doctors)
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+   
+
+
+  
   //获取我的主管医生信息，目前暂时为写死的医生ID
   Doctor.getDoctorInfo({userId:"U201702070041"}).then(
     function(data)
