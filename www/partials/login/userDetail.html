@@ -95,17 +95,17 @@
                     <span class="input-label" style="margin-left:6px "><i class="icon ion-clipboard" style="margin-right:3px;font-size:20px" ></i>最近就诊信息</span>
                     <label class="item item-input">
                         <span class="input-label" style="margin-left:8px ">就诊医院</span>
-                        <input  ng-model="User.lastVisithospital"  type="text">
+                        <input  ng-model="User.lastVisit.hospital"  type="text">
                     </label>
 
                     <ionic-datepicker input-obj="datepickerObject1" class="item item-input">
                         <span class="input-label" style="margin-left:8px ">诊断日期</span>
-                        <input  ng-model="User.lastVisittime"  type="text">
+                        <input  ng-model="User.lastVisit.time"  type="text">
                     </ionic-datepicker>
 
                     <label class="item item-input">
                         <span class="input-label" style="margin-left:8px ">诊断结果</span>
-                        <input  ng-model="User.lastVisitdiagnosis"  type="text">
+                        <input  ng-model="User.lastVisit.diagnosis"  type="text">
                     </label>
                 </div>
 
@@ -192,17 +192,17 @@
                     <span class="input-label" style="margin-left:6px "><i class="icon ion-clipboard" style="margin-right:3px;font-size:20px" ></i>最近就诊信息</span>
                     <label class="item item-input">
                         <span class="input-label" style="margin-left:8px ">就诊医院</span>
-                        <p style="text-align:right;width:50%">{{User.lastVisithospital}}</p>
+                        <p style="text-align:right;width:50%">{{User.lastVisit.hospital}}</p>
                     </label>
 
                     <label class="item item-input">
                         <span class="input-label" style="margin-left:8px ">诊断日期</span>
-                        <p style="text-align:right;width:50%">{{User.lastVisittime}}</p>
+                        <p style="text-align:right;width:50%">{{User.lastVisit.time}}</p>
                     </label>
 
                     <label class="item item-input">
                         <span class="input-label" style="margin-left:8px ">诊断结果</span>
-                        <p style="text-align:right;width:50%">{{User.lastVisitdiagnosis}}</p>
+                        <p style="text-align:right;width:50%">{{User.lastVisit.diagnosis}}</p>
                     </label>
                 </div>
 
