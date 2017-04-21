@@ -138,6 +138,13 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       params:{messageType:null},
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
+    })
+    .state('payment',{
+      cache:false,
+      url:'/payment',
+      params:{messageType:null},
+      templateUrl:'partials/payment/payment.html',
+      controller:'paymentCtrl'
     });   
     
     //主页面    
