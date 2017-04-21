@@ -320,7 +320,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }else if(setPassState == 'reset'){
                 //如果是重置密码
                 //结果分为连接超时或者修改成功
-                    var codePromise = User.changePassword({phoneNo:phone,password:setPassword.newPass});
+                    var codePromise = User.changePassword({phoneNo:Storage.get('USERNAME'),password:setPassword.newPass});
                     codePromise.then(function(data){
                         if(data.results==0){
                             Storage.set('USERNAME',phone);

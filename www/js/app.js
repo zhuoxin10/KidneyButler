@@ -115,7 +115,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('setpassword', {
       cache:false,
       url: '/setpassword',
-      params:{phonevalidType:null,phoneNumber:null},
+      params:{phonevalidType:null},
       templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
