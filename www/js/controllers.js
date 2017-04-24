@@ -860,6 +860,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                             var patientId = data.userNo;
                             Storage.set('UID',patientId);
+                            //注册论坛
+
+                            $http({
+                                method  : 'POST',
+                                url     : 'http://121.43.107.106:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                                params    :{
+                                    'regsubmit':'yes',
+                                    'formhash':'',
+                                    'D2T9s9':phoneNumber,
+                                    'O9Wi2H':phoneNumber,
+                                    'hWhtcM':phoneNumber,
+                                    'qSMA7S':phoneNumber+'@qq.com'
+                                },  // pass in data as strings
+                                headers : {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'Accept':'application/xml, text/xml, */*'
+                                }  // set the headers so angular passing info as form data (not request payload)
+                            }).success(function(data) {
+                                // console.log(data);
+                            });
+
                             User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
                                 if(data.results!=null){
                                     $scope.User.userId = patientId;
@@ -4840,14 +4861,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //论坛
-.controller('forumCtrl', ['$scope', '$state', '$sce','$http',function ($scope, $state,$sce,$http) {
-  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
+.controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage',function ($scope, $state,$sce,$http,Storage) {
+  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
+  var phoneNum=Storage.get('USERNAME')
 
   ionic.DomUtil.ready(function(){
         $http({
             method  : 'POST',
-            url     : 'http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
-            params    : {'username':'admin','password':'bme319'},  // pass in data as strings
+            url     : 'http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
+            params    : {'username':phoneNum,'password':phoneNum},  // pass in data as strings
             headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
             }).success(function(data) {
                 //console.log(data);
