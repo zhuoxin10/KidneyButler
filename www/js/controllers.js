@@ -2044,12 +2044,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   $scope.myAvatar = ""
   //根据用户ID查询用户头像
-  var Picturepath=Storage.get("myAvatarpath")
-  if(Picturepath==""||Picturepath==null){
-    $scope.myAvatar="img/DefaultAvatar.jpg"
-  }else{
-    $scope.myAvatar=Picturepath;
-  }
+  Patient.getPatientDetail({userId:Storage.get("UID")}).then(function(res){
+    console.log(Storage.get("UID"))
+    // console.log(res.results)
+    console.log(res.results.photoUrl)
+    // console.log(angular.fromJson(res.results))
+    if(res.results.photoUrl==undefined||res.results.photoUrl==""){
+      $scope.myAvatar="img/DefaultAvatar.jpg"
+    }else{
+      $scope.myAvatar=res.results.photoUrl;
+    }
+  })
+  // var Picturepath=Storage.get("myAvatarpath")
+  // if(Picturepath==""||Picturepath==null){
+  //   $scope.myAvatar="img/DefaultAvatar.jpg"
+  // }else{
+  //   $scope.myAvatar=Picturepath;
+  // }
  
   // 上传头像的点击事件----------------------------
   $scope.onClickCamera = function($event){
@@ -2078,7 +2089,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       $scope.myAvatar="http://121.43.107.106:8052/"+String(data.path_resized)+'?'+new Date().getTime();
       console.log($scope.myAvatar)
       // $state.reload("tab.mine")
-      Storage.set('myAvatarpath',$scope.myAvatar);
+      // Storage.set('myAvatarpath',$scope.myAvatar);
+      Patient.editPatientDetail({userId:Storage.get("UID"),photoUrl:$scope.myAvatar}).then(function(r){
+        console.log(r);
+      })
     },function(err){
       console.log(err);
       reject(err);
