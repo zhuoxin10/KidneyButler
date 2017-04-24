@@ -3600,7 +3600,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id});
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
             }
 
         })
@@ -3614,7 +3614,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id});
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
             }
 
         })
@@ -3693,7 +3693,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:DoctorId});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
             }
 
         });
@@ -3708,7 +3708,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:DoctorId});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
             }
 
         });
@@ -4054,7 +4054,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
-  var DoctorId = $stateParams.DoctorId
+  var DoctorId = $stateParams.DoctorId;
+  var counselType = $stateParams.counselType;
 
 
 
@@ -4691,7 +4692,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     $scope.BasicInfo.weight = data.results;
                                     console.log($scope.BasicInfo);
                                     console.log($stateParams.DoctorId);
-                                    $state.go("tab.consultquestion2",{DoctorId:DoctorId});
+                                    $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
                                     
                                     
                                     // $state.go("tab.mine");
@@ -4722,7 +4723,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:counselType})
   }
 
   $scope.nexttoquestion = function(){
@@ -4734,20 +4735,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log("Attention");
         Patient.editPatientDetail({userId:Storage.get('UID'),lastVisittime:$scope.Questionare.LastVisitDate,lastVisithospital:$scope.Questionare.LastHospital,lastVisitdiagnosis:$scope.Questionare.LastDiagnosis}).then(function(data){
             console.log(data.results);
-            $state.go("tab.consultquestion3",{DoctorId:DoctorId});
+            $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
 
         },function(err){
         console.log(err);
         });
     }else{
-        $state.go("tab.consultquestion3",{DoctorId:DoctorId});
+        $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
     }
     
 }
 
   $scope.backtoDisease = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType})
   } 
 
   $scope.Submitquestion = function(){
@@ -4755,6 +4756,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     if(($scope.Questionare.title)&&($scope.Questionare.help)){
             var temp = {
           "patientId":patientId,
+          "type":counselType,
           "doctorId":$stateParams.DoctorId, 
           "hospital":$scope.Questionare.LastHospital, 
           "visitDate":$scope.Questionare.LastVisitDate,
