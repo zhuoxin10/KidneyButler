@@ -2511,6 +2511,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         ]
     }
     $scope.viewPic = function(url) {
+            $scope.imageHandle.zoomTo(1, true);
             $scope.imageUrl = url;
             $scope.modal.show();
         }
@@ -2589,7 +2590,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // $ionicScrollDelegate.scrollBottom();
     })
     $scope.$on('$ionicView.leave', function() {
-        $scope.modal.remove();
+        $scope.msgs = [];
+        if($scope.modal)$scope.modal.remove();
         $rootScope.conversation.type = null;
         $rootScope.conversation.id = '';
         if(window.JMessage) window.JMessage.exitConversation();
@@ -4732,6 +4734,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             counsel:data.results,
             type:'card',
             patientId:patientId,
+            patientName:$scope.BasicInfo.name,
             doctorId:DoctorId,
             fromId:patientId,
             targetId:DoctorId
