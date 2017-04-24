@@ -228,7 +228,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion1', {
       url: '/consultquestion1',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -240,7 +240,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion2', {
       url: '/consultquestion2',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -252,7 +252,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion3', {
       url: '/consultquestion3',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
