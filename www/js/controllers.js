@@ -2722,6 +2722,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   $scope.newHealth = function(){
     $state.go('tab.myHealthInfoDetail',{id:null});
+
   }
 
   // $scope.EditHealth = function(editId){
@@ -2740,13 +2741,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
 
-  $scope.canEdit = false;
+  
 
   $scope.Goback = function(){
         if($scope.canEdit==true){
             $scope.canEdit = false;
         }else{
-            $ionicHistory.goBack();
+            if($ionicHistory.backTitle()==null){
+                $state.go('tab.myHealthInfo');
+            }else{
+                $ionicHistory.goBack();
+            }
+            console.log(123);
+            console.log($ionicHistory.backTitle());
+            
         }
         
     }
@@ -2788,6 +2796,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //判断是修改还是新增
       if($stateParams.id!=null && $stateParams!=""){
         //修改
+        $scope.canEdit = false;
         var info = $stateParams.id;
         console.log(info)
         Health.getHealthDetail({userId:patientId,insertTime:info.acture}).then(
@@ -2817,6 +2826,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             console.log(err);
           }
         )
+      }else{
+        $scope.canEdit = true;
       }
       console.log($scope.labels);
     },
@@ -2858,7 +2869,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               function(data)
               {
                 console.log(data.results);
-                console.log(data.results.insertTime)
+                console.log(data.results.insertTime);
+                $scope.canEdit= false;
                 var healthinfoToconsult=[]
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null&&$ionicHistory.backView().stateName=='tab.consultquestion2'){
@@ -3120,146 +3132,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-// //消息中心--PXY
-  // .controller('messageCtrl', ['Message','Patient','Storage','$scope','$state','$ionicHistory', function(Message,Patient,Storage,$scope, $state,$ionicHistory) {
-  //     $scope.barwidth="width:0%";
-  //     $scope.haveMessage="";
 
-  //     $scope.Goback = function(){
-  //         $ionicHistory.goBack();
-  //     } 
-
-  //     $scope.getMessageDetail = function(type){
-  //         $state.go('messagesDetail',{messageType:type});
-  //     }
-
-  //     $scope.getConsultRecordDetail = function(ele,doctorId) {
-  //         if(ele.target.nodeName == "IMG"){
-  //         $state.go("tab.DoctorDetail",{DoctorId:doctorId});
-  //         }else{
-  //         $state.go("tab.consult-chat");
-  //         }
-      
-  //     };
-
-
-  //   //只取每种类型消息的最新一条，由于原本顺序为降序排列，所以只要滤去重复的消息类型就好了
-  //     var FilterType = function(arr){
-  //         var result =[];
-  //         var hash ={};
-  //         for(var i =arr.length-1; i>=0; i--){
-  //             var elem = arr[i].type;
-  //             if(!hash[elem]){
-  //                 result.push(arr[i]);
-  //                 hash[elem] = true;
-  //             }
-  //         }
-  //         return result;
-  //     }
-  //     // var user = "U201704120001";
-  //     var user = Storage.get('UID');
-  //     var messPromise = Message.getMessages({userId:user,type:""});
-  //     messPromise.then(function(data){
-  //         // console.log(data);
-  //         if(data.results!=""){
-  //             var filtered = FilterType(data.results);
-
-
-  //             // console.log("filtered:"+filtered);
-  //             var messages = new Array();
-  //             for(x in filtered){
-  //                 var photo = "",title = "";
-  //                 switch(filtered[x].type){
-  //                     case 1:
-  //                         photo = "img/pay.PNG";
-  //                         title = "支付消息";
-  //                         break;
-  //                     case 2:
-  //                         photo = "img/alert.PNG";
-  //                         title =  "警报消息";
-  //                         break;
-  //                     case 3:
-  //                         photo = "img/task.PNG";
-  //                         title = "任务消息";
-  //                         break;
-
-  //                 }
-  //                 var item = {img:photo,name:title,type:filtered[x].type,time:filtered[x].time.substr(0,10),response:filtered[x].description};
-  //                 messages.push(item);
-
-  //             }
-  //             $scope.messages = messages;
-  //         }else{
-  //             // $scope.messages = "您暂时没有收到消息！";
-  //         }
-          
-
-
-
-  //     },function(err){
-  //         console.log(err)
-  //     });
-  //   //根据患者ID查询其咨询记录,对response的长度加一定限制
-
-  //     var patientID = Storage.get('UID');
-  //     // var patientID = 'p01';
-
-
-  //     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
-  //     var FilterDoctor = function(arr){
-  //         var result =[];
-  //         var hash ={};
-  //         for(var i =arr.length-1; i>=0; i--){
-  //             var elem = arr[i].doctorId.userId;
-  //             if(!hash[elem]){
-  //                 result.push(arr[i]);
-  //                 hash[elem] = true;
-  //             }
-  //         }
-  //         return result;
-  //     }
-  //     var promise = Patient.getCounselRecords({userId:patientID});
-  //     promise.then(function(data){
-  //         if(data.results!=""){
-
-  //             FilteredDoctors = FilterDoctor(data.results);
-  //             // console.log(FilteredDoctors);
-
-
-  //             items = new Array();
-  //             for(x in FilteredDoctors){
-  //                 var doctor = FilteredDoctors[x];
-  //                 // console.log(doctor);
-
-  //                 var messages = doctor.messages;
-  //                 // console.log("messages:" + messages);
-
-
-  //                 var res = "您已发起咨询，医生暂未回复，请稍后！";
-  //                 for(var i = messages.length-1;i>=0;i--){
-  //                     if(messages[i].sender==doctor.doctorId.userId){
-  //                         res = messages[i].content;
-  //                     }
-  //                 }
-  //                 if(doctor.doctorId.photoUrl==""){
-  //                     doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
-  //                 }
-  //                 var consultTime = doctor.time.substr(0,10);
-                  
-  //                 var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
-  //                 items.push(item);
-
-  //             }
-  //             $scope.consults = items;
-
-  //         }else{
-  //             console.log('没有咨询记录');
-  //         }
-  //     },function(err){
-  //         console.log(err);
-
-  //     });
-// }])
 
 //消息中心--PXY
 .controller('messageCtrl', ['$scope','$state','$ionicHistory','Dict','Message','Storage',function($scope, $state,$ionicHistory,Dict,Message,Storage) {
