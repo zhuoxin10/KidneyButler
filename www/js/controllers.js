@@ -3242,7 +3242,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
+.controller('DoctorCtrl', ['Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function(Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -3511,22 +3511,63 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
 
-   
+   var RealDoctor = function(arr){
+        var result =[];
+        var hash ={};
+        for(var i =arr.length-1; i>=0; i--){
+            if(arr[i].invalidFlag==0){
+
+            }
+            var elem = arr[i].doctorId.userId;
+            if(!hash[elem]){
+                result.push(arr[i]);
+                hash[elem] = true;
+            }
+        }
+        return result;
+    }
 
 
   
   //获取我的主管医生信息，目前暂时为写死的医生ID
-  Doctor.getDoctorInfo({userId:"U201702070041"}).then(
-    function(data)
-    {
-      $scope.doctor = data.results
-      console.log($scope.doctor)
-    },
-    function(err)
-    {
-      console.log(err)
-    }
-  )
+
+  Patient.getMyDoctors({userId:Storage.get('UID')}).then(
+    function(data){
+        console.log(data.results.doctors);
+        if(data.results.doctors!=null&&data.results.doctors!=""){
+            var arr = data.results.doctors;
+             for(var i =arr.length-1; i>=0; i--){
+                if(arr[i].invalidFlag==0){
+                    $scope.hasDoctor = true;
+
+                    $scope.doctor = arr[i].doctorId;
+                    console.log($scope.doctor);
+                    break;
+                }
+            }
+        }else{
+            $scope.hasDoctor = false;
+            $ionicLoading.show({ 
+                template: '没有绑定的医生', duration: 1000 
+                });
+            }
+        
+
+    },function(err){
+        console.log(err);
+    })
+
+  // Doctor.getDoctorInfo({userId:"U201702070041"}).then(
+  //   function(data)
+  //   {
+  //     $scope.doctor = data.results
+  //     console.log($scope.doctor)
+  //   },
+  //   function(err)
+  //   {
+  //     console.log(err)
+  //   }
+  // )
   // Patient.getMyDoctors({userId:"p01"}).then(
   //     function(data)
   //     {
