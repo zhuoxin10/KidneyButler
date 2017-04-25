@@ -2186,7 +2186,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 //咨询记录--PXY
-.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory','$ionicPopover','Counsels',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory,$ionicPopover,Counsels) {
+.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory','$ionicPopover','Counsels','$ionicPopup',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory,$ionicPopover,Counsels,$ionicPopup) {
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -2254,6 +2254,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     });
     
     $scope.getConsultRecordDetail = function(ele,doctorId) {
+      var template="";
+      var counseltype=0;
+      var counselstatus='';
         if(ele.target.nodeName == "IMG"){
             $state.go("tab.DoctorDetail",{DoctorId:doctorId});
         }else{
@@ -2262,58 +2265,63 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             .then(function(data)
             {
                 console.log(data)
+                  counselstatus=data.result.status;
+                  counseltype=2;
+                 
                 // data.status=0
-                if(data.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                { 
+                 template="问诊已结束，您可以查看消息记录";
+                 }
+                else if(data.result.status==1)//还有未结束的，先让你进去看看
                 {
-                    //再看看有没有未结束的咨询
+                  template="您将继续上次的问诊，医生结束前您可以提无限次问题！"
+                }
+                  else{ 
                     Counsels.getStatus({doctorId:doctorId,patientId:Storage.get('UID'),type:1})
+                   // Counsels.getStatus({doctorId:'doc01',patientId:'p01',type:1})
                     .then(function(data)
                     {
                         console.log(data)
-                        var template=""
-                        if(data.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
+                        counseltype=1;
+                       counselstatus=data.result.status;
+                        if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
                         {
-                            template="您可以查看历消息，但是发送消可能需要您支付一定费用"
+                            template="您可以查看历史消息，但是发送消息可能需要您支付一定费用"
                         }
-                        else//还有未结束的，先让你进去看看
+                        else if(data.result.status==1)//还有未结束的，先让你进去看看
                         {
                             template="您将继续上次的咨询"
                         }
-                        var question = $ionicPopup.confirm({
-                            title:"问诊确认",
-                            template:template,
-                            okText:"确认",
-                            cancelText:"取消"
-                        });
-                        question.then(function(res){
-                            if(res){
-                                $state.go("tab.consult-chat");
-                            }
-                        })
+                    
                     },function(err)
                     {
                         console.log(err)
-                    })
-                }
-                else//还有未结束的，先让你进去看看
-                {
-                    var question = $ionicPopup.confirm({
+                    })}
+                    //再看看有没有未结束的咨询
+                                       
+            },function(err)
+            {
+                console.log(err)
+            })
+
+              setTimeout(function(){
+                var question = $ionicPopup.confirm({
                         title:"问诊确认",
-                        template:"您将继续上次的问诊，医生结束前您可以提无限次问题！",
+                        template:template,
                         okText:"确认",
                         cancelText:"取消"
                     });
                     question.then(function(res){
                         if(res){
-                            $state.go("tab.consult-chat");
+                            $state.go("tab.consult-chat",{chatId:doctorId,type:counseltype,status:counselstatus}); //虽然传了type和status但不打算使用 byZYH
                         }
 
                     })
-                }
-            },function(err)
-            {
-                console.log(err)
-            })
+              
+              },1000)
+              
+                
         }
     
     };
@@ -2323,7 +2331,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //聊天 XJZ 
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG) {
+.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage) {
     $scope.input = {
         text: ''
     }
@@ -2343,10 +2351,53 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             msgCount: 0,
             helpDivHeight: 60,
             hidePanel: true,
-            moreMsgs:true
+            moreMsgs:true,
+            counselcount:0,
+            counseltype:'',
+            needlisten:0
+
         }
         console.log($state.params.chatId);
         console.log($state.params.msgCount);
+         Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:2})
+            .then(function(data)
+            {
+                console.log(data)
+                if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                {   Storage.set('STATUSNOW',data.result.status);
+                  $scope.params.counseltype=2;
+                 }
+                else if(data.result.status==1)//还有未结束的，先让你进去看看
+                {  Storage.set('STATUSNOW',data.result.status);
+                  $scope.params.counseltype=2;
+                  }
+                  else{ 
+                    Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
+                    .then(function(data)
+                    {
+                        console.log(data)                       
+                        if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
+                        {
+                            $scope.params.counseltype=1;
+                        Storage.set('STATUSNOW',data.result.status);
+                        }
+                        else if(data.result.status==1)//还有未结束的，先让你进去看看
+                        {   $scope.params.counseltype=1;
+                       Storage.set('STATUSNOW',data.result.status);
+                        }
+                    
+                    },function(err)
+                    {
+                        console.log(err)
+                    })}
+                    //再看看有没有未结束的咨询
+                                       
+            },function(err)
+            {
+                console.log(err)
+            })
+       
+
         // if($state.params.type=='0') $scope.params.hidePanel=false;
         if (window.JMessage) {
             window.JMessage.enterSingleConversation($state.params.chatId, CONFIG.crossKey);
@@ -2358,6 +2409,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $rootScope.conversation.type = 'single';
         $rootScope.conversation.id = $state.params.chatId;
         imgModalInit();
+        
     })
     // function msgsRender(first,last){
     //     while(first!=last){
@@ -2446,6 +2498,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.$on('receiveMessage', function(event, msg) {
         if (msg.targetType == 'single' && msg.fromName == $state.params.chatId) {
             viewUpdate(5);
+            setTimeout(function(){
+                if($scope.params.counseltype==1 &&  Storage.get('STATUSNOW')==1){
+            Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
+                    .then(function(data)
+                    {
+                        console.log(data)
+                        Storage.set('STATUSNOW',data.result.status);                   
+                    },function(err)
+                    {
+                        console.log(err)
+                    })        
+          }else if($scope.params.counseltype==2 && Storage.get('STATUSNOW')==1){
+            Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:2})
+                    .then(function(data)
+                    {
+                        console.log(data)
+                       Storage.set('STATUSNOW',data.result.status);                 
+                    },function(err)
+                    {
+                        console.log(err)
+                    })
+          }
+            },5000);
+        
         }
     });
 
@@ -2561,15 +2637,32 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         alert('[send msg]:err');
         viewUpdate(10);
     }
+    function nomoney(){
+      var overwarn = $ionicPopup.confirm({
+                        title:"咨询结束",
+                        template:"咨询已结束",
+                        okText:"确认",
+                        cancelText:"取消"
+                    });
+                    overwarn.then(function(res){
+                        if(res){
+                           //患者知道已经结束了点击了确定
+                        }
+
+                    })
+    }
     $scope.submitMsg = function() {
+      if(Storage.get('STATUSNOW')==1){
+
             window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, CONFIG.crossKey,onSendSuccess, onSendErr);
             $scope.input.text = '';
             viewUpdate(5, true);
             // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-            
-        }
+      }else{nomoney();}      
+    }
         //get image
     $scope.getImage = function(type) {
+      if(Storage.get('STATUSNOW')==1){
             Camera.getPicture(type)
                 .then(function(url) {
                     console.log(url);
@@ -2581,9 +2674,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }, function(err) {
                     console.log(err)
                 })
-        }
+        }else{nomoney();}
+      }
         //get voice
     $scope.getVoice = function(){
+      if(Storage.get('STATUSNOW')==1){
         //voice.record() do 2 things: record --- file manipulation 
         voice.record()
         .then(function(fileUrl){
@@ -2598,7 +2693,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         },function(err){
             console.log(err);
         });
-
+      }else{nomoney();}
     }
     $scope.stopAndSend = function() {
         voice.stopRec();

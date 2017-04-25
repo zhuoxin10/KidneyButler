@@ -188,6 +188,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-chat', {
       url: '/consult/chat/:chatId',
+      params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
           cache:false,
