@@ -16,6 +16,7 @@ angular.module('kidney.directives', ['kidney.services'])
         restrict:'AE',
         controller:function($scope){
             var type='';
+            $scope.msg.direct = $scope.msg.fromName==Storage.get('UID')?'send':'receive';
             $scope.getTemplateUrl = function(){
                 if($scope.msg.contentType=='custom'){
                     // type=$scope.msg.content.contentStringMap.type;
@@ -34,7 +35,7 @@ angular.module('kidney.directives', ['kidney.services'])
                       // console.log(JSON.parse($scope.msg.content.contentStringMap));
                     }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
-                }
+                }else if()
                 $scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
@@ -44,7 +45,7 @@ angular.module('kidney.directives', ['kidney.services'])
             $scope.emitEvent = function(code){
               $scope.$emit(code,arguments);
             }
-            // $scope.direct = $scope.msg.fromID==window.JMessage.username?'right':'left';
+            
             
             // $scope.showProfile = function(){
             //     console.log($scope.msg.fromID);
