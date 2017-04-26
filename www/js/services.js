@@ -859,7 +859,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
             getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
             questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000},
-            getStatus:{method:'POST', params:{route: 'getStatus'}, timeout: 100000}
+            getStatus:{method:'GET', params:{route: 'getStatus'}, timeout: 100000}
 
         });
     };
