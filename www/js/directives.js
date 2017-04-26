@@ -35,8 +35,12 @@ angular.module('kidney.directives', ['kidney.services'])
                       // console.log(JSON.parse($scope.msg.content.contentStringMap));
                     }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
-                }else if()
-                $scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';
+
+                }
+
+                }
+                //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
+
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
                 return 'partials/tabs/consult/msg/'+type+'.html';
@@ -227,6 +231,27 @@ angular.module('kidney.directives', ['kidney.services'])
        }
    };
 })
+
+.directive('dateformat', ['$filter',function($filter) {  
+    var dateFilter = $filter('date');  
+    return {  
+        require: 'ngModel',  
+        link: function(scope, elm, attrs, ctrl) {  
+  
+            function formatter(value) {  
+                return dateFilter(value, 'yyyy-MM-dd'); //format  
+            }  
+  
+            function parser() {  
+                return ctrl.$modelValue;  
+            }  
+  
+            ctrl.$formatters.push(formatter);  
+            ctrl.$parsers.unshift(parser);  
+  
+        }  
+    };  
+}])
 
 // 写评论的五角星
 .directive('ionicRatings',ionicRatings)

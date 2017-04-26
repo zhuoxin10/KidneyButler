@@ -301,41 +301,47 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 // var phone = $stateParams.phoneNumber;
                 // console.log(phone);
                 //如果是注册
-                if(setPassState=='register'){
-                    //结果分为连接超时或者注册成功
-                    $rootScope.password=setPassword.newPass;
-                    Storage.set('PASSWORD',setPassword.newPass);
-                    $state.go('userdetail',{last:'register'});
-                    // var codePromise = User.register({phoneNo:phone,password:setPassword.newPass,role:"patient"});
-                    // codePromise.then(function(data){
-                    //     if(data.results==0){
-                    //         Storage.set('USERNAME',phone);
-                    //         $timeout(function(){$state.go('userdetail');} , 500);
-                    //     }else{
-                    //         $scope.logStatus = "该手机号码已经注册！";
-                    //     }
-                    // },function(){
-                    //     $scope.logStatus = "连接超时！";
-                    // })
-                }else if(setPassState == 'reset'){
-                //如果是重置密码
-                //结果分为连接超时或者修改成功
-                    var codePromise = User.changePassword({phoneNo:phone,password:setPassword.newPass});
-                    codePromise.then(function(data){
-                        if(data.results==0){
-                            Storage.set('USERNAME',phone);
-                            $scope.logStatus ="重置密码成功！";
-                            $timeout(function(){$state.go('signin');} , 500);
-                        }else{
-                            $scope.logStatus =  "该账户不存在！";
-                        }
-                        
-                    },function(){
-                        $scope.logStatus = "连接超时！";
-                    })
-                    
-          
+                 if(setPassword.newPass.length<6){  ///^(\d+\w+[*/+]*){6,12}$/   1.输入的密码必须有数字和字母同时组成，可含特殊字符，6-12位； 
+                    $scope.logStatus ="密码太短了！";
+
+                }else{
+                     if(setPassState=='register'){
+                      //结果分为连接超时或者注册成功
+                      $rootScope.password=setPassword.newPass;
+                      Storage.set('PASSWORD',setPassword.newPass);
+                      $state.go('userdetail',{last:'register'});
+                      // var codePromise = User.register({phoneNo:phone,password:setPassword.newPass,role:"patient"});
+                      // codePromise.then(function(data){
+                      //     if(data.results==0){
+                      //         Storage.set('USERNAME',phone);
+                      //         $timeout(function(){$state.go('userdetail');} , 500);
+                      //     }else{
+                      //         $scope.logStatus = "该手机号码已经注册！";
+                      //     }
+                      // },function(){
+                      //     $scope.logStatus = "连接超时！";
+                      // })
+                    }else if(setPassState == 'reset'){
+                  //如果是重置密码
+                  //结果分为连接超时或者修改成功
+                      var codePromise = User.changePassword({phoneNo:Storage.get('USERNAME'),password:setPassword.newPass});
+                      codePromise.then(function(data){
+                          if(data.results==0){
+                              Storage.set('USERNAME',phone);
+                              $scope.logStatus ="重置密码成功！";
+                              $timeout(function(){$state.go('signin');} , 500);
+                          }else{
+                              $scope.logStatus =  "该账户不存在！";
+                          }
+                          
+                      },function(){
+                          $scope.logStatus = "连接超时！";
+                      })
+                      
+            
+                  }
                 }
+               
             }else{
             $scope.logStatus="两次输入的密码不一致";
             }
@@ -347,7 +353,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //个人信息--PXY
-.controller('userdetailCtrl',['$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User',function($stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User){
+.controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User){
   $scope.barwidth="width:0%";
   //注册时可跳过个人信息
   // $scope.CanSkip = function(){
@@ -454,22 +460,22 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   $scope.User = 
   {
-    "userId": null,
-    "name": null,
-    "gender": null,
-    "bloodType": null,
-    "hypertension": null,
-    "class": null,
-    "class_info": null,
-    "height": null,
-    "weight": null,
-    "birthday": null,
-    "IDNo": null,
-    "allergic":null,
-    "operationTime":null,
-    "lastVisittime":null,
-    "lastVisithospital":null,
-    "lastVisitdiagnosis":null
+    // "userId": null,
+    // "name": null,
+    // "gender": null,
+    // "bloodType": null,
+    // "hypertension": null,
+    // "class": null,
+    // "class_info": null,
+    // "height": null,
+    // "weight": null,
+    // "birthday": null,
+    // "IDNo": null,
+    // "allergic":null,
+    // "operationTime":null,
+    // "lastVisit":{time:null,hospital:null,diagnosis:null},
+    // // "lastVisit.hospital":null,
+    // // "lastVisit.diagnosis":null
   }
 
 
@@ -484,22 +490,25 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if (data.results != null){
                     console.log('执行查询');
                     console.log(data.results);
-                    $scope.User.userId = data.results.userId
-                    $scope.User.name = data.results.name
-                    $scope.User.gender = data.results.gender
-                    $scope.User.bloodType = data.results.bloodType
-                    $scope.User.hypertension = data.results.hypertension
-                    $scope.User.class = data.results.class
-                    $scope.User.class_info = data.results.class_info
-                    $scope.User.height = data.results.height
-                    $scope.User.birthday = data.results.birthday
-                    $scope.User.IDNo = data.results.IDNo
-                    $scope.User.allergic = data.results.allergic||"无"
+                    $scope.User =data.results;
 
-                    $scope.User.operationTime = data.results.operationTime
-                    $scope.User.lastVisittime = data.results.lastVisittime
-                    $scope.User.lastVisithospital = data.results.lastVisithospital
-                    $scope.User.lastVisitdiagnosis = data.results.lastVisitdiagnosis
+                    // $scope.User.userId = data.results.userId
+                    // $scope.User.name = data.results.name
+                    // $scope.User.gender = data.results.gender
+                    // $scope.User.bloodType = data.results.bloodType
+                    // $scope.User.hypertension = data.results.hypertension
+                    // $scope.User.class = data.results.class
+                    // $scope.User.class_info = data.results.class_info
+                    // $scope.User.height = data.results.height
+                    // $scope.User.birthday = data.results.birthday
+                    // $scope.User.IDNo = data.results.IDNo
+                    // $scope.User.allergic = data.results.allergic||"无"
+
+                    // $scope.User.operationTime = data.results.operationTime
+                    // console.log($scope.User.lastVisit.time);
+                    // $scope.User.lastVisit= data.results.lastVisit
+                    // $scope.User.lastVisit.hospital = data.results.lastVisit.hospital
+                    // $scope.User.lastVisit.diagnosis = data.results.lastVisit.diagnosis
                 }
                 if ($scope.User.gender != null){
                     $scope.User.gender = searchObj($scope.User.gender,$scope.Genders)
@@ -510,19 +519,25 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if ($scope.User.hypertension != null){
                     $scope.User.hypertension = searchObj($scope.User.hypertension,$scope.Hypers)
                 }
-                if ($scope.User.birthday != null){
-                    $scope.User.birthday = $scope.User.birthday.substr(0,10)
-                }
-                if ($scope.User.operationTime != null){
-                    $scope.User.operationTime = $scope.User.operationTime.substr(0,10)
-                }
+                // if ($scope.User.birthday != null){
+                //     $scope.User.birthday = $scope.User.birthday.substr(0,10)
+                // }
+                // if ($scope.User.operationTime != null){
+                //     $scope.User.operationTime = $scope.User.operationTime.substr(0,10)
+                // }
+                // if ($scope.User.lastVisit.time != null){
+                //     $scope.User.lastVisit.time = $scope.User.lastVisit.time.substr(0,10);
+                // }
                 VitalSign.getVitalSigns({userId:Storage.get('UID'), type: "Weight"}).then(function(data){
-                    var n = data.results.length - 1
-                    var m = data.results[n].data.length - 1
-                    if(data.results[n].data[m]){
-                        $scope.User.weight = data.results[n].data[m].value
-                        // console.log($scope.BasicInfo)
+                    if(data.results){
+                        var n = data.results.length - 1
+                        var m = data.results[n].data.length - 1
+                        if(data.results[n].data[m]){
+                            $scope.User.weight = data.results[n].data[m] ? data.results[n].data[m].value:"";
+                            // console.log($scope.BasicInfo)
+                        }
                     }
+                    
                     
                 },function(err){
                         console.log(err);
@@ -608,7 +623,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.lastVisittime=yyyy+'-'+m+'-'+d;
+      $scope.User.lastVisit.time=yyyy+'-'+m+'-'+d;
     }
   };
   
@@ -629,7 +644,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       DiagnosisdatePickerCallback(val);
@@ -666,7 +681,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       OperationdatePickerCallback(val);
@@ -703,7 +718,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       BirthdatePickerCallback(val);
@@ -722,11 +737,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
      var MonthInterval = function(usertime){
-        console.log("usertime"+usertime);
-        //usertimie 类型是string
-        var transfer = new Date(Date.parse(usertime.replace(/-/g,  "/")));
-        console.log("transfer"+transfer);
-        interval = new Date().getTime() - transfer.getTime();
+        
+        interval = new Date().getTime() - Date.parse(usertime);
         return(Math.floor(interval/(24*3600*1000*30)));
     }
 
@@ -734,9 +746,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         var sortNo = 1;
         console.log(kidneyType);
         console.log(kidneyDetail);
-        if(kidneyTime){
-            kidneyTime = kidneyTime.substr(0,10);
-        }
+        // if(kidneyTime){
+        //     kidneyTime = kidneyTime.substr(0,10);
+        // }
         if(kidneyDetail){
             var kidneyDetail = kidneyDetail[0];
         }
@@ -805,7 +817,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     $scope.infoSetup = function(){
     //console.log(User.Name);
-     if ($scope.User.name!=undefined && $scope.User.name!=''){
+     if ($scope.User.name&&$scope.User.gender&&$scope.User.class&&$scope.User.bloodType&&$scope.User.hypertension&&$scope.User.allergic&&$scope.User.birthday&&$scope.User.IDNo){
             //如果必填信息不为空
             // console.log("不为空");
             var IDreg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
@@ -825,18 +837,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 duration:1000
                 });
             }
-            else if($scope.User.class.type == ""){
-                $ionicLoading.show({
-                template: '请选择疾病类型',
-                duration:1000
-                });
-            }
-            else if($scope.User.allergic == null){
-                $ionicLoading.show({
-                template: '请填写过敏信息',
-                duration:1000
-                });
-            }else{
+            else{
                 if (back == 'register'){
                     $scope.User.gender = $scope.User.gender.Type;
                     $scope.User.bloodType = $scope.User.bloodType.Type;
@@ -854,6 +855,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                             var patientId = data.userNo;
                             Storage.set('UID',patientId);
+                            //注册论坛
+
+                            $http({
+                                method  : 'POST',
+                                url     : 'http://121.43.107.106:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                                params    :{
+                                    'regsubmit':'yes',
+                                    'formhash':'',
+                                    'D2T9s9':Storage.get('USERNAME'),
+                                    'O9Wi2H':Storage.get('USERNAME'),
+                                    'hWhtcM':Storage.get('USERNAME'),
+                                    'qSMA7S':Storage.get('USERNAME')+'@qq.com'
+                                },  // pass in data as strings
+                                headers : {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'Accept':'application/xml, text/xml, */*'
+                                }  // set the headers so angular passing info as form data (not request payload)
+                            }).success(function(data) {
+                                // console.log(data);
+                            });
+
                             User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
                                 if(data.results!=null){
                                     $scope.User.userId = patientId;
@@ -930,31 +952,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $scope.User.class = $scope.User.class.type;
                     Patient.editPatientDetail($scope.User).then(function(data){
                         //保存成功
-                        console.log(data.results);
-                        var patientId = Storage.get('UID');
-                        var task = distinctTask(data.results.class,data.results.operationTime.substr(0,10),data.results.class_info[0]);
-                        Task.insertTask({userId:patientId,sortNo:task}).then(
-                        function(data){
-                            if(data.result=="插入成功"){
-                                var now = new Date()
-                                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
-                                VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
-                                    $scope.User.weight = data.results;
-                                    console.log($scope.User);
+                        if(data.result=="修改成功"){
+                            console.log(data.results);
+                            var patientId = Storage.get('UID');
+                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
+                            Task.insertTask({userId:patientId,sortNo:task}).then(
+                            function(data){
+                                if(data.result=="插入成功"){
+                                    var now = new Date()
+                                    now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+                                    VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
+                                        $scope.User.weight = data.results;
+                                        console.log($scope.User);
+                                        
+                                        $scope.canEdit = false;
+                                        initialPatient();
+                                        
+                                        
+                                        // $state.go("tab.mine");
+                                    },function(err){
+                                        console.log(err);
+                                    });
                                     
-                                    $scope.canEdit = false;
-                                    initialPatient();
-                                    
-                                    
-                                    // $state.go("tab.mine");
-                                },function(err){
-                                    console.log(err);
-                                });
-                                
-                            }
-                        },function(err){
-                            console.log("err" + err);
-                        });
+                                }
+                            },function(err){
+                                console.log("err" + err);
+                            });
+                        }
+                        
                     },function(err){
                         console.log(err);
                     });
@@ -963,7 +988,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
         }else{
             $ionicLoading.show({
-                template: '信息填写不完整,请完善必填信息',
+                template: '信息填写不完整,请完善必填信息(红色*)',
                 duration:1000
             });
         }
@@ -979,7 +1004,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.GoToMessage = function(){
     $state.go('messages');
   }
-  
+  $scope.gotomine=function(){
+    $state.go('tab.mine');
+  }
+  $scope.gotomyDoctors=function(){
+    $state.go('tab.myDoctors')
+  }
 }])
 
 
@@ -1570,16 +1600,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     //获取二维码信息
   $scope.scanbarcode = function () {
+    console.log(Storage.get("UID"))
     $cordovaBarcodeScanner.scan().then(function(imageData) {
         // alert(imageData.text);
-        Patient.bindingMyDoctor({"patientId":imageData.text,"doctorId":'doc01'}).then(function(res){
-          //
-          alert(imageData.text);
-          alert(res.result);
+        Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
+          if(res.result=="修改成功"){
+            $ionicPopup.alert({
+             title: '绑定成功！'
+            }).then(function(res) {
+              $state.go('tab.myDoctors');
+            });
+          }else if(res.result=="不存在的医生ID！"){
+            $ionicPopup.alert({
+             title: '不存在的医生ID！'
+            })
+          }
        },function(){                    
        })
-        console.log("Barcode Format -> " + imageData.format);
-        console.log("Cancelled -> " + imageData.cancelled);
     }, function(error) {
         console.log("An error happened -> " + error);
     });
@@ -2038,12 +2075,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   $scope.myAvatar = ""
   //根据用户ID查询用户头像
-  var Picturepath=Storage.get("myAvatarpath")
-  if(Picturepath==""||Picturepath==null){
-    $scope.myAvatar="img/DefaultAvatar.jpg"
-  }else{
-    $scope.myAvatar=Picturepath;
-  }
+  Patient.getPatientDetail({userId:Storage.get("UID")}).then(function(res){
+    console.log(Storage.get("UID"))
+    // console.log(res.results)
+    console.log(res.results.photoUrl)
+    // console.log(angular.fromJson(res.results))
+    if(res.results.photoUrl==undefined||res.results.photoUrl==""){
+      $scope.myAvatar="img/DefaultAvatar.jpg"
+    }else{
+      $scope.myAvatar=res.results.photoUrl;
+    }
+  })
+  // var Picturepath=Storage.get("myAvatarpath")
+  // if(Picturepath==""||Picturepath==null){
+  //   $scope.myAvatar="img/DefaultAvatar.jpg"
+  // }else{
+  //   $scope.myAvatar=Picturepath;
+  // }
  
   // 上传头像的点击事件----------------------------
   $scope.onClickCamera = function($event){
@@ -2072,7 +2120,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       $scope.myAvatar="http://121.43.107.106:8052/"+String(data.path_resized)+'?'+new Date().getTime();
       console.log($scope.myAvatar)
       // $state.reload("tab.mine")
-      Storage.set('myAvatarpath',$scope.myAvatar);
+      // Storage.set('myAvatarpath',$scope.myAvatar);
+      Patient.editPatientDetail({userId:Storage.get("UID"),photoUrl:$scope.myAvatar}).then(function(r){
+        console.log(r);
+      })
     },function(err){
       console.log(err);
       reject(err);
@@ -2145,7 +2196,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 //咨询记录--PXY
-.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory','$ionicPopover','Counsels',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory,$ionicPopover,Counsels) {
+
+.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory','$ionicPopover','Counsels','$ionicPopup',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory,$ionicPopover,Counsels,$ionicPopup) {
+
   $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
@@ -2153,8 +2206,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   //根据患者ID查询其咨询记录,对response的长度加一定限制
 
-    // var patientID = Storage.get('UID');
-    var patientID = 'p01';
+    var patientID = Storage.get('UID');
+    console.log(patientID)
+    // var patientID = 'p01';
 
 
     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
@@ -2179,6 +2233,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
             items = new Array();
+            console.log(FilteredDoctors)
             for(x in FilteredDoctors){
                 var doctor = FilteredDoctors[x];
                 console.log(doctor);
@@ -2196,7 +2251,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(doctor.doctorId.photoUrl==""){
                     doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
                 }
-                var consultTime = doctor.time.substr(0,10);
+                var consultTime = doctor.time;
                 
                 var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
                 items.push(item);
@@ -2213,6 +2268,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     });
     
     $scope.getConsultRecordDetail = function(ele,doctorId) {
+      var template="";
+      var counseltype=0;
+      var counselstatus='';
         if(ele.target.nodeName == "IMG"){
             $state.go("tab.DoctorDetail",{DoctorId:doctorId});
         }else{
@@ -2221,58 +2279,65 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             .then(function(data)
             {
                 console.log(data)
+                  counselstatus=data.result.status;
+                  counseltype=2;
+                 
                 // data.status=0
-                if(data.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                { 
+                 template="问诊已结束，您可以查看消息记录";
+                 }
+                else if(data.result.status==1)//还有未结束的，先让你进去看看
                 {
-                    //再看看有没有未结束的咨询
+                  template="您将继续上次的问诊，医生结束前您可以提无限次问题！"
+                }
+                  else{ 
                     Counsels.getStatus({doctorId:doctorId,patientId:Storage.get('UID'),type:1})
+                   // Counsels.getStatus({doctorId:'doc01',patientId:'p01',type:1})
                     .then(function(data)
                     {
                         console.log(data)
-                        var template=""
-                        if(data.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
+                        counseltype=1;
+                       counselstatus=data.result.status;
+                        if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
                         {
-                            template="您可以查看历消息，但是发送消可能需要您支付一定费用"
+                           template="您可以查看历史消息，但是发送消息可能需要您支付一定费用"
+
+
                         }
-                        else//还有未结束的，先让你进去看看
+                        else if(data.result.status==1)//还有未结束的，先让你进去看看
                         {
                             template="您将继续上次的咨询"
                         }
-                        var question = $ionicPopup.confirm({
-                            title:"问诊确认",
-                            template:template,
-                            okText:"确认",
-                            cancelText:"取消"
-                        });
-                        question.then(function(res){
-                            if(res){
-                                $state.go("tab.consult-chat");
-                            }
-                        })
+                    
                     },function(err)
                     {
                         console.log(err)
-                    })
-                }
-                else//还有未结束的，先让你进去看看
-                {
-                    var question = $ionicPopup.confirm({
+                    })}
+                    //再看看有没有未结束的咨询
+                                       
+            },function(err)
+            {
+                console.log(err)
+            })
+
+              setTimeout(function(){
+                var question = $ionicPopup.confirm({
                         title:"问诊确认",
-                        template:"您将继续上次的问诊，医生结束前您可以提无限次问题！",
+                        template:template,
                         okText:"确认",
                         cancelText:"取消"
                     });
                     question.then(function(res){
                         if(res){
-                            $state.go("tab.consult-chat");
+                            $state.go("tab.consult-chat",{chatId:doctorId,type:counseltype,status:counselstatus}); //虽然传了type和status但不打算使用 byZYH
                         }
 
                     })
-                }
-            },function(err)
-            {
-                console.log(err)
-            })
+              
+              },1000)
+              
+                
         }
     
     };
@@ -2282,7 +2347,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //聊天 XJZ 
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG) {
+.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage) {
     $scope.input = {
         text: ''
     }
@@ -2302,10 +2367,53 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             msgCount: 0,
             helpDivHeight: 60,
             hidePanel: true,
-            moreMsgs:true
+            moreMsgs:true,
+            counselcount:0,
+            counseltype:'',
+            needlisten:0
+
         }
         console.log($state.params.chatId);
         console.log($state.params.msgCount);
+         Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:2})
+            .then(function(data)
+            {
+                console.log(data)
+                if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                {   Storage.set('STATUSNOW',data.result.status);
+                  $scope.params.counseltype=2;
+                 }
+                else if(data.result.status==1)//还有未结束的，先让你进去看看
+                {  Storage.set('STATUSNOW',data.result.status);
+                  $scope.params.counseltype=2;
+                  }
+                  else{ 
+                    Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
+                    .then(function(data)
+                    {
+                        console.log(data)                       
+                        if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
+                        {
+                            $scope.params.counseltype=1;
+                        Storage.set('STATUSNOW',data.result.status);
+                        }
+                        else if(data.result.status==1)//还有未结束的，先让你进去看看
+                        {   $scope.params.counseltype=1;
+                       Storage.set('STATUSNOW',data.result.status);
+                        }
+                    
+                    },function(err)
+                    {
+                        console.log(err)
+                    })}
+                    //再看看有没有未结束的咨询
+                                       
+            },function(err)
+            {
+                console.log(err)
+            })
+       
+
         // if($state.params.type=='0') $scope.params.hidePanel=false;
         if (window.JMessage) {
             window.JMessage.enterSingleConversation($state.params.chatId, CONFIG.crossKey);
@@ -2317,6 +2425,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $rootScope.conversation.type = 'single';
         $rootScope.conversation.id = $state.params.chatId;
         imgModalInit();
+        
     })
     // function msgsRender(first,last){
     //     while(first!=last){
@@ -2405,6 +2514,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.$on('receiveMessage', function(event, msg) {
         if (msg.targetType == 'single' && msg.fromName == $state.params.chatId) {
             viewUpdate(5);
+            setTimeout(function(){
+                if($scope.params.counseltype==1 &&  Storage.get('STATUSNOW')==1){
+            Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
+                    .then(function(data)
+                    {
+                        console.log(data)
+                        Storage.set('STATUSNOW',data.result.status);                   
+                    },function(err)
+                    {
+                        console.log(err)
+                    })        
+          }else if($scope.params.counseltype==2 && Storage.get('STATUSNOW')==1){
+            Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:2})
+                    .then(function(data)
+                    {
+                        console.log(data)
+                       Storage.set('STATUSNOW',data.result.status);                 
+                    },function(err)
+                    {
+                        console.log(err)
+                    })
+          }
+            },5000);
+        
         }
     });
 
@@ -2520,15 +2653,32 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         alert('[send msg]:err');
         viewUpdate(10);
     }
+    function nomoney(){
+      var overwarn = $ionicPopup.confirm({
+                        title:"咨询结束",
+                        template:"咨询已结束",
+                        okText:"确认",
+                        cancelText:"取消"
+                    });
+                    overwarn.then(function(res){
+                        if(res){
+                           //患者知道已经结束了点击了确定
+                        }
+
+                    })
+    }
     $scope.submitMsg = function() {
+      if(Storage.get('STATUSNOW')==1){
+
             window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, CONFIG.crossKey,onSendSuccess, onSendErr);
             $scope.input.text = '';
             viewUpdate(5, true);
             // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-            
-        }
+      }else{nomoney();}      
+    }
         //get image
     $scope.getImage = function(type) {
+      if(Storage.get('STATUSNOW')==1){
             Camera.getPicture(type)
                 .then(function(url) {
                     console.log(url);
@@ -2540,9 +2690,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }, function(err) {
                     console.log(err)
                 })
-        }
+        }else{nomoney();}
+      }
         //get voice
     $scope.getVoice = function(){
+      if(Storage.get('STATUSNOW')==1){
         //voice.record() do 2 things: record --- file manipulation 
         voice.record()
         .then(function(fileUrl){
@@ -2557,7 +2709,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         },function(err){
             console.log(err);
         });
-
+      }else{nomoney();}
     }
     $scope.stopAndSend = function() {
         voice.stopRec();
@@ -2598,6 +2750,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('HealthInfoCtrl', ['$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
   $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
+
   $scope.Goback = function(){
     $state.go('tab.mine')
   }
@@ -2622,7 +2775,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.items = data.results
         for (var i = 0; i < $scope.items.length; i++){
           $scope.items[i].acture = $scope.items[i].insertTime
-          $scope.items[i].time = $scope.items[i].time.substr(0,10)
+          // $scope.items[i].time = $scope.items[i].time.substr(0,10)
           // if ($scope.items[i].url != ""&&$scope.items[i].url!=null)
           // {
           //   $scope.items[i].url = [$scope.items[i].url]
@@ -2635,64 +2788,73 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       console.log(err);
     }
   )
-  $scope.DeleteHealth = function(item){
-    //console.log(number);
-     //  confirm 对话框
-    
-    var confirmPopup = $ionicPopup.confirm({
+
+
+  $scope.gotoHealthDetail=function(ele,editId){
+    console.log(ele)
+    console.log(ele.target)
+    if(ele.target.nodeName=="I"){
+      var confirmPopup = $ionicPopup.confirm({
       title: '删除提示',
       template: '记录删除后将无法恢复，确认删除？',
       cancelText:'取消',
       okText:'删除'
-    });
-    confirmPopup.then(function(res) {
-      if(res) 
-        {
-          Health.deleteHealth({userId:patientId,insertTime:item.acture}).then(
-            function(data)
-            {
-              if (data.results == 0)
+      });
+
+      confirmPopup.then(function(res) {
+        if(res) 
+          {
+            Health.deleteHealth({userId:patientId,insertTime:editId.acture}).then(
+              function(data)
               {
-                for (var i = 0; i < $scope.items.length; i++){
-                  if (item.acture == $scope.items[i].acture)
-                  {
-                    $scope.items.splice(i,1)
-                    break;
+                if (data.results == 0)
+                {
+                  for (var i = 0; i < $scope.items.length; i++){
+                    if (editId.acture == $scope.items[i].acture)
+                    {
+                      $scope.items.splice(i,1)
+                      break;
+                    }
                   }
                 }
+                
+                console.log($scope.items)
+              },
+              function(err)
+              {
+                console.log(err);
               }
-              
-              console.log($scope.items)
-            },
-            function(err)
-            {
-              console.log(err);
+            )
+            //20140421 zxf
+            var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
+            for(var i=0;i<healthinfotimes.length;i++){
+              if(healthinfotimes[i].time==editId.acture){
+                healthinfotimes.splice(i, 1)
+                break;
+              }
             }
-          )
-          //20140421 zxf
-          var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
-          for(var i=0;i<healthinfotimes.length;i++){
-            if(healthinfotimes[i].time==item.acture){
-              healthinfotimes.splice(i, 1)
-              break;
-            }
-          }
-          Storage.set('consulthealthinfo',angular.toJson(healthinfotimes))
-          // HealthInfo.remove(number);
-          // $scope.items = HealthInfo.getall();
-        } 
-      });
+            Storage.set('consulthealthinfo',angular.toJson(healthinfotimes))
+            // HealthInfo.remove(number);
+            // $scope.items = HealthInfo.getall();
+          } 
+        });
+    }else{
+      $state.go('tab.myHealthInfoDetail',{id:editId});
+    }
+    
   }
+
 
   $scope.newHealth = function(){
     $state.go('tab.myHealthInfoDetail',{id:null});
+
   }
 
-  $scope.EditHealth = function(editId){
-    console.log("健康信息");
-    console.log(editId);
-    $state.go('tab.myHealthInfoDetail',{id:editId});
-  }
+  // $scope.EditHealth = function(editId){
+  //   console.log("健康信息");
+  //   console.log(editId);
+  //   $state.go('tab.myHealthInfoDetail',{id:editId});
+  // }
 
 
   
@@ -2703,18 +2865,38 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera) {
   $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
+
+  
+
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+        if($scope.canEdit==true){
+            $scope.canEdit = false;
+        }else{
+            if($ionicHistory.backTitle()==null){
+                $state.go('tab.myHealthInfo');
+            }else{
+                $ionicHistory.goBack();
+            }
+            console.log(123);
+            console.log($ionicHistory.backTitle());
+            
+        }
+        
+    }
+
+    $scope.edit = function(){
+        $scope.canEdit = true;
+        $scope.healthinfoimgurl = '';
+        $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+          }).then(function(modal) {
+            $scope.modal = modal;
+          });
   }
-  $scope.$on('$ionicView.enter', function() {
-    $scope.healthinfoimgurl = '';
-    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-      }).then(function(modal) {
-        $scope.modal = modal;
-      });
-  })
+  // $scope.$on('$ionicView.enter', function() {
+    
+  // })
 
     //从字典中搜索选中的对象。
   var searchObj = function(code,array){
@@ -2740,6 +2922,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //判断是修改还是新增
       if($stateParams.id!=null && $stateParams!=""){
         //修改
+        $scope.canEdit = false;
         var info = $stateParams.id;
         console.log(info)
         Health.getHealthDetail({userId:patientId,insertTime:info.acture}).then(
@@ -2750,7 +2933,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               $scope.health.label = data.results.label
               if ($scope.health.label != null && $scope.health.label != "")
               {
-                $scope.health.label = searchObj($scope.health.label,$scope.labels)
+                $scope.health.label = searchObj($scope.health.label,$scope.labels);
+                console.log( $scope.health.label);
               }
               $scope.health.date = data.results.time
               $scope.health.text = data.results.description
@@ -2768,6 +2952,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             console.log(err);
           }
         )
+      }else{
+        $scope.canEdit = true;
       }
       console.log($scope.labels);
     },
@@ -2809,7 +2995,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               function(data)
               {
                 console.log(data.results);
-                console.log(data.results.insertTime)
+                console.log(data.results.insertTime);
+                $scope.canEdit= false;
                 var healthinfoToconsult=[]
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null&&$ionicHistory.backView().stateName=='tab.consultquestion2'){
@@ -2837,8 +3024,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             Health.modifyHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:"",insertTime:$stateParams.id.insertTime}).then(
               function(data)
               {
-                console.log(data.results);
-                $ionicHistory.goBack()
+                console.log(data.data);
+                $scope.canEdit= false;
+                // $ionicHistory.goBack()
               },
               function(err)
               {
@@ -2890,7 +3078,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       datePickerCallback(val);
@@ -2925,7 +3113,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // ionicPopover functions 弹出框的预定义
         //--------------------------------------------
         // .fromTemplateUrl() method
-  $ionicPopover.fromTemplateUrl('my-popover.html', {
+  $ionicPopover.fromTemplateUrl('my-popover1.html', {
     scope: $scope,
     animation: 'slide-in-up'
   }).then(function(popover) {
@@ -3070,146 +3258,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-// //消息中心--PXY
-  // .controller('messageCtrl', ['Message','Patient','Storage','$scope','$state','$ionicHistory', function(Message,Patient,Storage,$scope, $state,$ionicHistory) {
-  //     $scope.barwidth="width:0%";
-  //     $scope.haveMessage="";
 
-  //     $scope.Goback = function(){
-  //         $ionicHistory.goBack();
-  //     } 
-
-  //     $scope.getMessageDetail = function(type){
-  //         $state.go('messagesDetail',{messageType:type});
-  //     }
-
-  //     $scope.getConsultRecordDetail = function(ele,doctorId) {
-  //         if(ele.target.nodeName == "IMG"){
-  //         $state.go("tab.DoctorDetail",{DoctorId:doctorId});
-  //         }else{
-  //         $state.go("tab.consult-chat");
-  //         }
-      
-  //     };
-
-
-  //   //只取每种类型消息的最新一条，由于原本顺序为降序排列，所以只要滤去重复的消息类型就好了
-  //     var FilterType = function(arr){
-  //         var result =[];
-  //         var hash ={};
-  //         for(var i =arr.length-1; i>=0; i--){
-  //             var elem = arr[i].type;
-  //             if(!hash[elem]){
-  //                 result.push(arr[i]);
-  //                 hash[elem] = true;
-  //             }
-  //         }
-  //         return result;
-  //     }
-  //     // var user = "U201704120001";
-  //     var user = Storage.get('UID');
-  //     var messPromise = Message.getMessages({userId:user,type:""});
-  //     messPromise.then(function(data){
-  //         // console.log(data);
-  //         if(data.results!=""){
-  //             var filtered = FilterType(data.results);
-
-
-  //             // console.log("filtered:"+filtered);
-  //             var messages = new Array();
-  //             for(x in filtered){
-  //                 var photo = "",title = "";
-  //                 switch(filtered[x].type){
-  //                     case 1:
-  //                         photo = "img/pay.PNG";
-  //                         title = "支付消息";
-  //                         break;
-  //                     case 2:
-  //                         photo = "img/alert.PNG";
-  //                         title =  "警报消息";
-  //                         break;
-  //                     case 3:
-  //                         photo = "img/task.PNG";
-  //                         title = "任务消息";
-  //                         break;
-
-  //                 }
-  //                 var item = {img:photo,name:title,type:filtered[x].type,time:filtered[x].time.substr(0,10),response:filtered[x].description};
-  //                 messages.push(item);
-
-  //             }
-  //             $scope.messages = messages;
-  //         }else{
-  //             // $scope.messages = "您暂时没有收到消息！";
-  //         }
-          
-
-
-
-  //     },function(err){
-  //         console.log(err)
-  //     });
-  //   //根据患者ID查询其咨询记录,对response的长度加一定限制
-
-  //     var patientID = Storage.get('UID');
-  //     // var patientID = 'p01';
-
-
-  //     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
-  //     var FilterDoctor = function(arr){
-  //         var result =[];
-  //         var hash ={};
-  //         for(var i =arr.length-1; i>=0; i--){
-  //             var elem = arr[i].doctorId.userId;
-  //             if(!hash[elem]){
-  //                 result.push(arr[i]);
-  //                 hash[elem] = true;
-  //             }
-  //         }
-  //         return result;
-  //     }
-  //     var promise = Patient.getCounselRecords({userId:patientID});
-  //     promise.then(function(data){
-  //         if(data.results!=""){
-
-  //             FilteredDoctors = FilterDoctor(data.results);
-  //             // console.log(FilteredDoctors);
-
-
-  //             items = new Array();
-  //             for(x in FilteredDoctors){
-  //                 var doctor = FilteredDoctors[x];
-  //                 // console.log(doctor);
-
-  //                 var messages = doctor.messages;
-  //                 // console.log("messages:" + messages);
-
-
-  //                 var res = "您已发起咨询，医生暂未回复，请稍后！";
-  //                 for(var i = messages.length-1;i>=0;i--){
-  //                     if(messages[i].sender==doctor.doctorId.userId){
-  //                         res = messages[i].content;
-  //                     }
-  //                 }
-  //                 if(doctor.doctorId.photoUrl==""){
-  //                     doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
-  //                 }
-  //                 var consultTime = doctor.time.substr(0,10);
-                  
-  //                 var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
-  //                 items.push(item);
-
-  //             }
-  //             $scope.consults = items;
-
-  //         }else{
-  //             console.log('没有咨询记录');
-  //         }
-  //     },function(err){
-  //         console.log(err);
-
-  //     });
-// }])
 
 //消息中心--PXY
 .controller('messageCtrl', ['$scope','$state','$ionicHistory','Dict','Message','Storage',function($scope, $state,$ionicHistory,Dict,Message,Storage) {
@@ -3226,7 +3275,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             messages[value.inputCode]={name:value.name,code:value.code,values:[]};
         })
         // console.log(messages)
-        Message.getMessages({userId:'U201704120001',type:""})//Storage.get('UID')
+        Message.getMessages({userId:Storage.get('UID'),type:""})//Storage.get('UID')
         .then(function(data)
         {
             // console.log(data)
@@ -3297,203 +3346,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   
 }])
-// //消息类型--PXY
-// .controller('VaryMessageCtrl', ['Message','Storage','$scope','$state','$ionicHistory','$stateParams',function(Message,Storage,$scope, $state,$ionicHistory,$stateParams) {
-//     $scope.barwidth="width:0%";
 
-//     var user = "U201704120001";
-//     //var user = storage.get('UID');
-//     var typedmess = Message.getMessages({userId:"U201704120001",type:$stateParams.messageType});
-//     typedmess.then(function(data){
-//         if(data.results!=""){
-//             // console.log(data.results);
-
-//             var letter = new Array();
-//             for(x in data.results){
-//                 var item = {time:data.results[x].time.substr(0,10),title:data.results[x].title,response:data.results[x].description};
-//                 letter.push(item);
-//             }
-//             $scope.messages = letter;
-//         }
-//     },function(err){
-//         console.log(err);
-//     })
-
-
-
-//     switch($stateParams.messageType){
-//         case 1:
-//         $scope.title = '支付消息';
-
-//     // $scope.messages = [
-//     // {
-//     //     img:"img/pay.PNG",
-//     //     time:"2017/04/01",
-//     //     response:"恭喜你！成功充值50元，交易账号为0093842345."
-//     // },
-//     // {
-//     //     img:"img/moneyout.PNG",
-//     //     time:"2017/03/02",
-//     //     response:"咨询支出20元，账户余额为10元，交易账号为0045252623."
-//     // },
-//     // {
-//     //     img:"img/moneyout.PNG",
-//     //     time:"2017/02/12",
-//     //     response:"咨询支出20元，账户余额为30元，交易账号为004525212."
-//     // },
-//     // {
-//     //     img:"img/pay.PNG",
-//     //     time:"2017/02/02",
-//     //     response:"恭喜你！成功充值50元，交易账号为0093840202."
-//     // },
-//     // {
-//     //     img:"img/moneyout.PNG",
-//     //     time:"2017/02/02",
-//     //     response:"咨询支出10元，账户余额为0元，交易账号为0045250202."
-//     // },
-//     // {
-//     //     img:"img/moneyout.PNG",
-//     //     time:"2017/01/02",
-//     //     response:"咨询支出10元，账户余额为10元，交易账号为0045250102."
-//     // },
-//     // {
-//     //     img:"img/pay.PNG",
-//     //     time:"2016/03/02",
-//     //     response:"恭喜你！成功充值20元，交易账号为0093842356."
-//     // },
-//     // {
-//     //     img:"img/pay.PNG",
-//     //     time:"2016/01/02",
-//     //     response:"恭喜你！成功充值20元，交易账号为009320163425."
-//     // },
-//     // {
-//     //     img:"img/pay.PNG",
-//     //     time:"2016/01/01",
-//     //     response:"恭喜你！成功充值20元，交易账号为00325262423"
-//     // }];
-//         break;
-//         case 3:
-//         $scope.title = '任务消息';
-//     // $scope.messages =[
-  
-//     // {
-//     //     img:"img/bloodpressure.PNG",
-//     //     time:"2017/03/21",
-//     //     response:"今天还没有测量血压，请及时完成！"
-
-//     // },
-//     // {
-//     //     img:"img/exercise.PNG",
-//     //     time:"2017/03/11",
-//     //     response:"今天建议运动半小时，建议以散步或慢跑的形式！"
-
-//     // },
-//     // {
-//     //     img:"img/heartRoute.PNG",
-//     //     time:"2017/02/10",
-//     //     response:"今天还没有测量血管通路，请及时完成！"
-
-//     // },
-//     // {
-//     //     img:"img/heartbeat.PNG",
-//     //     time:"2017/01/11",
-//     //     response:"今天还没有记录心率，请及时完成！"
-
-//     // },
-//     // {
-//     //     img:"img/heartbeat.PNG",
-//     //     time:"2017/01/01",
-//     //     response:"今天还没有记录心率，请及时完成！"
-
-//     // },
-//     // {
-//     //     img:"img/heartbeat.PNG",
-//     //     time:"2016/10/01",
-//     //     response:"今天还没有记录心率，请及时完成！"
-
-//     // },
-//     // {
-//     //     img:"img/urine.PNG",
-//     //     time:"2016/10/01",
-//     //     response:"今天还没有记录尿量，请及时完成！"
-//     // },
-//     // {
-//     //     img:"img/temperature.PNG",
-//     //     time:"2016/10/01",
-//     //     response:"今天还没有记录体温，请及时完成！"
-//     // },
-//     // {
-//     //     img:"img/pounds.PNG",
-//     //     time:"2016/10/01",
-//     //     response:"今天还没有记录体重，请及时完成！"
-//     // }
-
-//     // ];
-//         break;
-//         case 2:
-//         $scope.title = '警报消息';
-//     // $scope.messages =[
-  
-//     // {
-//     //     img:"img/bloodpressure.PNG",
-//     //     time:"2017/03/11",
-//     //     response:"你的血压值已超出控制范围！"
-
-//     // },
-//     // {
-//     //     img:"img/bloodpressure.PNG",
-//     //     time:"2017/03/07",
-//     //     response:"你的血压值已超出控制范围！"
-
-//     // },
-//     // {
-//     //     img:"img/pounds.PNG",
-//     //     time:"2017/02/07",
-//     //     response:"你的体重值已超出控制范围！"
-
-//     // },
-//     // {
-//     //     img:"img/temperature.PNG",
-//     //     time:"2017/01/07",
-//     //     response:"你的体温值已超出控制范围！"
-
-//     // },
-//     // {
-//     //     img:"img/temperature.PNG",
-//     //     time:"2016/11/07",
-//     //     response:"你的体温值已超出控制范围！"
-
-//     // },
-//     // {
-//     //     img:"img/exercise.PNG",
-//     //     time:"2016/10/07",
-//     //     response:"你已经超过一周没进行运动！"
-
-//     // },
-//     // {
-//     //     img:"img/heartbeat.PNG",
-//     //     time:"2016/05/07",
-//     //     response:"你的心率不太正常，建议及时就医！"
-
-//     // },
-//     // {
-//     //     img:"img/pounds.PNG",
-//     //     time:"2016/02/07",
-//     //     response:"你的体重值已超出控制范围！"
-
-//     // }
-
-//     // ];
-//         break;
-
-//     }
-
-//     $scope.Goback = function(){
-//         $ionicHistory.goBack();
-//     }
-
-  
-// }])
   
   
   
@@ -3501,7 +3354,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function($ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
+.controller('DoctorCtrl', ['Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor',function(Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor) {
   $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -3746,7 +3599,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id});
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
             }
 
         })
@@ -3760,7 +3613,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id});
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
             }
 
         })
@@ -3770,22 +3623,62 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
 
-   
+   var RealDoctor = function(arr){
+        var result =[];
+        var hash ={};
+        for(var i =arr.length-1; i>=0; i--){
+            if(arr[i].invalidFlag==0){
+
+            }
+            var elem = arr[i].doctorId.userId;
+            if(!hash[elem]){
+                result.push(arr[i]);
+                hash[elem] = true;
+            }
+        }
+        return result;
+    }
 
 
   
-  //获取我的主管医生信息，目前暂时为写死的医生ID
-  Doctor.getDoctorInfo({userId:"U201702070041"}).then(
-    function(data)
-    {
-      $scope.doctor = data.results
-      console.log($scope.doctor)
-    },
-    function(err)
-    {
-      console.log(err)
-    }
-  )
+  //获取我的主管医生信息
+
+  Patient.getMyDoctors({userId:Storage.get('UID')}).then(
+    function(data){
+
+
+        console.log(data.results.doctorId);
+        if(data.results.doctorId==undefined){
+          console.log(111)
+          $scope.hasDoctor = false;
+          if($ionicHistory.currentView().stateName=='tab.myDoctors'){
+            $ionicLoading.show({ 
+              template: '没有绑定的医生', duration: 1000 
+          });
+          }
+          
+        }
+        else{
+          $scope.hasDoctor = true;
+          $scope.doctor = data.results.doctorId;
+        }
+        
+
+    },function(err){
+        console.log(err);
+    })
+
+  // Doctor.getDoctorInfo({userId:"U201702070041"}).then(
+  //   function(data)
+  //   {
+  //     $scope.doctor = data.results
+  //     console.log($scope.doctor)
+  //   },
+  //   function(err)
+  //   {
+  //     console.log(err)
+  //   }
+  // )
   // Patient.getMyDoctors({userId:"p01"}).then(
   //     function(data)
   //     {
@@ -3839,7 +3732,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
             }
 
         });
@@ -3854,7 +3747,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         question.then(function(res){
             if(res){
-                $state.go("tab.consultquestion1");
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
             }
 
         });
@@ -3874,7 +3767,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //修改密码--PXY
-.controller('changePasswordCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','User', function($scope, $timeout,$state,Storage,$ionicHistory,User) {
+.controller('changePasswordCtrl', ['$scope','$timeout','$state','$ionicPopup','Storage','$ionicHistory','User', function($scope, $timeout,$state,$ionicPopup,Storage,$ionicHistory,User) {
    
   $scope.Goback = function(){
     $ionicHistory.goBack();
@@ -3928,19 +3821,28 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.logStatus2='';
     if((change.newPassword!="") && (change.confirmPassword!="")){
       if(change.newPassword == change.confirmPassword){
-        User.changePassword({phoneNo:Storage.get('USERNAME'),password:change.newPassword})
-        .then(function(succ)
-        {
-          console.log(succ)
-          if(succ.mesg=="password reset success!")
-          {
-            $scope.logStatus2 ="修改密码成功！";
-            $state.go('tab.mine');
-          }
-        },function(err)
-        {
-          console.log(err)
-        })
+        if(change.newPassword.length<6){
+            $scope.logStatus2 ="密码长度太短了！";
+        }else{
+             User.changePassword({phoneNo:Storage.get('USERNAME'),password:change.newPassword})
+            .then(function(succ)
+            {
+              console.log(succ)
+              if(succ.mesg=="password reset success!")
+              {
+                $ionicPopup.alert({
+                 title: '修改密码成功！'
+                }).then(function(res) {
+                   $scope.logStatus2 ="修改密码成功！";
+                  $state.go('tab.mine');
+                });
+              }
+            },function(err)
+            {
+              console.log(err)
+            })
+        }
+       
 
           // //把新用户和密码写入
           // var username = Storage.get('USERNAME');
@@ -4196,11 +4098,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health',function ($scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health) {
+.controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
-  var DoctorId = $stateParams.DoctorId
+  var DoctorId = $stateParams.DoctorId;
+  var counselType = $stateParams.counselType;
 
 
 
@@ -4219,7 +4122,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             if(data.results!=null){
               $scope.items.push(data.results)
               $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
-              $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
+              // $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
               // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
             }
           },
@@ -4235,6 +4138,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     console.log(ele)
     console.log(ele.target)
     if(ele.target.nodeName=="I"){
+      console.log(121212)
       var confirmPopup = $ionicPopup.confirm({
       title: '删除提示',
       template: '记录删除后将无法恢复，确认删除？',
@@ -4245,13 +4149,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       confirmPopup.then(function(res) {
         if(res) 
           {
-            Health.deleteHealth({userId:patientId,insertTime:item.acture}).then(
+            Health.deleteHealth({userId:patientId,insertTime:editId.acture}).then(
               function(data)
               {
                 if (data.results == 0)
                 {
                   for (var i = 0; i < $scope.items.length; i++){
-                    if (item.acture == $scope.items[i].acture)
+                    if (editId.acture == $scope.items[i].acture)
                     {
                       $scope.items.splice(i,1)
                       break;
@@ -4269,7 +4173,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //20140421 zxf
             var healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
             for(var i=0;i<healthinfotimes.length;i++){
-              if(healthinfotimes[i].time==item.acture){
+              if(healthinfotimes[i].time==editId.acture){
                 healthinfotimes.splice(i, 1)
                 break;
               }
@@ -4433,36 +4337,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   $scope.BasicInfo = 
   {
-    "userId": patientId,
-    "name": null,
-    "gender": null,
-    "bloodType": null,
-    "hypertension": null,
-    "class": null,
-    "class_info": null,
-    "operationTime": null,
-    "height": null,
-    "weight": null,
-    "birthday": null,
-    "IDNo": null
+    // "userId": patientId,
+    // "name": null,
+    // "gender": null,
+    // "bloodType": null,
+    // "hypertension": null,
+    // "class": null,
+    // "class_info": null,
+    // "operationTime": null,
+    // "allergic":null,
+    // "height": null,
+    // "weight": null,
+    // "birthday": null,
+    // "IDNo": null
   }
-  initialDict()
+  // initialDict()
   Patient.getPatientDetail({userId: patientId}).then(
       function(data)
       {
         if (data.results != null)
         {
-          $scope.BasicInfo.userId = data.results.userId
-          $scope.BasicInfo.name = data.results.name
-          $scope.BasicInfo.gender = data.results.gender
-          $scope.BasicInfo.bloodType = data.results.bloodType
-          $scope.BasicInfo.hypertension = data.results.hypertension
-          $scope.BasicInfo.class = data.results.class
-          $scope.BasicInfo.class_info = data.results.class_info
-          $scope.BasicInfo.height = data.results.height
-          $scope.BasicInfo.birthday = data.results.birthday
-          $scope.BasicInfo.IDNo = data.results.IDNo
-          $scope.BasicInfo.operationTime = data.results.operationTime
+          $scope.BasicInfo = data.results
+          // $scope.BasicInfo.name = data.results.name
+          // $scope.BasicInfo.gender = data.results.gender
+          // $scope.BasicInfo.bloodType = data.results.bloodType
+          // $scope.BasicInfo.hypertension = data.results.hypertension
+          // $scope.BasicInfo.class = data.results.class
+          // $scope.BasicInfo.class_info = data.results.class_info
+          // $scope.BasicInfo.height = data.results.height
+          // $scope.BasicInfo.birthday = data.results.birthday
+          // $scope.BasicInfo.IDNo = data.results.IDNo
+          // $scope.BasicInfo.allergic = data.results.allergic||"无"
+
+          // $scope.BasicInfo.operationTime = data.results.operationTime
         }
         if ($scope.BasicInfo.gender != null)
         {
@@ -4476,24 +4383,28 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         {
           $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
         }
-        if ($scope.BasicInfo.birthday != null)
-        {
-          $scope.BasicInfo.birthday = $scope.BasicInfo.birthday.substr(0,10)
-        }
-        initialDict()
+        // if ($scope.BasicInfo.birthday != null)
+        // {
+        //   $scope.BasicInfo.birthday = $scope.BasicInfo.birthday.substr(0,10)
+        // }
+        // if ($scope.BasicInfo.operationTime != null){
+        //       $scope.BasicInfo.operationTime = $scope.BasicInfo.operationTime.substr(0,10)
+        // }
+        
         VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
           function(data)
           {
             var n = data.results.length - 1
             var m = data.results[n].data.length - 1
-            $scope.BasicInfo.weight = data.results[n].data[m].value
+            $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
             // console.log($scope.BasicInfo)
           },
           function(err)
           {
             console.log(err);
           }
-        )
+        );
+        initialDict();
         console.log($scope.BasicInfo)
       },
       function(err)
@@ -4572,7 +4483,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       DiagnosisdatePickerCallback(val);
@@ -4609,7 +4520,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       OperationdatePickerCallback(val);
@@ -4646,7 +4557,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       BirthdatePickerCallback(val);
@@ -4685,92 +4596,227 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1900, 1, 1),   //Optional
+    from: new Date(1999, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       FirstDiseaseTimedatePickerCallback(val);
     }
   };  
   // --------datepicker设置结束----------------
-  $scope.submit = function(){
-    $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
-    $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
-    $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
-    if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
-    {
-      $scope.BasicInfo.class_info = null
+
+    var MonthInterval = function(usertime){
+        console.log("usertime"+usertime);
+        //usertimie 类型是string
+        var transfer = new Date(Date.parse(usertime.replace(/-/g,  "/")));
+        console.log("transfer"+transfer);
+        interval = new Date().getTime() - transfer.getTime();
+        return(Math.floor(interval/(24*3600*1000*30)));
     }
-    else if ($scope.BasicInfo.class_info != null)
-    {
-      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
-    }
-    $scope.BasicInfo.class = $scope.BasicInfo.class.type
-    var now = new Date()
-    now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
-    VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(
-      function(data)
-      {
-        if(data.result == "修改成功" || data.result == "新建或修改成功")
-        {
-          $scope.BasicInfo.weight = data.results
-          Patient.editPatientDetail($scope.BasicInfo).then(
-            function(data)
-            {
-              if(data.result == "修改成功" || data.result == "新建或修改成功")
-              {
-                console.log(data.results)
-                $state.go("tab.consultquestion2",{DoctorId:DoctorId})
-              }
-            },
-            function(err)
-            {
-              console.log(err);
-            }
-          )
-          console.log($scope.BasicInfo)
+
+    var distinctTask = function(kidneyType,kidneyTime,kidneyDetail){
+        var sortNo = 1;
+        console.log(kidneyType);
+        console.log(kidneyDetail);
+        // if(kidneyTime){
+        //     kidneyTime = kidneyTime.substr(0,10);
+        // }
+        if(kidneyDetail){
+            var kidneyDetail = kidneyDetail[0];
         }
-        
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    )
+        switch(kidneyType)
+        {
+            case "class_1":
+                //肾移植
+                if(kidneyTime!=undefined && kidneyTime!=null && kidneyTime!=""){
+                    var month = MonthInterval(kidneyTime);
+                    console.log("month"+month);
+                    if(month>=0 && month<3){
+                        sortNo = 1;//0-3月
+                    }else if(month>=3 && month<6){
+                        sortNo = 2; //3-6个月
+                    }else if(month>=6 && month<36){
+                        sortNo = 3; //6个月到3年
+                    }else if(month>=36){
+                        sortNo = 4;//对应肾移植大于3年
+                    }
+
+                }
+                else{
+                    sortNo = 4;
+                }
+                break;
+            case "class_2": case "class_3"://慢性1-4期
+                if(kidneyDetail!=undefined && kidneyDetail!=null && kidneyDetail!=""){
+                    if(kidneyDetail=="stage_5"){//"疾病活跃期"
+                        sortNo = 5;
+                    }else if(kidneyDetail=="stage_6"){//"稳定期
+                        sortNo = 6;
+                    }else if(kidneyDetail == "stage_7"){//>3年
+                        sortNo = 7;
+
+                    }
+                }
+                else{
+                    sortNo = 6;
+                }
+                break;
+                
+            case "class_4"://慢性5期
+                sortNo = 8;
+                break;
+            case "class_5"://血透
+                sortNo = 9;
+                break;
+
+            case "class_6"://腹透
+                if(kidneyTime!=undefined && kidneyTime!=null && kidneyTime!=""){
+                    var month = MonthInterval(kidneyTime);
+                    console.log("month"+month);
+                    if(month<6){
+                        sortNo = 10;
+                    }
+                    else{
+                        sortNo = 11;
+                    }
+                }
+                break;
+
+
+        }
+        return sortNo;
+
+    }
+  $scope.submit = function(){
+    if($scope.BasicInfo.name!=undefined && $scope.BasicInfo.name!=''){
+        var IDreg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+        var PositiveReg = /^\d+(?=\.{0,1}\d+$|$)/;
+        if ($scope.BasicInfo.IDNo!='' && IDreg.test($scope.BasicInfo.IDNo) == false){
+                // console.log("身份证");
+                $ionicLoading.show({
+                template: '请输入正确的身份证号',
+                duration:1000
+                });
+        }else if(($scope.BasicInfo.height!=null && $scope.BasicInfo.height!="" && PositiveReg.test($scope.BasicInfo.height) == false )||($scope.BasicInfo.weight!=null && $scope.BasicInfo.weight!=""&&PositiveReg.test($scope.BasicInfo.weight) == false) ){
+                // console.log("身高体重");
+                $ionicLoading.show({
+                template: '请输入正确的身高体重',
+                duration:1000
+                });
+        }
+        else if($scope.BasicInfo.class.type == ""){
+            $ionicLoading.show({
+            template: '请选择疾病类型',
+            duration:1000
+            });
+        }
+        else if($scope.BasicInfo.allergic == null){
+                $ionicLoading.show({
+                template: '请填写过敏信息',
+                duration:1000
+                });
+        }else{
+            $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
+            $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
+            $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
+            if ($scope.BasicInfo.class.typeName == "ckd5期未透析")
+            {
+              $scope.BasicInfo.class_info = null
+            }
+            else if ($scope.BasicInfo.class_info != null)
+            {
+              $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
+            }
+            $scope.BasicInfo.class = $scope.BasicInfo.class.type
+            Patient.editPatientDetail($scope.BasicInfo).then(function(data){
+                        //保存成功
+                        console.log(data.results);
+                        var patientId = Storage.get('UID');
+                        var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
+                        Task.insertTask({userId:patientId,sortNo:task}).then(
+                        function(data){
+                            if(data.result=="插入成功"){
+                                var now = new Date()
+                                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+                                VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
+                                    $scope.BasicInfo.weight = data.results;
+                                    console.log($scope.BasicInfo);
+                                    console.log($stateParams.DoctorId);
+                                    $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+                                    
+                                    
+                                    // $state.go("tab.mine");
+                                },function(err){
+                                    console.log(err);
+                                });
+                                
+                            }
+                        },function(err){
+                            console.log("err" + err);
+                        });
+                    },function(err){
+                        console.log(err);
+                    });
+        }
+    }else{
+            $ionicLoading.show({
+                template: '信息填写不完整,请完善必填信息',
+                duration:1000
+            });
+        }
+    
+   
   }
   
-  $scope.SKip = function(){
-    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
-  }
+  // $scope.SKip = function(){
+  //   $state.go("tab.consultquestion2",{DoctorId:DoctorId})
+  // }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1",{DoctorId:DoctorId})
+    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:counselType})
   }
 
   $scope.nexttoquestion = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
     Storage.set('tempimgrul',angular.toJson($scope.images))
-    $state.go("tab.consultquestion3",{DoctorId:DoctorId})
-  }
+    console.log($scope.Questionare);
+    
+    if($scope.Questionare.LastVisitDate!=""||$scope.Questionare.LastHospital!=""||$scope.Questionare.LastDiagnosis!=""){
+        console.log("Attention");
+        Patient.editPatientDetail({userId:Storage.get('UID'),lastVisittime:$scope.Questionare.LastVisitDate,lastVisithospital:$scope.Questionare.LastHospital,lastVisitdiagnosis:$scope.Questionare.LastDiagnosis}).then(function(data){
+            console.log(data.results);
+            $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
+
+        },function(err){
+        console.log(err);
+        });
+    }else{
+        $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
+    }
+    
+}
 
   $scope.backtoDisease = function(){
     Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    $state.go("tab.consultquestion2",{DoctorId:DoctorId})
+    $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType})
   } 
 
   $scope.Submitquestion = function(){
     // Storage.set('consultcacheinfo',angular.toJson([]));
-    var temp = {
-      "patientId":patientId,
-      "doctorId":DoctorId, 
-      "hospital":$scope.Questionare.LastHospital, 
-      "visitDate":$scope.Questionare.LastVisitDate,
-      "diagnosis":"", 
-      "diagnosisPhotoUrl":$scope.images, 
-      "sickTime":$scope.Questionare.LastDiseaseTime, 
-      "symptom":$scope.Questionare.title, 
-      "symptomPhotoUrl":$scope.images, 
-      "help":$scope.Questionare.help
-    }
+    if(($scope.Questionare.title)&&($scope.Questionare.help)){
+            var temp = {
+          "patientId":patientId,
+          "type":counselType,
+          "doctorId":$stateParams.DoctorId, 
+          "hospital":$scope.Questionare.LastHospital, 
+          "visitDate":$scope.Questionare.LastVisitDate,
+          "diagnosis":"", 
+          "diagnosisPhotoUrl":$scope.images, 
+          "sickTime":$scope.Questionare.LastDiseaseTime, 
+          "symptom":$scope.Questionare.title, 
+          "symptomPhotoUrl":$scope.images, 
+          "help":$scope.Questionare.help
+        }
+
     Counsels.questionaire(temp).then(
       function(data)
       {
@@ -4810,6 +4856,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(err);
       }
     )
+    }else{
+        $ionicLoading.show({
+            template: '信息填写不完整,请完善必填信息',
+            duration:1000
+            });
+    }
+    
   }
 
   //删除健康信息
@@ -4882,14 +4935,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //论坛
-.controller('forumCtrl', ['$scope', '$state', '$sce','$http',function ($scope, $state,$sce,$http) {
-  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
+.controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage',function ($scope, $state,$sce,$http,Storage) {
+  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
+  var phoneNum=Storage.get('USERNAME')
 
   ionic.DomUtil.ready(function(){
         $http({
             method  : 'POST',
-            url     : 'http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
-            params    : {'username':'admin','password':'bme319'},  // pass in data as strings
+            url     : 'http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
+            params    : {'username':phoneNum,'password':phoneNum},  // pass in data as strings
             headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
             }).success(function(data) {
                 //console.log(data);
@@ -4930,16 +4984,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
       //上传评论-有效性验证
       $scope.deliverComment = function() {
-        if($scope.comment.selectedModoule=='')
-        {
-          $ionicLoading.show({
-              template: '请选择评价的模块',
-              noBackdrop: false,
-              duration: 1000,
-              hideOnStateChange: true
-            });
-        }
-        else if($scope.comment.commentContent.length <10)
+        // if($scope.comment.selectedModoule=='')
+        // {
+        //   $ionicLoading.show({
+        //       template: '请选择评价的模块',
+        //       noBackdrop: false,
+        //       duration: 1000,
+        //       hideOnStateChange: true
+        //     });
+        // }
+        if($scope.comment.commentContent.length <10)
         {
             $ionicLoading.show({
               template: '输入字数不足10字',
