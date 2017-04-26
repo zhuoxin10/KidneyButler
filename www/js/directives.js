@@ -1,7 +1,7 @@
 angular.module('kidney.directives', ['kidney.services'])
 //消息模版，用于所有消息类型
 //XJZ
-.directive('myMessage',['Storage',function(Storage){
+.directive('myMessage',['Storage','CONFIG',function(Storage,CONFIG){
     var picArr=[
                 {"src":"img/1.jpg","hiRes":"img/2.jpg"},
                 {"src":"img/3.jpg","hiRes":"img/4.jpg"},
@@ -22,9 +22,20 @@ angular.module('kidney.directives', ['kidney.services'])
                     // $scope.customMsgUrl=JSON.parse($scope.msg.content.contentStringMap.picurl);
                     // $scope.customMsg=JSON.parse($scope.customMsg);
                     // console.log($scope.customMsgUrl);
+                    
                     type=$scope.msg.content.contentStringMap.type;
+                    if(type=='card'){
+                      try{
+                            $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
+                            $scope.picurl=picArr;
+                        }catch(e){
+                            
+                        }
+                      // console.log(JSON.parse($scope.msg.content.contentStringMap));
+                    }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
                 }
+                $scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
                 return 'partials/tabs/consult/msg/'+type+'.html';
@@ -47,7 +58,7 @@ angular.module('kidney.directives', ['kidney.services'])
             //         $scope.$emit('viewImage',type,thumb,url);
             //     }
             // };
-            $scope.picurl=picArr;
+            
             // $scope.playVoice = function(){
 
             // }
@@ -215,6 +226,27 @@ angular.module('kidney.directives', ['kidney.services'])
        }
    };
 })
+
+.directive('dateformat', ['$filter',function($filter) {  
+    var dateFilter = $filter('date');  
+    return {  
+        require: 'ngModel',  
+        link: function(scope, elm, attrs, ctrl) {  
+  
+            function formatter(value) {  
+                return dateFilter(value, 'yyyy-MM-dd'); //format  
+            }  
+  
+            function parser() {  
+                return ctrl.$modelValue;  
+            }  
+  
+            ctrl.$formatters.push(formatter);  
+            ctrl.$parsers.unshift(parser);  
+  
+        }  
+    };  
+}])
 
 // 写评论的五角星
 .directive('ionicRatings',ionicRatings)

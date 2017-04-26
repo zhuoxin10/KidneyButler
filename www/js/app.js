@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova'])
+angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload'])
 
 .run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
   $ionicPlatform.ready(function() {
@@ -37,19 +37,15 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     if (window.JMessage) {
         // window.Jmessage.init();
         JM.init();
-        window.JMessage.login('18868800011', '123456',
-        function(response) {
-            window.JMessage.username = '18868800011';
-            //gotoConversation();
-        },
-        function(err) {
-            console.log(err);
-            // JM.register($scope.useruserID, $scope.passwd);
-        });
+        document.addEventListener('jmessage.onUserLogout',function(data){
+          console.error(Storage.get(UID) +' log out');
+          alert('jmessage user log out: '+Storage.get(UID));
+
+        })
         document.addEventListener('jmessage.onOpenMessage', function(msg) {
             console.info('[jmessage.onOpenMessage]:');
             console.log(msg);
-            $state.go('tab.chat-detail', { chatId: msg.fromName, fromUser: msg.fromUser });
+            $state.go('tab.consult-chat', { chatId: msg.targetID});
         }, false);
         document.addEventListener('jmessage.onReceiveMessage', function(msg) {
             console.info('[jmessage.onReceiveMessage]:');
@@ -60,20 +56,20 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
                 // console.log(JSON.stringify(message));
             }
         }, false);
-        document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
-            console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
-            // $rootScope.$broadcast('receiveMessage',msg);
-            if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
-                if (device.platform == "Android") {
-                    window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
-                        // message = window.JMessage.message;
-                        // console.log(JSON.stringify(message));
-                } else {
-                    window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
-                }
-            }
+        // document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
+        //     console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
+        //     // $rootScope.$broadcast('receiveMessage',msg);
+        //     if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
+        //         if (device.platform == "Android") {
+        //             window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
+        //                 // message = window.JMessage.message;
+        //                 // console.log(JSON.stringify(message));
+        //         } else {
+        //             window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
+        //         }
+        //     }
 
-        }, false);
+        // }, false);
 
     }
     window.addEventListener('native.keyboardshow', function(e) {
@@ -101,6 +97,14 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl: 'partials/login/signin.html',
       controller: 'SignInCtrl'
     })
+    .state('agreement', {
+      cache: false,
+      url: '/agreeOrNot',
+      params:{last:null},
+
+      templateUrl: 'partials/login/agreement.html',
+      controller: 'AgreeCtrl'
+    })
     .state('phonevalid', { 
       cache: false,
       url: '/phonevalid',
@@ -111,13 +115,14 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('setpassword', {
       cache:false,
       url: '/setpassword',
-      params:{phonevalidType:null,phoneNumber:null},
+      params:{phonevalidType:null},
       templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
     .state('userdetail',{
       cache:false,
       url:'mine/userdetail',
+      params:{last:null},
       templateUrl:'partials/login/userDetail.html',
       controller:'userdetailCtrl'
     })
@@ -134,17 +139,12 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
     })
-    .state('about',{
+    .state('payment',{
       cache:false,
-      url:'/about',
-      templateUrl:'partials/about.html',
-      controller:'aboutCtrl'
-    })
-    .state('changePassword',{
-      cache:false,
-      url:'/changePassword',
-      templateUrl:'partials/changePassword.html',
-      controller:'changePasswordCtrl'
+      url:'/payment',
+      params:{messageType:null},
+      templateUrl:'partials/payment/payment.html',
+      controller:'paymentCtrl'
     });   
     
     //主页面    
@@ -188,6 +188,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-chat', {
       url: '/consult/chat/:chatId',
+      params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -228,7 +229,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultquestion1', {
       url: '/consultquestion1',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -236,11 +237,11 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           controller: 'consultquestionCtrl'
         }
       },
-      params:{DoctorId:null}
+      // params:{DoctorId:null}
     })
     .state('tab.consultquestion2', {
       url: '/consultquestion2',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -248,11 +249,11 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           controller: 'consultquestionCtrl'
         }
       },
-      params:{DoctorId:null}
+      // params:{DoctorId:null}
     })
     .state('tab.consultquestion3', {
       url: '/consultquestion3',
-      params:{DoctorId:null},
+      params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -260,7 +261,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           controller: 'consultquestionCtrl'
         }
       },
-      params:{DoctorId:null}
+      // params:{DoctorId:null}
     })
 
     .state('tab.mine', {
@@ -318,6 +319,28 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 
         }     
          
+    })
+     .state('tab.about',{
+      cache:false,
+      url:'/mine/about',
+      views:{
+        'tab-mine':{
+            templateUrl:'partials/about.html',
+            controller:'aboutCtrl'
+        }
+      }
+      
+    })
+    .state('tab.changePassword',{
+        cache:false,
+        url:'/mine/changePassword',
+        views:{
+            'tab-mine':{
+                templateUrl:'partials/changePassword.html',
+                controller:'changePasswordCtrl'
+            }
+        }
+      
     })
 
     .state('tab.taskSet', {

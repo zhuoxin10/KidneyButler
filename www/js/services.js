@@ -5,6 +5,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
     appKey: 'fe7b9ba069b80316653274e4',
     crossKey: 'cf32b94444c4eaacef86903e',
     baseUrl: 'http://121.43.107.106:4050/',
+    imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
+    imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
     cameraOptions: {
         cam: {
             quality: 60,
@@ -267,7 +269,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return audio;
 }])
 //jmessage XJZ
-.factory('JM', ['Storage','$q', function(Storage,$q) {
+.factory('JM', ['Storage','$q','Patient', function(Storage,$q,Patient) {
     var ConversationList = [];
     var messageLIsts = {};
     function pGen(u){
@@ -334,37 +336,47 @@ angular.module('kidney.services', ['ionic','ngResource'])
     // }
 
     function login(user) {
-        return $q(function(resolve,reject){
-            console.log(user);
-            console.log(pGen(user));
+        return $q(function(resolve, reject) {
+            if (window.JMessage) {
 
-            // console.log(ionic.Platform)
-            // console.log(ionic.Platform.platforms[0]=="browser")
-            if(ionic.Platform.platforms[0]!="browser")
-            if(window.JMessage){
-                window.JMessage.login(user, pGen(user),
-                    function(response) {
-                        window.JMessage.username = user;
-                        resolve(user);
-                    }, function(err){
-                        console.log(err);
-                        // reject(err);
-                        register(user);
-                    });
+                Patient.getPatientDetail({ userId: user })
+                .then(function(data) {
+                    console.log(user);
+                    console.log(pGen(user));
+                    if (ionic.Platform.platforms[0] != "browser")
+                        window.JMessage.login(user, pGen(user),
+                            function(response) {
+                                window.JMessage.updateMyInfo('nickname', data.results.name);
+                                window.JMessage.nickname = data.results.name;
+                                window.JMessage.username = user;
+                                resolve(user);
+                            },
+                            function(err) {
+                                console.log(err);
+                                // reject(err);
+                                register(user, data.results.name);
+                            });
 
 
+                }, function(err) {
+
+                })
             }
+
 
         });
     }
 
-    function register(user) {
+
+    function register(user,nick) {
         return $q(function(resolve,reject){
             window.JMessage.register(user, pGen(user),
                 function(response) {
                   window.JMessage.login(user, pGen(user),
                     function(response) {
+                        window.JMessage.updateMyInfo('nickname',nick)
                         window.JMessage.username = user;
+                        window.JMessage.nickname = nick;
                         resolve(user);
                     }, function(err){
                         console.log(err);
@@ -379,7 +391,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
                 }
             );
         });
-        
     }
 
     // function updateConversationList() {
@@ -649,11 +660,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
     }
 }])
 //获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
-.factory('Camera', ['$q','$cordovaCamera','CONFIG','fs',function($q,$cordovaCamera,CONFIG,fs) { 
+.factory('Camera', ['$q','$cordovaCamera','$cordovaFileTransfer','CONFIG','fs',function($q,$cordovaCamera,$cordovaFileTransfer,CONFIG,fs) { 
   return {
     getPicture: function(type){
+      console.log(type);
         return $q(function(resolve, reject) {
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
               // file manipulation
               var tail=imageUrl.lastIndexOf('?');
               if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
@@ -672,6 +685,60 @@ angular.module('kidney.services', ['ionic','ngResource'])
               reject('fail to get image');
           });
       })
+    },
+    getPictureFromPhotos: function(type){
+      console.log(type);
+        return $q(function(resolve, reject) {
+            $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
+              console.log(imageUrl)
+              // file manipulation
+              var tail=imageUrl.lastIndexOf('?');
+              if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
+              else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
+              fs.mvMedia('image',fileName,'.jpg')
+              .then(function(res){
+                console.log(res);
+                //res: file URL
+                resolve(res);
+              },function(err){
+                console.log(err);
+                reject(err);
+              })
+          }, function(err) {
+            console.log(err);
+              reject('fail to get image');
+          });
+      })
+    },
+    uploadPicture : function(imgURI, temp_photoaddress){
+        return $q(function(resolve, reject) {
+          var uri = encodeURI("http://121.43.107.106:4050/upload")
+            // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
+            var options = {
+              fileKey : "file",
+              fileName : temp_photoaddress,
+              chunkedMode : true,
+              mimeType : "image/jpeg"
+            };
+            // var q = $q.defer();
+            //console.log("jinlaile");
+            $cordovaFileTransfer.upload(uri,imgURI,options)
+              .then( function(r){
+                console.log("Code = " + r.responseCode);
+                console.log("Response = " + r.response);
+                console.log("Sent = " + r.bytesSent);
+                // var result = "上传成功";
+                resolve(r.response);        
+              }, function(error){
+                console.log(error);
+                alert("An error has occurred: Code = " + error.code);
+                console.log("upload error source " + error.source);
+                console.log("upload error target " + error.target);
+                reject(error);          
+              }, function (progress) {
+                console.log(progress);
+              })
+        })
     }
   }
 }])
@@ -761,7 +828,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getDiseaseType:{method:'GET', params:{route: 'typeTWO'}, timeout: 100000},
             getDistrict:{method:'GET', params:{route: 'district'}, timeout: 100000},
             getHospital:{method:'GET', params:{route: 'hospital'}, timeout: 100000},
-            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
+            getHeathLabelInfo:{method:'GET', params:{route: 'typeOne'}, timeout: 100000},
+            typeOne:{method:'GET', params:{route: 'typeOne'}, timeout: 100000}
         });
     };
 
@@ -774,7 +842,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Task2 = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
             changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
-            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000}
+            changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000},
+            insertTask:{method:'POST', params:{route: 'insertTaskModel'}, timeout: 100000}
+
         });
     };
 
@@ -788,7 +858,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Counsels = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
             getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
-            questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000}
+            questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000},
+            getStatus:{method:'GET', params:{route: 'getStatus'}, timeout: 100000}
+
         });
     };
 
@@ -800,7 +872,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getCounselRecords:{method:'GET',params:{route:'getCounselRecords'},timeout:10000},
             insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
-            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000}
+            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
+            bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000}
         });
     }
 
@@ -823,6 +896,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getUserId:{method:'GET', params:{route: 'getUserID',phoneNo:'@phoneNo'}, timeout: 100000},
             sendSMS:{method:'POST', params:{route: 'sendSMS',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
             verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
+            getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
+            updateAgree:{method:'POST', params:{route: 'updateUserAgreement'}, timeout: 100000},
 
         });
     }
@@ -853,7 +928,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Account =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'account'},{
-            getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000}
+            getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000},
+            getCounts:{method:'GET', params:{route: 'getCounts'}, timeout: 100000},
+            modifyCounts:{method:'POST', params:{route: 'modifyCounts'}, timeout: 100000}
         });
     }
 
@@ -975,6 +1052,21 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params->{
+    //    category:'MessageType'
+    //}
+    self.typeOne = function(params){
+        var deferred = $q.defer();
+        Data.Dict.typeOne(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
     return self;
 }])
 
@@ -1025,6 +1117,22 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.changeTasktime = function(params){
         var deferred = $q.defer();
         Data.Task2.changeTasktime(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  userId:'U201704050002',//unique
+            //  sortNo:1,
+           // }
+    self.insertTask = function(params){
+        var deferred = $q.defer();
+        Data.Task2.insertTask(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1191,6 +1299,36 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.verifySMS = function(params){
         var deferred = $q.defer();
         Data.User.verifySMS(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+    //params->{userId:"U201703310032"}
+    //036
+    self.getAgree = function(params){
+        var deferred = $q.defer();
+        Data.User.getAgree(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
+
+    
+    //params->{userId:"U201703310032",agreement:"0"}
+    //037
+    self.updateAgree = function(params){
+        var deferred = $q.defer();
+        Data.User.updateAgree(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1440,6 +1578,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    self.bindingMyDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Patient.bindingMyDoctor(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
     return self;
 }])
@@ -1577,6 +1727,23 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params->0:{
+    //              patientId:'p01',
+    //              doctorId:'doc01',
+    //              type:1//1->咨询 2->问诊
+    //          }
+    self.getStatus = function(params){
+        var deferred = $q.defer();
+        Data.Counsels.getStatus(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
     return self;
 }])
 
@@ -1670,6 +1837,39 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getAccountInfo = function(params){
         var deferred = $q.defer();
         Data.Account.getAccountInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+    //    patientId:'p01',
+    //    doctorId:"doc01"
+    // }
+    self.getCounts = function(params){
+        var deferred = $q.defer();
+        Data.Account.getCounts(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->0:{
+    //    patientId:'p01',
+    //    doctorId:"doc02",
+    //    modify:-1
+    // }
+    self.modifyCounts = function(params){
+        var deferred = $q.defer();
+        Data.Account.modifyCounts(
             params,
             function(data, headers){
                 deferred.resolve(data);

@@ -21,8 +21,13 @@
     "cordova-plugin-device",
     "cordova-plugin-splashscreen",
     "ionic-plugin-keyboard",
+    "cordova-plugin-media",
+    "cordova-plugin-file",
+    "cordova-plugin-camera",
+    "phonegap-plugin-barcodescanner",
+    "cordova-plugin-file-transfer",
     "cordova-plugin-compat",
-	{
+	 {
       "id": "jmessage-phonegap-plugin",
       "locator": "jmessage-phonegap-plugin",
       "variables": {
@@ -36,14 +41,10 @@
       "variables": {
         "APP_KEY": "fe7b9ba069b80316653274e4"
       }
-    },
-    "cordova-plugin-media",
-    "cordova-plugin-file",
-    "cordova-plugin-camera",
-    "phonegap-plugin-barcodescanner"
+    }
+    
   ],
   "cordovaPlatforms": [
-    "ios",
     "android"
   ],
   "scripts": {
