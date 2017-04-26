@@ -35,7 +35,7 @@ angular.module('kidney.directives', ['kidney.services'])
                     }
                     return 'partials/tabs/consult/msg/'+ type+'.html';
                 }
-                $scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';
+                //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
                 // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
                 return 'partials/tabs/consult/msg/'+type+'.html';
