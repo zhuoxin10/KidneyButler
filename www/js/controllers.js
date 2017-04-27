@@ -252,7 +252,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 //     if(data.results==0){
                 //         $scope.logStatus = "验证成功";
                 //         Storage.set('USERNAME',Verify.Phone);
-                //         $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType,phoneNumber:Verify.Phone});},500);
+                            // if($stateParams.phonevalidType == 'register'){
+                            //     $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                            // }else{
+                            //     $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500); 
+                            // }
                 //     }else{
                 //         $scope.logStatus = data.mesg;
                 //         return;
