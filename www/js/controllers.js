@@ -4827,6 +4827,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.rm('tempimgrul')
           var msgdata={
             counsel:data.results,
+            counselId:data.results.counselId,
             type:'card',
             patientId:patientId,
             patientName:$scope.BasicInfo.name,
