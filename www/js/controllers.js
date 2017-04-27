@@ -3878,7 +3878,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
  
     $scope.Provinces={};
     $scope.Cities={};
-    $scope.Districts={};
+    // $scope.Districts={};
     $scope.Hospitals={};
 
     $scope.doctors = [];
@@ -3893,10 +3893,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.loadMore=function(params){
           // $scope.$apply(function() {
         if(!params){
-            params={province:"",city:"",district:"",hospital:"",name:""};
+            params={province:"",city:"",workUnit:"",name:""};
         }
         console.log(params);
-         Patient.getDoctorLists({skip:pagecontrol.skip,limit:pagecontrol.limit,province:params.province,city:params.city,district:params.district,workUnit:params.hospital,name:params.name})
+         Patient.getDoctorLists({skip:pagecontrol.skip,limit:pagecontrol.limit,province:params.province,city:params.city,workUnit:params.workUnit,name:params.name})
                   .then(function(data){
                     console.log(data.results);
                     $scope.$broadcast('scroll.infiniteScrollComplete');
@@ -3935,13 +3935,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     var ChangeSearch = function(){
         pagecontrol = {skip:0,limit:10};
         alldoctors = new Array();
-        console.log($scope.Province);
+        // console.log($scope.Province);
         var _province = ($scope.Province&&$scope.Province.province)? $scope.Province.province.name:"";
         var _city = ($scope.City&&$scope.City.city)? $scope.City.city.name:"";
-        var _district = ($scope.District&&$scope.District.district)? $scope.District.district.name:"";
-        console.log($scope.Hospital);
-        var _hospital = ($scope.Hospital&&$scope.Hospital.hostipalCode)? $scope.Hospital.hostipalCode.hospitalName:"";
-        var params = {province:_province,city:_city,district:_district,workUnit:_hospital,name:($scope.searchCont.t||"")};
+        // var _district = ($scope.District&&$scope.District.district)? $scope.District.district.name:"";
+        // console.log($scope.Hospital);
+        var _hospital = ($scope.Hospital&&$scope.Hospital.hospitalName)? $scope.Hospital.hospitalName.hospitalName:"";
+        console.log(_hospital);
+        var params = {province:_province,city:_city,workUnit:_hospital,name:($scope.searchCont.t||"")};
         $scope.loadMore(params);
     }
 
@@ -3951,12 +3952,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         ChangeSearch();
     } 
 
-    Dict.getDistrict({level:"1",province:"",city:"",district:""}).then(
+    Dict.getDistrict({level:"1",province:"",city:""}).then(
       function(data)
       {
         $scope.Provinces = data.results;
         // $scope.Province.province = "";
-        console.log($scope.Provinces)
+        // console.log($scope.Provinces)
       },
       function(err)
       {
@@ -3965,13 +3966,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     )
 
   $scope.getCity = function (province) {
-    // console.log($scope.Province)
+    console.log(province)
     if(province!=null){
-        Dict.getDistrict({level:"2",province:province.province,city:"",district:""}).then(
+        Dict.getDistrict({level:"2",province:province.province,city:""}).then(
           function(data)
           {
             $scope.Cities = data.results;
-            console.log($scope.Cities);
+            // console.log($scope.Cities);
             
           },
           function(err)
@@ -3981,58 +3982,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         );
     }else{
         $scope.Cities = {};
-        $scope.Districts ={};
+        // $scope.Districts ={};
         $scope.Hospitals = {};
     }
+    
+    $scope.City = "";
+    $scope.Hospital = "";
     ChangeSearch();
   }
   
-  $scope.getDistrict = function (province,city) {
-    console.log(province);
+ 
+
+  $scope.getHospital = function (province,city) {
+    console.log(city);
     if(city!=null){
-        Dict.getDistrict({level:"3",province:city.province,city:city.city,district:""}).then(
-      function(data)
-      {
-        $scope.Districts = data.results;
-        console.log($scope.Districts);
-
         
-
-        // var params = {province:province.name,city:city.name,district:"",hospital:"",name:($scope.searchCont.t||"")};
-        // initialSearch();
-        // $scope.loadMore(params);
-
-        // Patient.getDoctorLists({province:province.name,city:city.name}).then(
-        //     function(data){
-        //         console.log(data.results);
-        //         $scope.doctors = data.results;
-        //     },function(err){
-        //         console.log(err);
-        //     })
-        
-      },
-      function(err)
-      {
-        console.log(err);
-      }
-    );
-    }else{
-        $scope.Districts = {};
-        $scope.Hospitals = {};
-    }
-    ChangeSearch();
-  }
-
-  $scope.getHospital = function (province,city,district) {
-    // console.log(district.name);
-    if(district!=null){
-        var locationCode = district.province + district.city + district.district
-    console.log(locationCode)
-    Dict.getHospital({locationCode: locationCode,hostipalCode:""}).then(
+    Dict.getHospital({province: province.name,city:city.name}).then(
       function(data)
       {
         $scope.Hospitals = data.results;
-        console.log($scope.Hospitals);
+
+        // console.log($scope.Hospitals);
 
         // var params = {province:province.name,city:city.name,district:district.name,hospital:"",name:($scope.searchCont.t||"")};
         // initialSearch();
@@ -4054,35 +4024,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }else{
         $scope.Hospitals = {};
     }
-        ChangeSearch();
+    
+    $scope.Hospital = "";
+    ChangeSearch();
+    // console.log($scope.Hospital)
+    
 
     
   }
   
-  $scope.getDoctorByHospital = function (province,city,district,hospital) {
-        ChangeSearch();
-        // if(hospital){
-        //     var workUnit = hospital.hospitalName;
-        // }else{
-        //     var workUnit ="";
-        // }
-        // var params = {province:province.name,city:city.name,district:district.name,hospital:workUnit,name:($scope.searchCont.t||"")};
-
-        // initialSearch();
-        // $scope.loadMore(params);
-
-    // Patient.getDoctorLists({workUnit: hospital.hospitalName}).then(
-    //   function(data)
-    //   {
-    //     $scope.doctors = data.results
-    //     console.log($scope.doctors)
-    //   },
-    //   function(err)
-    //   {
-    //     console.log(err);
-    //   }
-    // )
+  $scope.getDoctorByHospital = function (hospital) {
+        
+     ChangeSearch();
   }
+
+
   $scope.allDoctors = function(){
     $state.go('tab.AllDoctors');
   }
