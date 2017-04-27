@@ -2017,6 +2017,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.GoUserDetail = function(){
     $state.go('userdetail',{last:'mine'});
   }
+  $scope.GoDiagnosiInfo = function(){
+    $state.go('tab.DiagnosisInfo');
+  }
   $scope.GoConsultRecord = function(){
     $state.go('tab.myConsultRecord');
   }
@@ -2195,9 +2198,91 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 }])
-//咨询记录--PXY
 
-.controller('ConsultRecordCtrl', ['Patient','Storage','$scope','$timeout','$state','$ionicHistory','$ionicPopover','Counsels','$ionicPopup',function(Patient,Storage,$scope, $timeout,$state,$ionicHistory,$ionicPopover,Counsels,$ionicPopup) {
+//诊断信息
+.controller('DiagnosisCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload) {
+    $scope.Goback = function(){
+      $state.go('tab.mine');
+    }
+    $scope.showProgress = function(diseaseType){
+        switch(diseaseType)
+        {
+            case "CKD1-2期": case "CKD3-4期":
+                return true;
+                break;
+            default:
+                return false;
+                break;
+
+        }
+    }
+
+    $scope.showSurgicalTime = function(diseaseType){
+        switch(diseaseType)
+        {
+            case "肾移植": case "血透": case "腹透":
+                return true;
+                break;
+            default:
+                return false;
+                break;
+
+        }
+    }
+
+
+
+    $scope.timename = function(diseaseType){
+        switch(diseaseType)
+        {
+            case "肾移植":
+                return "手术日期";
+                break;
+            case "血透":
+                return "插管日期";
+                break;
+            case "腹透":
+                return "开始日期";
+                break;
+            default:
+                break;
+        }
+    }
+    //过滤重复的医生诊断 顺序从后往前，保证最新的一次诊断不会被过滤掉
+    var FilterDiagnosis = function(arr){
+        var result =[];
+        var hash ={};
+        for(var i =arr.length-1; i>=0; i--){
+            var elem = arr[i].doctor.userId;
+            if(!hash[elem]){
+                result.push(arr[i]);
+                hash[elem] = true;
+            }
+        }
+        return result;
+    }
+
+    Patient.getPatientDetail({userId:Storage.get('UID')}).then(//userId:Storage.get('UID')
+        function(data){
+            if(data.results){
+                var allDiags = data.results.diagnosisInfo;
+                console.log(allDiags);
+                var DoctorDiags = FilterDiagnosis(allDiags);
+                $scope.Diags = DoctorDiags;
+
+            }else{
+                $ionicLoading.show({
+                template:'暂时没有医生诊断！',
+                duration:1000
+        });
+            }
+        },function(err){
+            console.log(err);
+        })
+
+}])
+//咨询记录--PXY
+.controller('ConsultRecordCtrl', ['arrTool','$q','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(arrTool,$q,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
 
   $scope.barwidth="width:0%";
 
@@ -2210,6 +2295,49 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     console.log(patientID)
     // var patientID = 'p01';
 
+    function msgNoteGen(msg){
+        var fromName='',note='';
+        if(msg.targetType=='group') fromName=msg.fromName+ ':';
+        
+        if(msg.contentType=='text'){
+            note=msg.content.text;
+        }else if(msg.contentType=='image'){
+            note='[图片]';
+        }else if(msg.contentType=='voice'){
+            note='[语音]';
+        }else if(msg.contentType=='custom'){
+            if(msg.content.contentStringMap.type='card') note='[患者病历]';
+            else if(msg.content.contentStringMap.type='contact') note='[联系人名片]';
+        }
+        return fromName +note;
+    }
+
+    function setSingleUnread(doctors){
+        return $q(function(resolve,reject){
+            if(window.JMessage){
+                window.JMessage.getAllSingleConversation(
+                function(data){
+                    if(data!=''){
+                        var conversations = JSON.parse(data);
+                        for(var i in doctors){
+                            var index=arrTool.indexOf(conversations,'targetId',doctors[i].userId);
+                            if(index!=-1){
+                                // doctors[i].unRead=conversations[index].unReadMsgCnt;
+                                doctors[i].latestMsg = msgNoteGen(conversations[index].latestMessage);
+                                doctors[i].lastMsgDate = conversations[index].lastMsgDate;
+                            }
+                        }
+                    }
+                    resolve(doctors);
+                },function(err){
+                    // $scope.doctors = doctors;
+                    resolve(doctors);
+                });
+            }else{
+                resolve(doctors);
+            }
+        });
+    }
 
     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
     var FilterDoctor = function(arr){
@@ -2218,7 +2346,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         for(var i =arr.length-1; i>=0; i--){
             var elem = arr[i].doctorId.userId;
             if(!hash[elem]){
-                result.push(arr[i]);
+                result.push(arr[i].doctorId);
                 hash[elem] = true;
             }
         }
@@ -2231,36 +2359,43 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             FilteredDoctors = FilterDoctor(data.results);
             console.log(FilteredDoctors);
 
+            setSingleUnread(FilteredDoctors)
+            .then(function(doctors){
+                $scope.items=doctors;
+            });
 
-            items = new Array();
-            console.log(FilteredDoctors)
-            for(x in FilteredDoctors){
-                var doctor = FilteredDoctors[x];
-                console.log(doctor);
+            // items = new Array();
+            // console.log(FilteredDoctors)
+            // for(x in FilteredDoctors){
+            //     var doctor = FilteredDoctors[x];
+            //     console.log(doctor);
 
-                var messages = doctor.messages;
-                console.log("messages:" + messages);
+            //     var messages = doctor.messages;
+            //     console.log("messages:" + messages);
 
 
-                var res = "您已发起咨询，医生暂未回复，请稍后！";
-                for(var i = messages.length-1;i>=0;i--){
-                    if(messages[i].sender==doctor.doctorId.userId){
-                        res = messages[i].content;
-                    }
-                }
-                if(doctor.doctorId.photoUrl==""){
-                    doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
-                }
-                var consultTime = doctor.time;
+            //     var res = "您已发起咨询，医生暂未回复，请稍后！";
+            //     for(var i = messages.length-1;i>=0;i--){
+            //         if(messages[i].sender==doctor.doctorId.userId){
+            //             res = messages[i].content;
+            //         }
+            //     }
+            //     if(doctor.doctorId.photoUrl==""){
+            //         doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
+            //     }
+            //     var consultTime = doctor.time;
                 
-                var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
-                items.push(item);
+            //     var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
+            //     items.push(item);
 
-            }
-            $scope.items = items;
+            // }
+            // $scope.items = items;
 
         }else{
-            console.log('没有咨询记录');
+            $ionicLoading.show({
+                template:'暂时没有咨询记录！',
+                duration:1000
+        });
         }
     },function(err){
         console.log(err);
