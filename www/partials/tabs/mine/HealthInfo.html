@@ -14,7 +14,7 @@
   <ion-content padding="true" style="">
 
     <ion-list>
-      <ion-item ng-repeat="item in items | orderBy:'-acture'" ng-click="gotoHealthDetail($event,item)">
+      <ion-item ng-repeat="item in items | orderBy:'-time'" ng-click="gotoHealthDetail($event,item)">
         <div class="row">
           <div class="col-25">
           <div ng-repeat = "img in item.url">
