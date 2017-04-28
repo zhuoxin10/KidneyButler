@@ -4936,19 +4936,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //论坛
 .controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage',function ($scope, $state,$sce,$http,Storage) {
-  $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
-  var phoneNum=Storage.get('USERNAME')
+    var phoneNum=Storage.get('USERNAME')
+    console.log(phoneNum)
 
-  ionic.DomUtil.ready(function(){
-        $http({
-            method  : 'POST',
-            url     : 'http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2',
-            params    : {'username':phoneNum,'password':phoneNum},  // pass in data as strings
-            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
-            }).success(function(data) {
-                //console.log(data);
-        });
-    })
+    $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+phoneNum+"&password="+phoneNum);
+    $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
 }])
 
 //写评论
