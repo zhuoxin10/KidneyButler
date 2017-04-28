@@ -5556,8 +5556,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     var phoneNum=Storage.get('USERNAME')
     console.log(phoneNum)
 
-    $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+phoneNum+"&password="+phoneNum);
-    $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
+    $http({
+        method  : 'POST',
+        url     : 'http://121.43.107.106/member.php?mod=logging&action=logout&formhash=xxxxxx'
+    }).success(function(data) {
+            // console.log(data);
+        $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+phoneNum+"&password="+phoneNum);
+        $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
+    });
 }])
 
 //写评论
