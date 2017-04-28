@@ -27,3 +27,9 @@
 .ionic_ratings .read_only {
   pointer-events:none;
 }
+
+input:disabled{
+    
+    background-color: #FFFFFF;
+    /*color:#ACA899;*/
+}

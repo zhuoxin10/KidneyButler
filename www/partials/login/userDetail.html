@@ -54,12 +54,12 @@
                         </select>
                     </label>
 
-                    <label  ng-if="!canEdit" class="item item-input" ng-if="showSurgicalTime">
+                    <label   class="item item-input" ng-if="showSurgicalTime&&!canEdit">
                         <div class="input-label" style="margin-left:8px ">{{timename}}</div>
                         <input ng-disabled="!canEdit" ng-model="User.operationTime" dateformat type="text">
                     </label>
 
-                    <ionic-datepicker ng-if="canEdit" input-obj="datepickerObject2" class="item item-input" ng-if="showSurgicalTime">
+                    <ionic-datepicker  input-obj="datepickerObject2" class="item item-input" ng-if="showSurgicalTime&&canEdit">
                         <span class="input-label" style="margin-left:8px ">{{timename}}</span>
                         <input  ng-model="User.operationTime" dateformat type="text">
                     </ionic-datepicker>
