@@ -843,15 +843,21 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
             changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
             changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000},
-            insertTask:{method:'POST', params:{route: 'insertTaskModel'}, timeout: 100000}
-
+            insertTask:{method:'POST', params:{route: 'insertTaskModel'}, timeout: 100000},
+            getUserTask:{method:'GET', params:{route: 'getUserTask'}, timeout: 100000},
+            updateUserTask:{method:'POST', params:{route: 'updateUserTask'}, timeout: 100000}
         });
     };
 
     var Compliance = function(){
-        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{
-            postcompliance:{method:'POST', params:{}, timeout: 100000},
+        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{            
             getcompliance:{method:'GET', params:{}, timeout: 100000}
+        });
+    };
+
+    var Compliance1 = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'compliance'},{
+            postcompliance:{method:'POST', params:{route:'update'}, timeout: 100000}
         });
     };
 
@@ -859,7 +865,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
             getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
             questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000},
-            getStatus:{method:'POST', params:{route: 'getStatus'}, timeout: 100000}
+            getStatus:{method:'GET', params:{route: 'getStatus'}, timeout: 100000}
 
         });
     };
@@ -957,6 +963,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Task1 = Task1();
             serve.Task2 = Task2();
             serve.Compliance = Compliance();
+            serve.Compliance1 = Compliance1();
             serve.Counsels = Counsels();
             serve.Patient = Patient();
             serve.Doctor = Doctor();
@@ -973,6 +980,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Task1 = Task1();
     serve.Task2 = Task2();
     serve.Compliance = Compliance();
+    serve.Compliance1 = Compliance1();
     serve.Counsels = Counsels();
     serve.Patient = Patient();
     serve.Doctor = Doctor();
@@ -1142,6 +1150,33 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+
+    self.getUserTask = function(params){
+        var deferred = $q.defer();
+        Data.Task2.getUserTask(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    self.updateUserTask = function(params){
+        var deferred = $q.defer();
+        Data.Task2.updateUserTask(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    
     return self;
 }])
 
@@ -1157,7 +1192,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
            // }
     self.postcompliance = function(params){
         var deferred = $q.defer();
-        Data.Compliance.postcompliance(
+        Data.Compliance1.postcompliance(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1910,6 +1945,24 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
     return self;
 }])
+.factory('arrTool',function(){
+    return {
+        indexOf:function(arr,key,val,binary){
+            if(binary){
+                //已排序，二分,用于消息
+                // var first=0,last=arr.length,mid=(first+last)/2;
+                // while(arr[mid][key]!=val){
+                //     if(arr[mid])
+                // }
+            }else{
+                for(var i=0, len=arr.length;i<len;i++){
+                    if(arr[i][key]==val) return i;
+                }
+                return -1;
+            }
+        }
+    }
+})
 .factory('Comment', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->0:{userId:'doc01'}
