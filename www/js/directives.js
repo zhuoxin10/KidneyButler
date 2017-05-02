@@ -18,6 +18,7 @@ angular.module('kidney.directives', ['kidney.services'])
             var type='';
             $scope.msg.direct = $scope.msg.fromName==Storage.get('UID')?'send':'receive';
             $scope.getTemplateUrl = function(){
+                type=$scope.msg.contentType;
                 if($scope.msg.contentType=='custom'){
                     // type=$scope.msg.content.contentStringMap.type;
                     // $scope.customMsgUrl=JSON.parse($scope.msg.content.contentStringMap.picurl);
@@ -32,17 +33,10 @@ angular.module('kidney.directives', ['kidney.services'])
                         }catch(e){
                             
                         }
-                      // console.log(JSON.parse($scope.msg.content.contentStringMap));
                     }
-                    return 'partials/tabs/consult/msg/'+ type+'.html';
-
-                }
 
                 }
                 //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
-
-                // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
-                type=$scope.msg.contentType;
                 return 'partials/tabs/consult/msg/'+type+'.html';
             }
             
