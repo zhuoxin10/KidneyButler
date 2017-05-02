@@ -1,31 +1,39 @@
-<ion-view view-title="{{messages.name}}消息">
 
+<ion-view view-title="{{messages.name}}消息">
+  <ion-nav-bar class="bar-positive green-bg" align-title="center">
+    <ion-nav-buttons side="left">
+      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
     <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-    <ion-content padding="true" style="">
+    <ion-content  style="">
 
     <div class="card" ng-show="messages.values.length==0">
         <div class="item item-text-wrap">
             暂时没有此类消息
         </div>
     </div>
-
-    <div class="list card" ng-repeat="message in messages.values">
-
-        <div class="item item-avatar">
+      <!--<div class="list">
+        <a class="item item-avatar" href="#">
+          <img   src="/img/icon_paymessage.png">
+          <div><span>中国移动</span><span style="float: right">04-11</span></div>
+          <p>你好你的话费充值成功</p>
+        </a>
+        <a class="item item-avatar" href="#">
+          <img   src="/img/icon_paymessage.png">
+          <div><span>中国移动</span><span style="float: right">04-11</span></div>
+          <p>你好你的话费充值成功</p>
+        </a>
+      </div>-->
+    <div class="all-message-list">
+        <a class="item item-avatar new-message"  ng-repeat="message in messages.values">
             <img ng-src="img/{{avatar}}">
-            <h2>{{message.title}}</h2>
-            <p>{{message.time|dateFormat:"YYYY-MM-DD h:m"}}</p>
-        </div>
-
-        <div class="item item-body item-text-wrap">
-            <p>
-                {{message.description}}
-            </p>
-        </div>
-
-    </div>           
+          <div><span>{{message.title}}</span><span style="float: right">{{message.time|dateFormat:"YYYY-MM-DD h:m"}}</span></div>
+          <p> {{message.description}}</p>
+        </a>
+    </div>
   </ion-content>
-          
+
 </ion-view>
 <!-- <ion-view title="{{title}}">
 
@@ -48,7 +56,7 @@
       </ion-item>
 
 
-    </ion-list> 
+    </ion-list>
   </ion-content>
-          
+
 </ion-view> -->

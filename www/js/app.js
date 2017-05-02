@@ -56,59 +56,6 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
                 // console.log(JSON.stringify(message));
             }
         }, false);
-             //显示通知栏消息
-            document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
-                console.info('[jmessage.onReceiveCustomMessage]:' );
-                console.log(msg);
-
-            //      if(msg.content.contentStringMap.type=='card'){
-                 
-
-            //     var counsel=JSON.parse(msg.content.contentStringMap.counsel);
-            //     // $rootScope.$broadcast('receiveMessage',msg);
-            //     if (msg.targetType == 'single' && msg.fromName != $rootScope.conversation.id) {
-            //         if(msg.content.contentStringMap.doctorId==msg.content.contentStringMap.targetId) prefix='[咨询]';
-            //         else prefix='[咨询转发]';
-            //         if(msg.content.contentStringMap.type=='card'){
-            //             if (device.platform == "Android") {
-            //                 window.plugins.jPushPlugin.addLocalNotification(1, prefix+counsel.help, msg.targetName, msg.serverMessageId, 0, msg);
-            //             } else {
-            //                 window.plugins.jPushPlugin.addLocalNotificationForIOS(0, prefix+counsel.help, 1, msg.serverMessageId, msg);
-            //             }
-            //         }
-                    
-            //     }
-            //     if (msg.targetType == 'group' && msg.targetID != $rootScope.conversation.id) {
-            //         if(msg.content.contentStringMap.type=='card'){
-            //             if (device.platform == "Android") {
-            //                     window.plugins.jPushPlugin.addLocalNotification(1, '[团队咨询]', msg.fromNickname, msg.serverMessageId, 0, msg);
-            //             } else {
-            //                 window.plugins.jPushPlugin.addLocalNotificationForIOS(0, '[团队咨询]', 1, msg.serverMessageId, msg);
-            //             }
-            //         }else if(msg.content.contentStringMap.type=='contact'){
-            //         }
-            //     }
-            // }else 
-            if(msg.content.contentStringMap.type=='endl'){
-                if (msg.targetType == 'single' && msg.fromName != $rootScope.conversation.id) {
-                    if(msg.content.contentStringMap.counseltype==1){
-                     prefix='[咨询已结束]';
-                    }else{prefix='[问诊已结束]';}
-                    
-                        if (device.platform == "Android") {
-                            window.plugins.jPushPlugin.addLocalNotification(1, prefix+"请评价", msg.targetName, msg.serverMessageId, 0, msg);
-                        } else {
-                            window.plugins.jPushPlugin.addLocalNotificationForIOS(0, prefix+"请评价", 1, msg.serverMessageId, msg);
-                        }
-                    
-                    
-                }
-
-            }
-
-            
-
-            }, false);
         // document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
         //     console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
         //     // $rootScope.$broadcast('receiveMessage',msg);
@@ -158,7 +105,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl: 'partials/login/agreement.html',
       controller: 'AgreeCtrl'
     })
-    .state('phonevalid', { 
+    .state('phonevalid', {
       cache: false,
       url: '/phonevalid',
       params:{phonevalidType:null},
@@ -192,15 +139,21 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       templateUrl:'partials/messages/VaryMessage.html',
       controller:'VaryMessageCtrl'
     })
+    .state('messageDetails',{
+      cache:false,
+      url:'/messageDetails',
+      templateUrl:'partials/messages/messageDetail.html',
+      controller:'messageDetailsCtrl'
+    })
     .state('payment',{
       cache:false,
       url:'/payment',
       params:{messageType:null},
       templateUrl:'partials/payment/payment.html',
       controller:'paymentCtrl'
-    });   
-    
-    //主页面    
+    });
+
+    //主页面
   $stateProvider
     .state('tab', {
       cache:false,
@@ -241,7 +194,6 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-chat', {
       url: '/consult/chat/:chatId',
-      params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -326,18 +278,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           }
 
         }
-         
-    })
-    .state('tab.DiagnosisInfo', {
-        url: '/mine/DiagnosisInfo',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/diagnosisInfo.html',
-            controller: 'DiagnosisCtrl'
-          }
 
-        }
-         
     })
     .state('tab.myConsultRecord', {
         url: '/mine/ConsultRecord',
@@ -348,7 +289,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           }
 
         }
-         
+
     })
     .state('tab.myHealthInfo', {
         url: '/mine/HealthInfo',
@@ -359,7 +300,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           }
 
         }
-         
+
     })
     .state('tab.myHealthInfoDetail', {
         url: '/mine/HealthInfoDetail/',
@@ -371,7 +312,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           }
 
         }
-         
+
     })
      .state('tab.myMoney', {
         url: '/mine/Account/',
@@ -381,8 +322,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
             controller: 'MoneyCtrl'
           }
 
-        }     
-         
+        }
+
     })
      .state('tab.about',{
       cache:false,
@@ -393,7 +334,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
             controller:'aboutCtrl'
         }
       }
-      
+
     })
     .state('tab.changePassword',{
         cache:false,
@@ -404,7 +345,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
                 controller:'changePasswordCtrl'
             }
         }
-      
+
     })
 
     .state('tab.taskSet', {
@@ -414,8 +355,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
             templateUrl: 'partials/tabs/task/taskSet.html',
             controller: 'TaskSetCtrl'
           }
-        }           
-    })  
+        }
+    })
 
      //肾病保险
   $stateProvider
@@ -460,12 +401,12 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 
 
 
-   
- 
 
 
 
-});   
 
 
- 
+});
+
+
+

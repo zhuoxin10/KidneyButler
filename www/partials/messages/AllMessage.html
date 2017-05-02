@@ -1,57 +1,83 @@
 <ion-view title="消息中心" >
 
-  <ion-nav-bar class="bar-positive nav-title-slide-ios7" style="" >
-      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
-         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
-      </ion-nav-buttons>
-    </ion-nav-bar>
+  <ion-nav-bar class="bar-positive green-bg" align-title="center">
+    <ion-nav-buttons side="left">
+      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
 
 
-  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-  <ion-content padding="true" style="">
+  <!--<div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>-->
+  <ion-content  style="" class="all-message-cont">
 
-    <ion-list>
+    <ion-list class="all-message-list">
 
       <!-- 支付消息 -->
-      <ion-item class="item-thumbnail-left" ng-click="getMessageDetail('ZF')">
+   <!--   <ion-item class="item-thumbnail-left" ng-click="getMessageDetail('ZF')">
         <img ng-src="img/payment.png">
         <h2 style="margin-top: 30px;">支付消息</h2>
         <span class="badge badge-assertive" style="margin-top: 20px;" ng-if="messages.ZF.values.length">{{messages.ZF.values.length}}</span>
       </ion-item>
-
+-->  <ion-item class="item item-avatar right new-message"ng-click="getMessageDetail('ZF')">
+      <img   src="/img/icon_paymessage.png">
+      <h2>支付消息</h2>
+      <p>[{{messages.ZF.values.length}}条]你有新的支付消息请注意查收</p>
+    </ion-item>
       <!-- 警报消息 -->
-      <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('JB')">
+    <!--  <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('JB')">
         <img ng-src="img/alert.png">
         <h2 style="margin-top: 30px;">警报消息</h2>
         <span class="badge badge-assertive" style="margin-top: 20px;" ng-if="messages.JB.values.length">{{messages.JB.values.length}}</span>
-      </ion-item>
+      </ion-item>-->
 
+      <ion-item class="item item-avatar right "ng-click="getMessageDetail('JB')">
+        <img   src="/img/icon_warning.png">
+        <h2>警报消息</h2>
+        <p>[{{messages.JB.values.length}}条]你有新的支付消息请注意查收</p>
+      </ion-item>
       <!-- 任务消息 -->
-      <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('RW')">
+     <!-- <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('RW')">
         <img ng-src="img/task.png">
         <h2 style="margin-top: 30px;">任务消息</h2>
         <span class="badge badge-assertive" style="margin-top: 20px;" ng-if="messages.RW.values.length">{{messages.RW.values.length}}</span>
+      </ion-item>-->
+
+      <ion-item class="item item-avatar right "ng-click="getMessageDetail('RW')">
+        <img   src="/img/icon_renwu.png">
+        <h2>待做任务</h2>
+        <p>[{{messages.RW.values.length}}条]你有新的支付消息请注意查收</p>
       </ion-item>
 
       <!-- 保险消息 -->
-      <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('BX')">
+     <!-- <ion-item class="item-thumbnail-left item-text-wrap" ng-click="getMessageDetail('BX')">
         <img ng-src="img/security.png">
         <h2 style="margin-top: 30px;">保险消息</h2>
         <span class="badge badge-assertive" style="margin-top: 20px;" ng-if="messages.BX.values.length">{{messages.BX.values.length}}</span>
+      </ion-item>-->
+      <ion-item class="item item-avatar right "ng-click="getMessageDetail('BX')">
+        <img   src="/img/icon_renwu.png">
+        <h2>保险消息</h2>
+        <p>[{{messages.BX.values.length}}条]你有新的支付消息请注意查收</p>
       </ion-item>
 
       <!-- 聊天消息 -->
-      <ion-item ng-repeat="consult in messages.LT.values" class="item-thumbnail-left" ng-click="getConsultRecordDetail()">
+     <!-- <ion-item ng-repeat="consult in messages.LT.values" class="item-thumbnail-left" ng-click="getConsultRecordDetail()">
         <img ng-src="{{consult.img}}">
         <h2>{{consult.title}}</h2>
         <p style="text-align: right">{{consult.time|dateFormat:"YYYY-MM-DD h:m"}}</p>
         <p>{{consult.description}}</p>
+      </ion-item>-->
+      <ion-item ng-repeat="consult in messages.LT.values" class="item item-avatar" ng-click="getConsultRecordDetail()">
+
+        <img ng-src="{{consult.img}}">
+        <div><span>{{consult.title}}</span><span style="float: right">{{consult.time|dateFormat:"MM-DD"}}</span></div>
+        <p style="white-space:normal;margin-top: 10px">{{consult.description}}</p>
+
       </ion-item>
 
-
-    </ion-list> 
+    </ion-list>
   </ion-content>
-          
+
 </ion-view>
 <!-- <ion-view title="消息中心" >
 
@@ -82,12 +108,12 @@
 
 
     </ion-list>
-    
-    
-    
 
 
-           
+
+
+
+
   </ion-content>
-          
+
 </ion-view> -->
