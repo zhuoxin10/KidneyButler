@@ -1,5 +1,5 @@
 <ion-view cache-view="false" title="肾病保险服务">
-  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
+  <ion-nav-bar class="bar-dark nav-title-slide-ios7 green-bg" style="" >
       <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
          <button class="button button-clear"  ng-click="Back()"><i class="icon ion-chevron-left"></i>返回</button>
       </ion-nav-buttons>
@@ -12,19 +12,19 @@
         <i class="icon" ng-class="isShown() ? 'ion-android-arrow-dropdown' : 'ion-android-arrow-dropright'"></i>
         &nbsp;
          菜单选项
-      </ion-item> 
+      </ion-item>
       <ion-item class="item-accordion" ng-show="isShown()">
       	<div ng-click="intension()">
-      		<span class="ion-android-arrow-dropright">我有意向</span> 
+      		<span class="ion-android-arrow-dropright">我有意向</span>
       	</div>
         <div ng-click="expense()">
-        	<span class="ion-android-arrow-dropright">保费计算小工具</span> 
-        </div>    
+        	<span class="ion-android-arrow-dropright">保费计算小工具</span>
+        </div>
         <div ng-click="kidneyfunction()">
-        	<span class="ion-android-arrow-dropright">肾功能计算小工具</span> 
+        	<span class="ion-android-arrow-dropright">肾功能计算小工具</span>
         </div>
         <!-- <div ng-click="staff()">
-        	<span class="ion-android-arrow-dropright">工作人员入口</span> 
+        	<span class="ion-android-arrow-dropright">工作人员入口</span>
         </div> -->
       </ion-item>
     </div>

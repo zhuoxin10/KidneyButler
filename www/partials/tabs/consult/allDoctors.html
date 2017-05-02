@@ -1,74 +1,76 @@
 
 <ion-view cache-view="false" title="医生列表" >
-
-  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
-      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
-         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
-      </ion-nav-buttons>
-    </ion-nav-bar>
-
-    <div class="bar" style="position:absolute;top:44px">
-        <div style="text-align:center;height:44px" class="row">
-        <select class="col" ng-model="Province.province" ng-options="Province.name for Province in Provinces track by Province.province" style="width:40%" ng-change="getCity(Province.province)"> 
-          <option selected value="">省份</option>    
+  <ion-nav-bar class="bar-positive green-bg" align-title="center">
+    <ion-nav-buttons side="left">
+      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
+  <div class="bar" style="position:absolute;top:44px;background: #f5f5f5;text-align: center">
+    <label class="item-input" style="width:100%">
+        <span class="item-input-wrapper" style="margin-right:16px;background: #fff;border-radius: 5px">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+            <input type="search" placeholder="请输入搜索医生姓名" ng-model="searchCont.t" ng-change="search()">
+            <i class="icon ion-close-circled placeholder-icon" style="vertical-align: middle;"  on-tap="clearSearch()" ng-if="searchCont.t.length"></i>
+        </span>
+    </label>
+  </div>
+    <div class="bar all-doctors-select" style="position:absolute;top:88px;height: 40px">
+        <div style="text-align:center;height:28px;padding: 0;line-height: 28px" class="row">
+        <select class="col" ng-model="Province.province" ng-options="Province.name for Province in Provinces track by Province.province" style="" ng-change="getCity(Province.province)">
+          <option selected value="">省份</option>
         </select>
-        <select class="col" ng-model="City.city" ng-options="City.name for City in Cities track by City.city" style="width:40%" ng-change="getHospital(Province.province,City.city)"> 
-          <option selected value="">城市</option>     
+        <select class="col" ng-model="City.city" ng-options="City.name for City in Cities track by City.city" style="width:40%" ng-change="getDistrict(Province.province,City.city)">
+          <option selected value="">城市</option>
         </select>
-       <!--  <select class="col" ng-model="District.district" ng-options="District.name for District in Districts track by District.district" style="width:40%" ng-change="getHospital(Province.province,City.city,District.district)">     
-          <option selected value="">区县</option> 
-        </select> -->
-        <select class="col" ng-model="Hospital.hospitalName" ng-options="Hospital.hospitalName for Hospital in Hospitals" style="width:40%" ng-change="getDoctorByHospital(Hospital.hospitalName)">     
-          <option selected value="">医院</option> 
+        <select class="col" ng-model="District.district" ng-options="District.name for District in Districts track by District.district" style="width:40%" ng-change="getHospital(Province.province,City.city,District.district)">
+          <option selected value="">区县</option>
+        </select>
+        <select class="col" ng-model="Hospital.hostipalCode" ng-options="Hospital.hospitalName for Hospital in Hospitals track by Hospital.hostipalCode" style="width:40%" ng-change="getDoctorByHospital(Hospital.hostipalCode)">
+          <option selected value="">医院</option>
         </select>
       </div>
-    </div>      
-      
-    <div class="bar" style="position:absolute;top:88px">
-      <label class="item-input" style="width:100%">        
-        <span class="item-input-wrapper" style="margin-right:16px">  
-          <i class="icon ion-ios-search placeholder-icon"></i>  
-            <input type="search" placeholder="请输入搜索医生全名" ng-model="searchCont.t" ng-change="search()">  
-            <i class="icon ion-close-circled placeholder-icon" style="vertical-align: middle;"  on-tap="clearSearch()" ng-if="searchCont.t.length"></i>  
-        </span>  
-      </label>
     </div>
 
-    
+
+
+
 
 
 
   <div  style="position: absolute;top:89px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-  <ion-content padding="true" style="">
+  <ion-content style="" class="bg-fa">
 
-      
-    
-    <ion-list style="position: absolute;top:89px;width: 95%">
 
-      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.userId)">
-        <img ng-src="{{doctor.photoUrl  || 'img/doctor3.PNG'}}">
+
+    <ion-list style="position: absolute;top:89px;width: 100%">
+
+      <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.userId)" style="border-top:0;border-bottom: 1px solid #e6e6e6!important;margin: 0 ">
+        <img style="border-radius: 100%;top: 35px;" ng-src="{{doctor.photoUrl  || 'img/doctor3.PNG'}}">
         <span>{{doctor.name}}</span>
         <span style="float: right">{{doctor.department}}</span>
         <p>{{doctor.workUnit}}  {{doctor.title}}</p>
         <p style="font-size: 12px">擅长：{{doctor.major}}</p>
         <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
         <div class="row" style="font-size: 12px">
-            <div class="col" style="color:#2B67F5"><i class="icon ion-star"></i><span>{{doctor.score||"无"}}</span></div>
-            <div class="col" style="color:#2B67F5"><span style="margin-left: 10px">咨询量：{{doctor.count1}}</span></div>
-            <div class="col" style="color:#2B67F5"> <span style="margin-left: 10px">问诊量：{{doctor.count2}}</span></div>
-            <div class="col" style="color:#181544;font-size:14px;font-weight:bold;"><span><i class="icon ion-help-circled"></i>咨询</span></div>
-            <div class="col" style="color:#181544;font-size:14px;font-weight:bold;"><span><i class="icon ion-person-stalker"></i>问诊</span></div>
-        </div>
-        
+            <div class="col font-c" ><span>评分:{{doctor.score}}</span></div>
+            <div class="col font-c" >咨询量：{{doctor.count1}}</span></div>
+            <div class="col font-c" > 问诊量：{{doctor.count2}}</span></div>
 
+        </div>
+        <div class="row">
+
+        <div class="col-40"></div>
+        <div class="col icon-c"><span><i class="icon iconfont icon-zixun2" style="vertical-align: middle;margin-right: 5px"></i>咨询</span></div>
+        <div class="col icon-c"><span><i class="icon iconfont icon-baojifuben" style="vertical-align: middle;margin-right: 5px"></i>问诊</span></div>
+        </div>
       </ion-item>
     </ion-list>
-    
-    
-    
 
 
-     <ion-infinite-scroll ng-if="moredata" on-infinite="loadMore(params)" distance="1%"></ion-infinite-scroll>   
+
+
+
+     <ion-infinite-scroll ng-if="moredata" on-infinite="loadMore(params)" distance="1%"></ion-infinite-scroll>
   </ion-content>
-          
+
 </ion-view>

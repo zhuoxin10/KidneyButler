@@ -1,26 +1,32 @@
 <ion-view cache-view="false" title="个人信息">
-  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
-    <ion-nav-back-button class="button-icon ion-arrow-left-c">
-    </ion-nav-back-button>
-    
+  <ion-nav-bar class="bar-positive green-bg" align-title="center">
+    <ion-nav-buttons side="left">
+      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+      <button  class="button button-icon button-balanced " ng-click ="submit()">
+        下一步
+      </button>
+    </ion-nav-buttons>
+
   </ion-nav-bar>
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
-  <ion-content padding="true" style="">
-    
+  <ion-content  style="">
+
     <div  class="list">
       <label class="item item-input">
         <span class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>姓名</span>
         <input  ng-model="BasicInfo.name"  type="text" style="width:100%">
       </label>
-    
-    
+
+
       <label  class="item item-input item-select">
         <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>性别</div>
         <select ng-model="BasicInfo.gender" ng-options="Gender.Name for Gender in Genders track by Gender.Type" style="width:100%">
-          
+
         </select>
       </label>
-      
+
 
       <label  class="item item-input item-select">
         <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>血型</div>
@@ -31,21 +37,21 @@
       <label  class="item item-input item-select">
         <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>是否高血压</div>
         <select ng-model="BasicInfo.hypertension" ng-options="Hyper.Name for Hyper in Hypers track by Hyper.Type" style="width:100%">
-          
+
         </select>
       </label>
 
       <label  class="item item-input item-select">
         <div class="input-label"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>肾病类型</div>
         <select ng-model="BasicInfo.class" ng-options=" Disease.typeName for Disease in Diseases track by Disease.type" style="width:100%" ng-change="getDiseaseDetail(BasicInfo.class)">
-           
+
         </select>
       </label>
 
         <label class="item item-input" ng-if="showProgress">
           <div class="input-label"></i>疾病进程</div>
           <select ng-model="BasicInfo.class_info" ng-options=" DiseaseDetail.name for DiseaseDetail in DiseaseDetails track by DiseaseDetail.code" style="width:100%">
-             
+
           </select>
          <!--  <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>疾病进程</span>
           <input  ng-model="BasicInfo.DiseaseDetail"  type="text"> -->
@@ -53,7 +59,7 @@
 
         <ionic-datepicker input-obj="datepickerObject2" class="item item-input" ng-if="showSurgicalTime">
         <span class="input-label"><!-- <i class="icon ion-asterisk" style="color:red;font-size:6px"> --></i>{{timename}}</span>
-        <input  ng-model="BasicInfo.operationTime" dateformat type="text">
+        <input  ng-model="BasicInfo.operationTime"  type="text">
         </ionic-datepicker>
 
         <label class="item item-input">
@@ -66,7 +72,7 @@
         <span class="input-label" style="margin-left:8px ">身高（cm）</span>
         <input  ng-model="BasicInfo.height"  type="text"  style="width:100%" >
       </label>
-    
+
       <label class="item item-input">
        <span class="error" ng-show="Weight.$error.pattern" style="color:red"></span>
         <span class="input-label" style="margin-left:8px ">体重（kg）</span>
@@ -75,7 +81,7 @@
 
       <ionic-datepicker input-obj="datepickerObject3" class="item item-input">
         <span class="input-label" style="margin-left:8px ">出生日期</span>
-        <input  ng-model="BasicInfo.birthday" dateformat  type="text">
+        <input  ng-model="BasicInfo.birthday"  type="text">
       </ionic-datepicker>
 
       <label class="item item-input">
@@ -86,20 +92,18 @@
     </div>
 
 
-    
 
-   
+
+
 
     </div>
-      <button style="margin-top:0" class="button button-block button-balanced" ng-click ="submit()">
-            下一步
-      </button>
+
       <!-- <button style="margin-top:0" class="button button-block button-balanced" class="button button-clear" ng-if="CanSkip" ng-click="SKip()">跳过
       </button> -->
-    
 
 
-           
+
+
   </ion-content>
-          
+
 </ion-view>
