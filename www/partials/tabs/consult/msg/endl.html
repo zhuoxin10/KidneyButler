@@ -5,8 +5,8 @@
 	<!-- <div class="msg-body" > -->
 		<!-- text content -->
 		<div  >{{msg.content.contentStringMap.info}}</div>
-		<div >{{msg.content.contentStringMap.time | data:'M/d/yy h:mm a'}}</div>
-        	<a herf="" ng-click="emitEvent('gopingjia',msg.contentStringMap.docId)">评价医生</a>
+	<div >{{msg.createTimeInMillis | msgdate}}</div>
+        	<div ng-click="emitEvent('gopingjia',msg.contentStringMap.docId)">点此评价医生</div>
 	</div>
 
 </div>
