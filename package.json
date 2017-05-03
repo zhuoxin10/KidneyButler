@@ -29,7 +29,7 @@
     "cordova-plugin-compat",
 	 {
       "id": "jmessage-phonegap-plugin",
-      "locator": "jmessage-phonegap-plugin",
+      "locator": "../jmessage-phonegap-plugin",
       "variables": {
         "APP_KEY": "fe7b9ba069b80316653274e4"
       }
