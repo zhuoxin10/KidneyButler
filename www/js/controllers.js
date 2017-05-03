@@ -2594,10 +2594,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     $scope.Hypers =
-  [
-    {Name:"是",Type:1},
-    {Name:"否",Type:2}
-  ]
+    [
+      {Name:"是",Type:1},
+      {Name:"否",Type:2}
+    ]
 
     var showProgress = function(diseaseType){
         switch(diseaseType)
