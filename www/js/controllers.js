@@ -3444,7 +3444,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     })
     $scope.$on('profile', function(event, args) {
             event.stopPropagation();
-            $state.go('tab.DoctorDetail',{DoctorId:args[1]});
+            if(args[1].direct=='receive')
+            {$state.go('tab.DoctorDetail',{DoctorId:args[1].fromName});}
         })
     $scope.$on('gopingjia', function(event, args) {
             event.stopPropagation();
