@@ -4391,7 +4391,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{//status==0 咨询已经结束
               $ionicPopup.confirm({
                 title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4419,7 +4419,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{
               $ionicPopup.confirm({
                 title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4434,7 +4434,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       }else{
         $ionicPopup.confirm({
           title:"咨询确认",
-          template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+          template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
           okText:"确认",
           cancelText:"取消"
         }).then(function(res){
@@ -4459,9 +4459,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
-                console.log(222)
                   //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:id,patientId:Storage.get('UID'),type:1,changeType:true}).then(function(data){
+                  Counsels.changeType({doctorId:id,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
                     console.log(data.result)
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
@@ -4481,7 +4480,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{//咨询已结束 新建问诊
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4505,7 +4504,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4518,7 +4517,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }else{
           $ionicPopup.confirm({
             title:"问诊确认",
-            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
             okText:"确认",
             cancelText:"取消"
           }).then(function(res){
@@ -4655,7 +4654,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{//status==0 咨询已经结束
               $ionicPopup.confirm({
                 title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4685,7 +4684,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{
               $ionicPopup.confirm({
                 title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4700,7 +4699,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       }else{
         $ionicPopup.confirm({
           title:"咨询确认",
-          template:"进入咨询后，根据您提供的问卷描述，医生会最多回答三次，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷中详细描述病情和需求。确认付费咨询？",
+          template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
           okText:"确认",
           cancelText:"取消"
         }).then(function(res){
@@ -4729,7 +4728,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1}).then(function(data){
+                  Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
                     console.log(data.result)
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分
@@ -4750,7 +4749,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{//咨询已结束 新建问诊
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4774,7 +4773,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }else{
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -4787,7 +4786,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }else{
           $ionicPopup.confirm({
             title:"问诊确认",
-            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷中详细描述病情和需求。确认付费问诊？",
+            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
             okText:"确认",
             cancelText:"取消"
           }).then(function(res){
