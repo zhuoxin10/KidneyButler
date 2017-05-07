@@ -1,7 +1,8 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce) {
   $scope.barwidth="width:0%";
+  $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
   // Storage.set("personalinfobackstate","logOn");
 
 
@@ -5994,14 +5995,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     .then(function(data)
     {
       console.log(data)
-      $http({
-          method  : 'POST',
-          url     : 'http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx'
-      }).success(function(d) {
-              // console.log(data);
-          $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
-          $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
-      });
+      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
+      $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
     })
 
 }])
