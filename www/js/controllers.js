@@ -133,6 +133,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             $timeout(function(){$state.go('setpassword',{phonevalidType:'register'});},500);
         }
     }
+
+     var a=document.getElementById("agreement");
+        // console.log(document.body.clientHeight);
+        console.log(window.screen.height);
+        a.style.height=window.screen.height*0.72+"px";
+
 }])
 
 
@@ -1016,17 +1022,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //主页面--PXY
-.controller('GoToMessageCtrl', ['$scope','$timeout','$state', function($scope, $timeout,$state) {
+.controller('GoToMessageCtrl', ['$interval','News','Storage','$scope','$timeout','$state', function($interval,News,Storage,$scope, $timeout,$state) {
 
-  $scope.GoToMessage = function(){
-    $state.go('messages');
-  }
-  $scope.gotomine=function(){
-    $state.go('tab.mine');
-  }
-  $scope.gotomyDoctors=function(){
-    $state.go('tab.myDoctors')
-  }
+    $scope.hasUnreadMessages = false;
+    $scope.GoToMessage = function(){
+      $state.go('messages');
+    }
+    $scope.gotomine=function(){
+      $state.go('tab.mine');
+    }
+    $scope.gotomyDoctors=function(){
+      $state.go('tab.myDoctors')
+    }
+    var RefreshUnread;
+    var GetUnread = function(){
+        // console.log(new Date());
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+            function(data){
+                if(data.results.length){
+                    $scope.HasUnreadMessages = true;
+                    // console.log($scope.HasUnreadMessages);
+                }
+            },function(err){
+                    console.log(err);
+            });
+    }
+    GetUnread();
+    RefreshUnread = $interval(GetUnread,30000);
+    
 }])
 
 
@@ -2968,7 +2991,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 //咨询记录--PXY
-.controller('ConsultRecordCtrl', ['arrTool','$q','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(arrTool,$q,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
+.controller('ConsultRecordCtrl', ['News','arrTool','$q','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(News,arrTool,$q,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
 
   $scope.barwidth="width:0%";
 
@@ -2977,53 +3000,53 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   //根据患者ID查询其咨询记录,对response的长度加一定限制
 
-    var patientID = Storage.get('UID');
-    console.log(patientID);
+    // var patientID = Storage.get('UID');
+    // console.log(patientID);
     // var patientID = 'p01';
 
-    function msgNoteGen(msg){
-        var fromName='',note='';
-        if(msg.targetType=='group') fromName=msg.fromName+ ':';
+    // function msgNoteGen(msg){
+    //     var fromName='',note='';
+    //     if(msg.targetType=='group') fromName=msg.fromName+ ':';
         
-        if(msg.contentType=='text'){
-            note=msg.content.text;
-        }else if(msg.contentType=='image'){
-            note='[图片]';
-        }else if(msg.contentType=='voice'){
-            note='[语音]';
-        }else if(msg.contentType=='custom'){
-            if(msg.content.contentStringMap.type='card') note='[患者病历]';
-            else if(msg.content.contentStringMap.type='contact') note='[联系人名片]';
-        }
-        return fromName +note;
-    }
+    //     if(msg.contentType=='text'){
+    //         note=msg.content.text;
+    //     }else if(msg.contentType=='image'){
+    //         note='[图片]';
+    //     }else if(msg.contentType=='voice'){
+    //         note='[语音]';
+    //     }else if(msg.contentType=='custom'){
+    //         if(msg.content.contentStringMap.type='card') note='[患者病历]';
+    //         else if(msg.content.contentStringMap.type='contact') note='[联系人名片]';
+    //     }
+    //     return fromName +note;
+    // }
 
-    function setSingleUnread(doctors){
-        return $q(function(resolve,reject){
-            if(window.JMessage){
-                window.JMessage.getAllSingleConversation(
-                function(data){
-                    if(data!=''){
-                        var conversations = JSON.parse(data);
-                        for(var i in doctors){
-                            var index=arrTool.indexOf(conversations,'targetId',doctors[i].userId);
-                            if(index!=-1){
-                                // doctors[i].unRead=conversations[index].unReadMsgCnt;
-                                doctors[i].latestMsg = msgNoteGen(conversations[index].latestMessage);
-                                doctors[i].lastMsgDate = conversations[index].lastMsgDate;
-                            }
-                        }
-                    }
-                    resolve(doctors);
-                },function(err){
-                    // $scope.doctors = doctors;
-                    resolve(doctors);
-                });
-            }else{
-                resolve(doctors);
-            }
-        });
-    }
+    // function setSingleUnread(doctors){
+    //     return $q(function(resolve,reject){
+    //         if(window.JMessage){
+    //             window.JMessage.getAllSingleConversation(
+    //             function(data){
+    //                 if(data!=''){
+    //                     var conversations = JSON.parse(data);
+    //                     for(var i in doctors){
+    //                         var index=arrTool.indexOf(conversations,'targetId',doctors[i].userId);
+    //                         if(index!=-1){
+    //                             // doctors[i].unRead=conversations[index].unReadMsgCnt;
+    //                             doctors[i].latestMsg = msgNoteGen(conversations[index].latestMessage);
+    //                             doctors[i].lastMsgDate = conversations[index].lastMsgDate;
+    //                         }
+    //                     }
+    //                 }
+    //                 resolve(doctors);
+    //             },function(err){
+    //                 // $scope.doctors = doctors;
+    //                 resolve(doctors);
+    //             });
+    //         }else{
+    //             resolve(doctors);
+    //         }
+    //     });
+    // }
 
     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
     var FilterDoctor = function(arr){
@@ -3038,55 +3061,57 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
         return result;
     }
-    var promise = Patient.getCounselRecords({userId:patientID});
-    promise.then(function(data){
-        if(data.results!=""){
 
-            FilteredDoctors = FilterDoctor(data.results);
-            console.log(FilteredDoctors);
+    var RefreshCounSelRecords = function(){
+        var promise = Patient.getCounselRecords({userId:Storage.get('UID')});
+        promise.then(function(data){
+            console.log(data);
+            if(data.results!=""){
 
-            setSingleUnread(FilteredDoctors)
-            .then(function(doctors){
-                $scope.items=doctors;
+                FilteredDoctors = FilterDoctor(data.results);
+                console.log(FilteredDoctors);
+                News.getNews({userId:Storage.get('UID'),type:4}).then(
+                    function(data){
+                        console.log(data.results);
+                        if(data.results){
+                            for(x in FilteredDoctors){
+                                for(y in data.results){
+                                    if(FilteredDoctors[x].userId==data.results[y].sendBy||FilteredDoctors[x].userId==data.results[y].userId){
+                                        FilteredDoctors[x].lastMsgDate = data.results[y].time;
+                                        FilteredDoctors[x].latestMsg = data.results[y].description;
+                                    }
+                                }
+                            }
+                            $scope.items = FilteredDoctors;
+                            console.log(FilteredDoctors);
+                        }
+                    },function(err){
+                        console.log(err);
+                    }
+                );
+                // setSingleUnread(FilteredDoctors)
+                // .then(function(doctors){
+                //     $scope.items=doctors;
+                // });
+            }else{
+                $ionicLoading.show({
+                    template:'暂时没有咨询记录！',
+                    duration:1000
             });
+            }
+        },function(err){
+            console.log(err);
 
-            // items = new Array();
-            // console.log(FilteredDoctors)
-            // for(x in FilteredDoctors){
-            //     var doctor = FilteredDoctors[x];
-            //     console.log(doctor);
-
-            //     var messages = doctor.messages;
-            //     console.log("messages:" + messages);
-
-
-            //     var res = "您已发起咨询，医生暂未回复，请稍后！";
-            //     for(var i = messages.length-1;i>=0;i--){
-            //         if(messages[i].sender==doctor.doctorId.userId){
-            //             res = messages[i].content;
-            //         }
-            //     }
-            //     if(doctor.doctorId.photoUrl==""){
-            //         doctor.doctorId.photoUrl = "img/DefaultAvatar.jpg";
-            //     }
-            //     var consultTime = doctor.time;
-                
-            //     var item ={docId:doctor.doctorId.userId,img:doctor.doctorId.photoUrl,name:doctor.doctorId.name,time:consultTime,response:res};
-            //     items.push(item);
-
-            // }
-            // $scope.items = items;
-
-        }else{
-            $ionicLoading.show({
-                template:'暂时没有咨询记录！',
-                duration:1000
         });
-        }
-    },function(err){
-        console.log(err);
+    }
 
-    });
+
+    RefreshCounSelRecords();
+    $scope.do_refresher = function(){
+        RefreshCounSelRecords();
+        $scope.$broadcast('scroll.refreshComplete');
+    }
+    
     
   $scope.getConsultRecordDetail = function(ele,doctorId) {
     var template="";
@@ -4087,84 +4112,286 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //消息中心--PXY
-.controller('messageCtrl', ['$scope','$state','$ionicHistory','Dict','Message','Storage',function($scope, $state,$ionicHistory,Dict,Message,Storage) {
+.controller('messageCtrl', ['$ionicPopup','Counsels','$q','$scope','$state','$ionicHistory','News','Storage','Doctor',function($ionicPopup,Counsels,$q,$scope, $state,$ionicHistory,News,Storage,Doctor) {
     $scope.barwidth="width:0%";
-    //get all message types
-    Dict.typeOne({category:'MessageType'})
-    .then(function(data)
-    {
-        // console.log(data.results.details)
-        var messages={};
-        angular.forEach(data.results.details,function(value,key)
-        {
-            // console.log(value)
-            messages[value.inputCode]={name:value.name,code:value.code,values:[]};
-        })
-        // console.log(messages)
-        Message.getMessages({userId:Storage.get('UID'),type:""})//Storage.get('UID')
-        .then(function(data)
-        {
-            // console.log(data)
-            angular.forEach(data.results,function(value,key)
-            {
-                // console.log(value)
-                if(value.type==1)//支付消息
-                {
-                    messages.ZF.values.push(value)
+
+    var getDocNamePhoto = function(sender,doctor){
+        Doctor.getDoctorInfo({userId:sender}).then(
+            function(data){
+                if(data.results){
+                    doctor.docName = data.results.name;
+                    doctor.docPhoto = data.results.photoUrl;
                 }
-                else if(value.type==2)//警报消息
-                {
-                    messages.JB.values.push(value)
+                        
+            },function(err){
+                console.log(err);
+            });
+            // return doctor;
+    }
+ 
+    var Lastnews = function(){
+        var receiver = Storage.get('UID');
+        News.getNews({userId:receiver,type:1}).then(
+            function(data){
+                if(data.results.length){
+                    console.log(data.results);
+                    $scope.pay = data.results[0];
                 }
-                else if(value.type==3)//任务消息
-                {   
-                    messages.RW.values.push(value)
+                
+            },function(err){
+                console.log(err);
+            }
+        );
+
+        News.getNews({userId:receiver,type:2}).then(
+            function(data){
+                if(data.results.length){
+                    console.log(data.results);
+                    $scope.alert = data.results[0];
                 }
-                else if(value.type==4)//聊天消息
-                {
-                    messages.LT.values.push(value)
+            },function(err){
+                console.log(err);
+            }
+        );
+
+        News.getNews({userId:receiver,type:3}).then(
+            function(data){
+                if(data.results.length){
+                    console.log(data.results);
+                    $scope.task = data.results[0];
                 }
-                else if(value.type==5)//保险消息
-                {
-                    messages.BX.values.push(value)
+            },function(err){
+                console.log(err);
+            }
+        );
+
+        News.getNews({userId:receiver,type:5}).then(
+            function(data){
+                if(data.results.length){
+                    console.log(data.results);
+                    $scope.insurance = data.results[0];
                 }
-            })
-            console.log(messages)
-            Storage.set("allMessages",angular.toJson(messages));
-            $scope.messages=messages;
-        },function(err)
-        {
-            console.log(err)
-        })
-    },function(err)
-    {
-        console.log(err)
-    })
+            },function(err){
+                console.log(err);
+            }
+        );
+
+
+        News.getNewsByReadOrNot({userId:receiver,type:4,readOrNot:0}).then(
+            function(data){
+                if(data.results.length){
+                    
+                    for(var x in data.results){
+                        getDocNamePhoto(data.results[x].sendBy,data.results[x]);
+
+                    }
+                    // console.log($scope.chats);
+                }
+
+                $scope.chats=data.results;
+                    
+                
+            },function(err){
+                console.log(err);
+            }
+        );
+    }
+
+    Lastnews();
+
+    $scope.do_refresher = function(){
+        Lastnews();
+        $scope.$broadcast("scroll.refreshComplete");
+    }
+
+
+    
+    
+
 
     $scope.Goback = function(){
       $ionicHistory.goBack();
     }
 
-    $scope.getMessageDetail = function(type){
-        Storage.set("getMessageType",type);
+    var SetRead = function(message){
+        console.log(message);
+        if(message.readOrNot==0){
+            message.readOrNot = 1;
+            News.insertNews(message).then(
+                function(data){
+                    console.log(data);
+                    Lastnews();
+                },function(err){
+                    console.log(err);
+                }
+            );
+        }
+        
+        
+    }
+
+
+    $scope.getConsultRecordDetail = function(chat) {
+    var template="";
+    var counseltype=0;
+    var counselstatus='';
+    var doctorId=chat.sendBy;
+      
+        //zz最新方法根据docid pid 不填写type获取最新一条咨询信息
+        Counsels.getStatus({doctorId:doctorId,patientId:Storage.get('UID')})
+        .then(function(data){
+          console.log(data.result)
+          console.log(data.result.type)
+          console.log(data.result.status)
+          if(data.result.type==1){
+            if(data.result.status==1){//有尚未完成的咨询 直接进入
+               $ionicPopup.confirm({
+                  title:"咨询确认",
+                  template:"您有尚未结束的咨询，点击确认可以查看历史消息，在医生完成三次问答之前，您还可以对您的问题作进一步的描述。",
+                  okText:"确认",
+                  cancelText:"取消"
+              }).then(function(res){
+                  if(res){counseltype
+                      $state.go("tab.consult-chat",{chatId:doctorId,type:1,status:1}); //虽然传了type和status但不打算使用 byZYH
+                  }
+
+              })     
+            }else{
+              $ionicPopup.confirm({
+                  title:"咨询确认",
+                  template:"您的咨询已结束，点击确认可以查看历史消息，但是无法继续发送消息。",
+                  okText:"确认",
+                  cancelText:"取消"
+              }).then(function(res){
+                  if(res){counseltype
+                      $state.go("tab.consult-chat",{chatId:doctorId,type:1,status:0}); //虽然传了type和status但不打算使用 byZYH
+                  }
+
+              }) 
+            }
+          }else if(data.result.type==2||data.result.type==3){
+            if(data.result.status==1){//尚未结束的问诊
+              $ionicPopup.confirm({
+                  title:"问诊确认",
+                  template:"您有尚未结束的问诊，点击确认可以查看历史消息，在医生结束该问诊之前您还可以对您的问题作进一步的描述。",
+                  okText:"确认",
+                  cancelText:"取消"
+              }).then(function(res){
+                  if(res){counseltype
+                      $state.go("tab.consult-chat",{chatId:doctorId,type:data.result.type,status:1}); //虽然传了type和status但不打算使用 byZYH
+                  }
+
+              }) 
+            }else{
+              $ionicPopup.confirm({
+                  title:"问诊确认",
+                  template:"您的问诊已结束，点击确认可以查看历史消息，但是无法继续发送消息。",
+                  okText:"确认",
+                  cancelText:"取消"
+              }).then(function(res){
+                  if(res){counseltype
+                      $state.go("tab.consult-chat",{chatId:doctorId,type:data.result.type,status:0}); //虽然传了type和status但不打算使用 byZYH
+                  }
+
+              })
+            }
+          }
+        });
+        // SetRead(chat);
+      
+    }
+
+    $scope.getMessageDetail = function(message){
+        console.log(message);
+        Storage.set("getMessageType",message.type);
         $state.go('messagesDetail');
+        SetRead(message);
     }
 }])
 //消息类型--PXY
-.controller('VaryMessageCtrl', ['$scope','$state','$ionicHistory','Storage',function($scope, $state,$ionicHistory,Storage) {
+.controller('VaryMessageCtrl', ['Doctor','$scope','Message','$state','$ionicHistory','Storage',function(Doctor,$scope, Message,$state,$ionicHistory,Storage) {
+    $scope.notInsurance = true;
+    var getDocNamePhoto = function(sender,doctor){
+        Doctor.getDoctorInfo({userId:sender}).then(
+            function(data){
+                if(data.results){
+                    doctor.docName = data.results.name;
+                    doctor.docPhoto = data.results.photoUrl;
 
-    var messageType = Storage.get("getMessageType")
-    $scope.messages=angular.fromJson(Storage.get("allMessages"))[messageType]
-    console.log($scope.messages)
+                }
+                // console.log(doctor);
+                        
+            },function(err){
+                console.log(err);
+            });
+            // return doctor;
+    }
+    var varyMessage = function(){
+        console.log(Storage.get('getMessageType'));
+        switch(Storage.get('getMessageType')){
 
-    if(messageType=='ZF')
-        $scope.avatar='payment.png'
-    else if(messageType=='JB')
-        $scope.avatar='alert.png'
-    else if(messageType=='RW')
-        $scope.avatar='task.png'
-    else if(messageType=='BX')
-        $scope.avatar='security.png'
+            case '1':
+                $scope.varyMes ={name:"支付",avatar:'payment.png'};
+                console.log($scope.varyMes);
+                break;
+            case '2':
+                $scope.varyMes ={name:"警报",avatar:'alert.png'};
+                break;
+            case '3':
+                $scope.varyMes ={name:"任务",avatar:'task.png'};
+                break;
+            case '5':
+                $scope.varyMes ={name:"保险"};
+                $scope.notInsurance = false;
+                break;
+
+        }
+        
+        Message.getMessages({userId:Storage.get('UID'),type:Storage.get('getMessageType')}).then(
+            function(data){
+                console.log(data);
+                if(data.results.length){
+                    
+                    if(Storage.get('getMessageType')==5){
+                        for(var x in data.results){
+                            getDocNamePhoto(data.results[x].sendBy,data.results[x]);
+                        }
+                        
+                    }
+                    $scope.messages = data.results;
+                }
+
+            },function(err){
+                console.log(err);
+            })
+
+    }
+    varyMessage();
+
+
+    $scope.MoreMessageDetail = function(ele,doctorId,MessageType){
+        if(MessageType==5){
+            if(ele.target.nodeName =="IMG"){
+            $state.go('tab.DoctorDetail',{DoctorId:doctorId});
+            }else{
+                $state.go('insurance');
+            }
+
+        }
+        
+    }
+    // var messageType = Storage.get("getMessageType")
+    // $scope.messages=angular.fromJson(Storage.get("allMessages"))[messageType]
+    // console.log($scope.messages)
+
+    // if(messageType=='ZF')
+    //     $scope.avatar='payment.png'
+    // else if(messageType=='JB')
+    //     $scope.avatar='alert.png'
+    // else if(messageType=='RW')
+    //     $scope.avatar='task.png'
+    // else if(messageType=='BX')
+    //     $scope.avatar='security.png'
 
     $scope.Goback = function(){
         $ionicHistory.goBack();
