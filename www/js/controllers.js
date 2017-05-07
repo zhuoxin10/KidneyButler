@@ -2618,6 +2618,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                      //$timeout(function () {
                      $ionicHistory.clearCache();
                      $ionicHistory.clearHistory();
+
+                      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
                     //}, 30);
                     //$ionicPopup.hide();
                 }
