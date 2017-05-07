@@ -138,7 +138,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
      var a=document.getElementById("agreement");
         // console.log(document.body.clientHeight);
         console.log(window.screen.height);
-        a.style.height=window.screen.height*0.72+"px";
+        a.style.height=window.screen.height*0.65+"px";
 
 }])
 
