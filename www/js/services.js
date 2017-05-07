@@ -950,6 +950,14 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     }
 
+    var News = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'new'},{
+            getNews:{method:'GET', params:{route: 'getNews'}, timeout: 100000},
+            insertNews:{method:'POST', params:{route: 'insertNews'}, timeout: 100000},
+            getNewsByReadOrNot:{method:'GET', params:{route: 'getNewsByReadOrNot'}, timeout: 100000}
+        });
+    }
+
     var Communication =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'communication'},{
             getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
@@ -977,6 +985,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.VitalSign = VitalSign();
             serve.Account = Account();
             serve.Message = Message();
+            serve.News = News();
+
             serve.Communication = Communication();
         }, 0, 1);
     };
@@ -994,6 +1004,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.VitalSign = VitalSign();
     serve.Account = Account();
     serve.Message = Message();
+    serve.News = News();
     serve.Communication = Communication();
     return serve;
 }])
@@ -1081,6 +1092,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
     return self;
 }])
+
 
 .factory('Task', ['$q', 'Data', function($q, Data){
     var self = this;
@@ -1917,6 +1929,51 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
     return self;
 }])
+
+.factory('News', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{type:1}
+    self.getNews = function(params){
+        var deferred = $q.defer();
+        Data.News.getNews(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    self.insertNews = function(params){
+        var deferred = $q.defer();
+        Data.News.insertNews(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+     self.getNewsByReadOrNot = function(params){
+        var deferred = $q.defer();
+        Data.News.getNewsByReadOrNot(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    return self;
+}])
+
 .factory('Account', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->0:{userId:'p01'}
