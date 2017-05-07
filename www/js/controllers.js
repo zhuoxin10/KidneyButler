@@ -2908,10 +2908,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //     }
   //   )}
 
-
-    Patient.getPatientDetail({userId:Storage.get('UID')}).then(//userId:Storage.get('UID')
+    var RefreshDiagnosisInfo = function(){
+        Patient.getPatientDetail({userId:Storage.get('UID')}).then(//userId:Storage.get('UID')
         function(data){
-            if(data.results){
+            // console.log(data.results.diagnosisInfo);
+            if(data.results.diagnosisInfo.length){
                 var allDiags = data.results.diagnosisInfo;
                 console.log(allDiags);
                 var DoctorDiags = FilterDiagnosis(allDiags);
@@ -2988,7 +2989,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
         },function(err){
             console.log(err);
-        })
+        });
+    }
+     $scope.$on('$ionicView.enter', function() {
+        RefreshDiagnosisInfo();
+    })
+
+    
+    $scope.do_refresher = function(){
+        RefreshDiagnosisInfo();
+        $scope.$broadcast('scroll.refreshComplete');
+    }
+    
 
 }])
 //咨询记录--PXY
@@ -3106,8 +3118,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
     }
 
+     $scope.$on('$ionicView.enter', function() {
+        RefreshCounSelRecords();
+    })
 
-    RefreshCounSelRecords();
+    
     $scope.do_refresher = function(){
         RefreshCounSelRecords();
         $scope.$broadcast('scroll.refreshComplete');
@@ -3560,25 +3575,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         voice.stopRec();
     }
 
-    $scope.goChats = function() {
+    // $scope.goChats = function() {
         $scope.backview=$ionicHistory.viewHistory().backView
         $scope.backstateId=null;
         if($scope.backview!=null){
           $scope.backstateId=$scope.backview.stateId
         }
+        console.log($scope.backview)
         $scope.goChats = function() {
+            console.log($scope.backstateId);
             // $ionicHistory.nextViewOptions({
             //     disableBack: true
             // });
             if($scope.backstateId=="tab.myConsultRecord"){
               $state.go("tab.myConsultRecord")
+            }
+            else if($scope.backstateId=="messages"){
+                $state.go('messages');
             }else{
               $state.go('tab.myDoctors');
             }
             // $ionicHistory.goBack();
         }
 
-    }
+    // }
 
 
     $scope.$on('keyboardshow', function(event, height) {
@@ -3621,30 +3641,44 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
   //console.log(HealthInfo.getall());
 
-  $scope.items = []//HealthInfo.getall();
+  $scope.items = new Array();//HealthInfo.getall();
   
 
-  Health.getAllHealths({userId:patientId}).then(
-    function(data)
-    {
-      if (data.results != "" && data.results!= null)
-      {
-        $scope.items = data.results
-        for (var i = 0; i < $scope.items.length; i++){
-          $scope.items[i].acture = $scope.items[i].insertTime
-          // $scope.items[i].time = $scope.items[i].time.substr(0,10)
-          // if ($scope.items[i].url != ""&&$scope.items[i].url!=null)
-          // {
-          //   $scope.items[i].url = [$scope.items[i].url]
-          // }
+    var RefreshHealthRecords = function(){
+        Health.getAllHealths({userId:patientId}).then(
+        function(data)
+        {
+          if (data.results != "" && data.results!= null)
+          {
+            $scope.items = data.results
+            for (var i = 0; i < $scope.items.length; i++){
+              $scope.items[i].acture = $scope.items[i].insertTime
+              // $scope.items[i].time = $scope.items[i].time.substr(0,10)
+              // if ($scope.items[i].url != ""&&$scope.items[i].url!=null)
+              // {
+              //   $scope.items[i].url = [$scope.items[i].url]
+              // }
+            }
+          };
+        },
+        function(err)
+        {
+          console.log(err);
         }
-      };
-    },
-    function(err)
-    {
-      console.log(err);
+      );
     }
-  )
+
+     $scope.$on('$ionicView.enter', function() {
+        RefreshHealthRecords();
+    })
+
+  
+    
+    $scope.do_refresher = function(){
+        RefreshHealthRecords();
+        $scope.$broadcast('scroll.refreshComplete');
+
+    }
 
 
   $scope.gotoHealthDetail=function(ele,editId){
@@ -3720,7 +3754,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //健康详情--PXY
 .controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera) {
-  // $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
   $scope.$watch("canEdit",function(oldval,newval){
       console.log("oldval:"+oldval)
@@ -4098,7 +4131,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.TimesRemain ="0";
   $scope.freeTimesRemain ="0";
   //20170504 zxf
-  Account.getCounts({patientId:Storage.get('UID')}).then(
+  var LoadMyAccount = function(){
+    Account.getCounts({patientId:Storage.get('UID')}).then(
     function(data)
     {
       $scope.freeTimesRemain=data.result.freeTimes
@@ -4108,7 +4142,22 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {
       console.log(err);
     }
-  )
+  );
+  }
+
+   $scope.$on('$ionicView.enter', function() {
+        LoadMyAccount();
+    })
+
+   $scope.do_refresher = function(){
+        LoadMyAccount();
+        $scope.$broadcast("scroll.refreshComplete");
+
+   }
+
+
+
+  
 
 }])
 
@@ -4201,8 +4250,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
         );
     }
+     $scope.$on('$ionicView.enter', function() {
+        Lastnews();
+    })
 
-    Lastnews();
+
+    
 
     $scope.do_refresher = function(){
         Lastnews();
@@ -4314,7 +4367,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 }])
 //消息类型--PXY
-.controller('VaryMessageCtrl', ['Doctor','$scope','Message','$state','$ionicHistory','Storage',function(Doctor,$scope, Message,$state,$ionicHistory,Storage) {
+.controller('VaryMessageCtrl', ['Doctor','News','$scope','Message','$state','$ionicHistory','Storage',function(Doctor,News,$scope, Message,$state,$ionicHistory,Storage) {
     $scope.notInsurance = true;
     var getDocNamePhoto = function(sender,doctor){
         Doctor.getDoctorInfo({userId:sender}).then(
@@ -4368,10 +4421,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
             },function(err){
                 console.log(err);
-            })
+            });
 
     }
-    varyMessage();
+
+    $scope.$on('$ionicView.enter', function() {
+        varyMessage();
+    })
+
+    $scope.do_refresher = function(){
+        varyMessage();
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),type:Storage.get('MessageType'),readOrNot:0}).then(
+            function(data){
+                if(data.results){
+                    if(data.results[0].readOrNot==0){
+                        data.results[0].readOrNot=1;
+                        News.insertNews(data.results[0]).then(
+                            function(success){
+                                console.log(success);
+                            },function(err){
+                                console.log(err);
+                            }
+                        );
+                    }
+                }
+            },function(err){
+
+            }
+
+        );
+
+        $scope.$broadcast("scroll.refreshComplete");
+    }
+   
 
 
     $scope.MoreMessageDetail = function(ele,doctorId,MessageType){
