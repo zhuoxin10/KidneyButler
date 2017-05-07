@@ -2918,6 +2918,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.SignOut = function(){
+    $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
     var myPopup = $ionicPopup.show({
             template: '<center>确定要退出登录吗?</center>',
             title: '退出',
@@ -2944,7 +2945,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                      $ionicHistory.clearCache();
                      $ionicHistory.clearHistory();
 
-                      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
                     //}, 30);
                     //$ionicPopup.hide();
                 }
