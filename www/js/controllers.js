@@ -1,7 +1,8 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce) {
   $scope.barwidth="width:0%";
+  $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
   // Storage.set("personalinfobackstate","logOn");
 
 
@@ -656,7 +657,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       DiagnosisdatePickerCallback(val);
@@ -693,7 +694,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       OperationdatePickerCallback(val);
@@ -730,7 +731,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       BirthdatePickerCallback(val);
@@ -875,10 +876,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 params    :{
                                     'regsubmit':'yes',
                                     'formhash':'',
-                                    'username':Storage.get('USERNAME'),
-                                    'password':Storage.get('USERNAME'),
-                                    'password2':Storage.get('USERNAME'),
-                                    'email':Storage.get('USERNAME')+'@qq.com'
+                                    'username':$scope.User.name+Storage.get('USERNAME').slice(7),
+                                    'password':$scope.User.name+Storage.get('USERNAME').slice(7),
+                                    'password2':$scope.User.name+Storage.get('USERNAME').slice(7),
+                                    'email':Storage.get('USERNAME')+'@bme319.com'
                                 },  // pass in data as strings
                                 headers : {
                                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -3610,7 +3611,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.Goback = function(){
     $state.go('tab.mine')
   }
-
+  
   //从字典中搜索选中的对象。
   // var searchObj = function(code,array){
   //     for (var i = 0; i < array.length; i++) {
@@ -3695,14 +3696,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           } 
         });
     }else{
-      $state.go('tab.myHealthInfoDetail',{id:editId});
+      $state.go('tab.myHealthInfoDetail',{id:editId,caneidt:false});
     }
     
   }
 
 
   $scope.newHealth = function(){
-    $state.go('tab.myHealthInfoDetail',{id:null});
+    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:false});
 
   }
 
@@ -3719,15 +3720,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //健康详情--PXY
 .controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
-
-  
-
+  $scope.$watch("canEdit",function(oldval,newval){
+      console.log("oldval:"+oldval)
+      console.log("newval:"+newval)
+    })
+  $scope.canEdit=$stateParams.caneidt;
+  console.log($stateParams.caneidt)
   $scope.Goback = function(){
-        if($scope.canEdit==true){
-            $scope.canEdit = false;
-        }else{
+        // if($scope.canEdit==true){
+        //     $scope.canEdit = false;
+        // }else{
             if($ionicHistory.backTitle()==null){
                 $state.go('tab.myHealthInfo');
             }else{
@@ -3736,19 +3740,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             console.log(123);
             console.log($ionicHistory.backTitle());
             
-        }
+        // }
         
     }
-    $scope.healthinfoimgurl = '';
-          $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
-              scope: $scope,
-              animation: 'slide-in-up'
-            }).then(function(modal) {
-              $scope.modal = modal;
-            });
-    $scope.edit = function(){
-        $scope.canEdit = true;
-        
+
+  $scope.healthinfoimgurl = '';
+  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
+      scope: $scope,
+      animation: 'slide-in-up'
+    }).then(function(modal) {
+      $scope.modal = modal;
+    });
+  $scope.edit = function(){
+      $scope.canEdit = true;
+      
   }
 
   // $scope.$on('$ionicView.enter', function() {
@@ -3779,7 +3784,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       //判断是修改还是新增
       if($stateParams.id!=null && $stateParams!=""){
         //修改
-        $scope.canEdit = false;
+        // $scope.canEdit = false;
         var info = $stateParams.id;
         console.log(info)
         Health.getHealthDetail({userId:patientId,insertTime:info.acture}).then(
@@ -3810,7 +3815,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           }
         )
       }else{
-        $scope.canEdit = true;
+        // $scope.canEdit = true;
       }
       console.log($scope.labels);
     },
@@ -3853,7 +3858,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               {
                 console.log(data.results);
                 console.log(data.results.insertTime);
-                $scope.canEdit= false;
+                // $scope.canEdit= false;
                 var healthinfoToconsult=[]
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null&&$ionicHistory.backView().stateName=='tab.consultquestion2'){
@@ -3882,7 +3887,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               function(data)
               {
                 console.log(data.data);
-                $scope.canEdit= false;
+                // $scope.canEdit= false;
                 // $ionicHistory.goBack()
               },
               function(err)
@@ -3935,7 +3940,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       datePickerCallback(val);
@@ -5453,7 +5458,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           } 
         });
     }else{
-      $state.go('tab.myHealthInfoDetail',{id:editId});
+      $state.go('tab.myHealthInfoDetail',{id:editId,caneidt:false});
     }
     
   }
@@ -5755,7 +5760,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       DiagnosisdatePickerCallback(val);
@@ -5792,7 +5797,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     showTodayButton: 'false', //Optional
     modalHeaderColor: 'bar-positive', //Optional
     modalFooterColor: 'bar-positive', //Optional
-    from: new Date(1999, 1, 1),   //Optional
+    from: new Date(1900, 1, 1),   //Optional
     to: new Date(),    //Optional
     callback: function (val) {    //Mandatory
       OperationdatePickerCallback(val);
@@ -6200,7 +6205,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // 上传头像的点击事件----------------------------
   $scope.addnewimage = function($event){
     Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
-    $state.go('tab.myHealthInfoDetail')
+    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:true})
     // $scope.openPopover($event);
   };
  
@@ -6210,18 +6215,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //论坛
-.controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage',function ($scope, $state,$sce,$http,Storage) {
+.controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage','Patient',function ($scope, $state,$sce,$http,Storage,Patient) {
     var phoneNum=Storage.get('USERNAME')
     console.log(phoneNum)
+    Patient.getPatientDetail({userId: Storage.get('UID')})
+    .then(function(data)
+    {
+      console.log(data)
+      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
+      $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
+    })
 
-    $http({
-        method  : 'POST',
-        url     : 'http://121.43.107.106/member.php?mod=logging&action=logout&formhash=xxxxxx'
-    }).success(function(data) {
-            // console.log(data);
-        $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+phoneNum+"&password="+phoneNum);
-        $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106/");
-    });
 }])
 
 //写评论
