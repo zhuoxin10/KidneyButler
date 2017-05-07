@@ -2566,7 +2566,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //我的 页面--PXY
 //我的 页面--PXY
-.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload) {
+.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce) {
   $scope.barwidth="width:0%";
   // Storage.set("personalinfobackstate","mine")
   
