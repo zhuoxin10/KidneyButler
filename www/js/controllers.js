@@ -5646,7 +5646,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           "doctorId":$stateParams.DoctorId, 
           "hospital":$scope.Questionare.LastHospital, 
           "visitDate":$scope.Questionare.LastVisitDate,
-          "diagnosis":"", 
+          "diagnosis":$scope.Questionare.LastDiagnosis,  
           "diagnosisPhotoUrl":$scope.images, 
           "sickTime":$scope.Questionare.LastDiseaseTime, 
           "symptom":$scope.Questionare.title, 
