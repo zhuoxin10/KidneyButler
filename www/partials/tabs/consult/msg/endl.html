@@ -6,7 +6,7 @@
 		<!-- text content -->
 		<div  >{{msg.content.contentStringMap.info}}</div>
 	<div >{{msg.createTimeInMillis | msgdate}}</div>
-        	<div ng-click="emitEvent('gopingjia',msg.contentStringMap.docId)">点此评价医生</div>
+        	<div ng-click="emitEvent('gopingjia',msg.contentStringMap.docId,msg.contentStringMap.counselId)">点此评价医生</div>
 	</div>
 
 </div>
