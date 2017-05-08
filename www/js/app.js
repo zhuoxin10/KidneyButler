@@ -252,6 +252,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-comment', {
       url: '/consult/comment',
+      params:{counselId:null,doctorId:null,patientId:null},
+      cache:false,
       views: {
         'tab-consult': {
           cache:false,
