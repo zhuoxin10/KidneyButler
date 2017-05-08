@@ -3397,7 +3397,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                 FilteredDoctors = FilterDoctor(data.results);
                 console.log(FilteredDoctors);
-                News.getNews({userId:Storage.get('UID'),type:4}).then(
+                News.getNews({userId:Storage.get('UID'),type:11}).then(
                     function(data){
                         console.log(data.results);
                         if(data.results){
@@ -4545,9 +4545,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         );
 
 
-        News.getNewsByReadOrNot({userId:receiver,type:4,readOrNot:0}).then(
+        News.getNewsByReadOrNot({userId:receiver,type:11,readOrNot:0}).then(
             function(data){
+                console.log(data);
                 if(data.results.length){
+
                     
                     for(var x in data.results){
                         getDocNamePhoto(data.results[x].sendBy,data.results[x]);
@@ -4721,9 +4723,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         
         Message.getMessages({userId:Storage.get('UID'),type:Storage.get('getMessageType')}).then(
             function(data){
-                console.log(data);
+                
                 if(data.results.length){
-                    
+                    console.log(data.results);
                     if(Storage.get('getMessageType')==5){
                         for(var x in data.results){
                             getDocNamePhoto(data.results[x].sendBy,data.results[x]);
@@ -4748,6 +4750,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         News.getNewsByReadOrNot({userId:Storage.get('UID'),type:Storage.get('MessageType'),readOrNot:0}).then(
             function(data){
                 if(data.results){
+                    console.log(data.results);
                     if(data.results[0].readOrNot==0){
                         data.results[0].readOrNot=1;
                         News.insertNews(data.results[0]).then(
