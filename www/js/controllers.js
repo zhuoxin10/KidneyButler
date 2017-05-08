@@ -3797,7 +3797,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         })
     $scope.$on('gopingjia', function(event, args) {
             event.stopPropagation();
-            $state.go('tab.consult-comment',{DoctorId:args[1]});
+            $state.go('tab.consult-comment',{DoctorId:args[1],patientId:Storage.get('UID'),counselId:args[2]});
         })
 
     //病例Panel
@@ -6467,7 +6467,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           "doctorId":$stateParams.DoctorId, 
           "hospital":$scope.Questionare.LastHospital, 
           "visitDate":$scope.Questionare.LastVisitDate,
-          "diagnosis":"", 
+          "diagnosis":$scope.Questionare.LastDiagnosis,  
           "diagnosisPhotoUrl":$scope.images, 
           "sickTime":$scope.Questionare.LastDiseaseTime, 
           "symptom":$scope.Questionare.title, 
