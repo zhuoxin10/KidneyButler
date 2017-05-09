@@ -417,7 +417,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {Name:"A型",Type:1},
     {Name:"B型",Type:2},
     {Name:"AB型",Type:3},
-    {Name:"O型",Type:4}
+    {Name:"O型",Type:4},
+    {Name:"不确定",Type:5}
   ]
 
   $scope.Hypers =
@@ -540,7 +541,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 //     $scope.User.lastVisit.time = $scope.User.lastVisit.time.substr(0,10);
                 // }
                 VitalSign.getVitalSigns({userId:Storage.get('UID'), type: "Weight"}).then(function(data){
-                    if(data.results){
+                    if(data.results.length){
                         var n = data.results.length - 1
                         var m = data.results[n].data.length - 1
                         $scope.User.weight = data.results[n].data[m] ? data.results[n].data[m].value:"";
@@ -907,7 +908,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                                         var now = new Date()
                                                         now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
                                                         VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
-                                                        $scope.User.weight = data.results;
+                                                        // $scope.User.weight = data.results;
                                                         console.log($scope.User);
                                                         
                                                         $state.go('tab.tasklist');
@@ -918,6 +919,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                                             });
                                                         console.log("插入体重"+err);
                                                         });
+                                                    }else{
+                                                        $state.go('tab.tasklist');
+
                                                     }
 
                                                     
@@ -979,22 +983,24 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
                             Task.insertTask({userId:patientId,sortNo:task}).then(
                             function(data){
+                                console.log(data);
                                 if(data.result=="插入成功"){
                                     if($scope.User.weight){
                                         var now = new Date()
                                         now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
-                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
-                                            $scope.User.weight = data.results;
+                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                                            function(data){
+
+                                            // $scope.User.weight = data.results;
                                             console.log($scope.User);
-                                            
                                             $scope.canEdit = false;
                                             initialPatient();
-                                            
-                                            
-                                            // $state.go("tab.mine");
                                         },function(err){
                                             console.log(err);
                                         });
+                                    }else{
+                                        $scope.canEdit = false;
+                                        initialPatient();
                                     }
                                     
                                     
@@ -5875,7 +5881,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {Name:"A型",Type:1},
     {Name:"B型",Type:2},
     {Name:"AB型",Type:3},
-    {Name:"O型",Type:4}
+    {Name:"O型",Type:4},
+    {Name:"不确定",Type:5}
   ]
 
   $scope.Hypers =
@@ -6069,7 +6076,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
           function(data)
           {
-            if(data.results){
+            if(data.results.length){
             var n = data.results.length - 1
             var m = data.results[n].data.length - 1
             $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
@@ -6401,16 +6408,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     var now = new Date() ;
                                     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
                                 VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
-                                    console.log($scope.BasicInfo.weight)
+                                    console.log($scope.BasicInfo.weight);
+                                     $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
                                 },function(err){
                                     console.log(err);
                                 });
+                                }else{
+                                     $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+
                                 }
                             }
                         },function(err){
                             console.log("err" + err);
                         });
-                        $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+                       
                     },function(err){
                         console.log(err);
                     });
