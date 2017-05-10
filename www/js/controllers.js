@@ -3415,9 +3415,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     }
                                 }
                             }
-                            $scope.items = FilteredDoctors;
-                            console.log(FilteredDoctors);
+                            
                         }
+                        $scope.items = FilteredDoctors;
+                        console.log(FilteredDoctors);
                     },function(err){
                         console.log(err);
                     }
