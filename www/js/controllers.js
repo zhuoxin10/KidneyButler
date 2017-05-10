@@ -2414,7 +2414,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {
       var promise =  Patient.getMyDoctors({userId:UserId});
        promise.then(function(data){
-         if(data.results.length != 0)
+         if(data.results.doctorId)
          {           
             var schedules = data.results.doctorId.schedules;
             //console.log(schedules);
