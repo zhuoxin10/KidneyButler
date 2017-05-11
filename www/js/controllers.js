@@ -393,7 +393,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       }
 
 
-  $scope.Goback = function(){
+    $scope.Goback = function(){
         if($scope.canEdit==true){
             $scope.canEdit = false;
         }else{
@@ -401,6 +401,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
         
     }
+ 
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -617,6 +618,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         
 
     }
+
+
+
   
    
  
@@ -677,10 +681,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
       $scope.User.operationTime=yyyy+'-'+m+'-'+d;
+
+
     }
   };
   $scope.datepickerObject2 = {
-    titleLabel: '手术日期',  //Optional
+    titleLabel: '时间日期',  //Optional
     todayLabel: '今天',  //Optional
     closeLabel: '取消',  //Optional
     setLabel: '设置',  //Optional
@@ -706,14 +712,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     if (typeof(val) === 'undefined') {
       console.log('No date selected');
     } else {
-      $scope.datepickerObject3.inputDate=val;
-      var dd=val.getDate();
-      var mm=val.getMonth()+1;
-      var yyyy=val.getFullYear();
-      var d=dd<10?('0'+String(dd)):String(dd);
-      var m=mm<10?('0'+String(mm)):String(mm);
+        $scope.datepickerObject3.inputDate=val;
+        var dd=val.getDate();
+        var mm=val.getMonth()+1;
+        var yyyy=val.getFullYear();
+        var d=dd<10?('0'+String(dd)):String(dd);
+        var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.User.birthday=yyyy+'-'+m+'-'+d;
+        $scope.User.birthday=yyyy+'-'+m+'-'+d;
+
     }
   };
   $scope.datepickerObject3 = {
@@ -830,29 +837,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     }
     $scope.infoSetup = function(){
-    //console.log(User.Name);
-     if ($scope.User.name&&$scope.User.gender&&$scope.User.class&&$scope.User.bloodType&&$scope.User.hypertension&&$scope.User.allergic&&$scope.User.birthday&&$scope.User.IDNo){
-            //如果必填信息不为空
-            // console.log("不为空");
-            var IDreg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-            var PositiveReg = /^\d+(?=\.{0,1}\d+$|$)/;
-
-
-            if ($scope.User.IDNo!='' && IDreg.test($scope.User.IDNo) == false){
-                // console.log("身份证");
-                $ionicLoading.show({
-                template: '请输入正确的身份证号',
-                duration:1000
-                });
-            }else if(($scope.User.height!=null && $scope.User.height!="" && PositiveReg.test($scope.User.height) == false )||($scope.User.weight!=null && $scope.User.weight!=""&&PositiveReg.test($scope.User.weight) == false) ){
-                // console.log("身高体重");
-                $ionicLoading.show({
-                template: '请输入正确的身高体重',
-                duration:1000
-                });
-            }
-            else{
-                if (back == 'register'){
+        if (back == 'register'){
                     $scope.User.gender = $scope.User.gender.Type;
                     $scope.User.bloodType = $scope.User.bloodType.Type;
                     $scope.User.hypertension = $scope.User.hypertension.Type;
@@ -904,25 +889,22 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             function(data){
                                                 if(data.result=="插入成功"){
                                                     
-                                                    if($scope.User.weight){
-                                                        var now = new Date()
-                                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
-                                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
+                                                    
+                                                    var now = new Date()
+                                                    now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+                                                    VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
                                                         // $scope.User.weight = data.results;
                                                         console.log($scope.User);
                                                         
                                                         $state.go('tab.tasklist');
-                                                        },function(err){
-                                                            $ionicLoading.show({
-                                                                template: '注册失败',
-                                                                duration:1000
-                                                            });
-                                                        console.log("插入体重"+err);
+                                                    },function(err){
+                                                        $ionicLoading.show({
+                                                            template: '注册失败',
+                                                            duration:1000
                                                         });
-                                                    }else{
-                                                        $state.go('tab.tasklist');
-
-                                                    }
+                                                        console.log("插入体重"+err);
+                                                    });
+                                                    
 
                                                     
                                                     
@@ -985,23 +967,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             function(data){
                                 console.log(data);
                                 if(data.result=="插入成功"){
-                                    if($scope.User.weight){
-                                        var now = new Date()
+                                        var now = new Date();
                                         now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
                                         VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
                                             function(data){
-
-                                            // $scope.User.weight = data.results;
-                                            console.log($scope.User);
+                                            // console.log($scope.User);
+                                            // console.log(data);
                                             $scope.canEdit = false;
+
                                             initialPatient();
                                         },function(err){
                                             console.log(err);
                                         });
-                                    }else{
-                                        $scope.canEdit = false;
-                                        initialPatient();
-                                    }
+                                    
                                     
                                     
                                 }
@@ -1015,13 +993,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     });
                     
                 }
-            }
-        }else{
-            $ionicLoading.show({
-                template: '信息填写不完整,请完善必填信息(红色*)',
-                duration:1000
-            });
-        }
+    
     }
 
 
@@ -1055,7 +1027,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
     GetUnread();
-    RefreshUnread = $interval(GetUnread,30000);
+    RefreshUnread = $interval(GetUnread,5000);
     
 }])
 
@@ -4058,7 +4030,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
   $scope.newHealth = function(){
-    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:false});
+    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:true});
 
   }
 
@@ -6531,19 +6503,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         function(data){
                             if(data.result=="插入成功"){
                                 
-                                if($scope.BasicInfo.weight){
-                                    var now = new Date() ;
-                                    now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                               
+                                var now = new Date() ;
+                                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
                                 VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
                                     console.log($scope.BasicInfo.weight);
                                      $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
                                 },function(err){
                                     console.log(err);
                                 });
-                                }else{
-                                     $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
-
-                                }
+                                
                             }
                         },function(err){
                             console.log("err" + err);
