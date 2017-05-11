@@ -987,7 +987,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 if(data.result=="插入成功"){
                                     if($scope.User.weight){
                                         var now = new Date()
-                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
+                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
                                         VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
                                             function(data){
 
