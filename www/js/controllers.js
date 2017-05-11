@@ -1056,7 +1056,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
     GetUnread();
-    RefreshUnread = $interval(GetUnread,30000);
+    RefreshUnread = $interval(GetUnread,2000);
     
 }])
 
