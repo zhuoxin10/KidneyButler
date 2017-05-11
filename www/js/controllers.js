@@ -1029,11 +1029,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //主页面--PXY
-.controller('GoToMessageCtrl', ['$interval','News','Storage','$scope','$timeout','$state', function($interval,News,Storage,$scope, $timeout,$state) {
+.controller('GoToMessageCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
 
     $scope.hasUnreadMessages = false;
     $scope.GoToMessage = function(){
-      $state.go('messages');
+        Storage.set('messageBackState',$ionicHistory.currentView().stateId);
+        $state.go('messages');
     }
     $scope.gotomine=function(){
       $state.go('tab.mine');
@@ -4591,7 +4592,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     $scope.Goback = function(){
-      $ionicHistory.goBack();
+        $state.go(Storage.get('messageBackState'));
+      // $ionicHistory.goBack();
     }
 
     var SetRead = function(message){
