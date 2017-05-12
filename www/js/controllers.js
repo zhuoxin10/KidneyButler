@@ -1,7 +1,7 @@
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
 .controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   $scope.navigation_login=$sce.trustAsResourceUrl("http://121.196.221.44:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
   // Storage.set("personalinfobackstate","logOn");
 
@@ -145,7 +145,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //手机号码验证--PXY
 .controller('phonevalidCtrl', ['$scope','$state','$interval', '$stateParams','Storage','User','$timeout', function($scope, $state,$interval,$stateParams,Storage,User,$timeout) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   // Storage.set("personalinfobackstate","register")
   
   $scope.Verify={Phone:"",Code:""};
@@ -290,7 +290,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //设置密码  --PXY 
 .controller('setPasswordCtrl', ['$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
-    $scope.barwidth="width:0%";
+    // $scope.barwidth="width:0%";
     $scope.BackMain = function(){
         $state.go('signin');
     }
@@ -365,7 +365,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //个人信息--PXY
 .controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User){
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   //注册时可跳过个人信息
   // $scope.CanSkip = function(){
   //   if(Storage.get('setPasswordState')=='register'){
@@ -1068,7 +1068,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('tasklistCtrl', ['$scope','$timeout','$state','$cordovaBarcodeScanner','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,$cordovaBarcodeScanner,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
   
   //初始化
-    $scope.barwidth="width:0%";
+    // $scope.barwidth="width:0%";
     var UserId = Storage.get('UID');
     //UserId = "Test12"; //U201702071766
     $scope.Tasks = {}; //任务
@@ -2909,7 +2909,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //我的 页面--PXY
 //我的 页面--PXY
 .controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   // Storage.set("personalinfobackstate","mine")
   
   var patientId = Storage.get('UID')
@@ -3327,7 +3327,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //咨询记录--PXY
 .controller('ConsultRecordCtrl', ['News','arrTool','$q','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(News,arrTool,$q,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
 
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
 
   $scope.Goback = function(){
     $state.go('tab.mine')
@@ -3949,7 +3949,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //健康信息--PXY
 .controller('HealthInfoCtrl', ['$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
 
   $scope.Goback = function(){
@@ -4446,7 +4446,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //增值服务--PXY
 .controller('MoneyCtrl', ['$scope','$state','$ionicHistory','Account','Storage','Patient',function($scope, $state,$ionicHistory,Account,Storage,Patient) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   var PID = Storage.get('UID')
   var docid=""
   $scope.Goback = function(){
@@ -4459,8 +4459,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     Account.getCounts({patientId:Storage.get('UID')}).then(
     function(data)
     {
-      $scope.freeTimesRemain=data.result.freeTimes
-      $scope.TimesRemain=data.result.totalPaidTimes      
+        console.log(data);
+      $scope.freeTimesRemain=data.result.freeTimes;
+      $scope.TimesRemain=data.result.totalCount;      
     },
     function(err)
     {
@@ -4491,7 +4492,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //消息中心--PXY
 .controller('messageCtrl', ['$ionicPopup','Counsels','$q','$scope','$state','$ionicHistory','News','Storage','Doctor',function($ionicPopup,Counsels,$q,$scope, $state,$ionicHistory,News,Storage,Doctor) {
-    $scope.barwidth="width:0%";
 
     var getDocNamePhoto = function(sender,doctor){
         Doctor.getDoctorInfo({userId:sender}).then(
@@ -4823,7 +4823,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //医生列表--PXY
 .controller('DoctorCtrl', ['Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account',function(Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account) {
-  $scope.barwidth="width:0%";
+  // $scope.barwidth="width:0%";
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
