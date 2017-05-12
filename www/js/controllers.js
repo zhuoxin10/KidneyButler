@@ -3552,37 +3552,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
         console.log($state.params.chatId);
         console.log($state.params.msgCount);
-         Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:2})
+         Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID')})
             .then(function(data)
             {
-                console.log(data)
-                if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
-                {   Storage.set('STATUSNOW',data.result.status);
-                  $scope.params.counseltype=2;
-                 }
-                else if(data.result.status==1)//还有未结束的，先让你进去看看
-                {  Storage.set('STATUSNOW',data.result.status);
-                  $scope.params.counseltype=2;
-                  }
-                  else{ 
-                    Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
-                    .then(function(data)
-                    {
-                        console.log(data)                       
-                        if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
-                        {
-                            $scope.params.counseltype=1;
-                        Storage.set('STATUSNOW',data.result.status);
-                        }
-                        else if(data.result.status==1)//还有未结束的，先让你进去看看
-                        {   $scope.params.counseltype=1;
-                       Storage.set('STATUSNOW',data.result.status);
-                        }
+                // console.log(data)
+                // if(data.result.status==0)//没有未结束的问诊，再看看有没有未结束的咨询
+                // {   
+                  Storage.set('STATUSNOW',data.result.status);
+                  $scope.params.counseltype=data.result.type=='3'?'2':data.result.type;
+                 // }
+                // else if(data.result.status==1)//还有未结束的，先让你进去看看
+                // {  
+                  // Storage.set('STATUSNOW',data.result.status);
+                  // $scope.params.counseltype=2;
+                  // }
+                  // else{ 
+                  //   Counsels.getStatus({doctorId:$state.params.chatId,patientId:Storage.get('UID'),type:1})
+                  //   .then(function(data)
+                  //   {
+                  //       console.log(data)                       
+                  //       if(data.result.status==0)//没有未结束的，直接进去吧，但要提示进去能看，发的话要收你钱的
+                  //       {
+                  //           $scope.params.counseltype=1;
+                  //       Storage.set('STATUSNOW',data.result.status);
+                  //       }
+                  //       else if(data.result.status==1)//还有未结束的，先让你进去看看
+                  //       {   $scope.params.counseltype=1;
+                  //      Storage.set('STATUSNOW',data.result.status);
+                  //       }
                     
-                    },function(err)
-                    {
-                        console.log(err)
-                    })}
+                  //   },function(err)
+                  //   {
+                  //       console.log(err)
+                  //   })}
                     //再看看有没有未结束的咨询
                                        
             },function(err)
@@ -4059,7 +4061,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
   $scope.newHealth = function(){
-    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:false});
+    $state.go('tab.myHealthInfoDetail',{id:null,caneidt:true});
 
   }
 
@@ -5032,6 +5034,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     else if (ele.target.innerText == '咨询') {
       Counsels.getStatus({doctorId:id,patientId:Storage.get('UID')})
       .then(function(data){
+        console.log(data)
         //zxf 判断条件重写
         if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
           if(data.result.type==1){
@@ -5061,7 +5064,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }else{//没有进行中的问诊咨询 查看是否已经付过费
           // console.log("fj;akfmasdfzjl")
           Account.getCounts({patientId:Storage.get('UID'),doctorId:id}).then(function(data){
-          console.log(data.result.freeTimes)
+          console.log(data.result.count)
           if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
             $ionicPopup.confirm({
               title:"咨询确认",
@@ -5092,6 +5095,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
+                //免费咨询次数减一 count+3
+                Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:3}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                },function(err){
+                  console.log(err)
+                })
                 $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
               }
             })
@@ -5411,6 +5424,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
+                //免费咨询次数减一 count+3
+                Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                },function(err){
+                  console.log(err)
+                })
                 $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
               }
             })
