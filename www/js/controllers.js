@@ -2,7 +2,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //登录--PXY
 .controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce) {
   $scope.barwidth="width:0%";
-  $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
+  $scope.navigation_login=$sce.trustAsResourceUrl("http://121.196.221.44:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
   // Storage.set("personalinfobackstate","logOn");
 
 
@@ -417,7 +417,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {Name:"A型",Type:1},
     {Name:"B型",Type:2},
     {Name:"AB型",Type:3},
-    {Name:"O型",Type:4}
+    {Name:"O型",Type:4},
+    {Name:"不确定",Type:5}
   ]
 
   $scope.Hypers =
@@ -540,7 +541,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 //     $scope.User.lastVisit.time = $scope.User.lastVisit.time.substr(0,10);
                 // }
                 VitalSign.getVitalSigns({userId:Storage.get('UID'), type: "Weight"}).then(function(data){
-                    if(data.results){
+                    if(data.results.length){
                         var n = data.results.length - 1
                         var m = data.results[n].data.length - 1
                         $scope.User.weight = data.results[n].data[m] ? data.results[n].data[m].value:"";
@@ -872,7 +873,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                             $http({
                                 method  : 'POST',
-                                url     : 'http://121.43.107.106:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                                url     : 'http://121.196.221.44:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
                                 params    :{
                                     'regsubmit':'yes',
                                     'formhash':'',
@@ -907,7 +908,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                                         var now = new Date()
                                                         now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
                                                         VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
-                                                        $scope.User.weight = data.results;
+                                                        // $scope.User.weight = data.results;
                                                         console.log($scope.User);
                                                         
                                                         $state.go('tab.tasklist');
@@ -918,6 +919,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                                             });
                                                         console.log("插入体重"+err);
                                                         });
+                                                    }else{
+                                                        $state.go('tab.tasklist');
+
                                                     }
 
                                                     
@@ -979,22 +983,24 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
                             Task.insertTask({userId:patientId,sortNo:task}).then(
                             function(data){
+                                console.log(data);
                                 if(data.result=="插入成功"){
                                     if($scope.User.weight){
                                         var now = new Date()
-                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss")
-                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(function(data){
-                                            $scope.User.weight = data.results;
+                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                                            function(data){
+
+                                            // $scope.User.weight = data.results;
                                             console.log($scope.User);
-                                            
                                             $scope.canEdit = false;
                                             initialPatient();
-                                            
-                                            
-                                            // $state.go("tab.mine");
                                         },function(err){
                                             console.log(err);
                                         });
+                                    }else{
+                                        $scope.canEdit = false;
+                                        initialPatient();
                                     }
                                     
                                     
@@ -1023,11 +1029,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //主页面--PXY
-.controller('GoToMessageCtrl', ['$interval','News','Storage','$scope','$timeout','$state', function($interval,News,Storage,$scope, $timeout,$state) {
+.controller('GoToMessageCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
 
     $scope.hasUnreadMessages = false;
     $scope.GoToMessage = function(){
-      $state.go('messages');
+        Storage.set('messageBackState',$ionicHistory.currentView().stateId);
+        $state.go('messages');
     }
     $scope.gotomine=function(){
       $state.go('tab.mine');
@@ -1049,7 +1056,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
     GetUnread();
-    RefreshUnread = $interval(GetUnread,30000);
+    RefreshUnread = $interval(GetUnread,2000);
     
 }])
 
@@ -2408,7 +2415,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {
       var promise =  Patient.getMyDoctors({userId:UserId});
        promise.then(function(data){
-         if(data.results.length != 0)
+         if(data.results.doctorId)
          {           
             var schedules = data.results.doctorId.schedules;
             //console.log(schedules);
@@ -2928,7 +2935,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.SignOut = function(){
-    $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
+    $scope.navigation_login=$sce.trustAsResourceUrl("http://121.196.221.44:6699/member.php?mod=logging&action=logout&formhash=xxxxxx");
     var myPopup = $ionicPopup.show({
             template: '<center>确定要退出登录吗?</center>',
             title: '退出',
@@ -3101,10 +3108,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     $scope.Hypers =
-  [
-    {Name:"是",Type:1},
-    {Name:"否",Type:2}
-  ]
+    [
+      {Name:"是",Type:1},
+      {Name:"否",Type:2}
+    ]
 
     var showProgress = function(diseaseType){
         switch(diseaseType)
@@ -3409,9 +3416,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     }
                                 }
                             }
-                            $scope.items = FilteredDoctors;
-                            console.log(FilteredDoctors);
+                            
                         }
+                        $scope.items = FilteredDoctors;
+                        console.log(FilteredDoctors);
                     },function(err){
                         console.log(err);
                     }
@@ -4584,7 +4592,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     $scope.Goback = function(){
-      $ionicHistory.goBack();
+        $state.go(Storage.get('messageBackState'));
+      // $ionicHistory.goBack();
     }
 
     var SetRead = function(message){
@@ -4994,6 +5003,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $state.go('tab.AllDoctors');
   }
 
+  // //20170504 zxf
+  // //确认新建咨询之后 首先医生回答次数+3，其次给医生账户转积分
+  // //chargedoc
+  // Account.rechargeDoctor({patientId:patientId,doctorId:$stateParams.DoctorId,type:counselType}).then(function(data){
+  //   console.log(data)
+  // },function(err){
+  //   console.log(err)
+  // })
+  // //plus doc answer count  patientId:doctorId:modify
+  // if(counselType==1){//如果是咨询的话只有三次问答 所以修改问答次数 问诊则不需要
+  //   Account.modifyCounts({patientId:patientId,doctorId:$stateParams.DoctorId,modify:3}).then(function(data){
+  //     console.log("modify+3")
+  //     console.log(data)
+  //   },function(err){
+  //     console.log(err)
+  //   })
+  // }
 
   $scope.getDoctorDetail = function(ele, id) {
     // var path = '#/tab/DoctorDetail/' + id;
@@ -5006,73 +5032,96 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     else if (ele.target.innerText == '咨询') {
       Counsels.getStatus({doctorId:id,patientId:Storage.get('UID')})
       .then(function(data){
-        if(data.result!="请填写咨询问卷!"){//没有咨询或者问诊过
-          if(data.result.type==1){//咨询
-            if(data.result.status==1){//正在进行中的咨询
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"您有尚未结束的咨询，点击确认继续上一次咨询！",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                      $state.go("tab.consult-chat",{chatId:id,type:1,status:1}); 
-                  }
-              })
-            }else{//status==0 咨询已经结束
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                    $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
-                  }
+        //zxf 判断条件重写
+        if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
+          if(data.result.type==1){
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您有尚未结束的咨询，点击确认继续上一次咨询！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:id,type:1,status:1}); 
+                }
+            })
+          }else{
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1}); 
+                }
 
-              })
-            }
-          }else if(data.result.type==2||data.result.type==3){
-            // if(data.result.status==1){//有问诊正在进行中
-              if(data.result!="请填写咨询问卷!"&&data.result.status==1)//还有未结束的，先让你进去看看
-              {
-                $ionicPopup.confirm({
-                  title:"咨询确认",
-                  template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
-                  okText:"确认",
-                  cancelText:"取消"
-                }).then(function(res){
-                    if(res){
-                        $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1}); 
-                    }
-
+            })
+          }
+        }else{//没有进行中的问诊咨询 查看是否已经付过费
+          // console.log("fj;akfmasdfzjl")
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:id}).then(function(data){
+          console.log(data.result.freeTimes)
+          if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
+              }
+            })
+          }else if(data.result.count==3){
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+              }
+            })
+          }else if(data.result.freeTimes>0){//判断是否已经花过钱了，花过但是还没有新建咨询成功 那么跳转问卷
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您还有剩余免费咨询次数，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。点击确认进入免费咨询",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+              }
+            })
+          }else{
+            $ionicPopup.confirm({//没有免费也没有回答次数 交钱 充值 加次数
+              title:"咨询确认",
+              template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                //chargedoc
+                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:1}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
                 })
-            }else{
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                    $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
-                  }
-
-              })
-            }
+                //plus doc answer count  patientId:doctorId:modify
+                Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:3}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
+                })
+                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+              }
+            })
+          }
           // }
-        }
-      }else{
-        $ionicPopup.confirm({
-          title:"咨询确认",
-          template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-          okText:"确认",
-          cancelText:"取消"
-        }).then(function(res){
-            if(res){
-              $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
-            }
-
+        },function(err){
+          console.log(err)
         })
       }
     },function(err){
@@ -5081,37 +5130,58 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }else if (ele.target.innerText == '问诊'){
       Counsels.getStatus({doctorId:id,patientId:Storage.get('UID')})
       .then(function(data){
-        if(data.result!="请填写咨询问卷!"){
-          if(data.result.type==1){//尚未完成的咨询 可升级为问诊
-            if(data.result.status==1){
-              $ionicPopup.confirm({
-                title:"问诊确认",
-                template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:id,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
-                    console.log(data.result)
-                    if(data.result=="修改成功"){
-                      //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                      //chargedoc
-                      Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:3}).then(function(data){
-                        console.log(data)
-                      },function(err){
-                        console.log(err)
-                      })
-                      $state.go("tab.consult-chat",{chatId:id,type:3,status:1}); 
-                    }
-                  },function(err)
-                  {
+        //zxf 判断条件重写
+        if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
+          if(data.result.type==1){//咨询转问诊
+            $ionicPopup.confirm({
+              title:"问诊确认",
+              template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                //点击确认 将咨询的type=1 变成type=3
+                Counsels.changeType({doctorId:id,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                  console.log(data.result)
+                  if(data.result=="修改成功"){
+                    //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                    //chargedoc
+                    Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:3}).then(function(data){
+                      console.log(data)
+                    },function(err){
                       console.log(err)
-                  })
-              })
-            }else{//咨询已结束 新建问诊
+                    })
+                    //plus doc answer count  patientId:doctorId:modify
+                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:999}).then(function(data){
+                      console.log(data)
+                    },function(err){
+                      console.log(err)
+                    })
+                    $state.go("tab.consult-chat",{chatId:id,type:3,status:1}); 
+                  }
+                },function(err)
+                {
+                    console.log(err)
+                })
+            })
+          }else{
+            $ionicPopup.confirm({
+              title:"问诊确认",
+              template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1}); 
+                }
+            })
+          }
+        }else{//没有进行中的问诊咨询 查看是否已经付过费
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:id}).then(function(data){
+            console.log(data.result.count)
+          if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
+                template:"您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -5119,42 +5189,55 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
                 }
               })
-            }
-          }else if(data.result.type==2||data.result.type==3){
-            if(data.result.status==1){
+            }else if(data.result.count==3){//已经付费的咨询 但是没有开始 
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+                template:"您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费升级为问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
-                  if(res){
-                      $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1}); 
-                  }
+                if(res){
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:3}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  //plus doc answer count  patientId:doctorId:modify
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:999}).then(function(data){
+                    console.log(id+Storage.get('UID'))
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                }
               })
             }else{
-              $ionicPopup.confirm({
+              $ionicPopup.confirm({//没有免费也没有回答次数 交钱 充值 加次数
                 title:"问诊确认",
                 template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
                 if(res){
+                  //chargedoc
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:2}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  //plus doc answer count  patientId:doctorId:modify
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:2}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
                   $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
                 }
               })
             }
-          }
-        }else{
-          $ionicPopup.confirm({
-            title:"问诊确认",
-            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
-            okText:"确认",
-            cancelText:"取消"
-          }).then(function(res){
-            if(res){
-              $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
-            }
+          },function(err){
+            console.log(err)
           })
         }
       },function(err){
@@ -5266,78 +5349,98 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     )
 
    $scope.question = function(){
-    console.log(Storage.get('UID'))
     Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
-        if(data.result!="请填写咨询问卷!"){//没有咨询或者问诊过
-          if(data.result.type==1){//咨询
-            if(data.result.status==1){//正在进行中的咨询
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"您有尚未结束的咨询，点击确认继续上一次咨询！",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                      $state.go("tab.consult-chat",{chatId:DoctorId,type:1,status:1}); 
-                  }
-              })
-            }else{//status==0 咨询已经结束
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
-                  }
+        //zxf 判断条件重写
+        if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
+          if(data.result.type==1){
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您有尚未结束的咨询，点击确认继续上一次咨询！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:1,status:1}); 
+                }
+            })
+          }else{
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1}); 
+                }
 
-              })
-            }
-          }else if(data.result.type==2||data.result.type==3){
-
-            // if(data.result.status==1){//有问诊正在进行中
-
-              if(data.result!="请填写咨询问卷!"&&data.result.status==1)//还有未结束的，先让你进去看看
-              {
-                $ionicPopup.confirm({
-                  title:"咨询确认",
-                  template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
-                  okText:"确认",
-                  cancelText:"取消"
-                }).then(function(res){
-                    if(res){
-                        $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1}); 
-                    }
-
+            })
+          }
+        }else{//没有进行中的问诊咨询 查看是否已经付过费
+          // console.log("fj;akfmasdfzjl")
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
+          console.log(data.result.freeTimes)
+          if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+              }
+            })
+          }else if(data.result.count==3){
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+              }
+            })
+          }else if(data.result.freeTimes>0){//判断是否已经花过钱了，花过但是还没有新建咨询成功 那么跳转问卷
+            $ionicPopup.confirm({
+              title:"咨询确认",
+              template:"您还有剩余免费咨询次数，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。点击确认进入免费咨询",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+              }
+            })
+          }else{
+            $ionicPopup.confirm({//没有免费也没有回答次数 交钱 充值 加次数
+              title:"咨询确认",
+              template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+              if(res){
+                //chargedoc
+                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
                 })
-            }else{
-              $ionicPopup.confirm({
-                title:"咨询确认",
-                template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                  if(res){
-                    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
-                  }
-
-              })
-            }
+                //plus doc answer count  patientId:doctorId:modify
+                Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
+                })
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+              }
+            })
+          }
           // }
-        }
-      }else{
-        $ionicPopup.confirm({
-          title:"咨询确认",
-          template:"进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？",
-          okText:"确认",
-          cancelText:"取消"
-        }).then(function(res){
-            if(res){
-              $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
-            }
-
+        },function(err){
+          console.log(err)
         })
       }
     },function(err){
@@ -5348,39 +5451,58 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.consult = function(){
     Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
-        if(data.result!="请填写咨询问卷!"){
-          if(data.result.type==1){//尚未完成的咨询 可升级为问诊
-            if(data.result.status==1){
-              $ionicPopup.confirm({
-                title:"问诊确认",
-                template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
-                okText:"确认",
-                cancelText:"取消"
-              }).then(function(res){
-                if(res){
-                  //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
-                    console.log(data.result)
-                    if(data.result=="修改成功"){
-                      //确认新建咨询之后 给医生账户转积分
-                      //chargedoc
-                      Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
-                        console.log(data)
-                      },function(err){
-                        console.log(err)
-                      })
-                      $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
-                    }
-                  },function(err)
-                  {
+        //zxf 判断条件重写
+        if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
+          if(data.result.type==1){//咨询转问诊
+            $ionicPopup.confirm({
+              title:"问诊确认",
+              template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                //点击确认 将咨询的type=1 变成type=3
+                Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                  console.log(data.result)
+                  if(data.result=="修改成功"){
+                    //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                    //chargedoc
+                    Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
+                      console.log(data)
+                    },function(err){
                       console.log(err)
-                  })
+                    })
+                    //plus doc answer count  patientId:doctorId:modify
+                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                      console.log(data)
+                    },function(err){
+                      console.log(err)
+                    })
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                  }
+                },function(err)
+                {
+                    console.log(err)
+                })
+            })
+          }else{
+            $ionicPopup.confirm({
+              title:"问诊确认",
+              template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+              okText:"确认",
+              cancelText:"取消"
+            }).then(function(res){
+                if(res){
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1}); 
                 }
-              })
-            }else{//咨询已结束 新建问诊
+            })
+          }
+        }else{//没有进行中的问诊咨询 查看是否已经付过费
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
+            console.log(data.result.count)
+          if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
+                template:"您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
@@ -5388,42 +5510,55 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                 }
               })
-            }
-          }else if(data.result.type==2||data.result.type==3){
-            if(data.result.status==1){
+            }else if(data.result.count==3){//已经付费的咨询 但是没有开始 
               $ionicPopup.confirm({
                 title:"问诊确认",
-                template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
+                template:"您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费升级为问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
-                  if(res){
-                      $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1}); 
-                  }
+                if(res){
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  //plus doc answer count  patientId:doctorId:modify
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                    console.log(DoctorId+Storage.get('UID'))
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                }
               })
             }else{
-              $ionicPopup.confirm({
+              $ionicPopup.confirm({//没有免费也没有回答次数 交钱 充值 加次数
                 title:"问诊确认",
                 template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
                 okText:"确认",
                 cancelText:"取消"
               }).then(function(res){
                 if(res){
+                  //chargedoc
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:2}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
+                  //plus doc answer count  patientId:doctorId:modify
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:2}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
                   $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                 }
               })
             }
-          }
-        }else{
-          $ionicPopup.confirm({
-            title:"问诊确认",
-            template:"进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？",
-            okText:"确认",
-            cancelText:"取消"
-          }).then(function(res){
-            if(res){
-              $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
-            }
+          },function(err){
+            console.log(err)
           })
         }
       },function(err){
@@ -5783,7 +5918,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   var DoctorId = $stateParams.DoctorId;
   var counselType = $stateParams.counselType;
 
-
+  $scope.submitable=false;
 
 
   //20140421 zxf
@@ -5875,7 +6010,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     {Name:"A型",Type:1},
     {Name:"B型",Type:2},
     {Name:"AB型",Type:3},
-    {Name:"O型",Type:4}
+    {Name:"O型",Type:4},
+    {Name:"不确定",Type:5}
   ]
 
   $scope.Hypers =
@@ -6069,7 +6205,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
           function(data)
           {
-            if(data.results){
+            if(data.results.length){
             var n = data.results.length - 1
             var m = data.results[n].data.length - 1
             $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
@@ -6401,16 +6537,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     var now = new Date() ;
                                     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
                                 VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
-                                    console.log($scope.BasicInfo.weight)
+                                    console.log($scope.BasicInfo.weight);
+                                     $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
                                 },function(err){
                                     console.log(err);
                                 });
+                                }else{
+                                     $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+
                                 }
                             }
                         },function(err){
                             console.log("err" + err);
                         });
-                        $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+                       
                     },function(err){
                         console.log(err);
                     });
@@ -6481,23 +6621,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(data);
         if (data.result == "新建成功")
         {
-          //20170504 zxf
-          //确认新建咨询之后 首先医生回答次数+3，其次给医生账户转积分
-          //chargedoc
-          Account.rechargeDoctor({patientId:patientId,doctorId:$stateParams.DoctorId,type:counselType}).then(function(data){
-            console.log(data)
-          },function(err){
-            console.log(err)
-          })
-          //plus doc answer count  patientId:doctorId:modify
-          if(counselType==1){//如果是咨询的话只有三次问答 所以修改问答次数 问诊则不需要
-            Account.modifyCounts({patientId:patientId,doctorId:$stateParams.DoctorId,modify:3}).then(function(data){
-              console.log("modify+3")
-              console.log(data)
-            },function(err){
-              console.log(err)
-            })
-          }
+          //不能重复提交
+          $scope.submitable=true;
+          
           
           Storage.rm('tempquestionare')
           Storage.rm('tempimgrul')
@@ -6621,8 +6747,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     .then(function(data)
     {
       console.log(data)
-      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.43.107.106:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
-      $scope.navigation=$sce.trustAsResourceUrl("http://121.43.107.106:6699/");
+      $scope.navigation_login=$sce.trustAsResourceUrl("http://121.196.221.44:6699/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
+      $scope.navigation=$sce.trustAsResourceUrl("http://121.196.221.44:6699/");
     })
 
 }])

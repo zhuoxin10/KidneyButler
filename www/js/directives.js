@@ -226,6 +226,8 @@ angular.module('kidney.directives', ['kidney.services'])
    };
 })
 
+
+
 .directive('dateformat', ['$filter',function($filter) {  
     var dateFilter = $filter('date');  
     return {  
