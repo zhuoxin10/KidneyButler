@@ -1063,7 +1063,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //初始化
     $scope.barwidth="width:0%";
     var UserId = Storage.get('UID');
-    //UserId = "Test12"; //U201702071766
+    //UserId = "U201705060001"; //
+
     $scope.Tasks = {}; //任务
     $scope.HemoBtnFlag = false; //血透排班设置标志    
     var OverTimeTaks = [];
@@ -1479,26 +1480,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                var task = $scope.Tasks.Measure[num];
                if(task.code == "BloodPressure")//console.log(task);  
                {
-                  var temp1 = {
+                  var temp = {
                                 "patientId": UserId,
                                 "type": VitalSignTbl[task.code].type,
-                                "code": "收缩压",
+                                "code": VitalSignTbl[task.code].code,
                                 "date": dateNowStr,
                                 "datatime": new Date(),
                                 "datavalue": Description.split('/')[0],
+                                "datavalue2": Description.split('/')[1],
                                 "unit":task.Unit
                               };
-                   var temp2 = {
-                                "patientId": UserId,
-                                "type": VitalSignTbl[task.code].type,
-                                "code": "舒张压",
-                                "date": dateNowStr,
-                                "datatime": new Date(),
-                                "datavalue": Description.split('/')[1],
-                                "unit":task.Unit
-                              };
-                   InsertVitalSign(temp1);  
-                   InsertVitalSign(temp2);  
+                                     
                } 
                else
                {
@@ -1511,8 +1503,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "datavalue": Description,
                                 "unit":task.Unit
                               }
-                 InsertVitalSign(temp);        
-               }             
+                        
+               }  
+               InsertVitalSign(temp);            
            }                 
         }        
     }
