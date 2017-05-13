@@ -1070,7 +1070,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //初始化
     // $scope.barwidth="width:0%";
     var UserId = Storage.get('UID');
-    //UserId = "U201705060001"; //
+    //UserId = "Test13"; //
 
     $scope.Tasks = {}; //任务
     $scope.HemoBtnFlag = false; //血透排班设置标志    
@@ -2462,7 +2462,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   
   //初始化
     var UserId = Storage.get('UID'); 
-    UserId = "Test12"; 
+    //UserId = "Test13"; 
     $scope.Tasks = {};
     $scope.OKBtnFlag = true;
     $scope.EditFlag = false;
