@@ -114,7 +114,7 @@
   height: 28px;
   line-height: 28px;
   text-align: center;
-  padding: 0 5%;
+  padding: 0 10%;
 }
 .all-doctors-select select:last-child{
   border-right: 0;

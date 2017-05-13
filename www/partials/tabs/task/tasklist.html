@@ -6,12 +6,38 @@
     <ion-content class="padding">
         <ion-refresher pulling-text="下拉刷新" spinner='ripple' refreshing-text="。。。" on-refresh="Refresh()">
         </ion-refresher>
-        <div style="text-align: center;"><a href="#/insurance">肾病保险服务</a></div>
+        <!--<div style="text-align: center;"><a href="#/insurance">肾病保险服务</a></div>-->
         <div class="list" can-swipe="listCanSwipe">
-            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
-                今日任务
+          <a class="item green-bg font-white" style="border: 0;font-size: 14px;border-bottom: 1px solid #fff;margin-bottom: 0" ng-click="open==true?open=false:open=true" ng-model="open">
+            测量<i class="iconfont icon-shang mg-left10"></i>
+            <a class="item item-icon-right" ng-show="!open" ng-repeat="item in Tasks.Measure">
+              <span class="font-33c">{{item.Name}}</span>
+              <p class="mg-top5">{{item.Freq}}</p>
+              <p>{{item.instruction}}</p>
+              <!--ng-if="item.Name=='血压' || item.Name =='心率'"-->
+              <div class="task-jd" ng-if="!(item.Freq=='1天1次')">
+                    <span style="width: 50%">
+
+                    </span>
+              </div>
+              <i ng-if = "!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showMesPop(item,'edit')"></i>
+              <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
             </a>
-            <ion-list>
+          </a>
+
+          <a class="item green-bg font-white" style="border: 0;margin-top: 0">
+            <label>其它</label><span class="mg-left10 mg-right10">|</span><label ng-click = "openModal()">医生排班表</label><i class="iconfont icon-icondayu"></i>
+            <a class="item item-icon-right" ng-repeat = "item in Tasks.Other">
+              {{item.Name}}
+              <p>{{item.Freq}}</p>
+              <p>任务时间：{{item.startTime}}</p>
+              <p>{{item.instruction}}</p>
+              <!--  <i ng-if = "!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click = "showPopup(item, 'textarea')"></i>-->
+              <i ng-if = "!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showOtherPop(item, 'edit')"></i>
+              <i ng-if = "item.Flag" class="icon ion-ios-checkmark-empty"></i>
+            </a>
+          </a>
+            <!--<ion-list>
                 <ion-item class="item item-icon-right item-remove-animate" ng-repeat="item in Tasks.Measure">
                     {{item.Name}}<span style="font-size:12px;color:#9E9E9E" ng-if="item.Unit != '' ">({{item.Unit}})</span>
                     <p>{{item.Freq}}</p>
@@ -25,10 +51,9 @@
                     <ion-option-button class="button-calm" ng-click="showMesPop(item,'edit')">编辑</ion-option-button>
                     <i ng-if="!item.Flag" class="icon ion-edit" style="font-size:20px" ng-click="showMesPop(item,'fill')"></i>
                     <i ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
-
                 </ion-item>
-            </ion-list>
-            <a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
+            </ion-list>-->
+            <!--<a class="item" style="font-size:20px;text-align:center;font-weight:bold;background-color:rgba(44, 62, 149, 0.1);">
                 其他任务 <button ng-click="openModal()">查看医生排班</button>
                 <a class="item item-icon-right" ng-if="HemoBtnFlag">
                     您还未设定血透排班时间
@@ -60,7 +85,7 @@
                     <button ng-if = "item.Flag" ng-click = "StartNewTask(item)">新任务</button>
                 </ion-item>
                 </ion-list>
-            </a>
+            </a>-->
         </div>
         <!-- <button ng-click="Test()">测试</button>
         <h>{{TestTime}}</h> -->
