@@ -4818,7 +4818,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('DoctorCtrl', ['Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account',function(Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account) {
   // $scope.barwidth="width:0%";
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.myDoctors');
+    // console.log($ionicHistory.backView())
+    // console.log(123);
+    // $ionicHistory.goBack();
   }
   //清空搜索框
   $scope.searchCont = {};
@@ -5335,9 +5338,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 .controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account) {
+  
   $scope.Goback = function(){
     $ionicHistory.goBack();
   }
+
   var DoctorId = $stateParams.DoctorId;
   console.log(DoctorId);
 
@@ -5588,7 +5593,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('aboutCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', function($scope, $timeout,$state,Storage,$ionicHistory) {
    
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    // console.log(123);
+    $state.go('tab.mine');
+    // $ionicHistory.goBack();
   }
   
 }])
