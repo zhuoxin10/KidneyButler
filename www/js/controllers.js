@@ -5340,7 +5340,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account) {
   
   $scope.Goback = function(){
-    $ionicHistory.goBack();
+    $state.go('tab.myDoctors');
+    // $ionicHistory.goBack();
   }
 
   var DoctorId = $stateParams.DoctorId;
