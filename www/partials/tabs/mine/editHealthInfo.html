@@ -21,17 +21,17 @@
 
     <label ng-if="!canEdit" class="item item-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>时间日期</span>
-        <input  ng-disabled="!canEdit" ng-model="health.date" dateformat type="text">
+        <input  style="text-align: right;" ng-disabled="!canEdit" ng-model="health.date" dateformat type="text">
     </label>
 
     <ionic-datepicker ng-if="canEdit" input-obj="datepickerObject4" class="item item-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>时间日期</span>
-        <input  ng-model="health.date" dateformat type="text">
+        <input  style="text-align: right;" ng-model="health.date" dateformat type="text">
     </ionic-datepicker>
 
     <label class="item item-input">
-          <span class="input-label" ><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>文字描述</span>
-          <input  ng-disabled="!canEdit" ng-model="health.text"  type="text">
+          <span class="input-label" ><i class="icon ion-asterisk c-red"></i>文字描述</span>
+          <input  style="text-align: right;" ng-disabled="!canEdit" ng-model="health.text"  type="text">
     </label>
 
       
