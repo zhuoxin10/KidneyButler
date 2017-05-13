@@ -831,64 +831,44 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     $scope.infoSetup = function(){
     //console.log(User.Name);
-     if ($scope.User.name&&$scope.User.gender&&$scope.User.class&&$scope.User.bloodType&&$scope.User.hypertension&&$scope.User.allergic&&$scope.User.birthday&&$scope.User.IDNo){
-            //如果必填信息不为空
-            // console.log("不为空");
-            var IDreg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-            var PositiveReg = /^\d+(?=\.{0,1}\d+$|$)/;
-
-
-            if ($scope.User.IDNo!='' && IDreg.test($scope.User.IDNo) == false){
-                // console.log("身份证");
-                $ionicLoading.show({
-                template: '请输入正确的身份证号',
-                duration:1000
-                });
-            }else if(($scope.User.height!=null && $scope.User.height!="" && PositiveReg.test($scope.User.height) == false )||($scope.User.weight!=null && $scope.User.weight!=""&&PositiveReg.test($scope.User.weight) == false) ){
-                // console.log("身高体重");
-                $ionicLoading.show({
-                template: '请输入正确的身高体重',
-                duration:1000
-                });
+        console.log($scope.User.lastVisit);
+        if (back == 'register'){
+            $scope.User.gender = $scope.User.gender.Type;
+            $scope.User.bloodType = $scope.User.bloodType.Type;
+            $scope.User.hypertension = $scope.User.hypertension.Type;
+            if ($scope.User.class.typeName == "ckd5期未透析"){
+                $scope.User.class_info == null;
             }
-            else{
-                if (back == 'register'){
-                    $scope.User.gender = $scope.User.gender.Type;
-                    $scope.User.bloodType = $scope.User.bloodType.Type;
-                    $scope.User.hypertension = $scope.User.hypertension.Type;
-                    if ($scope.User.class.typeName == "ckd5期未透析"){
-                        $scope.User.class_info == null;
-                    }
-                    else if ($scope.User.class_info != null){
-                        $scope.User.class_info = $scope.User.class_info.code;
-                    }
-                    $scope.User.class = $scope.User.class.type;
+            else if ($scope.User.class_info != null){
+                $scope.User.class_info = $scope.User.class_info.code;
+            }
+            $scope.User.class = $scope.User.class.type;
 
-                    User.register({phoneNo:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
-                        if(data.results==0){
+            User.register({phoneNo:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
+                if(data.results==0){
 
-                            var patientId = data.userNo;
-                            Storage.set('UID',patientId);
+                    var patientId = data.userNo;
+                    Storage.set('UID',patientId);
                             //注册论坛
 
-                            $http({
-                                method  : 'POST',
-                                url     : 'http://121.196.221.44:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
-                                params    :{
-                                    'regsubmit':'yes',
-                                    'formhash':'',
-                                    'username':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                    'password':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                    'password2':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                    'email':Storage.get('USERNAME')+'@bme319.com'
-                                },  // pass in data as strings
-                                headers : {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                    'Accept':'application/xml, text/xml, */*'
-                                }  // set the headers so angular passing info as form data (not request payload)
-                            }).success(function(data) {
+                    $http({
+                        method  : 'POST',
+                        url     : 'http://121.196.221.44:6699/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                        params    :{
+                            'regsubmit':'yes',
+                            'formhash':'',
+                            'username':$scope.User.name+Storage.get('USERNAME').slice(7),
+                            'password':$scope.User.name+Storage.get('USERNAME').slice(7),
+                            'password2':$scope.User.name+Storage.get('USERNAME').slice(7),
+                            'email':Storage.get('USERNAME')+'@bme319.com'
+                        },  // pass in data as strings
+                        headers : {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept':'application/xml, text/xml, */*'
+                        }  // set the headers so angular passing info as form data (not request payload)
+                    }).success(function(data) {
                                 // console.log(data);
-                            });
+                    });
 
                             User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
                                 if(data.results!=null){
@@ -939,7 +919,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             template: '注册失败',
                                             duration:1000
                                         });
-                                        console.log("新建患者"+err);
+                                        console.log("新建患者err");
+                                        console.log(err);
                                     });  
                                 }
                             },function(err){
@@ -974,7 +955,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     }
                     $scope.User.class = $scope.User.class.type;
                     // $scope.User.class = $scope.User.class.typeName;
-
+                    // console.log($scope.User);
                     Patient.editPatientDetail($scope.User).then(function(data){
                         //保存成功
                         if(data.result=="修改成功"){
@@ -1015,13 +996,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     });
                     
                 }
-            }
-        }else{
-            $ionicLoading.show({
-                template: '信息填写不完整,请完善必填信息(红色*)',
-                duration:1000
-            });
-        }
+     
     }
 
 
@@ -3941,7 +3916,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康信息--PXY
-.controller('HealthInfoCtrl', ['$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
+.controller('HealthInfoCtrl', ['$ionicLoading','$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($ionicLoading,$scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
   // $scope.barwidth="width:0%";
   var patientId = Storage.get('UID')
 
@@ -3967,16 +3942,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         {
           if (data.results != "" && data.results!= null)
           {
-            $scope.items = data.results
+            $scope.items = data.results;
             for (var i = 0; i < $scope.items.length; i++){
-              $scope.items[i].acture = $scope.items[i].insertTime
+              $scope.items[i].acture = $scope.items[i].insertTime;
               // $scope.items[i].time = $scope.items[i].time.substr(0,10)
               // if ($scope.items[i].url != ""&&$scope.items[i].url!=null)
               // {
               //   $scope.items[i].url = [$scope.items[i].url]
               // }
             }
-          };
+          }else{
+            $ionicLoading.show({
+                template: '您还没有健康信息，可通过右上角加号添加！',
+                duration:1000
+            });
+          }
         },
         function(err)
         {
@@ -5340,8 +5320,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account) {
   
   $scope.Goback = function(){
-    $state.go('tab.myDoctors');
-    // $ionicHistory.goBack();
+    // console.log($ionicHistory.backView());
+    $ionicHistory.goBack();
   }
 
   var DoctorId = $stateParams.DoctorId;

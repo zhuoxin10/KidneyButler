@@ -62,6 +62,15 @@
                 </span>
             </label>
 
+            <label  class="item item-input item-select-custom" ng-if="showProgress">
+                <div class="input-label" style="margin-left:13px ">疾病进程</div>
+                    <select ng-model="User.class_info" ng-options=" DiseaseDetail.name for DiseaseDetail in DiseaseDetails track by DiseaseDetail.code">
+                    </select>
+                    <span class="tick" ng-if="canEdit">
+                    <i style="color:#6ac4f8;"  class="icon ion-checkmark-circled placeholder-icon"></i>
+                </span>
+            </label>
+
             <label   class="item item-input" ng-if="showSurgicalTime&&!canEdit">
                 <div class="input-label" style="margin-left:13px ">{{timename}}</div>
                 <input ng-disabled="!canEdit" class="hasTick" ng-model="User.operationTime" dateformat type="text">
@@ -165,7 +174,7 @@
         </form>
 
         <div ng-if="canEdit">
-            <button  ng-disabled="!(userForm.$valid)" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="infoSetup(User)">
+            <button  ng-disabled="!(userForm.$valid)" style="margin:20px auto;width: 80%" class="button button-block green-bg font-white" ng-click ="infoSetup(User)">
                         保存
             </button>
         </div>
