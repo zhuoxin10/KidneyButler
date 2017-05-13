@@ -1032,6 +1032,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     GetUnread();
     RefreshUnread = $interval(GetUnread,2000);
+    //获取二维码信息
+    
     
 }])
 
@@ -2406,29 +2408,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
        })
     }
 
-  //获取二维码信息
-    $scope.scanbarcode = function () {
-      console.log(Storage.get("UID"))
-      $cordovaBarcodeScanner.scan().then(function(imageData) {
-          // alert(imageData.text);
-          Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
-            if(res.result=="修改成功"){
-              $ionicPopup.alert({
-               title: '绑定成功！'
-              }).then(function(res) {
-                $state.go('tab.myDoctors');
-              });
-            }else if(res.result=="不存在的医生ID！"){
-              $ionicPopup.alert({
-               title: '不存在的医生ID！'
-              })
-            }
-         },function(){                    
-         })
-      }, function(error) {
-          console.log("An error happened -> " + error);
-      });
-    };
+  
 
 }])
 
@@ -4815,7 +4795,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //清空之后获取所有医生 
     ChangeSearch();
 
-  }  
+  } 
+
+  $scope.scanbarcode = function () {
+      console.log(Storage.get("UID"))
+      $cordovaBarcodeScanner.scan().then(function(imageData) {
+          // alert(imageData.text);
+          Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
+            if(res.result=="修改成功"){
+              $ionicPopup.alert({
+               title: '绑定成功！'
+              }).then(function(res) {
+                $state.go('tab.myDoctors');
+              });
+            }else if(res.result=="不存在的医生ID！"){
+              $ionicPopup.alert({
+               title: '不存在的医生ID！'
+              })
+            }
+         },function(){                    
+         })
+      }, function(error) {
+          console.log("An error happened -> " + error);
+      });
+    }; 
 
  
     $scope.Provinces={};
