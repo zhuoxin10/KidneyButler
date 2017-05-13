@@ -3540,7 +3540,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             moreMsgs:true,
             counselcount:0,
             counseltype:'',
-            needlisten:0
+            needlisten:0,
+            recording:false
+
 
         }
         console.log($state.params.chatId);
@@ -3726,7 +3728,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.zoomMin = 1;
         $scope.imageUrl = '';
         $scope.sound = {};
-        $ionicModal.fromTemplateUrl('templates/msg/imageViewer.html', {
+        $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
             scope: $scope
         }).then(function(modal) {
             $scope.modal = modal;
@@ -3873,8 +3875,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.getVoice = function(){
       if(Storage.get('STATUSNOW')==1){
         //voice.record() do 2 things: record --- file manipulation 
+        $scope.params.recording=true;
         voice.record()
         .then(function(fileUrl){
+            $scope.params.recording=false;
             window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,CONFIG.crossKey,
             function(res){
                 console.log(res);
