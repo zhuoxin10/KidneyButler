@@ -15,26 +15,18 @@ angular.module('kidney.directives', ['kidney.services'])
         },
         restrict:'AE',
         controller:function($scope){
-            var type='';
-            $scope.msg.direct = $scope.msg.fromName==Storage.get('UID')?'send':'receive';
+            // $scope.msg.direct = $scope.msg.fromName==Storage.get('UID')?'send':'receive';
+            var type=$scope.msg.contentType;
             $scope.getTemplateUrl = function(){
-                type=$scope.msg.contentType;
-                if($scope.msg.contentType=='custom'){
-                    // type=$scope.msg.content.contentStringMap.type;
-                    // $scope.customMsgUrl=JSON.parse($scope.msg.content.contentStringMap.picurl);
-                    // $scope.customMsg=JSON.parse($scope.customMsg);
-                    // console.log($scope.customMsgUrl);
-                    
+                if(type=='custom'){
                     type=$scope.msg.content.contentStringMap.type;
                     if(type=='card'){
                       try{
                             $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
-                            $scope.picurl=picArr;
                         }catch(e){
                             
                         }
                     }
-
                 }
                 //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
                 return 'partials/tabs/consult/msg/'+type+'.html';
@@ -43,24 +35,6 @@ angular.module('kidney.directives', ['kidney.services'])
             $scope.emitEvent = function(code){
               $scope.$emit(code,arguments);
             }
-            
-            
-            // $scope.showProfile = function(){
-            //     console.log($scope.msg.fromID);
-            // }
-            // $scope.viewImage= function(thumb,url){
-            //     if(type=='image'){
-            //         //image massage
-            //         $scope.$emit('viewImage',type,thumb,$scope.msg.serverMessageId);
-            //     }else{
-            //         //image in card
-            //         $scope.$emit('viewImage',type,thumb,url);
-            //     }
-            // };
-            
-            // $scope.playVoice = function(){
-
-            // }
         }
     }
 }])
