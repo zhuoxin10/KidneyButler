@@ -2099,7 +2099,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
          buttons: [
            { text: '取消' },
            {
-             text: '<b>保存</b>',
+             text: '保存',
              type: 'button-positive',
              onTap: function(e) {
                if (!$scope.data.value)
@@ -2170,7 +2170,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
            buttons: [
              { text: '取消' },
              {
-               text: '<b>保存</b>',
+               text: '保存',
                type: 'button-positive',
                onTap: function(e) {
                  if (!$scope.data.value)
@@ -2900,7 +2900,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
               },
               {
-                text: '<b>确定</b>',
+                text: '确定',
                 type: 'button-small button-positive ',
                 onTap: function(e) {
                     $state.go('signin');
