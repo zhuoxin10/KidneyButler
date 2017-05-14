@@ -4202,7 +4202,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               {
                 console.log(data.data);
                 // $scope.canEdit= false;
-                // $ionicHistory.goBack()
+                $ionicHistory.goBack()
               },
               function(err)
               {
