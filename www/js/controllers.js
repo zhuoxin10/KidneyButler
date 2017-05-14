@@ -3209,8 +3209,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //       console.log(err);
   //     }
   //   )}
+    
+
 
     var RefreshDiagnosisInfo = function(){
+        $scope.noDiags =false;
         Patient.getPatientDetail({userId:Storage.get('UID')}).then(//userId:Storage.get('UID')
         function(data){
             // console.log(data.results.diagnosisInfo);
@@ -3284,10 +3287,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
             }else{
-                $ionicLoading.show({
-                template:'暂时没有医生诊断！',
-                duration:1000
-        });
+                $scope.noDiags =true;
             }
         },function(err){
             console.log(err);
@@ -3362,6 +3362,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //         }
     //     });
     // }
+    $scope.noConsult = false;
 
     //过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
     var FilterDoctor = function(arr){
@@ -3410,10 +3411,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 //     $scope.items=doctors;
                 // });
             }else{
-                $ionicLoading.show({
-                    template:'暂时没有咨询记录！',
-                    duration:1000
-            });
+                $scope.noConsult = true;
             }
         },function(err){
             console.log(err);
@@ -3954,6 +3952,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     var RefreshHealthRecords = function(){
+        $scope.noHealth = false;
+
         Health.getAllHealths({userId:patientId}).then(
         function(data)
         {
@@ -3969,10 +3969,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               // }
             }
           }else{
-            $ionicLoading.show({
-                template: '您还没有健康信息，可通过右上角加号添加！',
-                duration:1000
-            });
+            $scope.noHealth = true;
           }
         },
         function(err)
