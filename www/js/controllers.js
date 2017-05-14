@@ -176,7 +176,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 unablebutton();
                 if(data.mesg.substr(0,8)=="您的邀请码已发送"){
                     $scope.logStatus = "您的验证码已发送，重新获取请稍后";
-                }else{
+                }else if(data.results==1){
+                    $scope.logStatus = "验证码发送失败！";
+                }
+                else{
                     $scope.logStatus ="验证码发送成功！";
                 }
             },function(err){
@@ -2096,7 +2099,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
          buttons: [
            { text: '取消' },
            {
-             text: '<b>保存</b>',
+             text: '保存',
              type: 'button-positive',
              onTap: function(e) {
                if (!$scope.data.value)
@@ -2167,7 +2170,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
            buttons: [
              { text: '取消' },
              {
-               text: '<b>保存</b>',
+               text: '保存',
                type: 'button-positive',
                onTap: function(e) {
                  if (!$scope.data.value)
@@ -2897,7 +2900,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
               },
               {
-                text: '<b>确定</b>',
+                text: '确定',
                 type: 'button-small button-positive ',
                 onTap: function(e) {
                     $state.go('signin');
