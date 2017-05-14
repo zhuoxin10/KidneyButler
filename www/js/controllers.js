@@ -176,7 +176,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 unablebutton();
                 if(data.mesg.substr(0,8)=="您的邀请码已发送"){
                     $scope.logStatus = "您的验证码已发送，重新获取请稍后";
-                }else{
+                }else if(data.results==1){
+                    $scope.logStatus = "验证码发送失败！";
+                }
+                else{
                     $scope.logStatus ="验证码发送成功！";
                 }
             },function(err){
