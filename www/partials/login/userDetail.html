@@ -44,7 +44,7 @@
 
             <label  class="item item-input item-select-custom">
                 <i class="icon ion-asterisk" style="color:red;font-size:6px"></i><span class="input-label">是否高血压</span>
-                <select ng-disabled="!canEdit" ng-model="User.hypertension" name="UserHyper" required ng-options="Hyper.Name for Hyper in Hypers track by Hyper.Type" >
+                <select ng-disabled="!canEdit" ng-model="User.hypertension"  name="UserHyper" required ng-options="Hyper.Name for Hyper in Hypers track by Hyper.Type" >
                 </select>
                 <span class="tick" ng-if="canEdit ">
                     <i style="color:#6ac4f8;" ng-if="userForm.UserHyper.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>

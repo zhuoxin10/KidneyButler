@@ -834,7 +834,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     $scope.infoSetup = function(){
     //console.log(User.Name);
-        console.log($scope.User.lastVisit);
+       // console.log($scope.User.lastVisit);
         if (back == 'register'){
             $scope.User.gender = $scope.User.gender.Type;
             $scope.User.bloodType = $scope.User.bloodType.Type;
@@ -945,62 +945,88 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
                 }else{//非注册用户
-                    $scope.User.gender = $scope.User.gender.Type
-                    $scope.User.bloodType = $scope.User.bloodType.Type
-                    $scope.User.hypertension = $scope.User.hypertension.Type
-                    if ($scope.User.class == "ckd5期未透析"){
-                        $scope.User.class_info == null
-                    }
-                    else if ($scope.User.class_info != null){
-                        $scope.User.class_info = $scope.User.class_info.code;
-                        // $scope.User.class_info = $scope.User.class_info.name;
 
-                    }
-                    $scope.User.class = $scope.User.class.type;
-                    // $scope.User.class = $scope.User.class.typeName;
-                    // console.log($scope.User);
-                    Patient.editPatientDetail($scope.User).then(function(data){
-                        //保存成功
-                        if(data.result=="修改成功"){
-                            console.log(data.results);
-                            var patientId = Storage.get('UID');
-                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
-                            Task.insertTask({userId:patientId,sortNo:task}).then(
-                            function(data){
-                                console.log(data);
-                                if(data.result=="插入成功"){
-                                    if($scope.User.weight){
-                                        var now = new Date()
-                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                            function(data){
-
-                                            // $scope.User.weight = data.results;
-                                            console.log($scope.User);
-                                            $scope.canEdit = false;
-                                            initialPatient();
-                                        },function(err){
-                                            console.log(err);
-                                        });
-                                    }else{
-                                        $scope.canEdit = false;
-                                        initialPatient();
-                                    }
-
+                     $ionicPopup.show({
+                            template: '肾病类型及高血压等诊断信息的修改会影响肾病管理方案，建议在医生指导下修改，请谨慎！',
+                            title: '保存确认',
+                            //subTitle: '2',
+                            scope: $scope,
+                            buttons: [
+                              { text: '取消',
+                                type: 'button-small',
+                                onTap: function(e) {
 
                                 }
-                            },function(err){
-                                console.log("err" + err);
-                            });
-                        }
+                              },
+                              {
+                                text: '确定',
+                                type: 'button-small button-positive ',
+                                onTap: function(e) {
+                                    $scope.User.gender = $scope.User.gender.Type
+                                    $scope.User.bloodType = $scope.User.bloodType.Type
+                                    $scope.User.hypertension = $scope.User.hypertension.Type
+                                    if ($scope.User.class == "ckd5期未透析"){
+                                        $scope.User.class_info == null
+                                    }
+                                    else if ($scope.User.class_info != null){
+                                        $scope.User.class_info = $scope.User.class_info.code;
+                                        // $scope.User.class_info = $scope.User.class_info.name;
 
-                    },function(err){
-                        console.log(err);
-                    });
+                                    }
+                                    $scope.User.class = $scope.User.class.type;
+                                    // $scope.User.class = $scope.User.class.typeName;
+                                    // console.log($scope.User);
+                                    Patient.editPatientDetail($scope.User).then(function(data){
+                                        //保存成功
+                                        if(data.result=="修改成功"){
+                                            console.log(data.results);
+                                            var patientId = Storage.get('UID');
+                                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
+                                            Task.insertTask({userId:patientId,sortNo:task}).then(
+                                            function(data){
+                                                console.log(data);
+                                                if(data.result=="插入成功"){
+                                                    if($scope.User.weight){
+                                                        var now = new Date()
+                                                        now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                                                        VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                                                            function(data){
+
+                                                            // $scope.User.weight = data.results;
+                                                            console.log($scope.User);
+                                                            $scope.canEdit = false;
+                                                            initialPatient();
+                                                        },function(err){
+                                                            console.log(err);
+                                                        });
+                                                    }else{
+                                                        $scope.canEdit = false;
+                                                        initialPatient();
+                                                    }
+
+
+                                                }
+                                            },function(err){
+                                                console.log("err" + err);
+                                            });
+                                        }
+
+                                    },function(err){
+                                        console.log(err);
+                                    });
+
+                                }
+                              }
+                            ]
+                          });
+                    
 
                 }
 
-    }
+    
+
+  }
+        
 
 
 
@@ -1034,7 +1060,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
     GetUnread();
-    RefreshUnread = $interval(GetUnread,2000);
+
+    if(Storage.get('isSignIn')=='Yes'){
+      RefreshUnread = $interval(GetUnread,2000);
+    }
+    
     //获取二维码信息
 
 
