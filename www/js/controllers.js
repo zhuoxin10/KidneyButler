@@ -25,7 +25,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-
   //-----------测试结束------------
 
   if(Storage.get('USERNAME')!=null){
@@ -1030,6 +1029,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //主页面--PXY
 .controller('GoToMessageCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
+
 
     $scope.hasUnreadMessages = false;
     $scope.GoToMessage = function(){
@@ -4675,6 +4675,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   }
 
+
   $scope.scanbarcode = function () {
       console.log(Storage.get("UID"))
       $cordovaBarcodeScanner.scan().then(function(imageData) {
@@ -4884,18 +4885,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //   })
   // }
 
-  $scope.getDoctorDetail = function(ele, id) {
-    // var path = '#/tab/DoctorDetail/' + id;
-    // console.log(path)
-    // console.log(ele.target.nodeName);
-    if(ele.target.nodeName =="IMG"){
-        console.log(id);
-      $state.go('tab.DoctorDetail',{DoctorId:id});
-    }
-    else if (ele.target.innerText == '咨询') {
-      Counsels.getStatus({doctorId:id,patientId:Storage.get('UID')})
+     $scope.question = function(DoctorId){
+    Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
-        console.log(data)
         //zxf 判断条件重写
         if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
           if(data.result.type==1){
@@ -4906,7 +4898,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
                 if(res){
-                    $state.go("tab.consult-chat",{chatId:id,type:1,status:1});
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:1,status:1});
                 }
             })
           }else{
@@ -4917,15 +4909,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
                 if(res){
-                    $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1});
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1});
                 }
 
             })
           }
         }else{//没有进行中的问诊咨询 查看是否已经付过费
           // console.log("fj;akfmasdfzjl")
-          Account.getCounts({patientId:Storage.get('UID'),doctorId:id}).then(function(data){
-          console.log(data.result.count)
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
+          console.log(data.result.freeTimes)
           if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
             $ionicPopup.confirm({
               title:"咨询确认",
@@ -4934,7 +4926,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
               }
             })
           }else if(data.result.count==3){
@@ -4945,7 +4937,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
-                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
               }
             })
           }else if(data.result.freeTimes>0){//判断是否已经花过钱了，花过但是还没有新建咨询成功 那么跳转问卷
@@ -4958,7 +4950,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               if(res){
                 //免费咨询次数减一 count+3
                 Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
-                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:3}).then(function(data){
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
@@ -4966,7 +4958,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 },function(err){
                   console.log(err)
                 })
-                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
               }
             })
           }else{
@@ -4978,18 +4970,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }).then(function(res){
               if(res){
                 //chargedoc
-                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:1}).then(function(data){
+                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
                   console.log(data)
                 },function(err){
                   console.log(err)
                 })
                 //plus doc answer count  patientId:doctorId:modify
-                Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:3}).then(function(data){
+                Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
                   console.log(data)
                 },function(err){
                   console.log(err)
                 })
-                $state.go("tab.consultquestion1",{DoctorId:id,counselType:1});
+                $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
               }
             })
           }
@@ -5001,8 +4993,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     },function(err){
       console.log(err)
     })
-    }else if (ele.target.innerText == '问诊'){
-      Counsels.getStatus({doctorId:id,patientId:Storage.get('UID')})
+  }
+
+  $scope.consult = function(DoctorId){
+    Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
         //zxf 判断条件重写
         if(data.result!="请填写咨询问卷!"&&data.result.status==1){//有尚未完成的咨询或者问诊
@@ -5014,23 +5008,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
                 //点击确认 将咨询的type=1 变成type=3
-                Counsels.changeType({doctorId:id,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
                   console.log(data.result)
                   if(data.result=="修改成功"){
                     //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
                     //chargedoc
-                    Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:3}).then(function(data){
+                    Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
                     })
                     //plus doc answer count  patientId:doctorId:modify
-                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:999}).then(function(data){
+                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
                     })
-                    $state.go("tab.consult-chat",{chatId:id,type:3,status:1});
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
                   }
                 },function(err)
                 {
@@ -5045,12 +5039,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
                 if(res){
-                    $state.go("tab.consult-chat",{chatId:id,type:data.result.type,status:1});
+                    $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1});
                 }
             })
           }
         }else{//没有进行中的问诊咨询 查看是否已经付过费
-          Account.getCounts({patientId:Storage.get('UID'),doctorId:id}).then(function(data){
+          Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
             console.log(data.result.count)
           if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
               $ionicPopup.confirm({
@@ -5060,7 +5054,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 cancelText:"取消"
               }).then(function(res){
                 if(res){
-                  $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
+                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                 }
               })
             }else if(data.result.count==3){//已经付费的咨询 但是没有开始
@@ -5071,19 +5065,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 cancelText:"取消"
               }).then(function(res){
                 if(res){
-                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:3}).then(function(data){
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
                   })
                   //plus doc answer count  patientId:doctorId:modify
-                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:999}).then(function(data){
-                    console.log(id+Storage.get('UID'))
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                    console.log(DoctorId+Storage.get('UID'))
                     console.log(data)
                   },function(err){
                     console.log(err)
                   })
-                  $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                 }
               })
             }else{
@@ -5095,18 +5089,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   //chargedoc
-                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:id,type:2}).then(function(data){
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:2}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
                   })
                   //plus doc answer count  patientId:doctorId:modify
-                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:id,modify:2}).then(function(data){
+                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:2}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
                   })
-                  $state.go("tab.consultquestion1",{DoctorId:id,counselType:2});
+                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                 }
               })
             }
@@ -5117,26 +5111,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       },function(err){
         console.log(err)
       })
-  }else $state.go('tab.DoctorDetail',{DoctorId:id})
-    // else $location.path(path)
+  }
+
+  $scope.getDoctorDetail = function(id) {
+    
+    
+   
+      $state.go('tab.DoctorDetail',{DoctorId:id});
   }
 
 
-   var RealDoctor = function(arr){
-        var result =[];
-        var hash ={};
-        for(var i =arr.length-1; i>=0; i--){
-            if(arr[i].invalidFlag==0){
-
-            }
-            var elem = arr[i].doctorId.userId;
-            if(!hash[elem]){
-                result.push(arr[i]);
-                hash[elem] = true;
-            }
-        }
-        return result;
-    }
+  
 
 
 
@@ -5146,15 +5131,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     function(data){
 
 
-        console.log(data.results.doctorId);
+        // console.log(data.results.doctorId);
         if(data.results.doctorId==undefined){
-          console.log(111)
+          // console.log(111)
           $scope.hasDoctor = false;
-          if($ionicHistory.currentView().stateName=='tab.myDoctors'){
-            $ionicLoading.show({
-              template: '没有绑定的医生', duration: 1000
-          });
-          }
+          // if($ionicHistory.currentView().stateName=='tab.myDoctors'){
+          //   $ionicLoading.show({
+          //     template: '没有绑定的医生', duration: 1000
+          // });
+          // }
 
         }
         else{
@@ -5204,10 +5189,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 .controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account) {
 
-  // $scope.Goback = function(){
-  //   // console.log($ionicHistory.backView());
-  //   $ionicHistory.goBack();
-  // }
+  $scope.GoBack = function(){
+    // console.log('111');
+    // console.log($ionicHistory.backView());
+    $ionicHistory.goBack();
+  }
 
   var DoctorId = $stateParams.DoctorId;
   console.log(DoctorId);

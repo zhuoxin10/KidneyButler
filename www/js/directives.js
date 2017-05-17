@@ -159,6 +159,8 @@ angular.module('kidney.directives', ['kidney.services'])
         link:function($scope){
             $scope.$on('$ionicView.beforeEnter',function(){
                 $rootScope.hideTabs = '';
+                
+
             });
         }
     }
@@ -222,8 +224,16 @@ angular.module('kidney.directives', ['kidney.services'])
 .directive("myNavBackButton", function () {
     return {
         restrict: "AE",
-        // replace: true,   //使用replace之后, 本元素的click不能删除输入框中的内容, 原因大致可以理解为: 父元素被替换后, scope.$apply没有执行对象
         template:"<button class='button button-clear'><i class='icon ion-ios-arrow-left font-white'></i></button>",
+    };
+})
+
+
+// nav-bar
+.directive("myNavBar", function () {
+    return {
+        restrict: "AE",
+        template:"<ion-nav-bar class='bar-positive green-bg' align-title='center'></ion-nav-bar>",
     };
 })
 
