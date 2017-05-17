@@ -1,15 +1,5 @@
 <ion-view cache-view="false" title="肾病信息">
-  <ion-nav-bar class="bar-positive green-bg" align-title="center">
-    <!-- <ion-nav-buttons side="left">
-      <button class="button button-icon" ng-click="backtoBasic()">上一步</button>
-    </ion-nav-buttons>
-    <ion-nav-buttons side="right">
-      <button class="button  button-icon" ng-click ="nexttoquestion()">
-        继续
-      </button>
-    </ion-nav-buttons> -->
-  </ion-nav-bar>
-  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
+    
   <ion-content  class="padding">
 
     <div  class="list">
@@ -78,12 +68,21 @@
     
 
 
-
-    <button style="margin-top:0" class="button button-block green-bg font-white" ng-click ="nexttoquestion()">
+    <div class="row"  style="margin-top:0;">
+      <div class="col col-33" style="margin:0 auto;">
+        <button  class="button button-block green-bg font-white" class="button button-clear" ng-click="backtoBasic()">上一步
+        </button>
+      </div>
+      <div class="col col-33" style="margin:0 auto;">
+        <button  class="button button-block green-bg font-white" ng-click ="nexttoquestion()">
             下一步
-      </button>
-      <button style="margin-top:0" class="button button-block green-bg font-white" class="button button-clear" ng-click="backtoBasic()">上一步
-      </button>
+        </button>
+      </div>
+      
+      
+    </div>
+    
+      
 
 
 

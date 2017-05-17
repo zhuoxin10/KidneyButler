@@ -200,6 +200,32 @@ angular.module('kidney.directives', ['kidney.services'])
    };
 })
 
+// 输入框清除按钮
+.directive("buttonClearInput", function () {
+    return {
+        restrict: "AE",
+        scope: {
+            input: "="  //这里可以直接用input获取父scope(包括兄弟元素)中ng-model的值, 传递给本directive创建的isolate scope使用, template也属于当前isolate scope
+        },
+        // replace: true,   //使用replace之后, 本元素的click不能删除输入框中的内容, 原因大致可以理解为: 父元素被替换后, scope.$apply没有执行对象
+        template:"<span ng-if='input' class='icon ion-close-circled placeholder-icon' on-tap='clearInput()'></span>",
+        controller: function ($scope, $element, $attrs) {
+            $scope.clearInput = function () {
+                $scope.input = "";
+            };
+        }
+    };
+})
+
+
+// 返回键
+.directive("myNavBackButton", function () {
+    return {
+        restrict: "AE",
+        // replace: true,   //使用replace之后, 本元素的click不能删除输入框中的内容, 原因大致可以理解为: 父元素被替换后, scope.$apply没有执行对象
+        template:"<button class='button button-clear'><i class='icon ion-ios-arrow-left font-white'></i></button>",
+    };
+})
 
 
 .directive('dateformat', ['$filter',function($filter) {  
