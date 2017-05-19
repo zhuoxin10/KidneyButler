@@ -1073,6 +1073,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //任务列表--GL
 .controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
 
+
+  $scope.goinsurance=function(){
+    $state.go("insurance");
+  }
   //初始化
     var UserId = Storage.get('UID');
     //UserId = "Test13"; //
@@ -3929,13 +3933,25 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     }
 
-  $scope.healthinfoimgurl = '';
-  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-    }).then(function(modal) {
+  //点击显示大图
+  $scope.zoomMin = 1;
+  $scope.imageUrl = '';
+  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+      scope: $scope
+  }).then(function(modal) {
       $scope.modal = modal;
-    });
+      // $scope.modal.show();
+      $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+  });
+
+  // $scope.healthinfoimgurl = '';
+  // $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/healthinfoimag.html', {
+  //     scope: $scope,
+  //     animation: 'slide-in-up'
+  //   }).then(function(modal) {
+  //     $scope.modal = modal;
+  //   });
+
   $scope.edit = function(){
       $scope.canEdit = true;
 
@@ -4223,36 +4239,54 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-    $scope.openModal = function() {
-      $scope.modal.show();
-    };
-    $scope.closeModal = function() {
-      $scope.modal.hide();
-    };
-    //Cleanup the modal when we're done with it!
-    $scope.$on('$destroy', function() {
-      $scope.modal.remove();
-    });
-    // Execute action on hide modal
-    $scope.$on('modal.hidden', function() {
-      // Execute action
-    });
-    // Execute action on remove modal
-    $scope.$on('modal.removed', function() {
-      // Execute action
-    });
+    // $scope.openModal = function() {
+    //   $scope.modal.show();
+    // };
+    // $scope.closeModal = function() {
+    //   $scope.modal.hide();
+    // };
+    // //Cleanup the modal when we're done with it!
+    // $scope.$on('$destroy', function() {
+    //   $scope.modal.remove();
+    // });
+    // // Execute action on hide modal
+    // $scope.$on('modal.hidden', function() {
+    //   // Execute action
+    // });
+    // // Execute action on remove modal
+    // $scope.$on('modal.removed', function() {
+    //   // Execute action
+    // });
 
-  //点击图片返回
-  $scope.imggoback = function(){
-    $scope.modal.hide();
-  };
+  // //点击图片返回
+  // $scope.imggoback = function(){
+  //   $scope.modal.hide();
+  // };
   $scope.showoriginal=function(resizedpath){
-    $scope.openModal();
-    console.log(resizedpath)
+    // $scope.openModal();
+    // console.log(resizedpath)
     var originalfilepath="http://121.43.107.106:8052/uploads/photos/"+resizedpath.slice(resizedpath.lastIndexOf('/')+1).substr(7)
-    console.log(originalfilepath)
-    $scope.healthinfoimgurl=originalfilepath;
+    // console.log(originalfilepath)
+    // $scope.doctorimgurl=originalfilepath;
+
+    $scope.imageHandle.zoomTo(1, true);
+    $scope.imageUrl = originalfilepath;
+    $scope.modal.show();
   }
+  $scope.closeModal = function() {
+      $scope.imageHandle.zoomTo(1, true);
+      $scope.modal.hide();
+      // $scope.modal.remove()
+  };
+  $scope.switchZoomLevel = function() {
+      if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin)
+          $scope.imageHandle.zoomTo(1, true);
+      else {
+          $scope.imageHandle.zoomTo(5, true);
+      }
+  }
+
+
   $scope.deleteimg=function(index){
     //somearray.removeByValue("tue");
     console.log($scope.health.imgurl)
