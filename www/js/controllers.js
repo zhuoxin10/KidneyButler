@@ -1073,6 +1073,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //任务列表--GL
 .controller('tasklistCtrl', ['$scope','$timeout','$state','$cordovaBarcodeScanner','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,$cordovaBarcodeScanner,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
 
+
+  $scope.goinsurance=function(){
+    $state.go("insurance");
+  }
   //初始化
     var UserId = Storage.get('UID');
     //UserId = "Test13"; //
@@ -4281,7 +4285,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.imageHandle.zoomTo(5, true);
       }
   }
-  
+
 
   $scope.deleteimg=function(index){
     //somearray.removeByValue("tue");
