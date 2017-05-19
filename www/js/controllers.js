@@ -3520,6 +3520,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 content:notice
             }
             socket.emit('message',{msg:msgJson,to:$scope.params.chatId,role:'patient'});
+            $scope.pushMsg(msgJson);
         }
     }
     $scope.getMsg = function(num) {
