@@ -6242,6 +6242,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         if (data.results != null)
         {
           $scope.BasicInfo=angular.merge($scope.BasicInfo, data.results);
+          thisPatient = data.results;
           // console.log($scope.BasicInfo)
           // $scope.BasicInfo = data.results
           // $scope.BasicInfo.name = data.results.name

@@ -2,5 +2,6 @@
     <div class="media-endl">
         <div>{{msg.content.info}}</div>
         <div>{{msg.createTimeInMillis | msgdate}}</div>
+        <div ng-click="emitEvent('gopingjia',msg.content.docId)">点此评价医生</div>
     </div>
 </div>

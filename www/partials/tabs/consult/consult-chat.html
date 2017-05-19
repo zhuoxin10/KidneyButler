@@ -8,7 +8,7 @@
   <ion-content delegate-handle="myContentScroll" class="gray-back">
     <ion-refresher on-refresh="DisplayMore()"></ion-refresher>
     <div class="text-center padding hide-animate ng-hide" ng-hide="params.moreMsgs">没有更多消息了</div>
-    <my-message ng-repeat="msg in msgs track by $index" msg="msg" msgindex='{{$index}}'></my-message>
+    <my-message ng-repeat="msg in msgs track by $index" msg="msg" photourls='photoUrls' msgindex='{{$index}}'></my-message>
     <div style="float:left;width:100%;padding-top:70px"></div>
         <div style="float:left;width:100%;" ng-style="{'padding-top':'{{params.helpDivHeight}}px'}"></div>
   </ion-content>
@@ -17,7 +17,7 @@
   <form name="sendMessageForm" novalidate>
     <div class="chat-bar">
       <div class="chat-top">
-          <button style="position: absolute;bottom: 2px;z-index: 999" class="button button-icon iconfont  icon-yuyin" ng-init="showVoice=false;" ng-click="showVoice==false?showVoice=true:showVoice=false;showMore=false;" ng-model="showVoice"></button>
+          <!-- <button style="position: absolute;bottom: 2px;z-index: 999" class="button button-icon iconfont  icon-yuyin" ng-init="showVoice=false;" ng-click="showVoice==false?showVoice=true:showVoice=false;showMore=false;" ng-model="showVoice"></button> -->
           <div class="chat-input" style="position: absolute;bottom: 4px;width: 100%;padding-left:3vw;padding-right:13vw;">
               <textarea style="resize:none;width:100%;min-height:1.4em;height:1.6em;font-size:1.2em;line-height:20px;border-bottom:1px #AAA solid" ng-model="input.text" ng-focus="showMore=false;showVoice=false;scrollBottom()" minlength="1" maxlength="500" dynamic-height></textarea>
           </div>
