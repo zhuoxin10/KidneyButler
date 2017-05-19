@@ -244,33 +244,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //手机正则表达式验证
             if(phoneReg.test(Verify.Phone)){
                 //测试用
-                if(Verify.Code==5566){
-                    $scope.logStatus = "验证成功";
-                    Storage.set('USERNAME',Verify.Phone);
-                    if($stateParams.phonevalidType == 'register'){
-                        $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                    }else{
-                       $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                    }
-
-                }else{$scope.logStatus = "验证码错误";}
-                // var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
-                // verifyPromise.then(function(data){
-                //     if(data.results==0){
-                //         $scope.logStatus = "验证成功";
-                //         Storage.set('USERNAME',Verify.Phone);
-                            // if($stateParams.phonevalidType == 'register'){
-                            //     $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                            // }else{
-                            //     $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                            // }
+                // if(Verify.Code==5566){
+                //     $scope.logStatus = "验证成功";
+                //     Storage.set('USERNAME',Verify.Phone);
+                //     if($stateParams.phonevalidType == 'register'){
+                //         $timeout(function(){$state.go('agreement',{last:'register'});},500);
                 //     }else{
-                //         $scope.logStatus = data.mesg;
-                //         return;
+                //        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
                 //     }
-                // },function(){
-                //     $scope.logStatus = "连接超时！";
-                // })
+
+                // }else{$scope.logStatus = "验证码错误";}
+                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                verifyPromise.then(function(data){
+                    if(data.results==0){
+                        $scope.logStatus = "验证成功";
+                        Storage.set('USERNAME',Verify.Phone);
+                            if($stateParams.phonevalidType == 'register'){
+                                $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                            }else{
+                                $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
+                            }
+                    }else{
+                        $scope.logStatus = data.mesg;
+                        return;
+                    }
+                },function(){
+                    $scope.logStatus = "连接超时！";
+                })
             }
             else{$scope.logStatus="手机号验证失败！";}
 
@@ -1071,8 +1071,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','$cordovaBarcodeScanner','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,$cordovaBarcodeScanner,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
 
+
+  $scope.goinsurance=function(){
+    $state.go("insurance");
+  }
   //初始化
     var UserId = Storage.get('UID');
     //UserId = "Test13"; //
@@ -4415,7 +4419,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           $scope.imageHandle.zoomTo(5, true);
       }
   }
-  
+
 
   $scope.deleteimg=function(index){
     //somearray.removeByValue("tue");
@@ -4822,7 +4826,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //医生列表--PXY
-.controller('DoctorCtrl', ['Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG',function(Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG) {
+.controller('DoctorCtrl', ['$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG',function($cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG) {
   $scope.Goback = function(){
     $state.go('tab.myDoctors');
     // console.log($ionicHistory.backView())
@@ -4840,8 +4844,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
 
+  
+  //获取我的主管医生信息
+  var mydoc = function(){
+    Patient.getMyDoctors({userId:Storage.get('UID')}).then(
+    function(data){
+
+
+        // console.log(data.results.doctorId);
+        if(data.results.doctorId==undefined){
+          // console.log(111)
+          $scope.hasDoctor = false;
+          // if($ionicHistory.currentView().stateName=='tab.myDoctors'){
+          //   $ionicLoading.show({
+          //     template: '没有绑定的医生', duration: 1000
+          // });
+          // }
+
+        }
+        else{
+          $scope.hasDoctor = true;
+          $scope.doctor = data.results.doctorId;
+        }
+
+
+    },function(err){
+        console.log(err);
+    });
+  }
+  mydoc();
+
+
   $scope.scanbarcode = function () {
-      console.log(Storage.get("UID"))
+      // console.log(Storage.get("UID"))
       $cordovaBarcodeScanner.scan().then(function(imageData) {
           // alert(imageData.text);
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
@@ -4849,7 +4884,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               $ionicPopup.alert({
                title: '绑定成功！'
               }).then(function(res) {
-                $state.go('tab.myDoctors');
+                mydoc();
+                // $state.go('tab.myDoctors');
               });
             }else if(res.result=="不存在的医生ID！"){
               $ionicPopup.alert({
@@ -5097,6 +5133,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
                   //免费咨询次数减一 count+3
                   Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
                     Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
@@ -5340,32 +5381,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-  //获取我的主管医生信息
-
-  Patient.getMyDoctors({userId:Storage.get('UID')}).then(
-    function(data){
-
-
-        // console.log(data.results.doctorId);
-        if(data.results.doctorId==undefined){
-          // console.log(111)
-          $scope.hasDoctor = false;
-          // if($ionicHistory.currentView().stateName=='tab.myDoctors'){
-          //   $ionicLoading.show({
-          //     template: '没有绑定的医生', duration: 1000
-          // });
-          // }
-
-        }
-        else{
-          $scope.hasDoctor = true;
-          $scope.doctor = data.results.doctorId;
-        }
-
-
-    },function(err){
-        console.log(err);
-    })
+  
 
 }])
 
@@ -5457,6 +5473,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
+                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
+                })
                 //免费咨询次数减一 count+3
                 Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
                   Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
