@@ -3697,12 +3697,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         };
     }
     function localMsgGen(msg,url){
-        var data=msg.content,
-            type=msg.contentType;
-        if(type=='image'){
-            data.localPath=url;
-        }else if(type=='voice'){
-            data.localPath=url;
+        var d = {},
+            type = msg.contentType;
+        if (type == 'image') {
+            d.src = msg.content.src;
+            d.src_thumb = msg.content.src_thumb;
+            d.localPath = url;
+        } else if (type == 'voice') {
+            d.localPath = url;
+            d.src = msg.content.src;
         }
         return {
             clientType:'app',
@@ -3716,7 +3719,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             status:'send_going',
             createTimeInMillis: msg.createTimeInMillis,
             newsType:msg.newsType,
-            content:data
+            content:d
         };
     }
 
@@ -3794,8 +3797,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         'uploads/photos/' + fm,
                         'uploads/photos/resized' + fm
                     ],
-                    imgMsg = msgGen(d, 'image');
-                $scope.pushMsg(localMsgGen(imgMsg, url));
+                    imgMsg = msgGen(d, 'image'),
+                    localMsg = localMsgGen(imgMsg,url);
+                $scope.pushMsg(localMsg);
                 Camera.uploadPicture(url, fm)
                     .then(function() {
                         socket.emit('message', { msg: imgMsg, to: $scope.params.chatId, role: 'doctor' });
@@ -3805,7 +3809,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }, function(err) {
                 $ionicLoading.show({ template: '打开图片失败', duration: 2000 })
                 console.error(err);
-            })
+            });
     };
 
     // $scope.getImage = function(type) {
