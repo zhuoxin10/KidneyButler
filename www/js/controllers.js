@@ -5005,6 +5005,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
+                  Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
+                    console.log(data)
+                  },function(err){
+                    console.log(err)
+                  })
                   //免费咨询次数减一 count+3
                   Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
                     Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
@@ -5315,6 +5320,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               cancelText:"取消"
             }).then(function(res){
               if(res){
+                Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1}).then(function(data){
+                  console.log(data)
+                },function(err){
+                  console.log(err)
+                })
                 //免费咨询次数减一 count+3
                 Account.updateFreeTime({patientId:Storage.get('UID')}).then(function(data){
                   Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
