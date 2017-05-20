@@ -627,7 +627,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     },
     uploadPicture : function(imgURI, temp_photoaddress){
         return $q(function(resolve, reject) {
-          var uri = encodeURI("http://121.43.107.106:4050/upload")
+          var uri = encodeURI(CONFIG.baseUrl + "upload")
             // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
             var options = {
               fileKey : "file",
