@@ -1,3 +1,4 @@
+
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
 .controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce) {
@@ -3206,7 +3207,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 //咨询记录--PXY
-.controller('ConsultRecordCtrl', ['News','arrTool','$q','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(News,arrTool,$q,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
+.controller('ConsultRecordCtrl', ['News','Patient','Storage','$scope','$state','$ionicHistory','$ionicLoading','$ionicPopover','Counsels','$ionicPopup',function(News,Patient,Storage,$scope,$state,$ionicHistory,$ionicLoading,$ionicPopover,Counsels,$ionicPopup) {
 
 
   $scope.Goback = function(){
@@ -3220,11 +3221,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         var result =[];
         var hash ={};
         for(var i =arr.length-1; i>=0; i--){
-            var elem = arr[i].doctorId.userId;
-            if(!hash[elem]){
-                result.push(arr[i].doctorId);
-                hash[elem] = true;
+            if(arr[i].doctorId){
+              var elem = arr[i].doctorId.userId;
+              if(!hash[elem]){
+                  result.push(arr[i].doctorId);
+                  hash[elem] = true;
+              }
             }
+            
         }
         return result;
     }
@@ -3357,7 +3361,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //聊天 XJZ
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','wechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,wechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool) {
+
+.controller('ChatCtrl',['$ionicHistory','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','wechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool', function($ionicHistory,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,wechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool) {
     $scope.input = {
         text: ''
     }
@@ -3915,6 +3920,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $rootScope.conversation.type = null;
         $rootScope.conversation.id = '';
     })
+
+    $scope.chatBack = function(){
+      console.log($ionicHistory.backView().stateId);
+      if($ionicHistory.backView().stateId=='tab.consultquestion3'){
+        $state.go('tab.myDoctors');
+      }else{
+         $ionicHistory.goBack();
+      }
+    }
 }])
 
 
