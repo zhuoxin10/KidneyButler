@@ -28,6 +28,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
     appKey: 'fe7b9ba069b80316653274e4',
     crossKey: 'cf32b94444c4eaacef86903e',
     baseUrl: 'http://121.43.107.106:4050/',
+    mediaUrl: 'http://121.43.107.106:8052/',
+    socketServer:'ws://121.43.107.106:4050/',
     imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
     imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
     cameraOptions: {
@@ -46,7 +48,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             quality: 60,
             destinationType: 1,
             sourceType: 0,
-            allowEdit: true,
+            allowEdit: false,
             encodingType: 0,
             targetWidth: 1000,
             targetHeight: 1000
@@ -71,116 +73,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
     }
   };
 }])
-
-
-// --------上传头像---------------- 
-//跟我写的Camera同名了，这是旧的，不一定有用，就先注释了 XJZ
-
-  // .factory('Camera', ['$q','$cordovaCamera','CONFIG', '$cordovaFileTransfer','Storage',function($q,$cordovaCamera,CONFIG,$cordovaFileTransfer,Storage) { //LRZ
-  //   return {
-  //     getPicture: function() {
-
-  //       var options = { 
-  //           quality : 75, 
-  //           destinationType : 0, 
-  //           sourceType : 1, 
-  //           allowEdit : true,
-  //           encodingType: 0,
-  //           targetWidth: 300,
-  //           targetHeight: 300,
-  //           popoverOptions: CONFIG.popoverOptions,
-  //           saveToPhotoAlbum: false
-  //       };
-
-  //      var q = $q.defer();
-
-  //       $cordovaCamera.getPicture(options).then(function(imageData) {
-  //           imgURI = "data:image/jpeg;base64," + imageData;
-  //           // console.log("succeed" + imageData);
-  //           q.resolve(imgURI);
-  //       }, function(err) {
-  //           // console.log("sth wrong");
-  //           imgURI = undefined;
-  //           q.resolve(err);
-  //       });      
-  //       return q.promise; //return a promise
-  //     },
-
-  //     getPictureFromPhotos: function(){
-  //       var options = { 
-  //           quality : 75, 
-  //           destinationType : 0, 
-  //           sourceType : 0, 
-  //           allowEdit : true,
-  //           encodingType: 0,
-  //           targetWidth: 300,
-  //           targetHeight: 300
-  //       };
-  //         //从相册获得的照片不能被裁减 调研~
-  //      var q = $q.defer();
-  //       $cordovaCamera.getPicture(options).then(function(imageData) {
-  //           imgURI = "data:image/jpeg;base64," + imageData;
-  //           // console.log("succeed" + imageData);
-  //           q.resolve(imgURI);
-  //       }, function(err) {
-  //           // console.log("sth wrong");
-  //           imgURI = undefined;
-  //           q.resolve(err);
-  //       });      
-  //       return q.promise; //return a promise      
-  //     },
-
-  //     uploadPicture : function(imgURI, temp_photoaddress){
-  //         // document.addEventListener('deviceready', onReadyFunction,false);
-  //         // function onReadyFunction(){
-  //           var uri = encodeURI(CONFIG.ImageAddressIP + "/upload.php");
-  //           var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
-  //           var options = {
-  //             fileKey : "file",
-  //             fileName : temp_photoaddress,
-  //             chunkedMode : true,
-  //             mimeType : "image/jpeg"
-  //           };
-  //           var q = $q.defer();
-  //           //console.log("jinlaile");
-  //           $cordovaFileTransfer.upload(uri,imgURI,options)
-  //             .then( function(r){
-  //               console.log("Code = " + r.responseCode);
-  //               console.log("Response = " + r.response);
-  //               console.log("Sent = " + r.bytesSent);
-  //               var result = "上传成功";
-  //               q.resolve(result);        
-  //             }, function(error){
-  //               console.log(error);
-  //               alert("An error has occurred: Code = " + error.code);
-  //               console.log("upload error source " + error.source);
-  //               console.log("upload error target " + error.target);
-  //               q.resolve(error);          
-  //             }, function (progress) {
-  //               console.log(progress);
-  //             })
-
-  //             ;
-  //           return q.promise;  
-  //         // }
-
-
-  //         // var ft = new FileTransfer();
-  //         // $cordovaFileTransfer.upload(imgURI, uri, win, fail, options);
-        
-  //     },
-
-  //   uploadPicture2: function(imgURI){
-  //     document.addEventListener("deviceready", onDeviceReady, false);
-
-  //     function onDeviceReady() {
-  //    // as soon as this function is called FileTransfer "should" be defined
-  //       console.log(FileTransfer);
-  //       console.log(File);
-  //     }
-  //   }
-  //   }
-  // }])
 
 //media文件操作 XJZ
 .factory('fs',['$q','$cordovaFile','$filter',function($q,$cordovaFile,$filter){
@@ -985,6 +877,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Communication =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'communication'},{
+            getCommunication:{method:'GET', params:{route: 'getCommunication'}, timeout: 100000},
             getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
             getTeam:{method:'GET', params:{route: 'getTeam'}, timeout: 100000},
             insertMember:{method:'POST', params:{route: 'insertMember'}, timeout: 100000},
@@ -997,6 +890,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     }
 
+    var wechat = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'wechat'},{
+            messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000}
+        })
+    }
     serve.abort = function ($scope) {
         abort.resolve();
         $interval(function () {
@@ -1017,6 +915,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Message = Message();
             serve.News = News();
             serve.Expense = Expense();
+            serve.wechat = wechat();
             serve.Communication = Communication();
         }, 0, 1);
     };
@@ -1036,6 +935,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Message = Message();
     serve.News = News();
     serve.Expense = Expense();
+    serve.wechat = wechat();
     serve.Communication = Communication();
     return serve;
 }])
@@ -1891,6 +1791,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params-> messageType=2&id2=teamOrConsultation&limit=1&skip=0
+    //         messageType=1&id1=doc&id2=pat&limit=1&skip=0
+    self.getCommunication = function(params){
+        var deferred = $q.defer();
+        Data.Communication.getCommunication(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
     //params->0:{teamId:'team1'}
     self.getTeam = function(params){
@@ -2171,6 +2085,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
     return self;
 }])
+
 .factory('Expense', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->0:{userId:'p01'}
@@ -2190,6 +2105,22 @@ angular.module('kidney.services', ['ionic','ngResource'])
 return self;
 }])
 
+.factory('wechat', ['$q', 'Data', function($q, Data){
+    var self = this;
 
+    self.messageTemplate = function(params){
+        var deferred = $q.defer();
+        Data.wechat.messageTemplate(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
+    return self;
+}])
 
