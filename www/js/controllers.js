@@ -48,15 +48,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             Storage.set('USERNAME',logOn.username);
             var logPromise = User.logIn({username:logOn.username,password:logOn.password,role:"patient"});
             logPromise.then(function(data){
+                console.log(data);
                 if(data.results==1){
-                    if(data.mesg== "User doesn't Exist!"){
-                        $scope.logStatus="账号不存在！";
-                        return;
-                    }
-                    else if(data.mesg== "User password isn't correct!"){
-                        $scope.logStatus = "账号或密码错误！";
-                        return;
-                    }
+                    $scope.logStatus = "账号密码错误！";
+                    return;
+                    // if(data.mesg== "User doesn't Exist!"||"No authority!"){
+                    //     $scope.logStatus="账号不存在！";
+                    //     return;
+                    // }
+                    // else if(data.mesg== "User password isn't correct!"){
+                    //     $scope.logStatus = "账号或密码错误！";
+                    //     return;
+                    // }
                 }
                 else if(data.results.mesg=="login success!"){
                     //jmessage login
@@ -3225,14 +3228,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     var RefreshCounSelRecords = function(){
-        var promise = Patient.getCounselRecords({userId:Storage.get('UID')});
+        var MyId = Storage.get('UID');
+        var promise = Patient.getCounselRecords({userId:MyId});
         promise.then(function(data){
             console.log(data);
             if(data.results!=""){
 
                 FilteredDoctors = FilterDoctor(data.results);
                 console.log(FilteredDoctors);
-                News.getNews({userId:Storage.get('UID'),type:11}).then(
+                News.getNews({userId:MyId,type:11}).then(
                     function(data){
                         console.log(data.results);
                         if(data.results){
@@ -3241,6 +3245,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     if(FilteredDoctors[x].userId==data.results[y].sendBy||FilteredDoctors[x].userId==data.results[y].userId){
                                         FilteredDoctors[x].lastMsgDate = data.results[y].time;
                                         FilteredDoctors[x].latestMsg = data.results[y].description;
+                                        data.results[y].url = JSON.parse(data.results[y].url);
+                                        FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId == data.results[y].url.fromID ? 1:0);
                                     }
                                 }
                             }
