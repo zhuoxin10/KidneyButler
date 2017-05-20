@@ -27,11 +27,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
 .constant('CONFIG', {
     appKey: 'fe7b9ba069b80316653274e4',
     crossKey: 'cf32b94444c4eaacef86903e',
-    baseUrl: 'http://121.43.107.106:4050/',
-    mediaUrl: 'http://121.43.107.106:8052/',
-    socketServer:'ws://121.43.107.106:4050/',
-    imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
-    imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
+    baseUrl: 'http://121.196.221.44:4050/',
+    mediaUrl: 'http://121.196.221.44:8052/',
+    socketServer:'ws://121.196.221.44:4050/',
+    imgThumbUrl: 'http://121.196.221.44:8052/uploads/photos/resize',
+    imgLargeUrl: 'http://121.196.221.44:8052/uploads/photos/',
     cameraOptions: {
         cam: {
             quality: 60,
@@ -627,7 +627,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     },
     uploadPicture : function(imgURI, temp_photoaddress){
         return $q(function(resolve, reject) {
-          var uri = encodeURI("http://121.43.107.106:4050/upload")
+          var uri = encodeURI(CONFIG.baseUrl + "upload")
             // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
             var options = {
               fileKey : "file",
