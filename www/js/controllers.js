@@ -5598,6 +5598,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.consult = function(DoctorId,docname){
+    console.log(DoctorId)
     Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
         //zxf 判断条件重写
@@ -5605,76 +5606,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           if(data.result.type==1){//咨询转问诊
             if($scope.consultable==1){
               $scope.consultable=0
-            $ionicPopup.confirm({
-              title:"问诊确认",
-              template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
-              okText:"确认",
-              cancelText:"取消"
-            }).then(function(res){
-                //点击确认 将咨询的type=1 变成type=3
-                Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
-                  console.log(data.result)
-                  if(data.result=="修改成功"){
-                    //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                    //chargedoc
-                    Account.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3}).then(function(data){
-                      console.log(data)
-                    },function(err){
-                      console.log(err)
-                    })
-                    //plus doc answer count  patientId:doctorId:modify
-                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                      console.log(data)
-                    },function(err){
-                      console.log(err)
-                    })
-                    var msgJson = {
-                        clientType:'app',
-                        contentType: 'custom',
-                        fromName: '',
-                        fromID: Storage.get('UID'),
-                        fromUser: {
-                            avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                        },
-                        targetID: DoctorId,
-                        targetName: '',
-                        targetType: 'single',
-                        status: 'send_going',
-                        createTimeInMillis: Date.now(),
-                        newsType: '11',
-                        content: {
-                            type: 'counsel-upgrade',
-                        }
-                    }
-                    socket.emit('newUser', { user_name: Storage.get('UID'), user_id: Storage.get('UID') });
-                    socket.emit('message', { msg: msgJson, to: DoctorId, role: 'patient' });
-                    socket.on('messageRes', function(data) {
-                        socket.off('messageRes');
-                        socket.emit('disconnect');
-                        $state.go("tab.consult-chat", { chatId: DoctorId, type: 3, status: 1 });
-                    })
-                  }
-                },function(err)
-                {
-                    console.log(err)
-                })
-            })
-          }else{
-            $ionicPopup.confirm({
-              title:"问诊确认",
-              template:"您有尚未结束的问诊，点击确认继续上一次问诊！",
-              okText:"确认",
-              cancelText:"取消"
-            }).then(function(res){
-                if(res){
-                    $state.go("tab.consult-chat",{chatId:DoctorId,type:data.result.type,status:1});
-                }
-            })
-          }
-        }else{//没有进行中的问诊咨询 查看是否已经付过费
-          Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
-            console.log(data.result.count)
-          if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
               $ionicPopup.confirm({
                 title:"问诊确认",
                 template:"您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？",
@@ -5700,7 +5631,32 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                       },function(err){
                         console.log(err)
                       })
-                      $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
+                      var msgJson={
+                            clientType:'app',
+                            contentType:'custom',
+                            fromName:'',
+                            fromID:Storage.get('UID'),
+                            fromUser:{
+                                avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                            },
+                            targetID:id,
+                            targetName:'',
+                            targetType:'single',
+                            status:'send_going',
+                            createTimeInMillis: Date.now(),
+                            newsType:'11',
+                            content:{
+                                type:'counsel-upgrade',
+                            }
+                        }
+                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
+                        socket.emit('message',{msg:msgJson,to:id,role:'patient'});
+                        socket.on('messageRes',function(data){
+                          socket.off('messageRes');
+                          socket.emit('disconnect');
+                          $state.go("tab.consult-chat",{chatId:id,type:3,status:1}); 
+                        })
+                      // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
                     }
                   },function(err)
                   {
@@ -5731,7 +5687,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           }
         }else{//没有进行中的问诊咨询 查看是否已经付过费
           Account.getCounts({patientId:Storage.get('UID'),doctorId:DoctorId}).then(function(data){
-            console.log(data.result.count)
+            console.log(DoctorId)
           if(data.result.count==999){//上次有购买问诊 但是没有新建问诊
             if($scope.consultable==1){
               $scope.consultable=0
