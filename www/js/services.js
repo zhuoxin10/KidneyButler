@@ -991,6 +991,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
             removeMember:{method:'POST', params:{route: 'removeMember'}, timeout: 100000}
         });
     }
+    var Expense =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'expense'},{
+            rechargeDoctor:{method:'POST', params:{route: 'rechargeDoctor'}, timeout: 100000},
+        });
+    }
 
     serve.abort = function ($scope) {
         abort.resolve();
@@ -1011,7 +1016,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Account = Account();
             serve.Message = Message();
             serve.News = News();
-
+            serve.Expense = Expense();
             serve.Communication = Communication();
         }, 0, 1);
     };
@@ -1030,6 +1035,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Account = Account();
     serve.Message = Message();
     serve.News = News();
+    serve.Expense = Expense();
     serve.Communication = Communication();
     return serve;
 }])
@@ -2165,10 +2171,24 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
     return self;
 }])
+.factory('Expense', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01'}
+    self.rechargeDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Expense.rechargeDoctor(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
-
-
-
+return self;
+}])
 
 
 
