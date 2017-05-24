@@ -64,7 +64,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
                 else if(data.results.mesg=="login success!"){
                     //jmessage login
-
                     JM.login(data.results.userId);
 
                     $scope.logStatus = "登录成功！";
@@ -3007,7 +3006,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       var data=angular.fromJson(res)
       //res.path_resized
       //图片路径
-      $scope.myAvatar="http://121.43.107.106:8052/"+String(data.path_resized)+'?'+new Date().getTime();
+      $scope.myAvatar=CONFIG.mediaUrl+String(data.path_resized)+'?'+new Date().getTime();
       console.log($scope.myAvatar)
       // $state.reload("tab.mine")
       // Storage.set('myAvatarpath',$scope.myAvatar);
@@ -4072,7 +4071,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera) {
+.controller('HealthDetailCtrl', ['$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera','CONFIG',function($scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera,CONFIG) {
   var patientId = Storage.get('UID')
   $scope.$watch("canEdit",function(oldval,newval){
       console.log("oldval:"+oldval)
@@ -4325,7 +4324,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     .then(function(res){
       var data=angular.fromJson(res)
       //图片路径
-      $scope.health.imgurl.push("http://121.43.107.106:8052/"+String(data.path_resized))
+      $scope.health.imgurl.push(CONFIG.mediaUrl+String(data.path_resized))
       // $state.reload("tab.mine")
       // Storage.set('localhealthinfoimg',angular.toJson($scope.health.imgurl));
       console.log($scope.health.imgurl)
@@ -4428,7 +4427,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.showoriginal=function(resizedpath){
     // $scope.openModal();
     // console.log(resizedpath)
-    var originalfilepath="http://121.43.107.106:8052/uploads/photos/"+resizedpath.slice(resizedpath.lastIndexOf('/')+1).substr(7)
+    var originalfilepath=CONFIG.imgLargeUrl+resizedpath.slice(resizedpath.lastIndexOf('/')+1).substr(7)
     // console.log(originalfilepath)
     // $scope.doctorimgurl=originalfilepath;
 
@@ -5178,7 +5177,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
+                  Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
@@ -5211,7 +5210,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(res){
                   $scope.consultable=1
                   //chargedoc
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
+                  Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
@@ -5261,7 +5260,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
                       //chargedoc
-                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
+                      Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
                         console.log(data)
                       },function(err){
                         console.log(err)
@@ -5357,7 +5356,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
-                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
+                    Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
@@ -5387,7 +5386,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
                     //chargedoc
-                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:2,doctorName:docname,money:0}).then(function(data){
+                    Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:2,doctorName:docname,money:0}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
@@ -5455,7 +5454,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 
-.controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account','CONFIG',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account,CONFIG) {
+.controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense) {
 
   $scope.GoBack = function(){
     // console.log('111');
@@ -5569,7 +5568,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
+                  Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
@@ -5602,7 +5601,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(res){
                   $scope.consultable=1
                   //chargedoc
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
+                  Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:1,doctorName:docname,money:0}).then(function(data){
                     console.log(data)
                   },function(err){
                     console.log(err)
@@ -5653,7 +5652,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
                       //chargedoc
-                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
+                      Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
                         console.log(data)
                       },function(err){
                         console.log(err)
@@ -5749,7 +5748,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
-                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
+                    Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:3,doctorName:docname,money:0}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
@@ -5779,7 +5778,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
                     //chargedoc
-                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:2,doctorName:docname,money:0}).then(function(data){
+                    Expense.rechargeDoctor({patientId:Storage.get('UID'),patientName:"",doctorId:DoctorId,type:2,doctorName:docname,money:0}).then(function(data){
                       console.log(data)
                     },function(err){
                       console.log(err)
