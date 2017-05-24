@@ -1035,7 +1035,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('GoToMessageCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
 
 
-    $scope.hasUnreadMessages = false;
+    $scope.HasUnreadMessages = false;
     $scope.GoToMessage = function(){
         Storage.set('messageBackState',$ionicHistory.currentView().stateId);
         $state.go('messages');
@@ -3251,8 +3251,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     if(FilteredDoctors[x].userId==data.results[y].sendBy||FilteredDoctors[x].userId==data.results[y].userId){
                                         FilteredDoctors[x].lastMsgDate = data.results[y].time;
                                         FilteredDoctors[x].latestMsg = data.results[y].description;
-                                        data.results[y].url = JSON.parse(data.results[y].url);
-                                        FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId == data.results[y].url.fromID ? 1:0);
+                                        try{
+                                            data.results[y].url = JSON.parse(data.results[y].url);
+                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId == data.results[y].url.fromID ? 1:0);
+                                        }
+                                        catch(e){
+                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot;
+                                        }
+                                        
                                     }
                                 }
                             }
@@ -4587,15 +4593,28 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 console.log(data);
                 if(data.results.length){
 
-
+                    var mesFromDoc = new Array();
+                    var singleMes = new Object();
                     for(var x in data.results){
-                        getDocNamePhoto(data.results[x].sendBy,data.results[x]);
+                        var url = JSON.parse(data.results[x].url);
+                        singleMes.docName = url.fromName;
+                        singleMes.docPhoto = url.fromUser.avatarPath;
+                        singleMes.time = data.results[x].time;
+                        singleMes.description = data.results[x].description;
+                        mesFromDoc.push(singleMes);
+                        // console.log(JSON.parse(data.results[x].url).fromName);
+                        // getDocNamePhoto(data.results[x].sendBy,data.results[x]);
 
                     }
                     // console.log($scope.chats);
-                }
+                    // for(var x in data.results){
+                       
+                    //     getDocNamePhoto(data.results[x].sendBy,data.results[x]);
 
-                $scope.chats=data.results;
+                    // }
+                }
+                $scope.chats = mesFromDoc;
+                // $scope.chats=data.results;
 
 
             },function(err){
