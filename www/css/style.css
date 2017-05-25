@@ -1093,6 +1093,12 @@ border-bottom: none !important;
   background-color: red
 }
 
+.no-line{
+  background-color:transparent !important;
+  background-image: none !important;
+  border:0px !important;
+}
+
 
 .ionic_ratings .icon {
   font-size:50px;

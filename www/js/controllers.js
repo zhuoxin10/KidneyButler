@@ -6297,9 +6297,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     Dict.getDiseaseType({category:'patient_class'}).then(
       function(data)
       {
-        $scope.Diseases = data.results[0].content
-        $scope.Diseases.push($scope.Diseases[0])
-        $scope.Diseases.shift()
+        
+        $scope.Diseases = data.results[0].content;
+        console.log($scope.Diseases);
+        $scope.Diseases.push($scope.Diseases[0]);
+        console.log($scope.Diseases);
+        $scope.Diseases.shift();
+        console.log($scope.Diseases);
         if ($scope.BasicInfo.class != null)
         {
           $scope.BasicInfo.class = searchObj($scope.BasicInfo.class,$scope.Diseases)
