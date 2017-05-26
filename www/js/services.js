@@ -821,6 +821,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
             getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
             updateAgree:{method:'POST', params:{route: 'updateUserAgreement'}, timeout: 100000},
+            getUserIDbyOpenId:{method:'GET', params:{route: 'getUserIDbyOpenId'}, timeout: 100000},
+            setOpenId:{method:'POST', params:{route: 'setOpenId'}, timeout: 100000}
 
         });
     }
@@ -890,9 +892,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     }
 
-    var wechat = function(){
+    var Mywechat = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'wechat'},{
-            messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000}
+            messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000},
+            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000}
         })
     }
     serve.abort = function ($scope) {
@@ -915,7 +918,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Message = Message();
             serve.News = News();
             serve.Expense = Expense();
-            serve.wechat = wechat();
+            serve.Mywechat = Mywechat();
             serve.Communication = Communication();
         }, 0, 1);
     };
@@ -935,7 +938,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Message = Message();
     serve.News = News();
     serve.Expense = Expense();
-    serve.wechat = wechat();
+    serve.Mywechat = Mywechat();
     serve.Communication = Communication();
     return serve;
 }])
@@ -1321,8 +1324,31 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return deferred.promise;
     }
 
-
+    self.getUserIDbyOpenId = function(params){
+        var deferred = $q.defer();
+        Data.User.getUserIDbyOpenId(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
     
+    self.setOpenId  = function(params){
+        var deferred = $q.defer();
+        Data.User.setOpenId (
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
     return self;
 }])
 
@@ -2105,12 +2131,25 @@ angular.module('kidney.services', ['ionic','ngResource'])
 return self;
 }])
 
-.factory('wechat', ['$q', 'Data', function($q, Data){
+.factory('Mywechat', ['$q', 'Data', function($q, Data){
     var self = this;
 
     self.messageTemplate = function(params){
         var deferred = $q.defer();
-        Data.wechat.messageTemplate(
+        Data.Mywechat.messageTemplate(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    self.gettokenbycode = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.gettokenbycode(
             params,
             function(data, headers){
                 deferred.resolve(data);

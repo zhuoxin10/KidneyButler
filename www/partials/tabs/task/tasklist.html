@@ -78,6 +78,15 @@
         <ion-modal-view>
             <ion-content class="padding">
                 <p style="padding-left:4px;">医生排班表</p>
+                <div ng-show="hasstop" style="padding-left:4px;">
+                    <p >医生停诊中</p>
+                    <p>当前日期：{{dateC|dateFormat:"YYYY-MM-DD"}}</p>
+                    </br>
+                    <p>停诊开始：{{begin|dateFormat:"YYYY-MM-DD"}}</p>
+                    </br>
+                    <p>停诊结束：{{end|dateFormat:"YYYY-MM-DD"}}</p>
+                </div>
+
                 <div class="row">
                     <div class="col schedual-border" ><span style="opacity:0">上午</span></div>
                     <div class="col schedual-border" >一</div>
