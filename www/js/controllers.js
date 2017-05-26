@@ -2551,8 +2551,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             date.getDate()<10?dateNow+='0'+date.getDate():dateNow+=date.getDate();
             console.log(dateNow)
 
-            $scope.begin=data.results.suspendTime[0].start;
-            $scope.end=data.results.suspendTime[0].end;
+            $scope.begin=data.results.doctorId.suspendTime[0].start;
+            $scope.end=data.results.doctorId.suspendTime[0].end;
 
             date=new Date($scope.begin);
             var dateB=''+date.getFullYear();
