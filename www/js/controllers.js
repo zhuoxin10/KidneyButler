@@ -121,16 +121,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         alert("Failed: " + reason);
     });*/
   //先判断localstorage是否有unionid
-  if(Storage.get('patientunionid')==undefined){
-    console.log(1111)
+  if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
+    User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+      if(data.results.mesg=="login success!"){
+        Storage.set('isSignIn',"Yes");
+        Storage.set('UID',ret.UserId);//后续页面必要uid
+        Storage.set('bindingsucc','yes')
+        $state.go('tab.tasklist')  
+      }
+    })
   }
     // if(1==2){
     var wxscope = "snsapi_userinfo",
     wxstate = "_" + (+new Date());
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        alert(JSON.stringify(response));
-        alert(response.code)
+        // alert(JSON.stringify(response));
+        // alert(response.code)
         //将code传个后台服务器 获取unionid
         Mywechat.gettokenbycode({role:"appPatient",code:response.code}).then(function(res){
           // { 
@@ -142,21 +149,23 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           // "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL"
           // }
           $scope.unionid=res.result.unionid;
-          alert($scope.unionid)
+          // alert($scope.unionid)
           //判断这个unionid是否已经绑定用户了 有直接登录
           User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
-            alert(JSON.stringify(ret))
+            // alert(JSON.stringify(ret))
             //用户已经存在id 说明公众号注册过
-            if(ret.results==0){//直接登录
+            if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
                 if(data.results.mesg=="login success!"){
                   Storage.set('isSignIn',"Yes");
                   Storage.set('UID',ret.UserId);//后续页面必要uid
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
+                  Storage.set('bindingsucc','yes')
                   $state.go('tab.tasklist')  
                 }
               })
             }else{
+              Storage.set("patientunionid",$scope.unionid);//自动登录使用
               $state.go('agreement',{last:'wechatsignin'})
             }
           })
@@ -297,6 +306,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           User.getUserId({phoneNo:Verify.Phone}).then(function(data){
             if(data.results == 0){
                 Storage.set('UID',data.UserId)
+                // alert("phonevalidCtrl"+Storage.get('UID'))
                 User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(response){
                   console.log(response)
               },function(err){
@@ -338,7 +348,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             if($stateParams.phonevalidType == 'register'){
                               $timeout(function(){$state.go('agreement',{last:'register'});},500);
                             }else if($stateParams.phonevalidType=='wechatsignin'){//微信登录 同时该患者是导入的病人即有uid
-                              $timeout(function(){$state.go('userdetail',{last:'wechatsignin'});},500);
+                              $timeout(function(){$state.go('setpassword',{phonevalidType:'wechatsignin'});},500);
                             }else{
                               $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
                             }
@@ -393,11 +403,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $scope.logStatus ="密码太短了！";
 
                 }else{
-                     if(setPassState=='register'){
+                     if(setPassState=='register'||setPassState=='wechatsignin'){
                       //结果分为连接超时或者注册成功
                       $rootScope.password=setPassword.newPass;
                       Storage.set('PASSWORD',setPassword.newPass);
-                      $state.go('userdetail',{last:'register'});
+                      $state.go('userdetail',{last:setPassState});
                       // var codePromise = User.register({phoneNo:phone,password:setPassword.newPass,role:"patient"});
                       // codePromise.then(function(data){
                       //     if(data.results==0){
@@ -461,6 +471,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       back='register'
     }
     console.log(back);
+    // alert(back)
 
 
     $scope.CanBack = function(){
@@ -574,10 +585,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.canEdit = true;
   }
 
-
+  $scope.newflag=0;
   var initialPatient = function(){
-        Patient.getPatientDetail({userId: Storage.get('UID')}).then(function(data){
-
+        Patient.getPatientDetail({userId: Storage.get('UID')}).then(function(data){   
+                if(data.results == null){
+                  //有医生端的userid但是没有患者端的 那么要重新注册
+                  $scope.newflag=1
+                  // alert("医生端的userid但是没有患者端的 那么要重新注册")
+                }
                 if (data.results != null){
                     console.log('执行查询');
                     console.log(data.results);
@@ -689,6 +704,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           });
     }else if(back=='wechatsignin'){
       $scope.canEdit = true;
+      $scope.User.userId=Storage.get('UID')
       initialPatient();
     }else{
         $scope.canEdit = false;
@@ -913,7 +929,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.infoSetup = function(){
     //console.log(User.Name);
        // console.log($scope.User.lastVisit);
-        if (back == 'register'){
+        if (back == 'register'||$scope.newflag==1){
+          // alert('register')
             $scope.User.gender = $scope.User.gender.Type;
             $scope.User.bloodType = $scope.User.bloodType.Type;
             $scope.User.hypertension = $scope.User.hypertension.Type;
@@ -965,7 +982,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             function(data){
                                                 if(data.result=="插入成功"){
                                                   if($stateParams.last=='wechatsignin'){//微信登录且是一个新用户那么绑定unionid和phoneno
+                                                    // alert('weixin注册'+patientId)
                                                     User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
+                                                      Storage.set('bindingsucc','yes')
                                                       console.log(response)
                                                     })
                                                   }
@@ -1027,94 +1046,129 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
                 }else{//非注册用户
+                  // alert('others'+$stateParams.last+Storage.get('UID'))
+                  if($stateParams.last=='wechatsignin'){
+                    $scope.User.gender = $scope.User.gender.Type
+                    $scope.User.bloodType = $scope.User.bloodType.Type
+                    $scope.User.hypertension = $scope.User.hypertension.Type
+                    if ($scope.User.class == "ckd5期未透析"){
+                        $scope.User.class_info == null
+                    }
+                    else if ($scope.User.class_info != null){
+                        $scope.User.class_info = $scope.User.class_info.code;
+                        // $scope.User.class_info = $scope.User.class_info.name;
 
-                     $ionicPopup.show({
-                            template: '肾病类型及高血压等诊断信息的修改会影响肾病管理方案，建议在医生指导下修改，请谨慎！',
-                            title: '保存确认',
-                            //subTitle: '2',
-                            scope: $scope,
-                            buttons: [
-                              { text: '取消',
-                                type: 'button-small',
-                                onTap: function(e) {
-
-                                }
-                              },
-                              {
-                                text: '确定',
-                                type: 'button-small button-positive ',
-                                onTap: function(e) {
-                                    $scope.User.gender = $scope.User.gender.Type
-                                    $scope.User.bloodType = $scope.User.bloodType.Type
-                                    $scope.User.hypertension = $scope.User.hypertension.Type
-                                    if ($scope.User.class == "ckd5期未透析"){
-                                        $scope.User.class_info == null
-                                    }
-                                    else if ($scope.User.class_info != null){
-                                        $scope.User.class_info = $scope.User.class_info.code;
-                                        // $scope.User.class_info = $scope.User.class_info.name;
-
-                                    }
-                                    $scope.User.class = $scope.User.class.type;
-                                    // $scope.User.class = $scope.User.class.typeName;
-                                    // console.log($scope.User);
-                                    Patient.editPatientDetail($scope.User).then(function(data){
-                                        //保存成功
-                                        if(data.result=="修改成功"){
-                                            console.log(data.results);
-                                            var patientId = Storage.get('UID');
-                                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
-                                            Task.insertTask({userId:patientId,sortNo:task}).then(
-                                            function(data){
-                                              if(data.result=="插入成功"){
-                                                if(back=='wechatsignin'){
-                                                  if($scope.User.weight){
-                                                      var now = new Date()
-                                                      now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                                                      VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                                          function(data){
-                                                      },function(err){
-                                                          console.log(err);
-                                                      });
-                                                  }
-                                                  //跳转到首页 同时绑定电话和unionid //Storage.set('USERNAME',Verify.Phone);
-                                                  User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
-                                                    console.log(response)
-                                                  })
-                                                  $state.go('tab.tasklist');
-                                                }else{
-                                                  if($scope.User.weight){
-                                                      var now = new Date()
-                                                      now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                                                      VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                                          function(data){
-
-                                                          // $scope.User.weight = data.results;
-                                                          console.log($scope.User);
-                                                          $scope.canEdit = false;
-                                                          initialPatient();
-                                                      },function(err){
-                                                          console.log(err);
-                                                      });
-                                                  }else{
-                                                      $scope.canEdit = false;
-                                                      initialPatient();
-                                                  }
-                                                }
-                                              }
-                                            },function(err){
-                                                console.log("err" + err);
-                                            });
-                                        }
-
-                                    },function(err){
-                                        console.log(err);
-                                    });
-
-                                }
+                    }
+                    $scope.User.class = $scope.User.class.type;
+                    // $scope.User.class = $scope.User.class.typeName;
+                    // console.log($scope.User);
+                    // alert(JSON.stringify($scope.User))
+                    Patient.editPatientDetail($scope.User).then(function(data){
+                      // alert(JSON.stringify(data))
+                        //保存成功
+                        if(data.result=="修改成功"){
+                            console.log(data.results);
+                            var patientId = Storage.get('UID');
+                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
+                            Task.insertTask({userId:patientId,sortNo:task}).then(
+                            function(data){
+                              if(data.result=="插入成功"){
+                                  if($sope.User.weight){
+                                      var now = new Date()
+                                      now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                                      VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                                          function(data){
+                                      },function(err){
+                                          console.log(err);
+                                      });
+                                  }
+                                  //跳转到首页 同时绑定电话和unionid //Storage.set('USERNAME',Verify.Phone);
+                                  User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
+                                    Storage.set('bindingsucc','yes')
+                                    console.log(response)
+                                  })
+                                  $state.go('tab.tasklist');
                               }
-                            ]
-                          });
+                            },function(err){
+                                console.log("err" + err);
+                            });
+                        }
+
+                    },function(err){
+                        console.log(err);
+                    });
+                  }else{
+                     $ionicPopup.show({
+                      template: '肾病类型及高血压等诊断信息的修改会影响肾病管理方案，建议在医生指导下修改，请谨慎！',
+                      title: '保存确认',
+                      //subTitle: '2',
+                      scope: $scope,
+                      buttons: [
+                        { text: '取消',
+                          type: 'button-small',
+                          onTap: function(e) {
+
+                          }
+                        },
+                        {
+                          text: '确定',
+                          type: 'button-small button-positive ',
+                          onTap: function(e) {
+                              $scope.User.gender = $scope.User.gender.Type
+                              $scope.User.bloodType = $scope.User.bloodType.Type
+                              $scope.User.hypertension = $scope.User.hypertension.Type
+                              if ($scope.User.class == "ckd5期未透析"){
+                                  $scope.User.class_info == null
+                              }
+                              else if ($scope.User.class_info != null){
+                                  $scope.User.class_info = $scope.User.class_info.code;
+                                  // $scope.User.class_info = $scope.User.class_info.name;
+
+                              }
+                              $scope.User.class = $scope.User.class.type;
+                              // $scope.User.class = $scope.User.class.typeName;
+                              // console.log($scope.User);
+                              Patient.editPatientDetail($scope.User).then(function(data){
+                                  //保存成功
+                                  if(data.result=="修改成功"){
+                                      console.log(data.results);
+                                      var patientId = Storage.get('UID');
+                                      var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
+                                      Task.insertTask({userId:patientId,sortNo:task}).then(
+                                      function(data){
+                                        if(data.result=="插入成功"){
+                                            if($scope.User.weight){
+                                                var now = new Date()
+                                                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                                                VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                                                    function(data){
+
+                                                    // $scope.User.weight = data.results;
+                                                    console.log($scope.User);
+                                                    $scope.canEdit = false;
+                                                    initialPatient();
+                                                },function(err){
+                                                    console.log(err);
+                                                });
+                                            }else{
+                                                $scope.canEdit = false;
+                                                initialPatient();
+                                            }
+                                        }
+                                      },function(err){
+                                          console.log("err" + err);
+                                      });
+                                  }
+
+                              },function(err){
+                                  console.log(err);
+                              });
+
+                          }
+                        }
+                      ]
+                    });
+                  }
                     
 
                 }
