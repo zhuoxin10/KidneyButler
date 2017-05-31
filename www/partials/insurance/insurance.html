@@ -1,11 +1,7 @@
-<ion-view cache-view="false" title="肾病保险服务">
-  <ion-nav-bar class="bar-dark nav-title-slide-ios7" style="" >
-      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
-         <button class="button button-clear"  ng-click="Back()"><i class="icon ion-chevron-left"></i>返回</button>
+<ion-view cache-view="false" title="肾病保险服务" hide-tabs>
+      <ion-nav-buttons  side="left" >
+        <my-nav-back-button ng-click="Back()"></my-nav-back-button>
       </ion-nav-buttons>
-  </ion-nav-bar>
-  </ion-nav-bar>
-  <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2px;background-color: #33cd5f;{{barwidth}}" ></div>
   <ion-content padding="true"  style=" padding-left:0%;padding-right:0%;background : -webkit-linear-gradient(bottom, rgb(101, 98, 160) 00%, rgb(0, 0, 0) 99%);">
   	<div class="list card">
       <ion-item class="item-stable" ng-click="toggle()" ng-class="{active: isShown()}" >

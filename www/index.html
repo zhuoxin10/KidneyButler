@@ -16,6 +16,9 @@
           .catch(err => console.log('Error', err));
       }
     </script>-->
+    <!-- 美化图标 -->
+    <link rel="stylesheet" type="text/css" href="lib/icon_font/iconfont.css">
+    <link href="css/kidneybutler.css" rel="stylesheet">
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -30,7 +33,7 @@
 
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
-     
+
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
     <script src="lib/ngCordova/dist/ng-cordova.min.js"></script>
@@ -45,28 +48,27 @@
     <script src="lib/spin.min.js"></script>
     <!-- 计算登录jpush的密码 XJZ-->
     <script src="lib/md5.min.js"></script>
+    <!-- socket连接 -->
+    <script src="lib/socket.io-client/dist/socket.io.js"></script>
 
     <!--js数据库-->
     <script src="lib/taffydb-master/taffy-min.js"></script>
+    <!-- wx js -->
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 
-
-
-    
     <!-- your app's js -->
     <script src="js/app.js"></script>
     <script src="js/services.js"></script>
     <script src="js/controllers.js"></script>
     <script src="js/directives.js"></script>
     <script src="js/filters.js"></script>
-    
+
   </head>
 
   <body ng-app="kidney">
-
-    <ion-nav-bar class="bar-dark">
-      <ion-nav-back-button>
-      </ion-nav-back-button>
+    <ion-nav-bar class="bar-positive green-bg" align-title="center">
     </ion-nav-bar>
-    <ion-nav-view animation="slide-left-right"></ion-nav-view>
+    <ion-nav-view animation="slide-left-right">
+    </ion-nav-view>
   </body>
 </html>

@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM,CONFIG) {
   $ionicPlatform.ready(function() {
-
+    socket = io.connect(CONFIG.socketServer+'chat');
 
     var isSignIN=Storage.get("isSignIN");
     if(isSignIN=='YES'){
@@ -241,7 +241,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-chat', {
       url: '/consult/chat/:chatId',
-      params:{type:null,status:null,msgCount:null},
+      // params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -252,6 +252,8 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-comment', {
       url: '/consult/comment',
+      params:{counselId:null,doctorId:null,patientId:null},
+      cache:false,
       views: {
         'tab-consult': {
           cache:false,
@@ -362,15 +364,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
          
     })
     .state('tab.myHealthInfoDetail', {
-        url: '/mine/HealthInfoDetail/',
-        params: {id:null},
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/editHealthInfo.html',
-            controller: 'HealthDetailCtrl'
-          }
-
+      cache:false,
+      url: '/mine/HealthInfoDetail/',
+      params: {id:null,caneidt:null},
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/editHealthInfo.html',
+          controller: 'HealthDetailCtrl'
         }
+
+      }
          
     })
      .state('tab.myMoney', {

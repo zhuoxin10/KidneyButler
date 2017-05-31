@@ -2,69 +2,90 @@ angular.module('kidney.directives', ['kidney.services'])
 //消息模版，用于所有消息类型
 //XJZ
 .directive('myMessage',['Storage','CONFIG',function(Storage,CONFIG){
-    var picArr=[
-                {"src":"img/1.jpg","hiRes":"img/2.jpg"},
-                {"src":"img/3.jpg","hiRes":"img/4.jpg"},
-                {"src":"img/5.jpg","hiRes":"img/doctor3.png"}
-            ];
     return {
         template: '<div ng-include="getTemplateUrl()"></div>',
         scope: {
             msg:'=',
+            photourls:'=',
             msgindex:'@'
         },
         restrict:'AE',
         controller:function($scope){
             var type='';
+            $scope.base=CONFIG.mediaUrl;
+            $scope.msg.direct = $scope.msg.fromID==Storage.get('UID')?'send':'receive';
             $scope.getTemplateUrl = function(){
-                if($scope.msg.contentType=='custom'){
-                    // type=$scope.msg.content.contentStringMap.type;
-                    // $scope.customMsgUrl=JSON.parse($scope.msg.content.contentStringMap.picurl);
-                    // $scope.customMsg=JSON.parse($scope.customMsg);
-                    // console.log($scope.customMsgUrl);
-                    
-                    type=$scope.msg.content.contentStringMap.type;
-                    if(type=='card'){
-                      try{
-                            $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
-                            $scope.picurl=picArr;
-                        }catch(e){
-                            
-                        }
-                      // console.log(JSON.parse($scope.msg.content.contentStringMap));
-                    }
-                    return 'partials/tabs/consult/msg/'+ type+'.html';
-                }
-                //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
-                // type=$scope.msg.contentType=='custom'?$scope.msg.content.contentStringMap.type:$scope.msg.contentType;
                 type=$scope.msg.contentType;
+                if(type=='image'){
+                    // if($scope.msg.content['src_thumb']!='')
+                    $scope.msg.content.thumb = $scope.msg.content.localPath || ($scope.base+$scope.msg.content['src_thumb']);
+                }else if(type=='custom'){
+                    type=$scope.msg.content.type;
+                    if(type=='card'){
+                        // try{
+                            $scope.counsel=$scope.msg.content.counsel;
+                            if($scope.msg.targetId!=$scope.msg.content.doctorId){
+                                if($scope.msg.content.consultationId){
+                                    $scope.subtitle= $scope.msg.fromName + '转发'
+                                    $scope.title= $scope.msg.content.patientName + '的病历讨论'
+                                }else{
+                                    $scope.title= $scope.msg.content.patientName + '的病历'
+                                }
+                            }else{
+                                $scope.title= "患者使用在线"+ ($scope.counsel.type=='1'?'咨询':'问诊') + "服务"
+                            }
+
+                        // }catch(e){
+                            // 
+                        // }
+                    }
+                }
                 return 'partials/tabs/consult/msg/'+type+'.html';
             }
             
             $scope.emitEvent = function(code){
               $scope.$emit(code,arguments);
-            }
-            // $scope.direct = $scope.msg.fromID==window.JMessage.username?'right':'left';
-            
-            // $scope.showProfile = function(){
-            //     console.log($scope.msg.fromID);
-            // }
-            // $scope.viewImage= function(thumb,url){
-            //     if(type=='image'){
-            //         //image massage
-            //         $scope.$emit('viewImage',type,thumb,$scope.msg.serverMessageId);
-            //     }else{
-            //         //image in card
-            //         $scope.$emit('viewImage',type,thumb,url);
-            //     }
-            // };
-            
-            // $scope.playVoice = function(){
-
-            // }
+            }         
         }
     }
 }])
+// .directive('myMessage',['Storage','CONFIG',function(Storage,CONFIG){
+//     var picArr=[
+//                 {"src":"img/1.jpg","hiRes":"img/2.jpg"},
+//                 {"src":"img/3.jpg","hiRes":"img/4.jpg"},
+//                 {"src":"img/5.jpg","hiRes":"img/doctor3.png"}
+//             ];
+//     return {
+//         template: '<div ng-include="getTemplateUrl()"></div>',
+//         scope: {
+//             msg:'=',
+//             msgindex:'@'
+//         },
+//         restrict:'AE',
+//         controller:function($scope){
+//             // $scope.msg.direct = $scope.msg.fromName==Storage.get('UID')?'send':'receive';
+//             var type=$scope.msg.contentType;
+//             $scope.getTemplateUrl = function(){
+//                 if(type=='custom'){
+//                     type=$scope.msg.content.contentStringMap.type;
+//                     if(type=='card'){
+//                       try{
+//                             $scope.counsel=JSON.parse($scope.msg.content.contentStringMap.counsel);
+//                         }catch(e){
+                            
+//                         }
+//                     }
+//                 }
+//                 //$scope.avatarSrc=CONFIG.imgThumbUrl+msg.fromName+'_myAvatar.jpg';  //应熊工要求注释掉
+//                 return 'partials/tabs/consult/msg/'+type+'.html';
+//             }
+            
+//             $scope.emitEvent = function(code){
+//               $scope.$emit(code,arguments);
+//             }
+//         }
+//     }
+// }])
 //聊天输入框的动态样式，如高度自适应，focus|blur状态
 //XJZ
 .directive('dynamicHeight', [function() {
@@ -186,6 +207,8 @@ angular.module('kidney.directives', ['kidney.services'])
         link:function($scope){
             $scope.$on('$ionicView.beforeEnter',function(){
                 $rootScope.hideTabs = '';
+                
+
             });
         }
     }
@@ -226,6 +249,42 @@ angular.module('kidney.directives', ['kidney.services'])
        }
    };
 })
+
+// 输入框清除按钮
+.directive("buttonClearInput", function () {
+    return {
+        restrict: "AE",
+        scope: {
+            input: "="  //这里可以直接用input获取父scope(包括兄弟元素)中ng-model的值, 传递给本directive创建的isolate scope使用, template也属于当前isolate scope
+        },
+        // replace: true,   //使用replace之后, 本元素的click不能删除输入框中的内容, 原因大致可以理解为: 父元素被替换后, scope.$apply没有执行对象
+        template:"<span ng-if='input' class='icon ion-close-circled placeholder-icon' on-tap='clearInput()'></span>",
+        controller: function ($scope, $element, $attrs) {
+            $scope.clearInput = function () {
+                $scope.input = "";
+            };
+        }
+    };
+})
+
+
+// 返回键
+.directive("myNavBackButton", function () {
+    return {
+        restrict: "AE",
+        template:"<button class='button button-clear'><i class='icon ion-ios-arrow-left font-white'></i></button>",
+    };
+})
+
+
+// nav-bar
+.directive("myNavBar", function () {
+    return {
+        restrict: "AE",
+        template:"<ion-nav-bar class='bar-positive green-bg' align-title='center'></ion-nav-bar>",
+    };
+})
+
 
 .directive('dateformat', ['$filter',function($filter) {  
     var dateFilter = $filter('date');  
@@ -282,6 +341,10 @@ angular.module('kidney.directives', ['kidney.services'])
         scope.minRating = scope.ratingsObj.minRating || 1;
         scope.readOnly = scope.ratingsObj.readOnly || false;
 
+        scope.$on('changeratingstar',function(event,r,tof){
+          scope.rating=r;
+          scope.readOnly=tof;
+        })
         //Setting the color for the icon, when it is active
         scope.iconOnColor = {
           color: scope.iconOnColor
