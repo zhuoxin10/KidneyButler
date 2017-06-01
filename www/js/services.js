@@ -869,6 +869,12 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     }
 
+    var Advice =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'advice'},{
+            postAdvice:{method:'POST', params:{route: 'postAdvice'}, timeout: 100000}
+        });
+    } 
+
     var News = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'new'},{
             getNews:{method:'GET', params:{route: 'getNews'}, timeout: 100000},
@@ -916,6 +922,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.VitalSign = VitalSign();
             serve.Account = Account();
             serve.Message = Message();
+            serve.Advice = Advice();
             serve.News = News();
             serve.Expense = Expense();
             serve.Mywechat = Mywechat();
@@ -936,6 +943,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.VitalSign = VitalSign();
     serve.Account = Account();
     serve.Message = Message();
+    serve.Advice = Advice();
     serve.News = News();
     serve.Expense = Expense();
     serve.Mywechat = Mywechat();
@@ -1889,6 +1897,25 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getMessages = function(params){
         var deferred = $q.defer();
         Data.Message.getMessages(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Advice', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{type:1}
+    self.postAdvice = function(params){
+        var deferred = $q.defer();
+        Data.Advice.postAdvice(
             params,
             function(data, headers){
                 deferred.resolve(data);

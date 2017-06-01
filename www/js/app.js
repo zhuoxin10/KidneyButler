@@ -387,16 +387,27 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }     
          
     })
-     .state('tab.about',{
-      cache:false,
-      url:'/mine/about',
-      views:{
-        'tab-mine':{
-            templateUrl:'partials/about.html',
-            controller:'aboutCtrl'
+    .state('tab.about',{
+        url:'/mine/about',
+        views:{
+            'tab-mine':{
+                templateUrl:'partials/about.html',
+                controller:'aboutCtrl'
+            }
         }
-      }
       
+    })
+    .state('tab.advice', {
+        cache:false,
+        url: '/mine/advice/',
+        views: {
+            'tab-mine': {
+                templateUrl: 'partials/tabs/mine/advice.html',
+                controller: 'adviceCtrl'
+            }
+
+        }     
+         
     })
     .state('tab.changePassword',{
         cache:false,
