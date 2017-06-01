@@ -2957,6 +2957,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   }
 
+  $scope.ReflectAdvice = function(){
+    $state.go('tab.advice');
+  }
+
   $scope.About = function(){
     $state.go('tab.about');
   }
@@ -7191,4 +7195,35 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         //微信支付
     }
     console.log($scope.payFor)
+}])
+
+
+.controller('adviceCtrl', ['$scope','$state','$ionicPopup','$ionicLoading', 'Advice','Storage','$timeout', function ($scope,$state,$ionicPopup,$ionicLoading,Advice,Storage,$timeout) {
+    $scope.GoBack = function(){
+        $state.go('tab.mine');
+    }
+
+    $scope.deliverAdvice = function(adv){
+        
+        Advice.postAdvice({userId:Storage.get('UID'),role:"patient",topic:adv.topic,content:adv.content}).then(
+            function(data){
+                if(data.result == "新建成功"){
+                    $ionicLoading.show({
+                        template: '提交成功',
+                        noBackdrop: false,
+                        duration: 1000,
+                        hideOnStateChange: true
+                    });
+                    $timeout(function(){$state.go('tab.mine');},900);
+                }
+            },function(err){
+                $ionicLoading.show({
+                    template: '提交失败',
+                    noBackdrop: false,
+                    duration: 1000,
+                    hideOnStateChange: true
+                });
+            })
+        
+    }
 }])

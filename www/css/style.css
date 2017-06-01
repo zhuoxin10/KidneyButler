@@ -1137,6 +1137,11 @@ input.hasTick {
   top: 75%;
 }
 
+
+textarea {
+  resize: none;
+}
+
 .item-select-custom {
   position: relative; }
   .item-select-custom select {
