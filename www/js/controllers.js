@@ -156,6 +156,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //用户已经存在id 说明公众号注册过
             if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
+                // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
                   Storage.set('isSignIn',"Yes");
                   Storage.set('UID',ret.UserId);//后续页面必要uid
@@ -166,7 +167,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               })
             }else{
               Storage.set("patientunionid",$scope.unionid);//自动登录使用
-              $state.go('agreement',{last:'wechatsignin'})
+              $state.go('phonevalid',{phonevalidType:'wechatsignin'})
             }
           })
         },function(err){
@@ -197,9 +198,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
         else if($stateParams.last=='register'){
           $timeout(function(){$state.go('setpassword',{phonevalidType:'register'});},500);
+        }else if($stateParams.last=='patientofimport'){
+          //导入的用户
+          User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(response){
+            console.log(response)
+          },function(err){
+              console.log(err);
+          })
+          //绑定
+          User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
+            Storage.set('bindingsucc','yes')
+            console.log(response)
+          })
+          $ionicPopup.show({   
+                 title: '微信账号绑定手机账号成功，您的初始密码是123456，您以后也可以用手机号码登录！',
+                 buttons: [
+                   {
+                        text: '確定',
+                        type: 'button-positive',
+                        onTap: function(e) {
+                            $state.go('tab.tasklist');
+                        }
+                   },
+                   ]
+            })
+          
         }
         else{
-          $timeout(function(){$state.go('phonevalid',{phonevalidType:'wechatsignin'});},500);
+          $timeout(function(){$state.go('setpassword',{phonevalidType:'wechatsignin'});},500);
         }
     }
 
@@ -263,7 +289,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-
+    $scope.patientofimport=0;
     //点击获取验证码
     $scope.getcode=function(Verify){
         $scope.logStatus='';
@@ -304,14 +330,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
         else if($stateParams.phonevalidType=='wechatsignin'){
           User.getUserId({phoneNo:Verify.Phone}).then(function(data){
-            if(data.results == 0){
-                Storage.set('UID',data.UserId)
-                // alert("phonevalidCtrl"+Storage.get('UID'))
-                User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(response){
-                  console.log(response)
-              },function(err){
-                  console.log(err);
-              })
+            if(data.results == 0&&data.roles.indexOf('patient')!=-1){//导入的用户
+              $scope.patientofimport=1;
+              Storage.set('UID',data.UserId)
             }
             sendSMS(Verify.Phone);
           },function(){
@@ -347,8 +368,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         Storage.set('USERNAME',Verify.Phone);
                             if($stateParams.phonevalidType == 'register'){
                               $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                            }else if($stateParams.phonevalidType=='wechatsignin'){//微信登录 同时该患者是导入的病人即有uid
-                              $timeout(function(){$state.go('setpassword',{phonevalidType:'wechatsignin'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
+                              $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'){
+                              $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
                             }else{
                               $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
                             }
@@ -407,7 +430,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                       //结果分为连接超时或者注册成功
                       $rootScope.password=setPassword.newPass;
                       Storage.set('PASSWORD',setPassword.newPass);
-                      $state.go('userdetail',{last:setPassState});
+                      if(setPassState=='wechatsignin'){
+                        $scope.logStatus ="注册结束后你也可以用手机号和密码登录！";
+                        $timeout(function(){$state.go('userdetail',{last:setPassState});},1000);
+                      }else{
+                        $timeout(function(){$state.go('userdetail',{last:setPassState});},500);
+                      }
+                      
                       // var codePromise = User.register({phoneNo:phone,password:setPassword.newPass,role:"patient"});
                       // codePromise.then(function(data){
                       //     if(data.results==0){
@@ -465,32 +494,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //   $state.go('tab.tasklist');
   //   Storage.set('setPasswordState','sign');
   // }
-
-    var back = $stateParams.last;
-    if($stateParams.last=='wechatsignin'&&(Storage.get('UID')==undefined||Storage.get('UID')==""||Storage.get('UID')==null)){
-      back='register'
-    }
-    console.log(back);
-    // alert(back)
+  // if(Storage.get('PASSWORD')==undefined||Storage.get('PASSWORD')==""||Storage.get('PASSWORD')==null){
+  //   Storage.set('PASSWORD','123456')
+  // }
+  var back = $stateParams.last;
 
 
-    $scope.CanBack = function(){
-        if(back=='mine'){
-          return true;
-        }
-        else{
-          return false;}
+
+  $scope.CanBack = function(){
+      if(back=='mine'){
+        return true;
       }
+      else{
+        return false;}
+    }
 
 
   $scope.Goback = function(){
-        if($scope.canEdit==true){
-            $scope.canEdit = false;
-        }else{
-            $ionicHistory.goBack();
-        }
+      if($scope.canEdit==true){
+          $scope.canEdit = false;
+      }else{
+          $ionicHistory.goBack();
+      }
 
-    }
+  }
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -585,14 +612,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.canEdit = true;
   }
 
-  $scope.newflag=0;
   var initialPatient = function(){
         Patient.getPatientDetail({userId: Storage.get('UID')}).then(function(data){   
-                if(data.results == null){
-                  //有医生端的userid但是没有患者端的 那么要重新注册
-                  $scope.newflag=1
-                  // alert("医生端的userid但是没有患者端的 那么要重新注册")
-                }
                 if (data.results != null){
                     console.log('执行查询');
                     console.log(data.results);
@@ -693,7 +714,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
 
-    if(back == 'register'){
+    if(back == 'register'||back=='wechatsignin'){
         $scope.canEdit = true;
         Dict.getDiseaseType({category:'patient_class'}).then(function(data){
             $scope.Diseases = data.results[0].content
@@ -702,10 +723,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             },function(err){
             console.log(err);
           });
-    }else if(back=='wechatsignin'){
-      $scope.canEdit = true;
-      $scope.User.userId=Storage.get('UID')
-      initialPatient();
     }else{
         $scope.canEdit = false;
         // patientId = Storage.get('UID');
@@ -929,7 +946,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.infoSetup = function(){
     //console.log(User.Name);
        // console.log($scope.User.lastVisit);
-        if (back == 'register'||$scope.newflag==1){
+        if (back == 'register'||back == 'wechatsignin'){
           // alert('register')
             $scope.User.gender = $scope.User.gender.Type;
             $scope.User.bloodType = $scope.User.bloodType.Type;
@@ -941,12 +958,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 $scope.User.class_info = $scope.User.class_info.code;
             }
             $scope.User.class = $scope.User.class.type;
-            if(Storage.get('PASSWORD')==undefined||Storage.get('PASSWORD')==""||Storage.get('PASSWORD')==null){
-              Storage.set('PASSWORD','123456')
-            }
+            
             User.register({phoneNo:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
                 if(data.results==0){
-
+                  // alert(JSON.stringify(data))
                     var patientId = data.userNo;
                     Storage.set('UID',patientId);
                             //注册论坛
@@ -971,6 +986,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     });
 
                             User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
+                              // alert("updateagree"+JSON.stringify(data))
                                 if(data.results!=null){
                                     $scope.User.userId = patientId;
                                     console.log($scope.User);
@@ -1048,58 +1064,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
                 }else{//非注册用户
-                  // alert('others'+$stateParams.last+Storage.get('UID'))
-                  if($stateParams.last=='wechatsignin'){
-                    $scope.User.gender = $scope.User.gender.Type
-                    $scope.User.bloodType = $scope.User.bloodType.Type
-                    $scope.User.hypertension = $scope.User.hypertension.Type
-                    if ($scope.User.class == "ckd5期未透析"){
-                        $scope.User.class_info == null
-                    }
-                    else if ($scope.User.class_info != null){
-                        $scope.User.class_info = $scope.User.class_info.code;
-                        // $scope.User.class_info = $scope.User.class_info.name;
-
-                    }
-                    $scope.User.class = $scope.User.class.type;
-                    // $scope.User.class = $scope.User.class.typeName;
-                    // console.log($scope.User);
-                    // alert(JSON.stringify($scope.User))
-                    Patient.editPatientDetail($scope.User).then(function(data){
-                      // alert(JSON.stringify(data))
-                        //保存成功
-                        if(data.result=="修改成功"){
-                            console.log(data.results);
-                            var patientId = Storage.get('UID');
-                            var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
-                            Task.insertTask({userId:patientId,sortNo:task}).then(
-                            function(data){
-                              if(data.result=="插入成功"){
-                                  if($sope.User.weight){
-                                      var now = new Date()
-                                      now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                                      VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                          function(data){
-                                      },function(err){
-                                          console.log(err);
-                                      });
-                                  }
-                                  //跳转到首页 同时绑定电话和unionid //Storage.set('USERNAME',Verify.Phone);
-                                  User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
-                                    Storage.set('bindingsucc','yes')
-                                    console.log(response)
-                                  })
-                                  $state.go('tab.tasklist');
-                              }
-                            },function(err){
-                                console.log("err" + err);
-                            });
-                        }
-
-                    },function(err){
-                        console.log(err);
-                    });
-                  }else{
                      $ionicPopup.show({
                       template: '肾病类型及高血压等诊断信息的修改会影响肾病管理方案，建议在医生指导下修改，请谨慎！',
                       title: '保存确认',
@@ -1170,7 +1134,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         }
                       ]
                     });
-                  }
                     
 
                 }
