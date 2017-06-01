@@ -941,7 +941,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 $scope.User.class_info = $scope.User.class_info.code;
             }
             $scope.User.class = $scope.User.class.type;
-
+            if(Storage.get('PASSWORD')==undefined||Storage.get('PASSWORD')==""||Storage.get('PASSWORD')==null){
+              Storage.set('PASSWORD','123456')
+            }
             User.register({phoneNo:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
                 if(data.results==0){
 
