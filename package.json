@@ -15,37 +15,31 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-	"cordova-plugin-whitelist",
+    "cordova-plugin-whitelist",
     "cordova-plugin-console",
     "cordova-plugin-statusbar",
     "cordova-plugin-device",
     "cordova-plugin-splashscreen",
     "ionic-plugin-keyboard",
+    "cordova-plugin-compat",
     "cordova-plugin-media",
     "cordova-plugin-file",
     "cordova-plugin-camera",
     "phonegap-plugin-barcodescanner",
     "cordova-plugin-file-transfer",
-    "cordova-plugin-compat",
-	 {
-      "id": "jmessage-phonegap-plugin",
-      "locator": "../jmessage-phonegap-plugin",
-      "variables": {
-        "APP_KEY": "fe7b9ba069b80316653274e4"
-      }
-    },
-    "cordova-plugin-jcore",
     {
-      "id": "jpush-phonegap-plugin",
-      "locator": "jpush-phonegap-plugin",
-      "variables": {
-        "APP_KEY": "fe7b9ba069b80316653274e4"
-      }
-    }
-    
+      "locator": "https://github.com/katzer/cordova-plugin-local-notifications",
+      "id": "de.appplant.cordova.plugin.local-notification"
+    },
+    "cordova-plugin-app-event"
   ],
   "cordovaPlatforms": [
-    "android"
+    "android",
+    {
+      "platform": "android",
+      "version": "",
+      "locator": "android"
+    }
   ],
   "scripts": {
     "test": "karma start test/karma-unit-all.config.js",
