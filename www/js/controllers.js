@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce','Mywechat', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce,Mywechat) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce','Mywechat','Patient','$interval','socket', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce,Mywechat,Patient,$interval,socket) {
   $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
   // Storage.set("personalinfobackstate","logOn");
 
@@ -63,8 +63,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     // }
                 }
                 else if(data.results.mesg=="login success!"){
+                    Patient.getPatientDetail({ userId: data.results.userId })
+                    .then(function(p){
+                        thisPatient = p.results;
+                        $interval(function newuser(){
+                            socket.emit('newUser', { user_name: thisPatient.name, user_id: thisPatient.userId });
+                            return newuser;
+                        }(),10000);
+                    })
                     //jmessage login
-                    JM.login(data.results.userId);
+                    // JM.login(data.results.userId);
 
                     $scope.logStatus = "登录成功！";
                     $ionicHistory.clearCache();
@@ -3522,7 +3530,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$ionicHistory','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool', function($ionicHistory,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool) {
+.controller('ChatCtrl',['$ionicHistory','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($ionicHistory,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
     $scope.input = {
         text: ''
     }
@@ -3552,7 +3560,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             connect:false,
             recording:false
         }
-
+        try{
+            notify.remove($scope.params.chatId);
+        }catch(e){}
         var loadWatcher = $scope.$watch('msgs.length',function(newv,oldv){
             if(newv) {
                 loadWatcher();
@@ -3601,45 +3611,72 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         .then(function(response) {
             thisPatient=response.results;
             $scope.photoUrls[response.results.userId]=response.results.photoUrl;
-            socket.emit('newUser',{user_name:response.results.name,user_id:$scope.params.UID});
-            socket.on('err',function(data){
-                console.error(data)
-            });
-            socket.on('getMsg',function(data){
-                console.info('getMsg');
-                console.log(data);
-                if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
-                    $scope.$apply(function(){
-                        $scope.pushMsg(data.msg);
-                    });
-                    News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
-                    setTimeout(function() {
-                        Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
-                            .then(function(data) {
-                                console.log(data);
-                                $scope.counselstatus=data.result.status;
-                            }, function(err) {
-                                console.log(err)
-                            });
-                    }, 5000);
-                }
-            });
-            socket.on('messageRes',function(data){
-                console.info('messageRes');
-                console.log(data);
-                if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
-                    $scope.$apply(function(){
-                        $scope.updateMsg(data.msg);
-                    });
-                }
-            });
+            // socket.emit('newUser',{user_name:response.results.name,user_id:$scope.params.UID});
+            // socket.on('err',function(data){
+            //     console.error(data)
+            // });
+            // socket.on('getMsg',function(data){
+            //     console.info('getMsg');
+            //     console.log(data);
+            //     if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
+            //         $scope.$apply(function(){
+            //             $scope.pushMsg(data.msg);
+            //         });
+            //         News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
+            //         setTimeout(function() {
+            //             Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
+            //                 .then(function(data) {
+            //                     console.log(data);
+            //                     $scope.counselstatus=data.result.status;
+            //                 }, function(err) {
+            //                     console.log(err)
+            //                 });
+            //         }, 5000);
+            //     }
+            // });
+            // socket.on('messageRes',function(data){
+            //     console.info('messageRes');
+            //     console.log(data);
+            //     if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
+            //         $scope.$apply(function(){
+            //             $scope.updateMsg(data.msg);
+            //         });
+            //     }
+            // });
             $scope.params.connect=true;
         }, function(err) {
 
         });
         imgModalInit();
     });
-
+    $scope.$on('im:getMsg',function(event,data){
+        console.info('getMsg');
+        console.log(data);
+        if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
+            $scope.$apply(function(){
+                $scope.pushMsg(data.msg);
+            });
+            News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
+            setTimeout(function() {
+                Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
+                    .then(function(data) {
+                        console.log(data);
+                        $scope.counselstatus=data.result.status;
+                    }, function(err) {
+                        console.log(err)
+                    });
+            }, 5000);
+        }
+    });
+    $scope.$on('im:messageRes',function(event,data){
+        console.info('messageRes');
+        console.log(data);
+        if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
+            $scope.$apply(function(){
+                $scope.updateMsg(data.msg);
+            });
+        }
+    });
     function sendNotice(type,status,cnt){
         var t = setTimeout(function(){
             return sendCnNotice(type,status,cnt);
@@ -4071,10 +4108,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     })
     $scope.$on('$ionicView.leave', function() {
         for(var i in $scope.timer) clearTimeout($scope.timer[i]);
-        socket.off('messageRes');
-        socket.off('getMsg');
-        socket.off('err');
-        socket.emit('disconnect');
+        // socket.off('messageRes');
+        // socket.off('getMsg');
+        // socket.off('err');
+        // socket.emit('disconnect');
         $scope.msgs = [];
         if($scope.modal)$scope.modal.remove();
         $rootScope.conversation.type = null;
@@ -5011,7 +5048,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //医生列表--PXY
 
-.controller('DoctorCtrl', ['$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense',function($cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense) {
+.controller('DoctorCtrl', ['$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket',function($cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket) {
 
   $scope.Goback = function(){
     $state.go('tab.myDoctors');
@@ -5422,7 +5459,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             fromUser:{
                                 avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
                             },
-                            targetID:id,
+                            targetID:DoctorId,
                             targetName:'',
                             targetType:'single',
                             status:'send_going',
@@ -5433,11 +5470,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             }
                         }
                         socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
-                        socket.emit('message',{msg:msgJson,to:id,role:'patient'});
-                        socket.on('messageRes',function(data){
-                          socket.off('messageRes');
-                          socket.emit('disconnect');
-                          $state.go("tab.consult-chat",{chatId:id,type:3,status:1}); 
+                        socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                        $scope.$on('im:messageRes',function(event,data){
+                          // socket.off('messageRes');
+                          // socket.emit('disconnect');
+                          $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
                         })
                       // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
                     }
@@ -5597,7 +5634,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 
-.controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense) {
+.controller('DoctorDetailCtrl', ['$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket',function($ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket) {
 
   $scope.GoBack = function(){
     // console.log('111');
@@ -5814,7 +5851,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             fromUser:{
                                 avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
                             },
-                            targetID:id,
+                            targetID:DoctorId,
                             targetName:'',
                             targetType:'single',
                             status:'send_going',
@@ -5825,11 +5862,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             }
                         }
                         socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
-                        socket.emit('message',{msg:msgJson,to:id,role:'patient'});
-                        socket.on('messageRes',function(data){
-                          socket.off('messageRes');
-                          socket.emit('disconnect');
-                          $state.go("tab.consult-chat",{chatId:id,type:3,status:1}); 
+                        socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                        $scope.$on('im:messageRes',function(event,data){
+                          // socket.off('messageRes');
+                          // socket.emit('disconnect');
+                          $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
                         })
                       // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
                     }
@@ -6295,7 +6332,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health','Account',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health,Account) {
+.controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health','Account','socket',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health,Account,socket) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
@@ -7044,9 +7081,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
             socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId});
             socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-            socket.on('messageRes',function(messageRes){
-                socket.off('messageRes');
-                socket.emit('disconnect');
+            $scope.$on('im:messageRes',function(event,messageRes){
+                // socket.off('messageRes');
+                // socket.emit('disconnect');
                 if(DoctorId=='U201612291283'){
                     Communication.getTeam({teamId:'10050278'})
                     .then(function(response){
@@ -7088,9 +7125,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 console.log(con);
                                 socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
                                 socket.emit('message',{msg:msgTeam,to:team.teamId,role:'patient'});
-                                socket.on('messageRes',function(messageRes){
-                                    socket.off('messageRes');
-                                    socket.emit('disconnect');
+                                $scope.$on('im:messageRes',function(event,messageRes){
+                                    // socket.off('messageRes');
+                                    // socket.emit('disconnect');
                                     $state.go('tab.consult-chat',{chatId:DoctorId});
                                 });
                             },function(er){
