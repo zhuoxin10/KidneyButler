@@ -182,7 +182,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 
-.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User) {
+.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$ionicPopup', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$ionicPopup) {
     $scope.YesIdo = function(){
         console.log('yesido');
         if($stateParams.last=='signin'){
