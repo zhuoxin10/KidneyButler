@@ -1285,6 +1285,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
    {
      var promise =  Task.getUserTask({userId:UserId});
      promise.then(function(data){
+        console.log(data.result);
        if(data.result.length != 0)
        {
           $scope.Tasks = data.result.task;
