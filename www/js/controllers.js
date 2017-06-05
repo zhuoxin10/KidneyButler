@@ -483,7 +483,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User){
     
 
-
+    $scope.User = 
+  {
+    "userId": null,
+    "name": null,
+    "gender": null,
+    "bloodType": null,
+    "hypertension": null,
+    "class": null,
+    "class_info": null,
+    "height": null,
+    "weight": null,
+    "birthday": null,
+    "IDNo": null,
+    "allergic":null,
+    "operationTime":null,
+    "lastVisit":{"time":null,
+    "hospital":null,
+    "diagnosis":null}
+    
+  };
     $scope.$on('$ionicView.enter', function() {
         var back = $stateParams.last;
         // console.log(back);
@@ -7313,9 +7332,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     $scope.deliverAdvice = function(adv){
-        
+        console.log(adv);
         Advice.postAdvice({userId:Storage.get('UID'),role:"patient",topic:adv.topic,content:adv.content}).then(
             function(data){
+                
+                // console.log(data);
                 if(data.result == "新建成功"){
                     $ionicLoading.show({
                         template: '提交成功',
