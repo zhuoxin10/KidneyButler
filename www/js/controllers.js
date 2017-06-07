@@ -138,7 +138,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $state.go('tab.tasklist')  
       }
     })
-  }
+  }else{
     // if(1==2){
     var wxscope = "snsapi_userinfo",
     wxstate = "_" + (+new Date());
@@ -146,17 +146,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // you may use response.code to get the access token.
         // alert(JSON.stringify(response));
         // alert(response.code)
-        //将code传个后台服务器 获取unionid
-        Mywechat.gettokenbycode({role:"appPatient",code:response.code}).then(function(res){
-          // { 
-          // "access_token":"ACCESS_TOKEN", 
-          // "expires_in":7200, 
-          // "refresh_token":"REFRESH_TOKEN",
-          // "openid":"OPENID", 
-          // "scope":"SCOPE",
-          // "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL"
-          // }
-          $scope.unionid=res.result.unionid;
+        Mywechat.getUserInfo({role:"appPatient",code:response.code}).then(function(persondata){
+          // alert(persondata.headimgurl)
+          Storage.set('wechatheadimgurl',persondata.results.headimgurl)
+          
+          $scope.unionid=persondata.results.unionid;
           // alert($scope.unionid)
           //判断这个unionid是否已经绑定用户了 有直接登录
           User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
@@ -184,6 +178,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }, function (reason) {
         alert("Failed: " + reason);
     });
+  }
 
     // }
   }
@@ -492,6 +487,29 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
 
 
+  $scope.User = 
+    {
+        userId: null,
+        name: null,
+        gender: null,
+        bloodType: null,
+        hypertension: null,
+        class: null,
+        class_info: null,
+        height: null,
+        weight: null,
+        birthday: null,
+        IDNo: null,
+        allergic:null,
+        operationTime:null,
+        lastVisit:{
+            time:null,
+            hospital:null,
+            diagnosis:null
+        }
+    
+    };
+
     $scope.$on('$ionicView.enter', function() {
         var back = $stateParams.last;
         // console.log(back);
@@ -616,6 +634,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                       console.log(data.results);
                       $scope.User =data.results;
 
+                      if(!data.results.lastVisit){
+                        $scope.User.lastVisit = {time:null,hospital:null,diagnosis:null};
+                      } 
                       // $scope.User.userId = data.results.userId
                       // $scope.User.name = data.results.name
                       // $scope.User.gender = data.results.gender
@@ -3094,6 +3115,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     // console.log(angular.fromJson(res.results))
     if(res.results.photoUrl==undefined||res.results.photoUrl==""||res.results.photoUrl=="http://pp.jpg"){
       $scope.myAvatar="img/DefaultAvatar.jpg"
+      if(Storage.get('wechatheadimgurl')!=undefined||Storage.get('wechatheadimgurl')!=""||Storage.get('wechatheadimgurl')!=null){
+        $scope.myAvatar=Storage.get('wechatheadimgurl')
+      }
     }else{
       $scope.myAvatar=res.results.photoUrl;
     }
@@ -5008,7 +5032,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //医生列表--PXY
 
-.controller('DoctorCtrl', ['$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket',function($cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket) {
+.controller('DoctorCtrl', ['$http','$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket','Mywechat',function($http,$cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket,Mywechat) {
 
   $scope.Goback = function(){
     $state.go('tab.myDoctors');
@@ -5349,19 +5373,88 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  //chargedoc
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:0}).then(function(data){
-                    console.log(data)
-                  },function(err){
-                    console.log(err)
-                  })
-                  //plus doc answer count  patientId:doctorId:modify
-                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
-                    console.log(data)
-                  },function(err){
-                    console.log(err)
-                  })
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+
+                  var json = 'http://ipv4.myexternalip.com/json';
+                    $http.get(json).then(function(result) {
+                      alert(JSON.stringify(result));
+                        console.log(result.data.ip)
+                        if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        {
+                          result.data.ip = "121.196.221.44"
+                        }
+                        var neworder = {
+                            "userId":Storage.get('UID'),
+                            "role":"appPatient",
+                            // "money":$scope.doctor.charge1*100,
+                            "money":1,
+                            "class":"01",
+                            "name":"咨询",
+                            "notes":DoctorId,
+                            "paystatus":0,
+                            "paytime":new Date(),
+                            "ip":result.data.ip,
+                            "trade_type":"APP"
+                          }
+
+
+                          // partnerid: '10000100', // merchant id
+                          // prepayid: 'wx201411101639507cbf6ffd8b0779950874', // prepay id
+                          // noncestr: '1add1a30ac87aa2db72f57a2375d8fec', // nonce
+                          // timestamp: '1439531364', // timestamp
+                          // sign: '0CB01533B8C1EF103065174F50BCA001', // signed string
+
+
+                        //   appId:req.wxApiUserObject.appid, 
+                        //   timestamp: wcPayParams.timeStamp,
+                        //   nonceStr: wcPayParams.nonceStr,
+                        //   package: wcPayParams.package,
+                        //   signType: wcPayParams.signType,
+                        //   paySign: wcPayParams.paySign,
+                        //   prepay_id : req.prepay_id
+                        // }});
+                        alert(JSON.stringify(neworder));
+                        Mywechat.addOrder(neworder).then(function(orderdata){
+                          alert(JSON.stringify(orderdata));
+                          alert(orderdata.results.prepay_id[0])
+                            // $ionicLoading.hide();
+                            var params = {
+                              'appid': orderdata.results.appId,
+                              'package': 'Sign=WXPay',
+                                'partnerid': '1480817392', // merchant id
+                                prepayid: orderdata.results.prepay_id[0], // prepay id
+                                noncestr: orderdata.results.nonceStr, // nonce
+                                timestamp: orderdata.results.timestamp, // timestamp
+                                sign: orderdata.results.paySign, // signed string
+                            };
+                            alert(JSON.stringify(params));
+                            Wechat.sendPaymentRequest(params, function () {
+                                alert("Success");
+                                //chargedoc
+                              
+                            }, function (reason) {
+                                alert("Failed: " + reason);
+                            });
+                        },function(err){
+                            defer.reject(err);
+                        })
+                    }, function(e) {
+                        defer.reject(e);
+                    });
+
+
+                  // Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:0}).then(function(data){
+                  //   console.log(data)
+                  // },function(err){
+                  //   console.log(err)
+                  // })
+                  // //plus doc answer count  patientId:doctorId:modify
+                  // Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                  //   console.log(data)
+                  // },function(err){
+                  //   console.log(err)
+                  // })
+                  // $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                  
                 }else{
                   $scope.consultable=1
                 }

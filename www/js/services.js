@@ -899,7 +899,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Mywechat = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'wechat'},{
             messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000},
-            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000}
+            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000},
+            addOrder:{method:'POST', params:{route: 'addOrder'}, timeout: 100000},
+            getUserInfo:{method:'GET', params:{route: 'getUserInfo'}, timeout: 100000}
         })
     }
     serve.abort = function ($scope) {
@@ -2185,6 +2187,32 @@ return self;
         return deferred.promise;
     };
 
+    self.addOrder = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.addOrder(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    self.getUserInfo = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.getUserInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    
     return self;
 }])
 .factory('socket',['$rootScope','socketFactory','CONFIG',function($rootScope,socketFactory,CONFIG){
