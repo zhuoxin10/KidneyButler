@@ -775,16 +775,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
 
     var Compliance = function(){
-        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{            
-            getcompliance:{method:'GET', params:{}, timeout: 100000}
-        });
-    };
-
-    var Compliance1 = function(){
-        return $resource(CONFIG.baseUrl + ':path/:route',{path:'compliance'},{
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'compliance'},{            
+            getcompliance:{method:'GET', params:{}, timeout: 100000},
             postcompliance:{method:'POST', params:{route:'update'}, timeout: 100000}
         });
     };
+
+    
 
     var Counsels = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
@@ -922,7 +919,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Task1 = Task1();
             serve.Task2 = Task2();
             serve.Compliance = Compliance();
-            serve.Compliance1 = Compliance1();
             serve.Counsels = Counsels();
             serve.Patient = Patient();
             serve.Doctor = Doctor();
@@ -943,7 +939,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Task1 = Task1();
     serve.Task2 = Task2();
     serve.Compliance = Compliance();
-    serve.Compliance1 = Compliance1();
     serve.Counsels = Counsels();
     serve.Patient = Patient();
     serve.Doctor = Doctor();
@@ -1160,7 +1155,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
            // }
     self.postcompliance = function(params){
         var deferred = $q.defer();
-        Data.Compliance1.postcompliance(
+        Data.Compliance.postcompliance(
             params,
             function(data, headers){
                 deferred.resolve(data);

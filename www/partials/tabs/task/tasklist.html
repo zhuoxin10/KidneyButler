@@ -21,7 +21,7 @@
             <i class="icon ion-chevron-down" ng-if="open"></i>
             </a>   
 
-            <ion-item class="item item-icon-right item-remove-animate" ng-show="!open" ng-repeat="item in Tasks.Measure">
+            <ion-item class="item item-icon-right item-remove-animate item-text-wrap" ng-show="!open" ng-repeat="item in Tasks.Measure">
                 {{item.Name}}<span style="font-size:12px;color:#9E9E9E" ng-if="item.Unit != '' ">({{item.Unit}})</span>
                 <p>{{item.Freq}}</p>
                 <p>{{item.instruction}}</p>              
@@ -33,7 +33,7 @@
                 <p>{{item.content}}</p>
                 <ion-option-button class="button-calm" ng-click="showMesPop(item,'edit')">编辑</ion-option-button>
                 <i ng-if="!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showMesPop(item,'fill')"></i>
-                <i ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                <i style="color:#6ac4f8" ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
             </ion-item>
         </ion-list>
 
@@ -49,7 +49,7 @@
                 <i class='icon'><button ng-click="GotoSet()" class="button button-small green-bg font-white">设置</button></i>
             </a>
                 
-            <ion-item class="item item-icon-right" ng-repeat="item in Tasks.Hemo">
+            <ion-item class="item item-icon-right item-text-wrap" ng-repeat="item in Tasks.Hemo">
                 {{item.Name}}
                 <p>{{item.Freq}}</p>
                 <p>任务时间：{{item.startTime}}</p>
@@ -60,18 +60,18 @@
                 </div>
                 <ion-option-button class="button-calm" ng-click="showHemoPop(item, 'edit')">编辑</ion-option-button>
                 <i ng-if="!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showHemoPop(item, 'fill')"></i>
-                <i ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                <i style="color:#6ac4f8" ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
             </ion-item>
 
-            <ion-item class="item item-icon-right" ng-repeat="item in Tasks.Other">
+            <ion-item class="item item-icon-right item-text-wrap" ng-repeat="item in Tasks.Other">
                 {{item.Name}}
                 <p>{{item.Freq}}</p>
                 <p ng-if="item.frequencyTimes != 0">任务时间：{{item.startTime}}</p>
                 <p ng-if="item.DoneFlag">上次执行：{{item.endTime}}</p>
                 <p>{{item.content}}</p>
                 <ion-option-button class="button-calm" ng-click="showOtherPop(item, 'edit')">编辑</ion-option-button>
-                <i ng-if="!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showOtherPop(item, 'fill')"></i>
-                <i ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
+                <i  ng-if="!item.Flag" class="icon iconfont icon-xiugaibi" style="font-size:20px" ng-click="showOtherPop(item, 'fill')"></i>
+                <i style="color:#6ac4f8" ng-if="item.Flag" class="icon ion-ios-checkmark-empty"></i>
                 <button ng-if = "item.Flag" ng-click = "StartNewTask(item)">新任务</button>
             </ion-item>
                

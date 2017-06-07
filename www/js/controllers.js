@@ -1145,12 +1145,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign','$ionicListDelegate', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign,$ionicListDelegate) {
 
 
-  $scope.goinsurance=function(){
-    $state.go("insurance");
-  }
+    $scope.goinsurance=function(){
+        $state.go("insurance");
+    }
   //初始化
     var UserId = Storage.get('UID');
     //UserId = "Test13"; //
@@ -1261,7 +1261,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         for (var i=0;i<$scope.Tasks.length;i++)
         {
            var task = $scope.Tasks[i];
-           console.log(task);
+           // console.log(task);
            if(task.type == 'Measure')
            {
               InitialEveTask(task);
@@ -1271,7 +1271,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               InitialOtherTask(task);
            }
         }
-       //console.log($scope.Tasks);
+       console.log($scope.Tasks.Other);
        $scope.Tasks.Other.sort(SortByTime); //按时间先后排序
        for(var i=0; i<$scope.Tasks.Other.length;i++)
        {
@@ -1526,6 +1526,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                  var task = $scope.Tasks.Other[i];
                  if(task.code == Code)
                  {
+                    // console.log(Description);
                     OtherTaskDone(task, Description);
                     break;
                  }
@@ -1537,13 +1538,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //每日任务执行后处理
     function EveTaskDone(doneTask, flag)
     {
+        // 或许只是测量任务才会进行处理？
         var Code = doneTask.code;
         var Description = doneTask.description;
         var flag1 = false;
         for (var i=0;i<$scope.Tasks.Measure.length;i++)
         {
             if($scope.Tasks.Measure[i].code == Code)
-             {
+            {
 
                 $scope.Tasks.Measure[i].instruction = Description;
                 flag1 = true;
@@ -1564,7 +1566,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $scope.Tasks.Measure[i].Progress = (Math.round(ValueArry.length/$scope.Tasks.Measure[i].times * 10000)/100).toFixed(2) + '%';
                 }
                 break;
-             }
+            }
         }
         if(flag1) //插入体征表
         {
@@ -1614,6 +1616,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         var item;
         //var instructionStr = task.instruction;//避免修改模板 暂时就让它修改吧
         task.instruction = Description; //用于页面显示
+        console.log('attention');
+        console.log(task.instruction);
         task.Flag = true;
         task.endTime = task.endTime.substr(0, 10);
         if(task.endTime != "2050-11-02T07:58:51.718Z") //说明任务已经执行过
@@ -1641,8 +1645,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     "frequencyTimes":task.frequencyTimes,
                     "frequencyUnits":task.frequencyUnits
                 };
-
-       UpdateUserTask(item);  //更改任务下次执行时间
+        console.log(item);
+        UpdateUserTask(item);  //更改任务下次执行时间
     }
 
   //血透任务执行后处理
@@ -1835,9 +1839,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //插入任务执行情况
     function Postcompliance(task)
     {
-         //console.log(task);
+         console.log(task);
          var promise = Compliance.postcompliance(task);
          promise.then(function(data){
+            console.log(data);
            if(data.results)
            {
               //console.log(data.results);
@@ -1997,18 +2002,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   //测量弹窗
     $scope.showMesPop = function(task, type) {
-      $scope.data = {};
-      $scope.data.alertFlag = false;
+        //首先swipe-back
+        $ionicListDelegate.closeOptionButtons();
+        $scope.data = {};
+        $scope.data.alertFlag = false;
       //console.log(task);
-      var PopInfo = GetPopInfo('input', type, task);
-      $scope.data.value = PopInfo.content;
-      var myPopup = $ionicPopup.show({
-         template: PopInfo.Template,
-         title: PopInfo.word,
-         scope: $scope,
-         buttons: [
-           { text: '取消' },
-           {
+        var PopInfo = GetPopInfo('input', type, task);
+        $scope.data.value = PopInfo.content;
+        var myPopup = $ionicPopup.show({
+            template: PopInfo.Template,
+            title: PopInfo.word,
+            scope: $scope,
+            buttons: [
+            { text: '取消' },
+            {
              text: '保存',
              type: 'button-positive',
              onTap: function(e) {
@@ -2187,9 +2194,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
   //血透弹窗
-   $scope.showHemoPop = function(task, type) {
-      $scope.data = {};
-      $scope.data.alertFlag = false;
+    $scope.showHemoPop = function(task, type) {
+        $ionicListDelegate.closeOptionButtons();
+
+        $scope.data = {};
+        $scope.data.alertFlag = false;
       //console.log(task);
       if(task.instruction == "")
       {
@@ -2264,9 +2273,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   //其他任务弹窗
     $scope.showOtherPop = function(task, type) {
+        $ionicListDelegate.closeOptionButtons();
         $scope.data = {};
         $scope.data.alertFlag = false;
         $scope.data.value = task.instruction;
+        console.log($scope.data.value);
         if(!task.Flag)
         {
           type = "fill";
@@ -2313,7 +2324,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         "description": res
                       };
 
-            //console.log(item);
             Postcompliance(item);
           }
         });
@@ -2580,10 +2590,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
    {
      var promise =  Task.getUserTask({userId:UserId});
      promise.then(function(data){
+        console.log(data);
        if(data.result.length != 0)
        {
           $scope.Tasks = data.result.task;
-          //console.log($scope.Tasks);
+          console.log($scope.Tasks);
           HandleTasks();
        }
      },function(){
@@ -2662,7 +2673,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   newTask = TimeSelectBind(newTask);
                   $scope.Tasks.Other.push(newTask);
                 }
+
             }
+
           }
       }
       //console.log($scope.Tasks);
@@ -2794,9 +2807,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 
-   $scope.Goback = function(){
-     $state.go('tab.mine');
-   }
+    $scope.Goback = function(){
+        $ionicHistory.goBack();
+    }
 
   //更新用户任务模板
     function UpdateUserTask(task)
@@ -4356,28 +4369,29 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
 
-  console.log($ionicHistory.backView())
+  // console.log($ionicHistory.backView())
   $scope.HealthInfoSetup = function(){
-    if($scope.health.label!=""&&$scope.health.text!=""&&$scope.health.date!=""){
+    console.log($scope.health.text);
+    if(($scope.health.label&&$scope.health.date)&&($scope.health.text||$scope.health.imgurl.length)){
       console.log($stateParams.id)
         if($stateParams.id==null||$stateParams==""){
             Health.createHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
               function(data)
               {
-                console.log(data.results);
-                console.log(data.results.insertTime);
+                // console.log(data.results);
+                // console.log(data.results.insertTime);
                 // $scope.canEdit= false;
-                var healthinfoToconsult=[]
+                var healthinfoToconsult=[];
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null&&$ionicHistory.backView().stateName=='tab.consultquestion2'){
                   if(Storage.get('consulthealthinfo')==''||Storage.get('consulthealthinfo')==null||Storage.get('consulthealthinfo')=='undefined'){
-                    healthinfoToconsult.push({'time':data.results.insertTime})
+                    healthinfoToconsult.push({'time':data.results.insertTime});
                   }else{
-                    healthinfoToconsult=angular.fromJson(Storage.get('consulthealthinfo'))
-                    healthinfoToconsult.push({'time':data.results.insertTime})
+                    healthinfoToconsult=angular.fromJson(Storage.get('consulthealthinfo'));
+                    healthinfoToconsult.push({'time':data.results.insertTime});
                   }
-                  Storage.set('consulthealthinfo',angular.toJson(healthinfoToconsult))
-                  console.log(Storage.get('consulthealthinfo'))
+                  Storage.set('consulthealthinfo',angular.toJson(healthinfoToconsult));
+                  console.log(Storage.get('consulthealthinfo'));
                 }
 
 
@@ -4407,7 +4421,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     else{
         $ionicLoading.show({
-            template:'信息填写不完整',
+            template:'请用文字描述或者上传图片！',
             duration:1000
         });
     }
@@ -6802,8 +6816,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     var distinctTask = function(kidneyType,kidneyTime,kidneyDetail){
         var sortNo = 1;
-        console.log(kidneyType);
-        console.log(kidneyDetail);
+        // console.log(kidneyType);
+        // console.log(kidneyDetail);
         // if(kidneyTime){
         //     kidneyTime = kidneyTime.substr(0,10);
         // }
@@ -7338,12 +7352,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 .controller('adviceCtrl', ['$scope','$state','$ionicLoading', 'Advice','Storage','$timeout', function ($scope,$state,$ionicLoading,Advice,Storage,$timeout) {
-    $scope.GoBack = function(){
-        $state.go('tab.mine');
-    }
+    
+    // $scope.GoBack = function(){
+    //     console.log('123');
+    //     $state.go('tab.mine');
+    // }
 
     $scope.deliverAdvice = function(adv){
-        console.log(adv);
+        // console.log(adv);
         Advice.postAdvice({userId:Storage.get('UID'),role:"patient",content:adv.content}).then(
             function(data){
                 

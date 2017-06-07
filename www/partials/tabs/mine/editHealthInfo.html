@@ -11,7 +11,7 @@
     
 
   <form name="HealthForm" nonvalidate>
-    <label  class="item item-input item-select-custom">
+    <label  class="item item-input item-select-custom blue-round-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>类别</span>
         <select ng-disabled="!canEdit" ng-model="health.label" name="healthLabel" required ng-options="label.name for label in labels track by label.code">
         </select>
@@ -21,27 +21,22 @@
         </span>
     </label>
 
-    <label ng-if="!canEdit" class="item item-input">
+    <label ng-if="!canEdit" class="item item-input blue-round-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>时间日期</span>
-        <input  style="text-align: right;" ng-disabled="!canEdit" ng-model="health.date" dateformat type="text">
+        <input  style="text-align: right;" class="hasTick" ng-disabled="!canEdit" ng-model="health.date" dateformat type="text">
     </label>
 
-    <ionic-datepicker ng-if="canEdit" input-obj="datepickerObject4" class="item item-input">
+    <ionic-datepicker ng-if="canEdit" input-obj="datepickerObject4" class="item item-input blue-round-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>时间日期</span>
-        <input  style="text-align: right;" ng-model="health.date" name="healthDate" required dateformat type="text">
+        <input  style="text-align: right;" ng-model="health.date" class="hasTick" name="healthDate" required dateformat type="text">
         <span class="tick">
               <i style="color:#6ac4f8;" ng-if="HealthForm.healthDate.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
                <i style="color:#FB6753;" ng-if="HealthForm.healthDate.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
           </span>
     </ionic-datepicker>
 
-    <label class="item item-input">
-          <span class="input-label" ><i class="icon ion-asterisk c-red"></i>文字描述</span>
-          <input  style="text-align: right;" ng-disabled="!canEdit" name="healthText" ng-model="health.text"  required type="text">
-          <span class="tick" ng-if="canEdit">
-              <i style="color:#6ac4f8;" ng-if="HealthForm.healthText.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
-               <i style="color:#FB6753;" ng-if="HealthForm.healthText.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
-          </span>
+    <label class="item item-input blue-round-input">
+          <textarea placeholder="请您详细描述自己的健康信息" rows="4" style="line-height: 25px"  name="healthText" ng-model="health.text"></textarea>
     </label>
 
       
