@@ -122,64 +122,59 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         alert("Failed: " + reason);
     });*/
   //先判断localstorage是否有unionid
-        if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
-            User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
+    User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+      if(data.results.mesg=="login success!"){
+        Storage.set('isSignIn',"Yes");
+        Storage.set('UID',ret.UserId);//后续页面必要uid
+        Storage.set('bindingsucc','yes')
+        $state.go('tab.tasklist')  
+      }
+    })
+  }else{
+    // if(1==2){
+    var wxscope = "snsapi_userinfo",
+    wxstate = "_" + (+new Date());
+    Wechat.auth(wxscope, wxstate, function (response) {
+        // you may use response.code to get the access token.
+        // alert(JSON.stringify(response));
+        // alert(response.code)
+        Mywechat.getUserInfo({role:"appPatient",code:response.code}).then(function(persondata){
+          // alert(persondata.headimgurl)
+          Storage.set('wechatheadimgurl',persondata.results.headimgurl)
+          
+          $scope.unionid=persondata.results.unionid;
+          // alert($scope.unionid)
+          //判断这个unionid是否已经绑定用户了 有直接登录
+          User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
+            // alert(JSON.stringify(ret))
+            //用户已经存在id 说明公众号注册过
+            if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
+              User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
+                // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
-                    Storage.set('isSignIn',"Yes");
-                    Storage.set('UID',ret.UserId);//后续页面必要uid
-                    Storage.set('bindingsucc','yes');
-                    $state.go('tab.tasklist');  
-                }
-            })
-        }
-        // if(1==2){
-        var wxscope = "snsapi_userinfo",
-        wxstate = "_" + (+new Date());
-        Wechat.auth(wxscope, wxstate, function (response) {
-            // you may use response.code to get the access token.
-            // alert(JSON.stringify(response));
-            // alert(response.code)
-            //将code传个后台服务器 获取unionid
-            Mywechat.gettokenbycode({role:"appPatient",code:response.code}).then(function(res){
-              // { 
-              // "access_token":"ACCESS_TOKEN", 
-              // "expires_in":7200, 
-              // "refresh_token":"REFRESH_TOKEN",
-              // "openid":"OPENID", 
-              // "scope":"SCOPE",
-              // "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL"
-              // }
-              $scope.unionid=res.result.unionid;
-              // alert($scope.unionid)
-              //判断这个unionid是否已经绑定用户了 有直接登录
-              User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
-                // alert(JSON.stringify(ret))
-                //用户已经存在id 说明公众号注册过
-                if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
-                  User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
-                    // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
-                    if(data.results.mesg=="login success!"){
-                      Storage.set('isSignIn',"Yes");
-                      Storage.set('UID',ret.UserId);//后续页面必要uid
-                      Storage.set("patientunionid",$scope.unionid);//自动登录使用
-                      Storage.set('bindingsucc','yes')
-                      $state.go('tab.tasklist')  
-                    }
-                  })
-                }else{
+                  Storage.set('isSignIn',"Yes");
+                  Storage.set('UID',ret.UserId);//后续页面必要uid
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
-                  $state.go('phonevalid',{phonevalidType:'wechatsignin'})
+                  Storage.set('bindingsucc','yes')
+                  $state.go('tab.tasklist')  
                 }
               })
-            },function(err){
-              alert(JSON.stringify(err));
-            })
-        }, function (reason) {
-            alert("Failed: " + reason);
-        });
+            }else{
+              Storage.set("patientunionid",$scope.unionid);//自动登录使用
+              $state.go('phonevalid',{phonevalidType:'wechatsignin'})
+            }
+          })
+        },function(err){
+          alert(JSON.stringify(err));
+        })
+    }, function (reason) {
+        alert("Failed: " + reason);
+    });
+  }
 
     // }
-    }
+  }
 
 }])
 
@@ -524,6 +519,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
     };
 
+
     $scope.$on('$ionicView.beforeEnter', function() {
         var back = $stateParams.last;
         // console.log(back);
@@ -650,7 +646,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         if(!data.results.lastVisit){
                             $scope.User.lastVisit = {time:null,hospital:null,diagnosis:null};
                         } 
-
                   }
                   if ($scope.User.gender != null){
                       $scope.User.gender = searchObj($scope.User.gender,$scope.Genders)
@@ -3087,6 +3082,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     // console.log(angular.fromJson(res.results))
     if(res.results.photoUrl==undefined||res.results.photoUrl==""||res.results.photoUrl=="http://pp.jpg"){
       $scope.myAvatar="img/DefaultAvatar.jpg"
+      if(Storage.get('wechatheadimgurl')!=undefined||Storage.get('wechatheadimgurl')!=""||Storage.get('wechatheadimgurl')!=null){
+        $scope.myAvatar=Storage.get('wechatheadimgurl')
+      }
     }else{
       $scope.myAvatar=res.results.photoUrl;
     }
@@ -5001,7 +4999,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //医生列表--PXY
 
-.controller('DoctorCtrl', ['$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket',function($cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket) {
+.controller('DoctorCtrl', ['$http','$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket','Mywechat',function($http,$cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket,Mywechat) {
 
   $scope.Goback = function(){
     $state.go('tab.myDoctors');
@@ -5342,19 +5340,88 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  //chargedoc
-                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:0}).then(function(data){
-                    console.log(data)
-                  },function(err){
-                    console.log(err)
-                  })
-                  //plus doc answer count  patientId:doctorId:modify
-                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
-                    console.log(data)
-                  },function(err){
-                    console.log(err)
-                  })
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+
+                  var json = 'http://ipv4.myexternalip.com/json';
+                    $http.get(json).then(function(result) {
+                      alert(JSON.stringify(result));
+                        console.log(result.data.ip)
+                        if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        {
+                          result.data.ip = "121.196.221.44"
+                        }
+                        var neworder = {
+                            "userId":Storage.get('UID'),
+                            "role":"appPatient",
+                            // "money":$scope.doctor.charge1*100,
+                            "money":1,
+                            "class":"01",
+                            "name":"咨询",
+                            "notes":DoctorId,
+                            "paystatus":0,
+                            "paytime":new Date(),
+                            "ip":result.data.ip,
+                            "trade_type":"APP"
+                          }
+
+
+                          // partnerid: '10000100', // merchant id
+                          // prepayid: 'wx201411101639507cbf6ffd8b0779950874', // prepay id
+                          // noncestr: '1add1a30ac87aa2db72f57a2375d8fec', // nonce
+                          // timestamp: '1439531364', // timestamp
+                          // sign: '0CB01533B8C1EF103065174F50BCA001', // signed string
+
+
+                        //   appId:req.wxApiUserObject.appid, 
+                        //   timestamp: wcPayParams.timeStamp,
+                        //   nonceStr: wcPayParams.nonceStr,
+                        //   package: wcPayParams.package,
+                        //   signType: wcPayParams.signType,
+                        //   paySign: wcPayParams.paySign,
+                        //   prepay_id : req.prepay_id
+                        // }});
+                        alert(JSON.stringify(neworder));
+                        Mywechat.addOrder(neworder).then(function(orderdata){
+                          alert(JSON.stringify(orderdata));
+                          alert(orderdata.results.prepay_id[0])
+                            // $ionicLoading.hide();
+                            var params = {
+                              'appid': orderdata.results.appId,
+                              'package': 'Sign=WXPay',
+                                'partnerid': '1480817392', // merchant id
+                                prepayid: orderdata.results.prepay_id[0], // prepay id
+                                noncestr: orderdata.results.nonceStr, // nonce
+                                timestamp: orderdata.results.timestamp, // timestamp
+                                sign: orderdata.results.paySign, // signed string
+                            };
+                            alert(JSON.stringify(params));
+                            Wechat.sendPaymentRequest(params, function () {
+                                alert("Success");
+                                //chargedoc
+                              
+                            }, function (reason) {
+                                alert("Failed: " + reason);
+                            });
+                        },function(err){
+                            defer.reject(err);
+                        })
+                    }, function(e) {
+                        defer.reject(e);
+                    });
+
+
+                  // Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:0}).then(function(data){
+                  //   console.log(data)
+                  // },function(err){
+                  //   console.log(err)
+                  // })
+                  // //plus doc answer count  patientId:doctorId:modify
+                  // Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                  //   console.log(data)
+                  // },function(err){
+                  //   console.log(err)
+                  // })
+                  // $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                  
                 }else{
                   $scope.consultable=1
                 }
