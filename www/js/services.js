@@ -656,7 +656,19 @@ angular.module('kidney.services', ['ionic','ngResource'])
   }
 }])
 
+.factory('toServer',['$interval','socket',function($interval,socket){
+    var self = this;
+    self.newUser = function(name,id){
+        $interval(function newuser(){
+            // console.log('serve');
+            socket.emit('newUser', {user_name: name, user_id: id});
+            return newuser;
+        }(),10000);
+    }
+    return self;
 
+    
+}])
 
 
 //--------健康信息的缓存数据--------
