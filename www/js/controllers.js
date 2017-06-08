@@ -16,7 +16,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
       if(data.results.mesg=="login success!"){
         Storage.set('isSignIn',"Yes");
-        Storage.set('UID',data.results.UserId);//后续页面必要uid
+        Storage.set('UID',data.results.userId);//后续页面必要uid
         Storage.set('bindingsucc','yes')
         Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                 if(data.results){
@@ -31,7 +31,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
       if(data.results.mesg=="login success!"){
         Storage.set('isSignIn',"Yes");
-        Storage.set('UID',data.results.UserId);//后续页面必要uid
+        Storage.set('UID',data.results.userId);//后续页面必要uid
         // Storage.set('bindingsucc','yes')
         Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
             if(data.results){
