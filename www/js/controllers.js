@@ -3,14 +3,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //登录--PXY
 .controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce,Mywechat,Patient,toServer) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
-    if(Storage.get('USERNAME')!=null){
+    $scope.autologflag=0;
+    if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
         $scope.logOn={username:Storage.get('USERNAME'),password:""};
-
     }else{
+        // alert('USERNAME null')
         $scope.logOn={username:"",password:""};
     }
 
 
+    if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
+    User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+      if(data.results.mesg=="login success!"){
+        Storage.set('isSignIn',"Yes");
+        Storage.set('UID',data.results.UserId);//后续页面必要uid
+        Storage.set('bindingsucc','yes')
+        $state.go('tab.tasklist')  
+      }
+    })
+  }else if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
+    User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
+      if(data.results.mesg=="login success!"){
+        Storage.set('isSignIn',"Yes");
+        Storage.set('UID',data.results.UserId);//后续页面必要uid
+        // Storage.set('bindingsucc','yes')
+        $state.go('tab.tasklist')  
+      }
+    })
+  }
     $scope.signIn = function(logOn) {
         $scope.logStatus='';
         if((logOn.username!="") && (logOn.password!="")){
@@ -42,6 +62,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         $scope.logStatus = "登录成功！";
                         $ionicHistory.clearCache();
                         $ionicHistory.clearHistory();
+                        Storage.set('PASSWORD',logOn.password);
                         Storage.set('TOKEN',data.results.token);//token作用目前还不明确
                         Storage.set('isSignIn',"Yes");
                         Storage.set('UID',data.results.userId);
@@ -115,6 +136,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.toReset = function(){
         $state.go('phonevalid',{phonevalidType:'reset'});
     }
+
     $scope.wxsignIn=function(){
     /*Wechat.isInstalled(function (installed) {
         alert("Wechat installed: " + (installed ? "Yes" : "No"));
@@ -122,16 +144,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         alert("Failed: " + reason);
     });*/
   //先判断localstorage是否有unionid
-if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
-    User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
-      if(data.results.mesg=="login success!"){
-        Storage.set('isSignIn',"Yes");
-        Storage.set('UID',ret.UserId);//后续页面必要uid
-        Storage.set('bindingsucc','yes')
-        $state.go('tab.tasklist')  
-      }
-    })
-  }else{
+
+  // else{
     // if(1==2){
     var wxscope = "snsapi_userinfo",
     wxstate = "_" + (+new Date());
@@ -171,7 +185,7 @@ if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
     }, function (reason) {
         alert("Failed: " + reason);
     });
-  }
+  // }
 
     // }
   }
@@ -427,7 +441,7 @@ if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
                     if(setPassState=='register'||setPassState=='wechatsignin'){
                       //结果分为连接超时或者注册成功
                         $rootScope.password=setPassword.newPass;
-                        // Storage.set('PASSWORD',setPassword.newPass);
+                        Storage.set('PASSWORD',setPassword.newPass);
                         User.register({phoneNo:Storage.get('USERNAME'),password:setPassword.newPass,role:"patient"}).then(function(data){
                             console.log(data);
                             if(data.results==0){
@@ -467,7 +481,7 @@ if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
                       var codePromise = User.changePassword({phoneNo:Storage.get('USERNAME'),password:setPassword.newPass});
                       codePromise.then(function(data){
                           if(data.results==0){
-                              // Storage.set('PASSWORD',setPassword.newPass);
+                              Storage.set('PASSWORD',setPassword.newPass);
                               $scope.logStatus ="重置密码成功！";
                               $timeout(function(){$state.go('signin');} , 500);
                           }else{
@@ -3047,6 +3061,8 @@ if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
                     //Storage.clear();
+                    Storage.rm('patientunionid')
+                    Storage.rm('PASSWORD')
                     Storage.set("IsSignIn","No");
                      Storage.set("USERNAME",USERNAME);
                      //$timeout(function () {
