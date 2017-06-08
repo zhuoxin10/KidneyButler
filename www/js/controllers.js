@@ -1145,7 +1145,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //任务列表--GL
-.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign','$ionicListDelegate', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign,$ionicListDelegate) {
+.controller('tasklistCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
 
 
     $scope.goinsurance=function(){
@@ -1271,17 +1271,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               InitialOtherTask(task);
            }
         }
-       console.log($scope.Tasks.Other);
-       $scope.Tasks.Other.sort(SortByTime); //按时间先后排序
-       for(var i=0; i<$scope.Tasks.Other.length;i++)
-       {
-         if($scope.Tasks.Other[i].frequencyTimes == 0)//只执行一次的任务置顶
-         {
-            var item = $scope.Tasks.Other[i];
-            $scope.Tasks.Other.splice(i, 1);
-            $scope.Tasks.Other.unshift(item);
-         }
-       }
+        console.log($scope.Tasks.Measure);
+        console.log($scope.Tasks.Other);
+        $scope.Tasks.Other.sort(SortByTime); //按时间先后排序
+        for(var i=0; i<$scope.Tasks.Other.length;i++)
+        {
+            if($scope.Tasks.Other[i].frequencyTimes == 0)//只执行一次的任务置顶
+            {
+                var item = $scope.Tasks.Other[i];
+                $scope.Tasks.Other.splice(i, 1);
+                $scope.Tasks.Other.unshift(item);
+            }
+        }
        GetDoneTask();
      //console.log($scope.Tasks);
     }
@@ -2003,7 +2004,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //测量弹窗
     $scope.showMesPop = function(task, type) {
         //首先swipe-back
-        $ionicListDelegate.closeOptionButtons();
         $scope.data = {};
         $scope.data.alertFlag = false;
       //console.log(task);
@@ -2195,7 +2195,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   //血透弹窗
     $scope.showHemoPop = function(task, type) {
-        $ionicListDelegate.closeOptionButtons();
+
 
         $scope.data = {};
         $scope.data.alertFlag = false;
@@ -2273,7 +2273,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   //其他任务弹窗
     $scope.showOtherPop = function(task, type) {
-        $ionicListDelegate.closeOptionButtons();
         $scope.data = {};
         $scope.data.alertFlag = false;
         $scope.data.value = task.instruction;
@@ -2616,6 +2615,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
          if(task.type == 'Measure')
          {
             $scope.Tasks.Measure = task.details;
+
             for(var j=0;j<$scope.Tasks.Measure.length;j++)
             {
                 var temp = $scope.Tasks.Measure[j];
