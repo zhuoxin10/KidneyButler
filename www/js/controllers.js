@@ -18,7 +18,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         Storage.set('isSignIn',"Yes");
         Storage.set('UID',data.results.UserId);//后续页面必要uid
         Storage.set('bindingsucc','yes')
-        $state.go('tab.tasklist')  
+        Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
+                if(data.results){
+                    $timeout(function(){$state.go('tab.tasklist');},500);
+                    toServer.newUser(data.results.name,data.results.userId);
+                }
+              });
+        // $state.go('tab.tasklist')  
       }
     })
   }else if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
@@ -27,7 +33,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         Storage.set('isSignIn',"Yes");
         Storage.set('UID',data.results.UserId);//后续页面必要uid
         // Storage.set('bindingsucc','yes')
-        $state.go('tab.tasklist')  
+        Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
+            if(data.results){
+                $timeout(function(){$state.go('tab.tasklist');},500);
+                toServer.newUser(data.results.name,data.results.userId);
+            }
+          });
+        // $state.go('tab.tasklist')  
       }
     })
   }
@@ -171,7 +183,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   Storage.set('UID',ret.UserId);//后续页面必要uid
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
                   Storage.set('bindingsucc','yes')
-                  $state.go('tab.tasklist')  
+                  Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
+                    if(data.results){
+                        $timeout(function(){$state.go('tab.tasklist');},500);
+                        toServer.newUser(data.results.name,data.results.userId);
+                    }
+                  });
+                  // $state.go('tab.tasklist')  
                 }
               })
             }else{
