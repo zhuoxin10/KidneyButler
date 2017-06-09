@@ -7726,13 +7726,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage','Patient',function ($scope, $state,$sce,$http,Storage,Patient) {
     var phoneNum=Storage.get('USERNAME')
     console.log(phoneNum)
-    Patient.getPatientDetail({userId: Storage.get('UID')})
-    .then(function(data)
-    {
-      console.log(data)
-      $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
-      $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
-    })
+
+    var userId=Storage.get('UID');
+
+    $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+userId+"&password="+userId;
+    $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
+    // Patient.getPatientDetail({userId: Storage.get('UID')})
+    // .then(function(data)
+    // {
+    //   console.log(data)
+    //   $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
+    //   $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
+    // })
 
 }])
 
