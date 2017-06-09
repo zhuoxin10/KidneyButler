@@ -1143,6 +1143,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return self;
 }])
 
+
 .factory('Compliance', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->{
@@ -1182,6 +1183,176 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return deferred.promise;
     };
     return self;
+}])
+
+.factory('otherTask', ['Task', 'Compliance','Storage', function(Task, Compliance,Storage){
+    var self = this;
+    //其他任务后处理
+    //日期延后计算
+    var UserId = Storage.get('UID');
+    var DateCalc = function (LastDate, Type, Addition)
+    {
+      var Date1 = new Date(LastDate);
+      var Date2;
+      if(Type == "周") //周
+      {
+          Date2 = new Date(Date1.setDate(Date1.getDate() + Addition));
+      }
+      else if(Type == "月")
+      {
+          Date2 = new Date(Date1.setMonth(Date1.getMonth() + Addition));
+      }
+      else //年
+      {
+          Date2 = new Date(Date1.setYear(Date1.getFullYear() + Addition));
+      }
+      return Date2;
+    }
+    //比较时间天数
+    var GetDifDays = function(date1Str, date2Str)
+   {
+      res = 0;
+      var date1 = new Date(date1Str);
+      var date2 = new Date(date2Str);
+      if((date1 instanceof Date) && (date2 instanceof Date))
+      {
+         days = date1.getTime() - date2.getTime();
+         res = parseInt(days / (1000 * 60 * 60 * 24));
+      }
+      return res;
+   }
+    //修改日期格式Date → yyyy-mm-dd
+   var ChangeTimeForm = function(date)
+   {
+      var nowDay = "";
+      if (date instanceof Date)
+      {
+          var mon = date.getMonth() + 1;
+          var day = date.getDate();
+          nowDay = date.getFullYear() + "-" + (mon<10?"0"+mon:mon) + "-" +(day<10?"0"+day:day);
+      }
+      return nowDay;
+   }
+   var dateNowStr = ChangeTimeForm(new Date());
+
+   //任务完成后设定下次任务执行时间
+    var SetNextTime = function(LastDate, FreqTimes, Unit, Times)
+    {
+        var NextTime;
+        if((Unit == '年') && (Times == 2))//一年2次
+        {
+           Unit = "月";
+           FreqTimes =  6;
+        }
+        var tbl = {"周": 7, "月": 30, "年": 365};
+        var someDays = tbl[Unit] * FreqTimes;
+        var days = GetDifDays(LastDate, dateNowStr);
+        if(days > someDays)
+        {
+            NextTime = new Date(LastDate);
+        }
+        else
+        {
+            var add = FreqTimes;
+            if(Unit == "周")
+            {
+               add = FreqTimes * 7;
+            }
+            NextTime = DateCalc(LastDate, Unit, add);
+        }
+        //console.log(NextTime);
+        return NextTime;
+    }
+
+    //更新用户任务模板
+    var UpdateUserTask = function (task)
+    {
+      var promise = Task.updateUserTask(task);
+       promise.then(function(data){
+         //console.log(data);
+         if(data.results)
+         {
+          // console.log(data.results);
+         };
+       },function(){
+       })
+    }
+
+    var OtherTaskDone = function (task, Description)
+    {
+        var NextTime = "";
+        var item;
+        //var instructionStr = task.instruction;//避免修改模板 暂时就让它修改吧
+        task.instruction = Description; //用于页面显示
+        console.log('attention');
+        console.log(task.endTime);
+        task.Flag = true;
+        task.endTime = task.endTime.substr(0, 10);
+        if(task.endTime != "2050-11-02T07:58:51.718Z") //说明任务已经执行过
+        {
+
+            task.DoneFlag = true;
+        }
+        else
+        {
+            task.DoneFlag = false;
+        }
+        NextTime = ChangeTimeForm(SetNextTime(task.startTime, task.frequencyTimes, task.frequencyUnits, task.times));
+        task.startTime = NextTime;//更改页面显示
+        task.endTime = dateNowStr;
+        item = {
+                    "userId":UserId,
+                    "type":task.type,
+                    "code":task.code,
+                    "instruction":task.instruction,
+                    "content":task.content,
+                    "startTime":NextTime,
+                    "endTime":task.endTime,
+                    "times":task.times,
+                    "timesUnits":task.timesUnits,
+                    "frequencyTimes":task.frequencyTimes,
+                    "frequencyUnits":task.frequencyUnits
+                };
+        console.log(item);
+        UpdateUserTask(item);  //更改任务下次执行时间
+    }
+    //插入任务执行情况
+    this.Postcompliance_UpdateTaskStatus = function (task,otherTasks,healthID)
+    {
+         // console.log(otherTasks);
+         var item = {
+                        "userId": UserId,
+                        "type": task.type,
+                        "code": task.code,
+                        "date": dateNowStr,
+                        "status": 0,
+                        "description": healthID
+                      };
+         var promise = Compliance.postcompliance(item);
+         promise.then(function(data){
+            console.log(data);
+           if(data.results)
+           {
+                console.log(data.results);
+                var Code = data.results.code;
+                var Description = data.results.description;
+                for (var i=0;i<otherTasks.length;i++)
+                {
+                    var task = otherTasks[i];
+                    if(task.code == Code)
+                    {
+                        console.log(task);
+                        OtherTaskDone(task, Description);
+                        break;
+                    }
+                }
+              // OtherTaskDone(data.results, data.results.description);
+           }
+         },function(){
+         });
+    }
+    return self;
+
 }])
 
 .factory('User', ['$q', 'Data', function($q, Data){
