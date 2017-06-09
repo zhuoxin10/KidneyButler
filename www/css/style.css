@@ -1137,6 +1137,11 @@ input.hasTick {
   top: 75%;
 }
 
+
+textarea {
+  resize: none;
+}
+
 .item-select-custom {
   position: relative; }
   .item-select-custom select {
@@ -1218,3 +1223,5 @@ input.hasTick {
     color: #fff; }
   .item-select-custom.item-dark:after, .item-select-custom.item-dark .input-label {
     color: #fff; }
+
+

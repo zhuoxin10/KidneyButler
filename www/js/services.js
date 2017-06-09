@@ -25,8 +25,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
-    appKey: 'fe7b9ba069b80316653274e4',
-    crossKey: 'cf32b94444c4eaacef86903e',
     baseUrl: 'http://121.43.107.106:4050/',
     mediaUrl: 'http://121.43.107.106:8052/',
     socketServer:'ws://121.43.107.106:4050/',
@@ -658,7 +656,19 @@ angular.module('kidney.services', ['ionic','ngResource'])
   }
 }])
 
+.factory('toServer',['$interval','socket',function($interval,socket){
+    var self = this;
+    self.newUser = function(name,id){
+        $interval(function newuser(){
+            // console.log('serve');
+            socket.emit('newUser', {user_name: name, user_id: id});
+            return newuser;
+        }(),10000);
+    }
+    return self;
 
+    
+}])
 
 
 //--------健康信息的缓存数据--------
@@ -869,6 +879,12 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     }
 
+    var Advice =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'advice'},{
+            postAdvice:{method:'POST', params:{route: 'postAdvice'}, timeout: 100000}
+        });
+    } 
+
     var News = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'new'},{
             getNews:{method:'GET', params:{route: 'getNews'}, timeout: 100000},
@@ -895,7 +911,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
     var Mywechat = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'wechat'},{
             messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000},
-            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000}
+            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000},
+            addOrder:{method:'POST', params:{route: 'addOrder'}, timeout: 100000},
+            getUserInfo:{method:'GET', params:{route: 'getUserInfo'}, timeout: 100000}
         })
     }
     serve.abort = function ($scope) {
@@ -916,6 +934,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.VitalSign = VitalSign();
             serve.Account = Account();
             serve.Message = Message();
+            serve.Advice = Advice();
             serve.News = News();
             serve.Expense = Expense();
             serve.Mywechat = Mywechat();
@@ -936,6 +955,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.VitalSign = VitalSign();
     serve.Account = Account();
     serve.Message = Message();
+    serve.Advice = Advice();
     serve.News = News();
     serve.Expense = Expense();
     serve.Mywechat = Mywechat();
@@ -1901,6 +1921,25 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return self;
 }])
 
+
+.factory('Advice', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{type:1}
+    self.postAdvice = function(params){
+        var deferred = $q.defer();
+        Data.Advice.postAdvice(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
 .factory('News', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->0:{type:1}
@@ -2160,6 +2199,121 @@ return self;
         return deferred.promise;
     };
 
+    self.addOrder = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.addOrder(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    self.getUserInfo = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.getUserInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    
     return self;
 }])
+.factory('socket',['$rootScope','socketFactory','CONFIG',function($rootScope,socketFactory,CONFIG){
+    var myIoSocket = io.connect(CONFIG.socketServer+'chat');
+    var mySocket = socketFactory({
+        ioSocket: myIoSocket,
+        prefix: 'im:'
+    });
+    mySocket.forward(['getMsg','messageRes','err','disconnect']);
+    return mySocket;
+}])
+.factory('notify',['$cordovaLocalNotification','$cordovaFileTransfer','CONFIG','arrTool',function($cordovaLocalNotification,$cordovaFileTransfer,CONFIG,arrTool){
+    var notices = {},
+        iconPath = 'file://img/default_user.png',
+        COUNT_REG = /^\[([1-9]+[0-9]*)\]/;
+    function getNote(msg){
+        console.log($cordovaLocalNotification.getAll());
+    }
+    function nextCount(text){
+        var matchs = text.match(COUNT_REG);
+        return matchs===null?2:Number(matchs[1])+1;
+    }
+    function noteGen(msg){
+        var note = msg.fromName+':',
+            type = msg.contentType;
+        if(type=='text'){
+            note += msg.content.text;
+        }else if(type == 'image'){
+            note += '[图片]';
+        }else if(type == 'voice'){
+            note += '[语音]';
+        }else{
+            var subT = msg.content.type;
+            if(subT=='card'){
+                if(msg.newsType=='11') note += msg.content.counsel.type=='1'?'[新咨询]':'[新问诊]';
+                else if(msg.newsType=='12') note += '[病历转发]';
+                else note += '[团队病历]';
+            }else if(subT == 'contact'){
+                note += '[联系人名片]'
+            }else if(subT == 'endl'){
+                note += msg.content.counseltype==1?'[咨询结束]':'[问诊结束]';
+            }else{
+                note+='[新消息]';
+            }
+        }
+        return note;
+    }
+    function schedulNote(msg,note){
+        if(note){
+            note.text = '[' + nextCount(note.text) + ']' + noteGen(msg);
+            // opt.text = '[' + nextCount(note.text) + ']' + opt.text;
+        }else{
+            var noteid = msg.targetType=='single'?msg.fromID:msg.targetID;
+            noteid=Number(noteid.slice(1));
+            var note = {
+                id:noteid,
+                title:msg.targetType=='single'?msg.fromName:msg.targetName,
+                text:noteGen(msg),
+                data:msg,
+                led:'1199dd',
+                icon:'',
+                smallIcon:'texticon',
+                color:'1199dd'
+            }
+        }
+        return $cordovaLocalNotification.schedule(note);
+    }
+    return {
+        add:function(msg){
+            if(msg.contentType=='custom' && (msg.content.type=='counsel-upgrade' || msg.content.type=='count-notice')) return;
 
+            var matchId = msg.targetType=='single'?msg.fromID:msg.targetID;
+            matchId=Number(matchId.slice(1));
+            return $cordovaLocalNotification.getAll()
+                .then(function(notes){
+                    var pos=arrTool.indexOf(notes,'id',matchId);
+                    if(pos==-1) return null;
+                    return notes[pos];
+                }).then(function(note){
+                    if(note==null){
+                        return schedulNote(msg);
+                    }else{
+                        return schedulNote(msg,note);
+                    }
+                });
+        },
+        remove:function(id){
+            var matchId=Number(id.slice(1));
+            return $cordovaLocalNotification.cancel(matchId);
+        }
+    }
+}])
