@@ -62,7 +62,7 @@
 
             <label  class="item item-input item-select-custom" ng-if="showProgress">
                 <div class="input-label" style="margin-left:13px ">疾病进程</div>
-                    <select ng-model="User.class_info" ng-options=" DiseaseDetail.name for DiseaseDetail in DiseaseDetails track by DiseaseDetail.code">
+                    <select ng-disabled="!canEdit" ng-model="User.class_info" ng-options=" DiseaseDetail.name for DiseaseDetail in DiseaseDetails track by DiseaseDetail.code">
                     </select>
                     <span class="tick" ng-if="canEdit">
                     <i style="color:#6ac4f8;"  class="icon ion-checkmark-circled placeholder-icon"></i>
