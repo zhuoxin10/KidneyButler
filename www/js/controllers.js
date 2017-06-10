@@ -998,10 +998,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     params    :{
                                         'regsubmit':'yes',
                                         'formhash':'',
-                                        'username':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                        'password':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                        'password2':$scope.User.name+Storage.get('USERNAME').slice(7),
-                                        'email':Storage.get('USERNAME')+'@bme319.com'
+                                        'username':patientId,
+                                        'password':patientId,
+                                        'password2':patientId,
+                                        'email':patientId+'@bme319.com'
                                     },  // pass in data as strings
                                     headers : {
                                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -5146,7 +5146,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       $cordovaBarcodeScanner.scan().then(function(imageData) {
           // alert(imageData.text);
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
-            if(res.result=="修改成功"){
+            console.log(res)
+            if(res.results=="修改成功" || res.results.errcode == 40037){
               $ionicPopup.alert({
                title: '绑定成功！'
               }).then(function(res) {
@@ -5449,7 +5450,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-
+                  ionicLoadingshow();
                   var json = 'http://ipv4.myexternalip.com/json';
                     $http.get(json).then(function(result) {
                         console.log(result.data.ip)
@@ -5476,7 +5477,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                           // alert(JSON.stringify(orderdata));
                           // alert(orderdata.results.prepay_id[0])
                             // $ionicLoading.hide();
-                            ionicLoadingshow();
+                            ionicLoadinghide();
                             var params = {
                               'appid': orderdata.results.appId,
                               'package': 'Sign=WXPay',
@@ -5491,7 +5492,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert("Success");
                                 //chargedoc
                                 $q.all([
-                                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:0}).then(function(data){
+                                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
                                         console.log(data)
                                         return data
                                     },function(err){
@@ -5504,7 +5505,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         console.log(err)
                                     })
                                 ]).then(function(allres){
-                                    ionicLoadinghide();
+                                    
                                     $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
                                 })
                             }, function (reason) {
@@ -5557,6 +5558,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     console.log(data.result)
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                      ionicLoadingshow();
                         var json = 'http://ipv4.myexternalip.com/json';
                         $http.get(json).then(function(result) {
                             if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -5567,7 +5569,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
                                 // "money":$scope.doctor.charge1*100,
-                                "money":($scope.doctor.charge2-$scope.doctor.charge1)*100,
+                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
                                 "class":"03",
                                 "name":"升级",
                                 "notes":DoctorId,
@@ -5581,7 +5583,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             Mywechat.addOrder(neworder).then(function(orderdata){
                               // alert(JSON.stringify(orderdata));
                               // alert(orderdata.results.prepay_id[0])
-                              ionicLoadingshow();
+                              ionicLoadinghide();
                                 var params = {
                                   'appid': orderdata.results.appId,
                                   'package': 'Sign=WXPay',
@@ -5596,7 +5598,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Success");
                                     //chargedoc
                                     $q.all([
-                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:0}).then(function(data){
+                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
                                         console.log(data)
                                       },function(err){
                                         console.log(err)
@@ -5630,7 +5632,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
                                         $scope.$on('im:messageRes',function(event,data){
                                           // socket.off('messageRes');
-                                          ionicLoadinghide();
                                           $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
                                         })
                                     })
@@ -5710,6 +5711,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
+                    ionicLoadingshow();
                     var json = 'http://ipv4.myexternalip.com/json';
                         $http.get(json).then(function(result) {
                             if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -5720,7 +5722,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
                                 // "money":$scope.doctor.charge1*100,
-                                "money":($scope.doctor.charge2-$scope.doctor.charge1)*100,
+                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
                                 "class":"03",
                                 "name":"升级",
                                 "notes":DoctorId,
@@ -5734,7 +5736,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             Mywechat.addOrder(neworder).then(function(orderdata){
                               // alert(JSON.stringify(orderdata));
                               // alert(orderdata.results.prepay_id[0])
-                              ionicLoadingshow();
+                              ionicLoadinghide();
                                 var params = {
                                   'appid': orderdata.results.appId,
                                   'package': 'Sign=WXPay',
@@ -5748,7 +5750,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 Wechat.sendPaymentRequest(params, function () {
                                     // alert("Success");
                                     $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:0}).then(function(data){
+                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
                                           console.log(data)
                                         },function(err){
                                           console.log(err)
@@ -5761,7 +5763,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                           console.log(err)
                                         })
                                     ]).then(function(allres){
-                                        ionicLoadinghide();
+                                        // ionicLoadinghide();
                                         $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                     })
                                 }, function (reason) {
@@ -5795,7 +5797,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
 
-
+                    ionicLoadingshow();
                     var json = 'http://ipv4.myexternalip.com/json';
                     $http.get(json).then(function(result) {
                         if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -5820,7 +5822,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         Mywechat.addOrder(neworder).then(function(orderdata){
                           // alert(JSON.stringify(orderdata));
                           // alert(orderdata.results.prepay_id[0])
-                            ionicLoadingshow();
+                            ionicLoadinghide();
                             var params = {
                               'appid': orderdata.results.appId,
                               'package': 'Sign=WXPay',
@@ -5835,7 +5837,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert("Success");
                               //chargedoc
                               $q.all([
-                                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:0}).then(function(data){
+                                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
                                       console.log(data)
                                       // alert(data)
                                     },function(err){
@@ -5849,7 +5851,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     })
                                 ]).then(function(allres){
                                     // alert("allres:"+allres)
-                                    ionicLoadinghide();
+                                    // ionicLoadinghide();
                                     $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                                 })
                             }, function (reason) {
@@ -6080,6 +6082,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
+                  ionicLoadingshow();
                   var json = 'http://ipv4.myexternalip.com/json';
                     $http.get(json).then(function(result) {
                         if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -6104,7 +6107,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         Mywechat.addOrder(neworder).then(function(orderdata){
                           // alert(JSON.stringify(orderdata));
                           // alert(orderdata.results.prepay_id[0])
-                            // $ionicLoading.hide();
+                            ionicLoadinghide();
                             var params = {
                               'appid': orderdata.results.appId,
                               'package': 'Sign=WXPay',
@@ -6118,10 +6121,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             Wechat.sendPaymentRequest(params, function () {
                                 // alert("Success");
                                 //chargedoc
-                                ionicLoadingshow();
                                   
                                 $q.all([
-                                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:0}).then(function(data){
+                                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
                                     console.log(data)
                                   },function(err){
                                     console.log(err)
@@ -6133,7 +6135,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     console.log(err)
                                   })
                                 ]).then(function(alllres){
-                                    ionicLoadinghide();
+                                    // ionicLoadinghide();
                                     $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
                                 })
                             }, function (reason) {
@@ -6188,6 +6190,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     console.log(data.result)
                     if(data.result=="修改成功"){
                       //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                      ionicLoadingshow();
                         var json = 'http://ipv4.myexternalip.com/json';
                         $http.get(json).then(function(result) {
                             if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -6198,7 +6201,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
                                 // "money":$scope.doctor.charge1*100,
-                                "money":($scope.doctor.charge2-$scope.doctor.charge1)*100,
+                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
                                 "class":"03",
                                 "name":"升级",
                                 "notes":DoctorId,
@@ -6213,6 +6216,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                               // alert(JSON.stringify(orderdata));
                               // alert(orderdata.results.prepay_id[0])
                                 // $ionicLoading.hide();
+                                ionicLoadinghide();
                                 var params = {
                                   'appid': orderdata.results.appId,
                                   'package': 'Sign=WXPay',
@@ -6226,9 +6230,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 Wechat.sendPaymentRequest(params, function () {
                                     // alert("Success");
                                     //chargedoc
-                                    ionicLoadingshow();
+                                    // ionicLoadingshow();
                                     $q.all([
-                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:0}).then(function(data){
+                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
                                         console.log(data)
                                       },function(err){
                                         console.log(err)
@@ -6263,7 +6267,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         $scope.$on('im:messageRes',function(event,data){
                                           // socket.off('messageRes');
                                           // socket.emit('disconnect');
-                                          ionicLoadinghide();
+                                          // ionicLoadinghide();
                                           $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
                                         })
                                     })
@@ -6341,6 +6345,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
+                    ionicLoadingshow();
                     var json = 'http://ipv4.myexternalip.com/json';
                         $http.get(json).then(function(result) {
                             if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -6351,7 +6356,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
                                 // "money":$scope.doctor.charge1*100,
-                                "money":($scope.doctor.charge2-$scope.doctor.charge1)*100,
+                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
                                 "class":"03",
                                 "name":"升级",
                                 "notes":DoctorId,
@@ -6366,6 +6371,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                               // alert(JSON.stringify(orderdata));
                               // alert(orderdata.results.prepay_id[0])
                                 // $ionicLoading.hide();
+                                ionicLoadinghide();
                                 var params = {
                                   'appid': orderdata.results.appId,
                                   'package': 'Sign=WXPay',
@@ -6378,9 +6384,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert(JSON.stringify(params));
                                 Wechat.sendPaymentRequest(params, function () {
                                     // alert("Success");
-                                    ionicLoadingshow();
+                                    // ionicLoadingshow();
                                     $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:0}).then(function(data){
+                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
                                           console.log(data)
                                         },function(err){
                                           console.log(err)
@@ -6393,7 +6399,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                           console.log(err)
                                         })
                                     ]).then(function(allres){
-                                        ionicLoadinghide();
+                                        // ionicLoadinghide();
                                         $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                     })
                                 }, function (reason) {
@@ -6426,7 +6432,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
-
+                    ionicLoadingshow();
                     var json = 'http://ipv4.myexternalip.com/json';
                         $http.get(json).then(function(result) {
                             if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
@@ -6451,7 +6457,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             Mywechat.addOrder(neworder).then(function(orderdata){
                               // alert(JSON.stringify(orderdata));
                               // alert(orderdata.results.prepay_id[0])
-                                // $ionicLoading.hide();
+                                ionicLoadinghide();
                                 var params = {
                                   'appid': orderdata.results.appId,
                                   'package': 'Sign=WXPay',
@@ -6465,21 +6471,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 Wechat.sendPaymentRequest(params, function () {
                                     // alert("Success");
                                     //chargedoc
-                                    ionicLoadingshow();
+                                    // ionicLoadingshow();
                                     $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:0}).then(function(data){
+                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
                                           console.log(data)
                                         },function(err){
                                           console.log(err)
                                         }),
                                         //plus doc answer count  patientId:doctorId:modify
-                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:2}).then(function(data){
+                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
                                           console.log(data)
                                         },function(err){
                                           console.log(err)
                                         })
                                     ]).then(function(allres){
-                                        ionicLoadinghide();
+                                        // ionicLoadinghide();
                                         $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
                                     })
                                 }, function (reason) {
@@ -7787,7 +7793,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     var userId=Storage.get('UID');
 
-    $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+userId+"&password="+userId;
+    $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+userId+"&password="+userId);
     $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
     // Patient.getPatientDetail({userId: Storage.get('UID')})
     // .then(function(data)
