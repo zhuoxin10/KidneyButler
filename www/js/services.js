@@ -25,6 +25,17 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
+    // 正式服务器地址
+
+    // baseUrl: 'http://121.196.221.44:4050/',
+    // mediaUrl: 'http://121.196.221.44:8052/',
+    // socketServer:'ws://121.196.221.44:4050/',
+    // imgThumbUrl: 'http://121.196.221.44:8052/uploads/photos/resize',
+    // imgLargeUrl: 'http://121.196.221.44:8052/uploads/photos/',
+
+
+
+    // 测试服务器地址
     baseUrl: 'http://121.43.107.106:4050/',
     mediaUrl: 'http://121.43.107.106:8052/',
     socketServer:'ws://121.43.107.106:4050/',
@@ -1277,6 +1288,55 @@ angular.module('kidney.services', ['ionic','ngResource'])
        },function(){
        })
     }
+    //血透任务执行后处理
+    var HemoTaskDone = function (task, flag)
+    {
+       //console.log(task);
+       var dateStr = task.DateStr;
+       var StartArry = dateStr.split('+')[0].split(',');
+       var Mediean = dateStr.split('+')[1];
+       var EndArry = [];
+       var content;
+       if(dateStr.split('+')[2])
+       {
+          EndArry = dateStr.split('+')[2].split(',');
+       }
+       var instructionArry = task.instruction.split('，');
+       if(instructionArry.length > EndArry.length) //判断是添加还是修改，修改不加次数
+       {
+          var newEnd = dateNowStr;
+          EndArry.push(newEnd);
+          task.Progress = (Math.round(EndArry.length/task.times * 10000)/100).toFixed(2) + '%'; //更新进度条
+       }
+
+        if(EndArry.length == task.times)
+        {
+            task.Flag = true;
+        }
+        content =  GetHemoStr(StartArry, Mediean, EndArry);
+
+        //更新任务完成时间
+
+        task.endTime = EndArry.join(",");
+        task.DateStr =  GetHemoStr(StartArry, Mediean, EndArry);
+
+        //更新任务模板
+        item = {
+                    "userId":UserId,
+                    "type":task.type,
+                    "code":task.code,
+                    "instruction":task.instruction,
+                    "content":task.DateStr,
+                    "startTime":'2050-11-02T07:58:51.718Z',
+                    "endTime":'2050-11-02T07:58:51.718Z',
+                    "times":task.times,
+                    "timesUnits":task.timesUnits,
+                    "frequencyTimes":task.frequencyTimes,
+                    "frequencyUnits":task.frequencyUnits
+                };
+        console.log(item);
+        UpdateUserTask(item);
+    }
 
     var OtherTaskDone = function (task, Description)
     {
@@ -1301,18 +1361,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
         task.startTime = NextTime;//更改页面显示
         task.endTime = dateNowStr;
         item = {
-                    "userId":UserId,
-                    "type":task.type,
-                    "code":task.code,
-                    "instruction":task.instruction,
-                    "content":task.content,
-                    "startTime":NextTime,
-                    "endTime":task.endTime,
-                    "times":task.times,
-                    "timesUnits":task.timesUnits,
-                    "frequencyTimes":task.frequencyTimes,
-                    "frequencyUnits":task.frequencyUnits
-                };
+            "userId":UserId,
+            "type":task.type,
+            "code":task.code,
+            "instruction":task.instruction,
+            "content":task.content,
+            "startTime":NextTime,
+            "endTime":task.endTime,
+            "times":task.times,
+            "timesUnits":task.timesUnits,
+            "frequencyTimes":task.frequencyTimes,
+            "frequencyUnits":task.frequencyUnits
+        };
         console.log(item);
         UpdateUserTask(item);  //更改任务下次执行时间
     }
@@ -1320,19 +1380,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
     this.Postcompliance_UpdateTaskStatus = function (task,otherTasks,healthID)
     {
          // console.log(otherTasks);
-         var item = {
+        var item = {
                         "userId": UserId,
                         "type": task.type,
                         "code": task.code,
                         "date": dateNowStr,
                         "status": 0,
                         "description": healthID
-                      };
-         var promise = Compliance.postcompliance(item);
-         promise.then(function(data){
-            console.log(data);
-           if(data.results)
-           {
+                    };
+        // console.log(item);
+        var promise = Compliance.postcompliance(item);
+        promise.then(function(data){
+            // console.log(data);
+            if(data.results)
+            {
                 console.log(data.results);
                 var Code = data.results.code;
                 var Description = data.results.description;
@@ -1341,7 +1402,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
                     var task = otherTasks[i];
                     if(task.code == Code)
                     {
-                        console.log(task);
+                        // console.log(task);
                         OtherTaskDone(task, Description);
                         break;
                     }
