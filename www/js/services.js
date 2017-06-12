@@ -571,19 +571,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $q(function(resolve, reject) {
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
               console.log(imageUrl)
+              resolve(imageUrl)
               // file manipulation
-              var tail=imageUrl.lastIndexOf('?');
-              if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
-              else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
-              fs.mvMedia('image',fileName,'.jpg')
-              .then(function(res){
-                console.log(res);
-                //res: file URL
-                resolve(res);
-              },function(err){
-                console.log(err);
-                reject(err);
-              })
+              // var tail=imageUrl.lastIndexOf('?');
+              // if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
+              // else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
+              // fs.mvMedia('image',fileName,'.jpg')
+              // .then(function(res){
+              //   console.log(res);
+              //   //res: file URL
+              //   resolve(res);
+              // },function(err){
+              //   console.log(err);
+              //   reject(err);
+              // })
           }, function(err) {
             console.log(err);
               reject('fail to get image');
@@ -595,19 +596,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return $q(function(resolve, reject) {
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
               console.log(imageUrl)
+              resolve(imageUrl)
               // file manipulation
-              var tail=imageUrl.lastIndexOf('?');
-              if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
-              else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
-              fs.mvMedia('image',fileName,'.jpg')
-              .then(function(res){
-                console.log(res);
-                //res: file URL
-                resolve(res);
-              },function(err){
-                console.log(err);
-                reject(err);
-              })
+              // var tail=imageUrl.lastIndexOf('?');
+              // if(tail!=-1) var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1,tail);
+              // else var fileName=imageUrl.slice(imageUrl.lastIndexOf('/')+1);
+              // fs.mvMedia('image',fileName,'.jpg')
+              // .then(function(res){
+              //   console.log(res);
+              //   //res: file URL
+              //   resolve(res);
+              // },function(err){
+              //   console.log(err);
+              //   reject(err);
+              // })
           }, function(err) {
             console.log(err);
               reject('fail to get image');

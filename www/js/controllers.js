@@ -5448,7 +5448,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             "paystatus":0,
                             "paytime":new Date(),
                             "ip":result.data.ip,
-                            "trade_type":"APP"
+                            "trade_type":"APP",
+                            "body_description":"咨询服务"
                           }
 
                         // alert(JSON.stringify(neworder));
@@ -5495,10 +5496,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert("Failed: " + reason);
                             });
                         },function(err){
-                            defer.reject(err);
+                            console.log(err);
                         })
                     }, function(e) {
-                        defer.reject(e);
+                        console.log(e);
                     });
                 }else{
                   $scope.consultable=1
@@ -5555,7 +5556,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "paystatus":0,
                                 "paytime":new Date(),
                                 "ip":result.data.ip,
-                                "trade_type":"APP"
+                                "trade_type":"APP",
+                                "body_description":"咨询升级服务"
                               }
 
                             // alert(JSON.stringify(neworder));
@@ -5622,10 +5624,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
-                                defer.reject(err);
+                                console.log(err);
                             })
                         }, function(e) {
-                            defer.reject(e);
+                            console.log(e);
                         });
 
 
@@ -5708,7 +5710,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "paystatus":0,
                                 "paytime":new Date(),
                                 "ip":result.data.ip,
-                                "trade_type":"APP"
+                                "trade_type":"APP",
+                                "body_description":"咨询升级服务"
                               }
 
                             // alert(JSON.stringify(neworder));
@@ -5753,10 +5756,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
-                                defer.reject(err);
+                                console.log(err);
                             })
                         }, function(e) {
-                            defer.reject(e);
+                            console.log(e);
                         });
                     
                   }else{
@@ -5794,7 +5797,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             "paystatus":0,
                             "paytime":new Date(),
                             "ip":result.data.ip,
-                            "trade_type":"APP"
+                            "trade_type":"APP",
+                            "body_description":"问诊服务"
                           }
 
                         // alert(JSON.stringify(neworder));
@@ -5841,10 +5845,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert("Failed: " + reason);
                             });
                         },function(err){
-                            defer.reject(err);
+                            console.log(err);
                         })
                     }, function(e) {
-                        defer.reject(e);
+                        console.log(e);
                     });
                     
                   }else{
@@ -6079,7 +6083,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             "paystatus":0,
                             "paytime":new Date(),
                             "ip":result.data.ip,
-                            "trade_type":"APP"
+                            "trade_type":"APP",
+                            "body_description":"咨询服务"
                           }
 
                         // alert(JSON.stringify(neworder));
@@ -6125,10 +6130,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 // alert("Failed: " + reason);
                             });
                         },function(err){
-                            defer.reject(err);
+                            console.log(err);
                         })
                     }, function(e) {
-                        defer.reject(e);
+                        console.log(e);
                     });
                   
                 }else{
@@ -6187,7 +6192,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "paystatus":0,
                                 "paytime":new Date(),
                                 "ip":result.data.ip,
-                                "trade_type":"APP"
+                                "trade_type":"APP",
+                                "body_description":"咨询升级服务"
                               }
 
                             // alert(JSON.stringify(neworder));
@@ -6258,10 +6264,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
-                                defer.reject(err);
+                                console.log(err);
                             })
                         }, function(e) {
-                            defer.reject(e);
+                            console.log(e);
                         });
                       
                       // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
@@ -6342,7 +6348,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "paystatus":0,
                                 "paytime":new Date(),
                                 "ip":result.data.ip,
-                                "trade_type":"APP"
+                                "trade_type":"APP",
+                                "body_description":"咨询升级服务"
                               }
 
                             // alert(JSON.stringify(neworder));
@@ -6389,10 +6396,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
-                                defer.reject(err);
+                                console.log(err);
                             })
                         }, function(e) {
-                            defer.reject(e);
+                            console.log(e);
                         });
                     
                   }else{
@@ -6429,7 +6436,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "paystatus":0,
                                 "paytime":new Date(),
                                 "ip":result.data.ip,
-                                "trade_type":"APP"
+                                "trade_type":"APP",
+                                "body_description":"问诊服务"
                               }
 
                             // alert(JSON.stringify(neworder));
@@ -6475,10 +6483,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
-                                defer.reject(err);
+                                console.log(err);
                             })
                         }, function(e) {
-                            defer.reject(e);
+                            console.log(e);
                         });
                     
                   }else{
