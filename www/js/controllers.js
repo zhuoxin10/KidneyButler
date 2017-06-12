@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','JM','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,JM,$sce,Mywechat,Patient,toServer) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$sce,Mywechat,Patient,toServer) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
     $scope.autologflag=0;
     if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
@@ -111,8 +111,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         //         return newuser;
                         //     }(),10000);
                         // })
-                        //jmessage login
-                        // JM.login(data.results.userId);
 
                         
 
@@ -3555,7 +3553,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$ionicHistory','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($ionicHistory,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
     $scope.input = {
         text: ''
     }
@@ -3674,6 +3672,28 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         imgModalInit();
     });
+    
+    $scope.$on('$ionicView.leave', function() {
+        for(var i in $scope.timer) clearTimeout($scope.timer[i]);
+        // socket.off('messageRes');
+        // socket.off('getMsg');
+        // socket.off('err');
+        // socket.emit('disconnect');
+        $scope.msgs = [];
+        if($scope.modal)$scope.modal.remove();
+        $rootScope.conversation.type = null;
+        $rootScope.conversation.id = '';
+    });
+    $scope.$on('keyboardshow', function(event, height) {
+        $scope.params.helpDivHeight = height + 60;
+        setTimeout(function() {
+            $scope.scrollHandle.scrollBottom();
+        }, 100);
+
+    });
+    $scope.$on('keyboardhide', function(event) {
+        $scope.params.helpDivHeight = 60;
+    });
     $scope.$on('im:getMsg',function(event,data){
         console.info('getMsg');
         console.log(data);
@@ -3701,6 +3721,37 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 $scope.updateMsg(data.msg);
             });
         }
+    });
+
+    $scope.$on('image', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.imageUrl = args[2].localPath || (CONFIG.mediaUrl + (args[2].src|| args[2].src_thumb));
+        $scope.modal.show();
+    })
+    $scope.$on('voice', function(event, args) {
+        console.log(args)
+        event.stopPropagation();
+        $scope.sound = new Media(args[1],
+            function() {
+                // resolve(audio.media)
+            },
+            function(err) {
+                console.log(err);
+                // reject(err);
+            })
+        $scope.sound.play();
+    });
+    $scope.$on('profile', function(event, args) {
+        event.stopPropagation();
+        if(args[1].direct=='receive'){
+            $state.go('tab.DoctorDetail',{DoctorId:args[1].fromID});
+        }
+    });
+    $scope.$on('gopingjia', function(event, args) {
+        event.stopPropagation();
+        $state.go('tab.consult-comment',{counselId:$scope.params.counsel.counselId,doctorId:$scope.params.chatId,patientId:$scope.params.counsel.patientId.userId});
     });
     function sendNotice(type,status,cnt){
         var t = setTimeout(function(){
@@ -3831,13 +3882,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
     }
 
-    $scope.$on('image', function(event, args) {
-        console.log(args)
-        event.stopPropagation();
-        $scope.imageHandle.zoomTo(1, true);
-        $scope.imageUrl = args[2].localPath || (CONFIG.mediaUrl + (args[2].src|| args[2].src_thumb));
-        $scope.modal.show();
-    })
     $scope.closeModal = function() {
         $scope.imageHandle.zoomTo(1, true);
         $scope.modal.hide();
@@ -3850,34 +3894,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             $scope.imageHandle.zoomTo(5, true);
         }
     }
-    $scope.$on('voice', function(event, args) {
-        console.log(args)
-        event.stopPropagation();
-        $scope.sound = new Media(args[1],
-            function() {
-                // resolve(audio.media)
-            },
-            function(err) {
-                console.log(err);
-                // reject(err);
-            })
-        $scope.sound.play();
-    });
-    $scope.$on('profile', function(event, args) {
-        event.stopPropagation();
-        if(args[1].direct=='receive'){
-            $state.go('tab.DoctorDetail',{DoctorId:args[1].fromID});
-        }
-    });
-    $scope.$on('gopingjia', function(event, args) {
-        event.stopPropagation();
-        $state.go('tab.consult-comment',{counselId:$scope.params.counsel.counselId,doctorId:$scope.params.chatId,patientId:$scope.params.counsel.patientId.userId});
-    });
-
+    
     //病例Panel
-    $scope.togglePanel = function() {
-        $scope.params.hidePanel = !$scope.params.hidePanel;
-    }
+    // $scope.togglePanel = function() {
+    //     $scope.params.hidePanel = !$scope.params.hidePanel;
+    // }
 
     $scope.updateMsg = function(msg){
         console.info('updateMsg');
@@ -4017,16 +4038,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         sendmsg($scope.input.text, 'text');
         $scope.input.text = '';
     }
-
-    // $scope.submitMsg = function() {
-    //   if($scope.counselstatus!=1){
-
-    //         window.JMessage.sendSingleTextMessage($state.params.chatId, $scope.input.text, CONFIG.crossKey,onSendSuccess, onSendErr);
-    //         $scope.input.text = '';
-    //         viewUpdate(5, true);
-    //         // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-    //   }else{nomoney();}
-    // }
         //get image
     $scope.getImage = function(type) {
         if($scope.counselstatus!=1) return nomoney();
@@ -4053,22 +4064,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 console.error(err);
             });
     };
-
-    // $scope.getImage = function(type) {
-    //   if(Storage.get('STATUSNOW')==1){
-    //         Camera.getPicture(type)
-    //             .then(function(url) {
-    //                 console.log(url);
-
-    //                 window.JMessage.sendSingleImageMessage($state.params.chatId, url, CONFIG.crossKey, onSendSuccess, onSendErr);
-    //                 viewUpdate(5, true);
-    //                 // window.JMessage.getHistoryMessages("single",$state.params.chatId,"",0,3,addNewSend,null);
-
-    //             }, function(err) {
-    //                 console.log(err)
-    //             })
-    //     }else{nomoney();}
-    //   }
         //get voice
     $scope.getVoice = function(){
       if($scope.counselstatus!=1) return nomoney();
@@ -4077,13 +4072,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         voice.record()
         .then(function(fileUrl){
             $scope.params.recording=false;
-            window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,CONFIG.crossKey,
-            function(res){
-                console.log(res);
-                viewUpdate(5,true);
-            },function(err){
-                console.log(err);
-            });
+            // window.JMessage.sendSingleVoiceMessage($state.params.chatId,fileUrl,CONFIG.crossKey,
+            // function(res){
+            //     console.log(res);
+            //     viewUpdate(5,true);
+            // },function(err){
+            //     console.log(err);
+            // });
             viewUpdate(5,true);
         },function(err){
             console.log(err);
@@ -4094,62 +4089,46 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         voice.stopRec();
     }
 
+    // // $scope.goChats = function() {
+    // $scope.backview = $ionicHistory.viewHistory().backView
+    // $scope.backstateId = null;
+    // if ($scope.backview != null) {
+    //     $scope.backstateId = $scope.backview.stateId
+    // }
+    // console.log($scope.backview)
     // $scope.goChats = function() {
-    $scope.backview = $ionicHistory.viewHistory().backView
-    $scope.backstateId = null;
-    if ($scope.backview != null) {
-        $scope.backstateId = $scope.backview.stateId
-    }
-    console.log($scope.backview)
-    $scope.goChats = function() {
-        console.log($scope.backstateId);
-        // $ionicHistory.nextViewOptions({
-        //     disableBack: true
-        // });
-        if ($scope.backstateId == "tab.myConsultRecord") {
-            $state.go("tab.myConsultRecord")
-        } else if ($scope.backstateId == "messages") {
-            $state.go('messages');
-        } else {
-            $state.go('tab.myDoctors');
-        }
-        // $ionicHistory.goBack();
-    }
+    //     console.log($scope.backstateId);
+    //     // $ionicHistory.nextViewOptions({
+    //     //     disableBack: true
+    //     // });
+    //     if ($scope.backstateId == "tab.myConsultRecord") {
+    //         $state.go("tab.myConsultRecord")
+    //     } else if ($scope.backstateId == "messages") {
+    //         $state.go('messages');
+    //     } else {
+    //         $state.go('tab.myDoctors');
+    //     }
+    //     // $ionicHistory.goBack();
+    // }
 
 
     // }
 
 
-    $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 60;
-        setTimeout(function() {
-            $scope.scrollHandle.scrollBottom();
-        }, 100);
+    
 
-    })
-    $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 60;
-        // $ionicScrollDelegate.scrollBottom();
-    })
-    $scope.$on('$ionicView.leave', function() {
-        for(var i in $scope.timer) clearTimeout($scope.timer[i]);
-        // socket.off('messageRes');
-        // socket.off('getMsg');
-        // socket.off('err');
-        // socket.emit('disconnect');
-        $scope.msgs = [];
-        if($scope.modal)$scope.modal.remove();
-        $rootScope.conversation.type = null;
-        $rootScope.conversation.id = '';
-    })
-
-    $scope.chatBack = function(){
-      console.log($ionicHistory.backView().stateId);
-      if($ionicHistory.backView().stateId=='tab.consultquestion3'){
-        $state.go('tab.myDoctors');
-      }else{
-         $ionicHistory.goBack();
-      }
+    
+    $scope.chatBack = function () {
+        var allowedBackviews = [
+            'tab.myConsultRecord',
+            'messages'
+        ];
+        console.log($ionicHistory.backView().stateId);
+        if (allowedBackviews.indexOf($ionicHistory.backView().stateId) == -1) {
+            $state.go('tab.myDoctors');
+        } else {
+            $ionicHistory.goBack();
+        }
     }
 }])
 
@@ -5924,7 +5903,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 
-.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket) {
+.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket) {
 
   $scope.GoBack = function(){
     // console.log('111');
@@ -6864,7 +6843,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 }])
 //咨询问卷--TDY
-.controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','JM','CONFIG','Health','Account','socket',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,JM,CONFIG,Health,Account,socket) {
+.controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','CONFIG','Health','Account','socket',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,CONFIG,Health,Account,socket) {
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   var patientId = Storage.get('UID')
@@ -7674,32 +7653,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $state.go('tab.consult-chat',{chatId:DoctorId});
                 }
             });
-          // var msgdata={
-          //   counsel:data.results,
-          //   counselId:data.results.counselId,
-          //   type:'card',
-          //   patientId:patientId,
-          //   patientName:$scope.BasicInfo.name,
-          //   doctorId:DoctorId,
-          //   fromId:patientId,
-          //   targetId:DoctorId
-          // }
-          // temp.consultId=data.results.counselId;
-          // temp.type='card';
-          // if (window.JMessage) {
-          //   console.log(DoctorId)
-          //   window.JMessage.sendSingleCustomMessage(DoctorId, msgdata, CONFIG.crossKey,
-          //   function(data) {
-          //       console.log(data)
-          //       console.log(DoctorId)
-          //       $state.go("tab.consult-chat", { chatId: DoctorId });
-          //   },
-          //   function(err) {
-          //       console.log(err)
-
-          //   });
-          // }
-
         }
         console.log(data.results)
       },
