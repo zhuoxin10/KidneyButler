@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$sce,Mywechat,Patient,toServer) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','Data','User','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,Data,User,$sce,Mywechat,Patient,toServer) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
     $scope.autologflag=0;
     if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
@@ -13,36 +13,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
-    User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
-      if(data.results.mesg=="login success!"){
-        Storage.set('isSignIn',"Yes");
-        Storage.set('UID',data.results.userId);//后续页面必要uid
-        Storage.set('bindingsucc','yes')
-        Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-                if(data.results){
-                    $timeout(function(){$state.go('tab.tasklist');},500);
-                    toServer.newUser(data.results.name,data.results.userId);
-                }
-              });
+      User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+        if(data.results.mesg=="login success!"){
+          Storage.set('isSignIN',"Yes");
+          Storage.set('UID',data.results.userId);//后续页面必要uid
+          Storage.set('bindingsucc','yes');
+          var name = data.results.userName?data.results.userName:data.results.userId;
+          toServer.newUser(name,data.results.userId);
+          $timeout(function(){$state.go('tab.tasklist');},500);
+          
+              
         // $state.go('tab.tasklist')  
-      }
-    })
-  }else if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
-    User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
-      if(data.results.mesg=="login success!"){
-        Storage.set('isSignIn',"Yes");
-        Storage.set('UID',data.results.userId);//后续页面必要uid
-        // Storage.set('bindingsucc','yes')
-        Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-            if(data.results){
-                $timeout(function(){$state.go('tab.tasklist');},500);
-                toServer.newUser(data.results.name,data.results.userId);
-            }
-          });
-        // $state.go('tab.tasklist')  
-      }
-    })
-  }
+        }
+      });
+    }else if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
+      User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
+        if(data.results.mesg=="login success!"){
+          Storage.set('isSignIN',"Yes");
+          Storage.set('UID',data.results.userId);//后续页面必要uid
+          // Storage.set('bindingsucc','yes')
+          var name = data.results.userName?data.results.userName:data.results.userId;
+          toServer.newUser(name,data.results.userId);
+          $timeout(function(){$state.go('tab.tasklist');},500);
+          
+          // $state.go('tab.tasklist')  
+        }
+      })
+    }
     $scope.signIn = function(logOn) {
         $scope.logStatus='';
         if((logOn.username!="") && (logOn.password!="")){
@@ -76,12 +73,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         $ionicHistory.clearHistory();
                         Storage.set('PASSWORD',logOn.password);
                         Storage.set('TOKEN',data.results.token);//token作用目前还不明确
-                        Storage.set('isSignIn',"Yes");
+                        Storage.set('isSignIN',"Yes");
                         Storage.set('UID',data.results.userId);
                         // Storage.set('UName',data.results.userName);
                         //如果姓名不为空就发送姓名，否则直接发送id
                         var name = data.results.userName?data.results.userName:data.results.userId;
-                        toServer.newUser(data.results.userName,data.results.userId);
+                        toServer.newUser(name,data.results.userId);
                         User.getAgree({userId:data.results.userId}).then(function(res){
                             if(res.results.agreement=="0"){
                                 $timeout(function(){$state.go('tab.tasklist');},500);
@@ -167,7 +164,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
                 // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
-                  Storage.set('isSignIn',"Yes");
+                  Storage.set('isSignIN',"Yes");
                   Storage.set('UID',ret.UserId);//后续页面必要uid
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
                   Storage.set('bindingsucc','yes')
@@ -420,7 +417,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //设置密码  --PXY
-.controller('setPasswordCtrl', ['$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
+.controller('setPasswordCtrl', ['$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
     $scope.BackMain = function(){
         $state.go('signin');
     }
@@ -483,6 +480,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         console.log(response)
                                     });
                                 }
+                                //注册论坛
+                                $http({
+                                    method  : 'POST',
+                                    url     : 'http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                                    params    :{
+                                        'regsubmit':'yes',
+                                        'formhash':'',
+                                        'username':patientId,
+                                        'password':patientId,
+                                        'password2':patientId,
+                                        'email':patientId+'@bme319.com'
+                                    },  // pass in data as strings
+                                    headers : {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                        'Accept':'application/xml, text/xml, */*'
+                                    }  // set the headers so angular passing info as form data (not request payload)
+                                }).success(function(data) {
+                                    // console.log(data);
+                                    $state.go('tab.tasklist');
+                                });
                                
 
                             }
@@ -1054,7 +1071,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     GetUnread();
 
-    if(Storage.get('isSignIn')=='Yes'){
+    if(Storage.get('isSignIN')=='Yes'){
         RefreshUnread = $interval(GetUnread,2000);
     }
     
@@ -3017,7 +3034,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     //Storage.clear();
                     Storage.rm('patientunionid')
                     Storage.rm('PASSWORD')
-                    Storage.set("IsSignIn","No");
+                    Storage.set("isSignIN","No");
                      Storage.set("USERNAME",USERNAME);
                      //$timeout(function () {
                      $ionicHistory.clearCache();
@@ -3454,7 +3471,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','$http','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,$http,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
     $scope.input = {
         text: ''
     }
