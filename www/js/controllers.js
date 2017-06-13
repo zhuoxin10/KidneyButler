@@ -5080,6 +5080,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     // console.log(123);
     // $ionicHistory.goBack();
   }
+  $scope.alldoctortype="88px"
+  if(ionic.Platform.isIOS()){
+    $scope.alldoctortype="108px"
+  }
   //清空搜索框
   $scope.searchCont = {};
 
