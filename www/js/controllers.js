@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$sce,Mywechat,Patient,toServer) {
+.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$sce','Mywechat','Patient','mySocket', function($scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$sce,Mywechat,Patient,mySocket) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
     $scope.autologflag=0;
     if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
@@ -21,7 +21,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                 if(data.results){
                     $timeout(function(){$state.go('tab.tasklist');},500);
-                    toServer.newUser(data.results.name,data.results.userId);
+                    mySocket.newUser(data.results.name,data.results.userId);
                 }
               });
         // $state.go('tab.tasklist')  
@@ -36,7 +36,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
             if(data.results){
                 $timeout(function(){$state.go('tab.tasklist');},500);
-                toServer.newUser(data.results.name,data.results.userId);
+                mySocket.newUser(data.results.name,data.results.userId);
             }
           });
         // $state.go('tab.tasklist')  
@@ -87,7 +87,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 User.getAgree({userId:data.results.userId}).then(function(res){
                                     if(res.results.agreement=="0"){
                                         $timeout(function(){$state.go('tab.tasklist');},500);
-                                        toServer.newUser(data.results.name,data.results.userId);
+                                        mySocket.newUser(data.results.name,data.results.userId);
                                         
                                     }else{
                                         $timeout(function(){$state.go('agreement',{last:'signin'});},500);
@@ -184,7 +184,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                     if(data.results){
                         $timeout(function(){$state.go('tab.tasklist');},500);
-                        toServer.newUser(data.results.name,data.results.userId);
+                        mySocket.newUser(data.results.name,data.results.userId);
                     }
                   });
                   // $state.go('tab.tasklist')  
@@ -208,14 +208,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 
-.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$ionicPopup','toServer', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$ionicPopup,toServer) {
+.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$ionicPopup','mySocket', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$ionicPopup,mySocket) {
     $scope.YesIdo = function(){
         console.log('yesido');
         if($stateParams.last=='signin'){
             User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(data){
                 if(data.results!=null){
                     $timeout(function(){$state.go('tab.tasklist');},500);
-                    toServer.newUser(Storage.get('UserFullName'),Storage.get('UID'));
+                    mySocket.newUser(Storage.get('UserFullName'),Storage.get('UID'));
 
                 }else{
                     console.log("用户不存在!");
@@ -523,7 +523,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //个人信息--PXY
-.controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User','toServer',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User,toServer){
+.controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User','mySocket',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User,mySocket){
     
 
     $scope.User = 
@@ -972,7 +972,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                 // console.log(data);
                 Storage.set('UserFullName',$scope.User.name)
-                toServer.newUser($scope.User.name,patientId);
+                mySocket.newUser($scope.User.name,patientId);
                 var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
                 Task.insertTask({userId:patientId,sortNo:task}).then(function(data){
                     if(data.result=="插入成功"){
@@ -3070,7 +3070,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //我的 页面--PXY
 //我的 页面--PXY
-.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce) {
+.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce','mySocket',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce,mySocket) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID')
@@ -3121,6 +3121,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     Storage.rm('PASSWORD')
                     Storage.set("IsSignIn","No");
                      Storage.set("USERNAME",USERNAME);
+                     mySocket.cancelAll();
                      //$timeout(function () {
                      $ionicHistory.clearCache();
                      $ionicHistory.clearHistory();
@@ -3580,7 +3581,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             counselstatus:'',
             needlisten:0,
             counsel:'',
-            connect:false,
+            loaded:false,
             recording:false
         }
         try{
@@ -3596,7 +3597,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         });
         $scope.getMsg(15).then(function(data){
             $scope.msgs=data;
-            toBottom(true,400);
+            $scope.params.loaded = true;
+            toBottom(false,400);
         });
     });
     $scope.$on('$ionicView.enter', function() {
@@ -3611,10 +3613,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                 Account.getCounts({doctorId:$scope.params.chatId,patientId:Storage.get('UID')})
                 .then(function(res){
-                    if($scope.params.connect){
+                    if($scope.params.loaded){
                         return sendNotice($scope.params.counseltype,$scope.counselstatus,res.result.count);
                     }else{
-                        var connectWatcher = $scope.$watch('params.connect',function(newv,oldv){
+                        var connectWatcher = $scope.$watch('params.loaded',function(newv,oldv){
                             if(newv) {
                                 connectWatcher();
                                 return sendNotice($scope.params.counseltype,$scope.counselstatus,res.result.count);
@@ -3666,7 +3668,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //         });
             //     }
             // });
-            $scope.params.connect=true;
+            // $scope.params.connect=true;
         }, function(err) {
 
         });
@@ -3754,10 +3756,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $state.go('tab.consult-comment',{counselId:$scope.params.counsel.counselId,doctorId:$scope.params.chatId,patientId:$scope.params.counsel.patientId.userId});
     });
     function sendNotice(type,status,cnt){
-        var t = setTimeout(function(){
+        // var t = setTimeout(function(){
             return sendCnNotice(type,status,cnt);
-        },2000);
-        $scope.timer.push(t);
+        // },2000);
+        // $scope.timer.push(t);
     }
     function sendCnNotice(type,status,cnt){
         var len=$scope.msgs.length;
@@ -3795,7 +3797,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 fromID:$scope.params.UID,
                 fromName:thisPatient.name,
                 fromUser:{
-                    avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+$scope.params.UID+'_myAvatar.jpg'
+                    // avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+$scope.params.UID+'_myAvatar.jpg'
                 },
                 targetID:$scope.params.chatId,
                 targetName:$scope.params.counsel.doctorId.name,
@@ -3803,10 +3805,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 status:'send_going',
                 createTimeInMillis: Date.now(),
                 newsType:11,
+                targetRole:'doctor',
                 content:notice
             }
-            socket.emit('message',{msg:msgJson,to:$scope.params.chatId,role:'patient'});
-            $scope.pushMsg(msgJson);
+            // socket.emit('message',{msg:msgJson,to:$scope.params.chatId,role:'patient'});
+            // $scope.pushMsg(msgJson);
+            $scope.msgs.push(msgJson);
         }
     }
     $scope.getMsg = function(num) {
@@ -3814,6 +3818,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         return $q(function(resolve, reject) {
             var q = {
                 messageType: '1',
+                newsType:'11',
                 id1: Storage.get('UID'),
                 id2: $scope.params.chatId,
                 skip: $scope.params.msgCount,
@@ -3912,13 +3917,24 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     $scope.pushMsg = function(msg){
         console.info('pushMsg');
-        if($scope.msgs.length==0){
+        var len = $scope.msgs.length;
+        if(len==0){
             msg.diff=true;
         }else{
-            msg.diff=(msg.createTimeInMillis - $scope.msgs[$scope.msgs.length-1].createTimeInMillis) > 300000 ? true : false;
+            var m = $scope.msgs[len-1];
+            if(m.contentType == 'custom' && m.content.type =='count-notice') {
+                m=$scope.msgs[len-2];
+            }
+            msg.diff=(msg.createTimeInMillis - m.createTimeInMillis) > 300000 ? true : false;
         }
-        msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
+        // if($scope.msgs.length==0){
+        //     msg.diff=true;
+        // }else{
+        //     msg.diff=(msg.createTimeInMillis - $scope.msgs[$scope.msgs.length-1].createTimeInMillis) > 300000 ? true : false;
+        // }
+        // msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
         $scope.msgs.push(msg);
+        $scope.msgCount++;
         toBottom(true,100);
         setTimeout(function(){
             var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
@@ -3956,6 +3972,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             status:'send_going',
             createTimeInMillis: Date.now(),
             newsType:'11',
+            targetRole:'doctor',
             content:data
         };
     }
@@ -3982,6 +3999,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             status:'send_going',
             createTimeInMillis: msg.createTimeInMillis,
             newsType:msg.newsType,
+            targetRole:'doctor',
             content:d
         };
     }
@@ -5605,11 +5623,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             status:'send_going',
                                             createTimeInMillis: Date.now(),
                                             newsType:'11',
+                                            targetRole:'doctor',
                                             content:{
                                                 type:'counsel-upgrade',
                                             }
                                         }
-                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
+                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
                                         socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
                                         $scope.$on('im:messageRes',function(event,data){
                                           // socket.off('messageRes');
@@ -6243,11 +6262,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             status:'send_going',
                                             createTimeInMillis: Date.now(),
                                             newsType:'11',
+                                            targetRole:'doctor',
                                             content:{
                                                 type:'counsel-upgrade',
                                             }
                                         }
-                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
+                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
                                         socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
                                         $scope.$on('im:messageRes',function(event,data){
                                           // socket.off('messageRes');
@@ -7596,9 +7616,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 status:'send_going',
                 createTimeInMillis: Date.now(),
                 newsType:'11',
+                targetRole:'doctor',
                 content:msgContent
             }
-            socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId});
+            socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId,client:'patient'});
             socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
             $scope.$on('im:messageRes',function(event,messageRes){
                 // socket.off('messageRes');
@@ -7642,7 +7663,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             Communication.newConsultation(d)
                             .then(function(con){
                                 console.log(con);
-                                socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
+                                // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId,client:'patient'});
                                 socket.emit('message',{msg:msgTeam,to:team.teamId,role:'patient'});
                                 $scope.$on('im:messageRes',function(event,messageRes){
                                     // socket.off('messageRes');
