@@ -973,7 +973,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     }else if($stateParams.last == 'tasklist'){
                                         $state.go('tab.tasklist');
                                     }
-                                }function(e){
+                                },function(e){
 
                                 });
                            

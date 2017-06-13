@@ -1340,9 +1340,12 @@ angular.module('kidney.services', ['ionic','ngResource'])
         //var instructionStr = task.instruction;//避免修改模板 暂时就让它修改吧
         task.instruction = Description; //用于页面显示
         console.log('attention');
+        // console.log(task);
         console.log(task.endTime);
         task.Flag = true;
         task.endTime = task.endTime.substr(0, 10);
+        // console.log(task.endTime);
+
         if(task.endTime != "2050-11-02T07:58:51.718Z") //说明任务已经执行过
         {
 
@@ -1354,7 +1357,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
         }
         NextTime = ChangeTimeForm(SetNextTime(task.startTime, task.frequencyTimes, task.frequencyUnits, task.times));
         task.startTime = NextTime;//更改页面显示
+        // console.log(dateNowStr);
         task.endTime = dateNowStr;
+        // console.log(task.endTime);
+        
         item = {
             "userId":UserId,
             "type":task.type,
@@ -1368,7 +1374,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             "frequencyTimes":task.frequencyTimes,
             "frequencyUnits":task.frequencyUnits
         };
-        console.log(item);
+        // console.log(item);
         UpdateUserTask(item);  //更改任务下次执行时间
     }
     //插入任务执行情况
@@ -1398,6 +1404,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
                     if(task.code == Code)
                     {
                         // console.log(task);
+                        // console.log(otherTasks[i]);
                         OtherTaskDone(task, Description);
                         break;
                     }
