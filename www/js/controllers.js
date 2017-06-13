@@ -13,33 +13,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
     if(Storage.get('patientunionid')!=undefined&&Storage.get('bindingsucc')=='yes'){
-      User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
-        if(data.results.mesg=="login success!"){
-          Storage.set('isSignIN',"Yes");
-          Storage.set('UID',data.results.userId);//后续页面必要uid
-          Storage.set('bindingsucc','yes');
-          var name = data.results.userName?data.results.userName:data.results.userId;
-          toServer.newUser(name,data.results.userId);
-          $timeout(function(){$state.go('tab.tasklist');},500);
-          
-              
-        // $state.go('tab.tasklist')  
+        User.logIn({username:Storage.get('patientunionid'),password:"112233",role:"patient"}).then(function(data){
+            if(data.results.mesg=="login success!"){
+              Storage.set('isSignIN',"Yes");
+              Storage.set('UID',data.results.userId);//后续页面必要uid
+              Storage.set('bindingsucc','yes');
+              var name = data.results.userName?data.results.userName:data.results.userId;
+              toServer.newUser(name,data.results.userId);
+              $timeout(function(){$state.go('tab.tasklist');},500);
+            // $state.go('tab.tasklist')  
+            }
+        });
+    }else if(Storage.get('isSignIN')=="Yes"){
+        if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
+            User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
+                if(data.results.mesg=="login success!"){
+                    Storage.set('isSignIN',"Yes");
+                    Storage.set('UID',data.results.userId);//后续页面必要uid
+                    // Storage.set('bindingsucc','yes')
+                    var name = data.results.userName?data.results.userName:data.results.userId;
+                    toServer.newUser(name,data.results.userId);
+                    $timeout(function(){$state.go('tab.tasklist');},500);
+                    
+                    // $state.go('tab.tasklist')  
+                }
+            });
         }
-      });
-    }else if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined&&Storage.get('PASSWORD')!=null&&Storage.get('PASSWORD')!=undefined){
-      User.logIn({username:Storage.get('USERNAME'),password:Storage.get('PASSWORD'),role:"patient"}).then(function(data){
-        if(data.results.mesg=="login success!"){
-          Storage.set('isSignIN',"Yes");
-          Storage.set('UID',data.results.userId);//后续页面必要uid
-          // Storage.set('bindingsucc','yes')
-          var name = data.results.userName?data.results.userName:data.results.userId;
-          toServer.newUser(name,data.results.userId);
-          $timeout(function(){$state.go('tab.tasklist');},500);
-          
-          // $state.go('tab.tasklist')  
-        }
-      })
     }
+      
     $scope.signIn = function(logOn) {
         $scope.logStatus='';
         if((logOn.username!="") && (logOn.password!="")){
@@ -202,7 +203,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(data){
                 if(data.results!=null){
                     $timeout(function(){$state.go('tab.tasklist');},500);
-                    toServer.newUser(Storage.get('UserFullName'),Storage.get('UID'));
+                    // toServer.newUser(Storage.get('UserFullName'),Storage.get('UID'));
 
                 }else{
                     console.log("用户不存在!");
@@ -417,7 +418,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //设置密码  --PXY
-.controller('setPasswordCtrl', ['$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
+.controller('setPasswordCtrl', ['$ionicLoading','$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($ionicLoading,$http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
     $scope.BackMain = function(){
         $state.go('signin');
     }
@@ -498,7 +499,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     }  // set the headers so angular passing info as form data (not request payload)
                                 }).success(function(data) {
                                     // console.log(data);
-                                    $state.go('tab.tasklist');
+                                    // $state.go('tab.tasklist');
                                 });
                                
 
@@ -5271,7 +5272,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                 }else{
                   $scope.consultable=1
                 }
@@ -5288,7 +5289,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                 }else{
                   $scope.consultable=1
                 }
@@ -5328,7 +5329,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                       })
                     ]).then(function(allresult){
                         console.log(allresult)
-                        $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                     })
                   
                 }else{
@@ -5404,7 +5405,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     })
                                 ]).then(function(allres){
                                     
-                                    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                                    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                                 })
                             }, function (reason) {
                                 $ionicLoading.show({
@@ -5593,7 +5594,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                 }else{
                   $scope.consultable=1
                 }
@@ -5664,7 +5665,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         })
                                     ]).then(function(allres){
                                         // ionicLoadinghide();
-                                        $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                     })
                                 }, function (reason) {
                                     $ionicLoading.show({
@@ -5753,7 +5754,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ]).then(function(allres){
                                     // alert("allres:"+allres)
                                     // ionicLoadinghide();
-                                    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                                    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                                 })
                             }, function (reason) {
                                 $ionicLoading.show({
@@ -5914,7 +5915,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                 }else{
                   $scope.consultable=1
                 }
@@ -5931,7 +5932,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                 }else{
                   $scope.consultable=1
                 }
@@ -5965,7 +5966,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         console.log(err)
                       })
                     ]).then(function(allres){
-                      $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                      $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                     })
                 }else{
                   $scope.consultable=1
@@ -6038,7 +6039,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                   })
                                 ]).then(function(alllres){
                                     // ionicLoadinghide();
-                                    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:1});
+                                    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                                 })
                             }, function (reason) {
                                 $ionicLoading.show({
@@ -6231,7 +6232,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                 }else{
                   $scope.consultable=1
                 }
@@ -6304,7 +6305,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         })
                                     ]).then(function(allres){
                                         // ionicLoadinghide();
-                                        $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                     })
                                 }, function (reason) {
                                     $ionicLoading.show({
@@ -6391,7 +6392,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         })
                                     ]).then(function(allres){
                                         // ionicLoadinghide();
-                                        $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:2});
+                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                                     })
                                 }, function (reason) {
                                     $ionicLoading.show({
@@ -7382,7 +7383,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
   $scope.backtoBasic = function(){
-    $state.go("tab.consultquestion1",{DoctorId:DoctorId,counselType:counselType})
+    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:counselType})
   }
 
   $scope.nexttoquestion = function(){
