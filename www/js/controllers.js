@@ -5859,7 +5859,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 
-.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket) {
+.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket','$q','Patient',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket,$q,Patient) {
 
   $scope.GoBack = function(){
     // console.log('111');
