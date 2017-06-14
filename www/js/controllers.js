@@ -3598,7 +3598,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.getMsg(15).then(function(data){
             $scope.msgs=data;
             $scope.params.loaded = true;
-            toBottom(false,400);
+            toBottom(true,400);
         });
     });
     $scope.$on('$ionicView.enter', function() {
