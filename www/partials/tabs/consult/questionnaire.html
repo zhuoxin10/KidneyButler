@@ -1,8 +1,34 @@
-<ion-view cache-view="false" title="个人信息">
+<ion-view cache-view="false" title="咨询问卷">
     <ion-nav-buttons side="left">
         <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
     </ion-nav-buttons>
     <ion-content padding="true">
+        <ion-list> 
+            <a class="item green-bg font-white" style="border: 0;font-size: 14px;border-bottom: 1px solid #fff;margin-bottom: 0" ng-click="openDiag==true?openDiag=false:openDiag=true" ng-model="openDiag">咨询问题</a>
+            <form name="askForm" nonvalidate style="border: 0.1px solid #ddd">
+                <label class="item item-input">
+                    <span class="input-label" style="font: bold"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>你要问医生的问题是什么</span>
+                </label>
+                <label class="item item-input">
+                    <input  class="item-text-wrap" name="help" required ng-model="Questionare.help"  type="text" placeholder="方便医生给出您针对性解答">
+                    <span class="tick">
+                        <i style="color:#6ac4f8;" ng-if="askForm.help.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
+                        <i style="color:#FB6753;" ng-if="askForm.help.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
+                    </span>
+
+                </label>
+                <label class="item item-input">
+                    <span class="input-label" style="font: bold"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>为您的咨询写个简单的标题</span>
+                </label>
+                <label class="item item-input">
+                    <input  ng-model="Questionare.title" name="title" required type="text" placeholder="方便让医生注意到">
+                    <span class="tick">
+                        <i style="color:#6ac4f8;" ng-if="askForm.title.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
+                        <i style="color:#FB6753;" ng-if="askForm.title.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
+                    </span>
+                </label>
+            </form>
+        </ion-list>
         <ion-list>
             <a class="item green-bg font-white" style="border: 0;font-size: 14px;border-bottom: 1px solid #fff;margin-bottom: 0" ng-click="openPersonal==true?openPersonal=false:openPersonal=true" ng-model="openPersonal">个人信息
                 <i class="icon ion-chevron-up" ng-if="!openPersonal"></i> 
@@ -134,7 +160,7 @@
                 <ionic-datepicker padding="true" input-obj="datepickerObject4" class="item item-input" style="border: 0;border-bottom: 1px solid #ddd;margin: 0">
                     <i class="iconfont icon-shijian" style="font-size: 24px;vertical-align: top;margin-right: 5px"></i>
                     <span class="input-label">慢性肾病首次发病时间</span>
-                    <input  ng-model="BasicInfo.LastDiseaseTime" dateformat  type="text">
+                    <input  ng-model="Questionare.LastDiseaseTime" dateformat  type="text">
                 </ionic-datepicker>
             
     
@@ -186,35 +212,10 @@
             </div>
         </ion-list>
 
-        <ion-list> 
-            <a class="item green-bg font-white" style="border: 0;font-size: 14px;border-bottom: 1px solid #fff;margin-bottom: 0" ng-click="openDiag==true?openDiag=false:openDiag=true" ng-model="openDiag">咨询问题</a>
-            <form name="askForm" nonvalidate style="border: 0.1px solid #ddd">
-                <label class="item item-input">
-                    <span class="input-label" style="font: bold"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>你要问医生的问题是什么</span>
-                </label>
-                <label class="item item-input">
-                    <input  class="item-text-wrap" name="help" required ng-model="Questionare.help"  type="text" placeholder="方便医生给出您针对性解答">
-                    <span class="tick">
-                        <i style="color:#6ac4f8;" ng-if="askForm.help.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
-                        <i style="color:#FB6753;" ng-if="askForm.help.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
-                    </span>
-
-                </label>
-                <label class="item item-input">
-                    <span class="input-label" style="font: bold"><i class="icon ion-asterisk" style="color:red;font-size:6px"></i>为您的咨询写个简单的标题</span>
-                </label>
-                <label class="item item-input">
-                    <input  ng-model="Questionare.title" name="title" required type="text" placeholder="方便让医生注意到">
-                    <span class="tick">
-                        <i style="color:#6ac4f8;" ng-if="askForm.title.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
-                        <i style="color:#FB6753;" ng-if="askForm.title.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
-                    </span>
-                </label>
-            </form>
-        </ion-list>
+        
           
         <div class="col-50" style="margin:0 auto;">
-            <button  ng-disabled="!(questionForm.$valid)||!(askForm.$valid)" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="submit()">
+            <button  ng-disabled="!(questionForm.$valid)||!(askForm.$valid)" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="submit(Questionare,BasicInfo)">
                         提交
             </button>
         </div>
