@@ -367,39 +367,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //手机正则表达式验证
             if(phoneReg.test(Verify.Phone)){
                 //测试用
-                if(Verify.Code==5566){
-                    $scope.logStatus = "验证成功";
-                    Storage.set('USERNAME',Verify.Phone);
-                    if($stateParams.phonevalidType == 'register'){
-                        $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                    }else{
-                       $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                    }
-
-                }else{$scope.logStatus = "验证码错误";}
-
-                //发送手机验证码
-                // var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
-                // verifyPromise.then(function(data){
-                //     if(data.results==0){
-                //         $scope.logStatus = "验证成功";
-                //         Storage.set('USERNAME',Verify.Phone);
-                //             if($stateParams.phonevalidType == 'register'){
-                //               $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
-                //               $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'){
-                //               $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
-                //             }else{
-                //               $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                //             }
+                // if(Verify.Code==5566){
+                //     $scope.logStatus = "验证成功";
+                //     Storage.set('USERNAME',Verify.Phone);
+                //     if($stateParams.phonevalidType == 'register'){
+                //         $timeout(function(){$state.go('agreement',{last:'register'});},500);
                 //     }else{
-                //         $scope.logStatus = data.mesg;
-                //         return;
+                //        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
                 //     }
-                // },function(){
-                //     $scope.logStatus = "连接超时！";
-                // });
+
+                // }else{$scope.logStatus = "验证码错误";}
+
+                发送手机验证码
+                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                verifyPromise.then(function(data){
+                    if(data.results==0){
+                        $scope.logStatus = "验证成功";
+                        Storage.set('USERNAME',Verify.Phone);
+                            if($stateParams.phonevalidType == 'register'){
+                              $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
+                              $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'){
+                              $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
+                            }else{
+                              $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
+                            }
+                    }else{
+                        $scope.logStatus = data.mesg;
+                        return;
+                    }
+                },function(){
+                    $scope.logStatus = "连接超时！";
+                });
             }
             else{$scope.logStatus="手机号验证失败！";}
 
