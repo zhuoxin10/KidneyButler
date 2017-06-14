@@ -7517,13 +7517,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             // socket.on('messageRes',function(messageRes){
                                 // socket.off('messageRes');
                                 // socket.emit('disconnect');
-                                $state.go('tab.consult-chat',{chatId:DoctorId});
+                                setTimeout(function(){
+                                    $state.go('tab.consult-chat',{chatId:DoctorId});
+                                },500);
+                                // $state.go('tab.consult-chat',{chatId:DoctorId});
                             // });
                         },function(er){
                             console.error(err);
                         })
                     }else{
-                        $state.go('tab.consult-chat',{chatId:DoctorId});
+                        setTimeout(function(){
+                            $state.go('tab.consult-chat',{chatId:DoctorId});
+                        },500);
                     }
                 // });
             }
