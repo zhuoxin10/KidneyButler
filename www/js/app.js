@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload','btford.socket-io'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket) {
   $ionicPlatform.ready(function() {
 
     var isSignIN=Storage.get("isSignIN");
@@ -40,7 +40,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         console.info('reconnect: ' + attempt);
         var id = Storage.get('UID'),
             name = thisPatient===null?'':thisPatient.name;
-        socket.emit('newUser',{ user_name: name, user_id: id });
+        mySocket.newUser(id,name);
     });
     socket.on('getMsg', listenGetMsg);
     function listenGetMsg(data){
