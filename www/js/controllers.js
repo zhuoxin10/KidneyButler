@@ -7474,67 +7474,58 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
                 socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId});
                 socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-                $scope.$on('im:messageRes',function(event,messageRes){
+                // $scope.$on('im:messageRes',function(event,messageRes){
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
                     if(DoctorId=='U201612291283'){
-                        Communication.getTeam({teamId:'10050278'})
-                        .then(function(response){
-                            var team = response.results,
-                                idarr = [];
-                            team.members.forEach(function(member){
-                                this.push(member.userId);
-                            },idarr);
-                            jmapi.groups(DoctorId,idarr,thisPatient.name + '-' +team.name,'consultatioin_open')
-                            .then(function(res){
-                                var d = {
-                                    teamId: team.teamId,
-                                    counselId: data.results.counselId,
-                                    sponsorId: DoctorId,
-                                    patientId: patientId,
-                                    consultationId: res.results.gid,
-                                    status: '1'
-                                }
-                                msgContent.consultationId=res.results.gid;
-                                var msgTeam={
-                                    contentType:'custom',
-                                    fromID:DoctorId,
-                                    fromName:'陈江华',
-                                    fromUser:{
-                                        avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+DoctorId+'_myAvatar.jpg'
-                                    },
-                                    targetID:team.teamId,
-                                    teamId:team.teamId,
-                                    targetName:team.name,
-                                    targetType:'group',
-                                    status:'send_going',
-                                    newsType:'13',
-                                    createTimeInMillis: Date.now(),
-                                    content:msgContent
-                                }
+                        var time = new Date();
+                        var gid='G'+$filter('date')(time, 'MMddHmsss');
+                        // var msgdata = $state.params.msg;
 
-                                Communication.newConsultation(d)
-                                .then(function(con){
-                                    console.log(con);
-                                    socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
-                                    socket.emit('message',{msg:msgTeam,to:team.teamId,role:'patient'});
-                                    $scope.$on('im:messageRes',function(event,messageRes){
-                                        // socket.off('messageRes');
-                                        // socket.emit('disconnect');
-                                        $state.go('tab.consult-chat',{chatId:DoctorId});
-                                    });
-                                },function(er){
-                                    console.error(err);
-                                })
-                            },function(err){
-                                console.error(err);
-                            })                
-
-                        });
+                        var d = {
+                            teamId: '10050278',
+                            counselId: data.results.counselId,
+                            sponsorId: DoctorId,
+                            patientId: patientId,
+                            consultationId: gid,
+                            status: '1'
+                        }
+                        msgContent.consultationId=gid;
+                        var msgTeam={
+                            clientType:'wechatpatient',
+                            targetRole:'doctor',
+                            contentType:'custom',
+                            fromID:DoctorId,
+                            fromName:'陈江华',
+                            fromUser:{
+                                avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+DoctorId+'_myAvatar.jpg'
+                            },
+                            targetID:'10050278',
+                            teamId:'10050278',
+                            targetName:'陈江华主任医师团队',
+                            targetType:'group',
+                            status:'send_going',
+                            newsType:'13',
+                            createTimeInMillis: Date.now(),
+                            content:msgContent
+                        }
+                        Communication.newConsultation(d)
+                        .then(function(con){
+                            console.log(con);
+                            // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
+                            socket.emit('message',{msg:msgTeam,to:'10050278',role:'patient'});
+                            // socket.on('messageRes',function(messageRes){
+                                // socket.off('messageRes');
+                                // socket.emit('disconnect');
+                                $state.go('tab.consult-chat',{chatId:DoctorId});
+                            // });
+                        },function(er){
+                            console.error(err);
+                        })
                     }else{
                         $state.go('tab.consult-chat',{chatId:DoctorId});
                     }
-                });
+                // });
             }
             console.log(data.results)
           },
