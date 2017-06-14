@@ -239,42 +239,42 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }
       },
     })
-    .state('tab.consultquestion1', {
-      url: '/consultquestion1',
-      params:{DoctorId:null,counselType:null},
-      views: {
-        'tab-consult': {
-          cache:false,
-          templateUrl: 'partials/tabs/consult/consultquestion1.html',
-          controller: 'consultquestionCtrl'
-        }
-      },
-      // params:{DoctorId:null}
-    })
-    .state('tab.consultquestion2', {
-      url: '/consultquestion2',
-      params:{DoctorId:null,counselType:null},
-      views: {
-        'tab-consult': {
-          cache:false,
-          templateUrl: 'partials/tabs/consult/consultquestion2.html',
-          controller: 'consultquestionCtrl'
-        }
-      },
-      // params:{DoctorId:null}
-    })
-    .state('tab.consultquestion3', {
-      url: '/consultquestion3',
-      params:{DoctorId:null,counselType:null},
-      views: {
-        'tab-consult': {
-          cache:false,
-          templateUrl: 'partials/tabs/consult/consultquestion3.html',
-          controller: 'consultquestionCtrl'
-        }
-      },
-      // params:{DoctorId:null}
-    })
+    // .state('tab.consultquestion1', {
+    //   url: '/consultquestion1',
+    //   params:{DoctorId:null,counselType:null},
+    //   views: {
+    //     'tab-consult': {
+    //       cache:false,
+    //       templateUrl: 'partials/tabs/consult/consultquestion1.html',
+    //       controller: 'consultquestionCtrl'
+    //     }
+    //   },
+    //   // params:{DoctorId:null}
+    // })
+    // .state('tab.consultquestion2', {
+    //   url: '/consultquestion2',
+    //   params:{DoctorId:null,counselType:null},
+    //   views: {
+    //     'tab-consult': {
+    //       cache:false,
+    //       templateUrl: 'partials/tabs/consult/consultquestion2.html',
+    //       controller: 'consultquestionCtrl'
+    //     }
+    //   },
+    //   // params:{DoctorId:null}
+    // })
+    // .state('tab.consultquestion3', {
+    //   url: '/consultquestion3',
+    //   params:{DoctorId:null,counselType:null},
+    //   views: {
+    //     'tab-consult': {
+    //       cache:false,
+    //       templateUrl: 'partials/tabs/consult/consultquestion3.html',
+    //       controller: 'consultquestionCtrl'
+    //     }
+    //   },
+    //   // params:{DoctorId:null}
+    // })
 
     .state('tab.mine', {
         url: '/mine',
