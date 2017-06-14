@@ -1946,6 +1946,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   //测量弹窗
     $scope.showMesPop = function(task, type) {
+
         //首先swipe-back
         $scope.data = {};
         $scope.data.alertFlag = false;
@@ -1954,6 +1955,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.data.value = PopInfo.content;
         var myPopup = $ionicPopup.show({
             template: PopInfo.Template,
+            cssClass: "popupWithKeyboard",
             title: PopInfo.word,
             scope: $scope,
             buttons: [
@@ -5054,7 +5056,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     // console.log(123);
     // $ionicHistory.goBack();
     }
-    
+    $scope.alldoctortype="88px"
+    if(ionic.Platform.isIOS()){
+        $scope.alldoctortype="108px"
+    }
+
 
     $scope.clearSearch = function(){
         $scope.searchCont = {};

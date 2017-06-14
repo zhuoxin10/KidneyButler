@@ -1233,5 +1233,7 @@ textarea {
     color: #fff; }
   .item-select-custom.item-dark:after, .item-select-custom.item-dark .input-label {
     color: #fff; }
-
+.popupWithKeyboard{
+  margin-top: -190px;
+}
 
