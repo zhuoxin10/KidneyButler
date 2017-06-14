@@ -270,25 +270,48 @@ angular.module('kidney.services', ['ionic','ngResource'])
   }
 }])
 
-.factory('mySocket',['$interval','socket',function($interval,socket){
-    var timers = [];
+.factory('mySocket',['socket','$interval',function(socket,$interval){
+    var timer = null;
+    var currentUser ={
+        id:'',
+        name:''
+    };
+    function newUserOnce(userId,name){
+        if(userId=='') return;
+        var n = name || '';
+        socket.emit('newUser',{ user_name:n , user_id: userId, client:'patient'});
+    }
     return {
-        newUser:function(name,id){
-            var t = $interval(function newuser(){
-                socket.emit('newUser', {user_name: name, user_id: id, client:'patient'});
+        newUser:function(userId,name){
+            currentUser.id=userId;
+            currentUser.name = name;
+            timer = $interval(function newuser(){
+                newUserOnce(userId,name);
+                // socket.emit('newUser',{ user_name:n , user_id: userId, client:'app'});
                 return newuser;
             }(),60000);
-            timers.push(t);
+        },
+        newUserOnce:newUserOnce,
+        newUserForTempUse:function(userId,name){
+            $interval.cancel(timer);
+            newUserOnce(userId,name);
+            return function(){
+                socket.emit('disconnect');
+                setTimeout(function(){
+                    newUser(currentUser.id,currentUser.name);
+                },1000);
+                // socket.emit('newUser',{ user_name:currentUser.name , user_id: currentUser.id, client:'app'});
+            }
         },
         cancelAll:function(){
-            for(var i in timers){
-                $interval.cancel(timers[i]);
+            if(timer!=null){
+                $interval.cancel(timer);
+                timers = null;
             }
-            timers = [];
+            currentUser.id = '';
         }
     }
 }])
-
 
 //--------健康信息的缓存数据--------
 .factory('HealthInfo', [function () {
