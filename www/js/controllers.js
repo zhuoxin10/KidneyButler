@@ -3210,7 +3210,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // ionicPopover functions 弹出框的预定义
         //--------------------------------------------
         // .fromTemplateUrl() method
-  $ionicPopover.fromTemplateUrl('my-popover.html', {
+  $ionicPopover.fromTemplateUrl('partials/pop/cameraPopover.html', {
     scope: $scope,
     animation: 'slide-in-up'
   }).then(function(popover) {
@@ -4554,7 +4554,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // ionicPopover functions 弹出框的预定义
         //--------------------------------------------
         // .fromTemplateUrl() method
-  $ionicPopover.fromTemplateUrl('my-popover1.html', {
+  $ionicPopover.fromTemplateUrl('partials/pop/cameraPopover.html', {
     scope: $scope,
     animation: 'slide-in-up'
   }).then(function(popover) {
