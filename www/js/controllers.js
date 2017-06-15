@@ -7652,6 +7652,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       };
       //$stateParams.counselId
        //获取历史评论
+       console.log($stateParams);
       if($stateParams.counselId!=undefined&&$stateParams.counselId!=""&&$stateParams.counselId!=null){
         console.log($stateParams.counselId)
         Comment.getCommentsByC({counselId:$stateParams.counselId}).then(function(data){
