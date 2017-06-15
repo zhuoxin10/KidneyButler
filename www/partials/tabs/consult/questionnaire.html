@@ -1,4 +1,4 @@
-<ion-view cache-view="false" title="咨询问卷">
+<ion-view cache-view="true" title="咨询问卷">
     <ion-nav-buttons side="left">
         <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
     </ion-nav-buttons>
@@ -156,7 +156,7 @@
                 <i class="icon ion-chevron-down" ng-if="openDiag"></i>
             </a>
 
-            <div  class="list" style="border: 0.1px solid #ddd" ng-show="!openDiag">
+            <div  class="list" style="border: 0.1px solid rgb(221, 221, 221);padding-left: 10px;padding-right: 10px;" ng-show="!openDiag">
                 <ionic-datepicker padding="true" input-obj="datepickerObject4" class="item item-input" style="border: 0;border-bottom: 1px solid #ddd;margin: 0">
                     <i class="iconfont icon-shijian" style="font-size: 24px;vertical-align: top;margin-right: 5px"></i>
                     <span class="input-label">慢性肾病首次发病时间</span>
@@ -215,7 +215,7 @@
         
           
         <div class="col-50" style="margin:0 auto;">
-            <button  ng-disabled="!(questionForm.$valid)||!(askForm.$valid)" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="submit(Questionare,BasicInfo)">
+            <button  ng-disabled="!(questionForm.$valid)||!(askForm.$valid)||submitable" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="submit(Questionare,BasicInfo)">
                         提交
             </button>
         </div>
