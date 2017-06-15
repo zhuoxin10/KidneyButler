@@ -445,7 +445,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
             editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
-            bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000}
+            bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000},
+            replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl'},timeout:10000}
         });
     }
 
@@ -1483,6 +1484,22 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params->{
+                // userId:'ppost01',
+                // wechatPhotoUrl:'http://photo/ppost12.jpg',
+            // }
+    self.replacePhoto = function(params){
+        var deferred = $q.defer();
+        Data.Patient.replacePhoto(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
 
     return self;
 }])
