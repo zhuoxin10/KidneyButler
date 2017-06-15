@@ -7653,21 +7653,24 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       };
       //$stateParams.counselId
        //获取历史评论
-      if($stateParams.counselId!=undefined&&$stateParams.counselId!=""&&$stateParams.counselId!=null){
-        console.log($stateParams.counselId)
+       // console.log($stateParams);
+    if($stateParams.counselId!=undefined&&$stateParams.counselId!=""&&$stateParams.counselId!=null){
+        // console.log($stateParams.counselId)
         Comment.getCommentsByC({counselId:$stateParams.counselId}).then(function(data){
-          if(data.results.length=0){
-            // //初始化
-            $scope.comment.score=data.results[0].totalScore/2
-            $scope.comment.commentContent=data.results[0].content
-             //评论星星初始化
-             $scope.$broadcast('changeratingstar',$scope.comment.score,true);
-             $scope.editable=true;
-          }
+            // console.log('attention');
+            // console.log(data);
+            if(data.results.length){
+                // //初始化
+                $scope.comment.score=data.results[0].totalScore/2
+                $scope.comment.commentContent=data.results[0].content
+                 //评论星星初始化
+                 $scope.$broadcast('changeratingstar',$scope.comment.score,true);
+                 $scope.editable=true;
+            }
         }, function(err){
           console.log(err)
         })
-      }
+    }
 
 
 
