@@ -5131,7 +5131,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           // alert(imageData.text);
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
             console.log(res)
-            alert(JSON.stringify(res))
+            // alert(JSON.stringify(res))
             if(res.results=="修改成功" || res.results.errcode == 40037){
               $ionicPopup.alert({
                title: '绑定成功！'
