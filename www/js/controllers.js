@@ -3501,7 +3501,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+.controller('ChatCtrl',['$ionicPlatform','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($ionicPlatform,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+    if($ionicPlatform.is('ios')) cordova.plugins.Keyboard.disableScroll(true);
     $scope.input = {
         text: ''
     }
