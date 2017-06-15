@@ -150,9 +150,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
         // alert(JSON.stringify(response));
-        // alert(response.code)
+        // alert(response.code);
         Mywechat.getUserInfo({role:"appPatient",code:response.code}).then(function(persondata){
-          // alert(persondata.headimgurl)
+          // alert(JSON.stringify(persondata));
           Storage.set('wechatheadimgurl',persondata.results.headimgurl);
           
           $scope.unionid=persondata.results.unionid;
@@ -163,8 +163,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //用户已经存在id 说明公众号注册过
             //未测试
             if(Storage.get('wechatheadimgurl')){
+                // alert("image");
                 Pateint.replacePhoto({userId:ret.UserId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(
+                    
                     function(data){
+                        // alert("dfesgf");
                         Storage.rm('wechatheadimgurl');
                     }
                 );
@@ -192,15 +195,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }
               })
             }else{
-              Storage.set("patientunionid",$scope.unionid);//自动登录使用
-              $state.go('phonevalid',{phonevalidType:'wechatsignin'})
+                // alert('else');
+                Storage.set("patientunionid",$scope.unionid);//自动登录使用
+                $state.go('phonevalid',{phonevalidType:'wechatsignin'})
             }
           })
         },function(err){
-          alert(JSON.stringify(err));
+          // alert(JSON.stringify(err));
         })
     }, function (reason) {
-        alert("Failed: " + reason);
+        // alert("Failed: " + reason);
     });
   // }
 
