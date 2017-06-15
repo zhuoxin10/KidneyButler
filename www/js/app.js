@@ -233,7 +233,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
-          cache:false,
+          cache:true,
           templateUrl: 'partials/tabs/consult/questionnaire.html',
           controller: 'consultquestionCtrl'
         }
