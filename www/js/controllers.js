@@ -162,17 +162,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             // alert(JSON.stringify(ret))
             //用户已经存在id 说明公众号注册过
             //未测试
-            if(Storage.get('wechatheadimgurl')){
-                // alert("image");
-                Pateint.replacePhoto({userId:ret.UserId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(
+            // if(Storage.get('wechatheadimgurl')){
+            //     // alert("image");
+            //     Pateint.replacePhoto({userId:ret.UserId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(
                     
-                    function(data){
-                        // alert("dfesgf");
-                        Storage.rm('wechatheadimgurl');
-                    }
-                );
-                //已有头像，未更新;没有头像，已替换
-            }
+            //         function(data){
+            //             // alert("dfesgf");
+            //             Storage.rm('wechatheadimgurl');
+            //         }
+            //     );
+            //     //已有头像，未更新;没有头像，已替换
+            // }
             
             if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
