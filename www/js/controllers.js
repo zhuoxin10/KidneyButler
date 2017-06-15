@@ -4403,7 +4403,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 var healthinfoToconsult=[];
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null){
-                    if($ionicHistory.backView().stateName=='tab.consultquestion2'){
+                    if($ionicHistory.backView().stateName=='tab.consultQuestionnaire'){
                         if(Storage.get('consulthealthinfo')==''||Storage.get('consulthealthinfo')==null||Storage.get('consulthealthinfo')=='undefined'){
                             healthinfoToconsult.push({'time':data.results.insertTime});
                         }else{
@@ -7235,39 +7235,130 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //咨询问卷--TDY
 
 .controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','CONFIG','Health','Account','socket',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,CONFIG,Health,Account,socket) {
-  $scope.showProgress = false;
-  $scope.showSurgicalTime = false;
-  $scope.openPersonal = true;
-  $scope.openDiag = true;
-  var patientId = Storage.get('UID');
-  var DoctorId = $stateParams.DoctorId;
-  var counselType = $stateParams.counselType;
+    $scope.showProgress = false;
+    $scope.showSurgicalTime = false;
+    $scope.openPersonal = true;
+    $scope.openDiag = true;
+    var patientId = Storage.get('UID');
+    var DoctorId = $stateParams.DoctorId;
+    var counselType = $stateParams.counselType;
+   
 
     $scope.submitable=false;
 
-
-    //20140421 zxf
-    $scope.items = []//HealthInfo.getall();
-    var healthinfotimes=[]
-    if(Storage.get('consulthealthinfo')!=''&&Storage.get('consulthealthinfo')!='undefined'&&Storage.get('consulthealthinfo')!=null){
-        healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
-    }
-    for(var i=0;i<healthinfotimes.length;i++){
-        Health.getHealthDetail({userId:Storage.get('UID'),insertTime:healthinfotimes[i].time}).then(
+    var BasicInfoInitial = function(){ //页面基本信息初始化
+        $scope.BasicInfo =
+        {
+            "userId": patientId,
+            "name": null,
+            "gender": null,
+            "bloodType": null,
+            "hypertension": null,
+            "class": null,
+            "class_info": null,
+            "operationTime": null,
+            "allergic":null,
+            "height": null,
+            "weight": null,
+            "birthday": null,
+            "IDNo": null,
+            "lastVisit":{
+                "time":null,
+                "hospital":null,
+                "diagnosis":null
+                }
+        }
+        Patient.getPatientDetail({userId: patientId}).then(
             function(data)
             {
-                if(data.results!=null){
-                $scope.items.push(data.results)
-                $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
-              // $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
-              // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
+                if (data.results != null)
+                {
+                    $scope.BasicInfo=angular.merge($scope.BasicInfo, data.results);
+                    console.log($scope.BasicInfo);
+                    thisPatient = data.results;
+                    if ($scope.BasicInfo.gender != null)
+                    {
+                        $scope.BasicInfo.gender = searchObj($scope.BasicInfo.gender,$scope.Genders)
+                    }
+                    if ($scope.BasicInfo.bloodType != null)
+                    {
+                        $scope.BasicInfo.bloodType = searchObj($scope.BasicInfo.bloodType,$scope.BloodTypes)
+                    }
+                    if ($scope.BasicInfo.hypertension != null)
+                    {
+                        $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
+                    }
+                
+
+                    VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
+                    function(data)
+                    {
+                        if(data.results.length){
+                            var n = data.results.length - 1
+                            var m = data.results[n].data.length - 1
+                            $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
+                        }
+
+                    },
+                    function(err)
+                    {
+                        console.log(err);
+                    });
+                }else{
+                    $scope.openPersonal = false;
                 }
+                initialDict();
+                // console.log($scope.BasicInfo)
             },
             function(err)
             {
                 console.log(err);
-            });
+            }
+        );
+
+        $scope.Questionare = {
+            "LastDiseaseTime":"",
+            "title":"",
+            "help":""
+        }
     }
+
+    
+    
+
+    BasicInfoInitial();
+    var localRefresh = function(){
+        //20140421 zxf
+        $scope.items = []//HealthInfo.getall();
+        var healthinfotimes=[]
+        if(Storage.get('consulthealthinfo')!=''&&Storage.get('consulthealthinfo')!='undefined'&&Storage.get('consulthealthinfo')!=null){
+            healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'));
+        }
+        for(var i=0;i<healthinfotimes.length;i++){
+            Health.getHealthDetail({userId:Storage.get('UID'),insertTime:healthinfotimes[i].time}).then(
+                function(data)
+                {
+                    if(data.results!=null){
+                    $scope.items.push(data.results)
+                    $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
+                  // $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
+                  // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
+                    }
+                },
+                function(err)
+                {
+                    console.log(err);
+                });
+        }
+    }
+    $scope.$on('$ionicView.beforeEnter', function() {
+        localRefresh();//局部刷新
+        // console.log($stateParams);
+        
+            
+
+    });
+    
 
     //跳转修改健康信息
     $scope.gotoEditHealth=function(ele,editId){
@@ -7437,80 +7528,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             console.log(err);
         });
     }
-    $scope.BasicInfo =
-    {
-    "userId": patientId,
-    "name": null,
-    "gender": null,
-    "bloodType": null,
-    "hypertension": null,
-    "class": null,
-    "class_info": null,
-    "operationTime": null,
-    "allergic":null,
-    "height": null,
-    "weight": null,
-    "birthday": null,
-    "IDNo": null,
-    "lastVisit":{
-        "time":null,
-        "hospital":null,
-        "diagnosis":null
-        }
-    }
-    Patient.getPatientDetail({userId: patientId}).then(
-        function(data)
-        {
-            if (data.results != null)
-            {
-                $scope.BasicInfo=angular.merge($scope.BasicInfo, data.results);
-                console.log($scope.BasicInfo);
-                thisPatient = data.results;
-                if ($scope.BasicInfo.gender != null)
-                {
-                    $scope.BasicInfo.gender = searchObj($scope.BasicInfo.gender,$scope.Genders)
-                }
-                if ($scope.BasicInfo.bloodType != null)
-                {
-                    $scope.BasicInfo.bloodType = searchObj($scope.BasicInfo.bloodType,$scope.BloodTypes)
-                }
-                if ($scope.BasicInfo.hypertension != null)
-                {
-                    $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
-                }
-            
+    
 
-                VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
-                function(data)
-                {
-                    if(data.results.length){
-                        var n = data.results.length - 1
-                        var m = data.results[n].data.length - 1
-                        $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
-                    }
-
-                },
-                function(err)
-                {
-                    console.log(err);
-                });
-            }else{
-                $scope.openPersonal = false;
-            }
-            initialDict();
-            // console.log($scope.BasicInfo)
-        },
-        function(err)
-        {
-            console.log(err);
-        }
-    );
-
-    $scope.Questionare = {
-        "LastDiseaseTime":"",
-        "title":"",
-        "help":""
-    }
+    
     // if(Storage.get('consultcacheinfo')!=null&&Storage.get('consultcacheinfo')!=""&&Storage.get('consultcacheinfo')!='undefined'){
     //     $scope.Questionare=angular.fromJson(Storage.get('consultcacheinfo'))
     // }
@@ -7522,18 +7542,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // console.log($scope.Questionare)
   // console.log(Storage.get('tempquestionare'))
 
-    $scope.images = [];
-    if (Storage.get('tempimgrul') != "" && Storage.get('tempimgrul') != null)
-    {
-        $scope.images = angular.fromJson(Storage.get('tempimgrul'));
-    //http://121.43.107.106:8052/uploads/photos/resized13735579254_1492596394430.jpg
-
-    }
-  //测试用 20170419 zxf
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492596394430.jpg");
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492593051359.jpg");
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492592986223.jpg");
-
+   
 
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
@@ -7551,7 +7560,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.LastVisitDate=yyyy+'-'+m+'-'+d;
+      $scope.BasicInfo.lastVisit.time=yyyy+'-'+m+'-'+d;
     }
   };
 
