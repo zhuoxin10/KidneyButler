@@ -17,6 +17,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             if(data.results.mesg=="login success!"){
               Storage.set('isSignIN',"Yes");
               Storage.set('UID',data.results.userId);//后续页面必要uid
+          
               Storage.set('bindingsucc','yes');
               var name = data.results.userName?data.results.userName:data.results.userId;
               mySocket.newUser(data.results.userId,name);
@@ -383,39 +384,39 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             if(phoneReg.test(Verify.Phone)){
 
                 //测试用
-                if(Verify.Code==5566){
-                    $scope.logStatus = "验证成功";
-                    Storage.set('USERNAME',Verify.Phone);
-                    if($stateParams.phonevalidType == 'register'){
-                        $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                    }else{
-                       $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                    }
+                // if(Verify.Code==5566){
+                //     $scope.logStatus = "验证成功";
+                //     Storage.set('USERNAME',Verify.Phone);
+                //     if($stateParams.phonevalidType == 'register'){
+                //         $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                //     }else{
+                //        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
+                //     }
 
-                }else{$scope.logStatus = "验证码错误";}
+                // }else{$scope.logStatus = "验证码错误";}
 
                 // 发送手机验证码
-                // var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
-                // verifyPromise.then(function(data){
-                //     if(data.results==0){
-                //         $scope.logStatus = "验证成功";
-                //         Storage.set('USERNAME',Verify.Phone);
-                //             if($stateParams.phonevalidType == 'register'){
-                //               $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
-                //               $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'){
-                //               $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
-                //             }else{
-                //               $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                //             }
-                //     }else{
-                //         $scope.logStatus = data.mesg;
-                //         return;
-                //     }
-                // },function(){
-                //     $scope.logStatus = "连接超时！";
-                // });
+                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                verifyPromise.then(function(data){
+                    if(data.results==0){
+                        $scope.logStatus = "验证成功";
+                        Storage.set('USERNAME',Verify.Phone);
+                            if($stateParams.phonevalidType == 'register'){
+                              $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
+                              $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'){
+                              $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
+                            }else{
+                              $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
+                            }
+                    }else{
+                        $scope.logStatus = data.mesg;
+                        return;
+                    }
+                },function(){
+                    $scope.logStatus = "连接超时！";
+                });
             }
             else{$scope.logStatus="手机号验证失败！";}
 
@@ -985,6 +986,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // console.log(userInfo);
         var patientId = Storage.get('UID');
         userInfo.userId = patientId;
+
         Patient.editPatientDetail(userInfo).then(function(data){
             if(data.result=="修改成功"){
                 console.log(data.results);
@@ -1079,9 +1081,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // console.log(new Date());
         News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
             function(data){
+                // console.log(data);
                 if(data.results.length){
                     $scope.HasUnreadMessages = true;
                     // console.log($scope.HasUnreadMessages);
+                }else{
+                    $scope.HasUnreadMessages = false;
                 }
             },function(err){
                     console.log(err);
@@ -1089,9 +1094,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     GetUnread();
 
-    if(Storage.get('isSignIN')=='Yes'){
-        RefreshUnread = $interval(GetUnread,2000);
+    //isSignIN变成广播状态
+
+    if(Storage.get('isSignIN')==="Yes")
+    {
+      RefreshUnread = $interval(GetUnread,2000);
     }
+    $scope.$on('isSignIN',function(event,data){
+      console.log(data);
+      if (data==="No")
+      {
+        $interval.cancel(RefreshUnread);
+      }
+    })
     
     //获取二维码信息
 
@@ -3044,25 +3059,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               { text: '取消',
                 type: 'button-small',
                 onTap: function(e) {
-
                 }
               },
               {
                 text: '确定',
                 type: 'button-small button-positive ',
-                onTap: function(e) {
+                onTap: function (e) 
+                {
                     $state.go('signin');
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
                     //Storage.clear();
-                    Storage.rm('patientunionid')
-                    Storage.rm('PASSWORD')
+                    Storage.rm('patientunionid');
+                    Storage.rm('PASSWORD');
                     Storage.set("isSignIN","No");
-                     Storage.set("USERNAME",USERNAME);
-                     mySocket.cancelAll();
+                    $scope.$emit('isSignIN',"No");
+                    Storage.set("USERNAME",USERNAME);
+                    mySocket.cancelAll();
                      //$timeout(function () {
-                     $ionicHistory.clearCache();
-                     $ionicHistory.clearHistory();
+                    $ionicHistory.clearCache();
+                    $ionicHistory.clearHistory();
 
                     //}, 30);
                     //$ionicPopup.hide();
@@ -3088,14 +3104,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //根据用户ID查询用户头像
     $scope.myAvatar="img/DefaultAvatar.jpg";
     Patient.getPatientDetail({userId:Storage.get("UID")}).then(function(res){
-        console.log(Storage.get("UID"))
+        console.log(Storage.get("UID"));
         // console.log(res.results)
         // console.log(res.results.photoUrl)
         // console.log(angular.fromJson(res.results))
-        if(Storage.get('wechatheadimgurl')!=undefined||Storage.get('wechatheadimgurl')!=""||Storage.get('wechatheadimgurl')!=null){
-            $scope.myAvatar=Storage.get('wechatheadimgurl');
-        }
-        else if(res.results){
+        if(res.results){
             console.log(res.results);
             if(res.results.photoUrl&&res.results.photoUrl!="http://pp.jpg"){
                 $scope.myAvatar=res.results.photoUrl;
@@ -7950,7 +7963,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   // 上传头像的点击事件----------------------------
   $scope.addnewimage = function($event){
-    Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
+    // Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
     $state.go('tab.myHealthInfoDetail',{id:null,caneidt:true})
     // $scope.openPopover($event);
   };
