@@ -423,6 +423,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     };
 
+    var insurance = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'insurance'},{
+            setPrefer:{method:'GET', params:{route: 'setPrefer'}, timeout: 100000},
+            getPrefer:{method:'GET', params:{route: 'getPrefer'}, timeout: 100000}
+        })
+    }
+
     
 
     var Counsels = function(){
@@ -576,6 +583,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.Advice = Advice();
             serve.News = News();
             serve.Expense = Expense();
+            serve.insurance = insurance();
             serve.Mywechat = Mywechat();
             serve.Communication = Communication();
         }, 0, 1);
@@ -596,6 +604,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.Advice = Advice();
     serve.News = News();
     serve.Expense = Expense();
+    serve.insurance = insurance();
     serve.Mywechat = Mywechat();
     serve.Communication = Communication();
     return serve;
@@ -2198,4 +2207,41 @@ return self;
             return $cordovaLocalNotification.cancel(matchId);
         }
     }
+}])
+
+
+.factory('insurance', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->{
+            //  url:'patient_class'
+           // }
+    self.setPrefer = function(params){
+        var deferred = $q.defer();
+        Data.insurance.setPrefer(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //params->{
+            //  code:'3'
+            // }
+    self.getPrefer = function(params){
+        var deferred = $q.defer();
+        Data.insurance.getPrefer(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+
+    return self;
 }])
