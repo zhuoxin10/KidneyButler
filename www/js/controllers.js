@@ -1081,7 +1081,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // console.log(new Date());
         News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
             function(data){
-                console.log(data);
+                // console.log(data);
                 if(data.results.length){
                     $scope.HasUnreadMessages = true;
                     // console.log($scope.HasUnreadMessages);
@@ -1094,9 +1094,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
     GetUnread();
 
-    if(Storage.get('isSignIN')=='Yes'){
-        RefreshUnread = $interval(GetUnread,2000);
+    //isSignIN变成广播状态
+
+    if(Storage.get('isSignIN')==="Yes")
+    {
+      RefreshUnread = $interval(GetUnread,2000);
     }
+    $scope.$on('isSignIN',function(event,data){
+      console.log(data);
+      if (data==="No")
+      {
+        $interval.cancel(RefreshUnread);
+      }
+    })
     
     //获取二维码信息
 
@@ -3049,25 +3059,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               { text: '取消',
                 type: 'button-small',
                 onTap: function(e) {
-
                 }
               },
               {
                 text: '确定',
                 type: 'button-small button-positive ',
-                onTap: function(e) {
+                onTap: function (e) 
+                {
                     $state.go('signin');
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
                     //Storage.clear();
-                    Storage.rm('patientunionid')
-                    Storage.rm('PASSWORD')
+                    Storage.rm('patientunionid');
+                    Storage.rm('PASSWORD');
                     Storage.set("isSignIN","No");
-                     Storage.set("USERNAME",USERNAME);
-                     mySocket.cancelAll();
+                    $scope.$emit('isSignIN',"No");
+                    Storage.set("USERNAME",USERNAME);
+                    mySocket.cancelAll();
                      //$timeout(function () {
-                     $ionicHistory.clearCache();
-                     $ionicHistory.clearHistory();
+                    $ionicHistory.clearCache();
+                    $ionicHistory.clearHistory();
 
                     //}, 30);
                     //$ionicPopup.hide();
