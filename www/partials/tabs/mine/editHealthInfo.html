@@ -1,22 +1,24 @@
-<ion-view cache-view="false" title="健康信息" >
+<ion-view cache-view="false" title="健康信息" hide-tabs>
 
-  <!-- <ion-nav-bar class="bar-dark nav-title-slide-ios7 green-bg" style="" > -->
     <ion-nav-buttons side="left">
-      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="Goback()"></button>
+        <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
     </ion-nav-buttons>
-    <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="right">
+    <ion-nav-buttons  side="right">
             <button class="button button-clear"  ng-if="!canEdit"  ng-click="edit() "><i class="icon ion-edit"></i></button>
     </ion-nav-buttons>
-  <!-- </ion-nav-bar> -->
 
   <ion-content padding="true" style="top: 43px">
     
 
-  <ion-list>
-    <label  class="item item-input item-select">
+  <form name="HealthForm" nonvalidate>
+    <label  class="item item-input item-select-custom">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>类别</span>
-        <select ng-disabled="!canEdit" ng-model="health.label" ng-options="label.name for label in labels track by label.code" style="width:100%">
+        <select ng-disabled="!canEdit" ng-model="health.label" name="healthLabel" required ng-options="label.name for label in labels track by label.code">
         </select>
+        <span class="tick" ng-if="canEdit">
+              <i style="color:#6ac4f8;" ng-if="HealthForm.healthLabel.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
+               <i style="color:#FB6753;" ng-if="HealthForm.healthLabel.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
+        </span>
     </label>
 
     <label ng-if="!canEdit" class="item item-input">
@@ -26,12 +28,20 @@
 
     <ionic-datepicker ng-if="canEdit" input-obj="datepickerObject4" class="item item-input">
         <span class="input-label"><i class="icon ion-asterisk c-red" ></i>时间日期</span>
-        <input  style="text-align: right;" ng-model="health.date" dateformat type="text">
+        <input  style="text-align: right;" ng-model="health.date" name="healthDate" required dateformat type="text">
+        <span class="tick">
+              <i style="color:#6ac4f8;" ng-if="HealthForm.healthDate.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
+               <i style="color:#FB6753;" ng-if="HealthForm.healthDate.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
+          </span>
     </ionic-datepicker>
 
     <label class="item item-input">
           <span class="input-label" ><i class="icon ion-asterisk c-red"></i>文字描述</span>
-          <input  style="text-align: right;" ng-disabled="!canEdit" ng-model="health.text"  type="text">
+          <input  style="text-align: right;" ng-disabled="!canEdit" name="healthText" ng-model="health.text"  required type="text">
+          <span class="tick" ng-if="canEdit">
+              <i style="color:#6ac4f8;" ng-if="HealthForm.healthText.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
+               <i style="color:#FB6753;" ng-if="HealthForm.healthText.$invalid" class="icon ion-alert-circled placeholder-icon"></i>
+          </span>
     </label>
 
       
@@ -45,8 +55,9 @@
     <div style="text-align: center;" ng-if="canEdit">
            <button class="button button-clear" style="color:#666" ng-click="onClickCamera($event)" ><i class="icon ion-camera"></i>上传图片</button>
     </div>
-  </ion-list>
-    <button ng-if="canEdit" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="HealthInfoSetup()">
+  </form>
+
+    <button ng-if="canEdit" ng-disabled="!HealthForm.$valid" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="HealthInfoSetup()">
             保存
       </button>
   </ion-content>

@@ -1,9 +1,19 @@
-<ion-view view-title='任务'>
-    <div style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}"></div>
+<ion-view view-title='任务' show-tabs>
+    <ion-nav-buttons side="right" >
+            <button class="button button-clear" ng-click="GoToMessage() " head-red-point='HasUnreadMessages'><i class="icon iconfont icon-lingdang"></i></button>
+    </ion-nav-buttons>
     <ion-content class="padding">
         <ion-refresher pulling-text="下拉刷新" spinner='ripple' refreshing-text="。。。" on-refresh="Refresh()">
         </ion-refresher>
-        <div style="text-align: center;"><a href="#/insurance">肾病保险服务</a></div>
+
+
+        <div style="text-align: center;" ><img src="img/banner1@2x.png" style="width: 100%" ng-click="goinsurance()"></div>
+
+        <div id="uncompletedUserdetail" ng-if="unCompleted" style="text-align: center;margin:15px;">
+            <p>请您完善个人信息，将会为您提供任务列表</p>
+            <button ng-click="CompleteUserdetail()" style="background-color: transparent;border: none;color: #6ac4f8">点击完善个人信息<i style="margin-left: 10px" class="icon iconfont ion-ios-redo"></i></button>
+        </div>
+        
         <ion-list>
             <a class="item green-bg font-white" style="border: 0;font-size: 14px;border-bottom: 1px solid #fff;margin-bottom: 0" ng-click="open==true?open=false:open=true" ng-model="open">
             测量任务
@@ -74,6 +84,14 @@
         <ion-modal-view>
             <ion-content class="padding">
                 <p style="padding-left:4px;">医生排班表</p>
+                <div ng-show="hasstop" style="padding-left:4px;">
+                    <p >医生停诊中：</p>
+                    <p>当前日期：{{dateC|dateFormat:"YYYY-MM-DD"}}</p>
+
+                    <p>停诊开始：{{begin|dateFormat:"YYYY-MM-DD"}}</p>
+                    <p>停诊结束：{{end|dateFormat:"YYYY-MM-DD"}}</p>
+                </div>
+
                 <div class="row">
                     <div class="col schedual-border" ><span style="opacity:0">上午</span></div>
                     <div class="col schedual-border" >一</div>

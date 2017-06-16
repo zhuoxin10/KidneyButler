@@ -1,7 +1,7 @@
 <ion-view cache-view="false" title="个人信息">
-  <ion-nav-bar class="bar-positive green-bg" style="" >
-    <ion-nav-back-button class="button-icon ion-arrow-left-c">
-    </ion-nav-back-button>
+    <ion-nav-buttons side="left">
+        <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
+    </ion-nav-buttons>
     
   </ion-nav-bar>
   <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div>
@@ -120,7 +120,7 @@
             
         </form>
 
-        <div>
+        <div class="col-50" style="margin:0 auto;">
             <button  ng-disabled="!(questionForm.$valid)" style="margin-top:10px" class="button button-block green-bg font-white" ng-click ="submit()">
                         下一步
             </button>

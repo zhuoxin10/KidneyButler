@@ -48,10 +48,14 @@
     <script src="lib/spin.min.js"></script>
     <!-- 计算登录jpush的密码 XJZ-->
     <script src="lib/md5.min.js"></script>
+    <!-- socket连接 -->
+    <script src="lib/socket.io-client/dist/socket.io.js"></script>
+    <script src="lib/socket.min.js"></script>
 
     <!--js数据库-->
     <script src="lib/taffydb-master/taffy-min.js"></script>
-
+    <!-- wx js -->
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -63,7 +67,9 @@
   </head>
 
   <body ng-app="kidney">
-
-    <ion-nav-view animation="slide-left-right"></ion-nav-view>
+    <ion-nav-bar class="bar-positive green-bg" align-title="center">
+    </ion-nav-bar>
+    <ion-nav-view animation="slide-left-right">
+    </ion-nav-view>
   </body>
 </html>

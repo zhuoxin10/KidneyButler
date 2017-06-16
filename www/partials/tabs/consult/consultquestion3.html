@@ -1,8 +1,5 @@
 <ion-view cache-view="false" title="要获得的帮助">
-  <ion-nav-bar class="bar-positive green-bg" style="" >
     
-    
-  </ion-nav-bar>
   <ion-content padding="true">
     
     <div  class="list">
@@ -19,11 +16,20 @@
         <input  ng-model="Questionare.title"  type="text" placeholder="方便让医生注意到">
       </label>
     </div>
-      <button style="margin-top:0" ng-disabled="submitable" class="button button-block green-bg font-white" ng-click ="Submitquestion()">
+
+
+      <div class="row"  style="margin-top:0;">
+      <div class="col col-33" style="margin:0 auto;">
+        <button  class="button button-block green-bg font-white" class="button button-clear" ng-click="backtoDisease()">上一步
+      </button>
+      </div>
+      <div class="col col-33" style="margin:0 auto;">
+        <button  ng-disabled="submitable" class="button button-block green-bg font-white" ng-click ="Submitquestion()">
             提交
-      </button>
-      <button style="margin-top:0" class="button button-block green-bg font-white" class="button button-clear" ng-click="backtoDisease()">上一步
-      </button>
+        </button>
+      </div>
+
+      
     
 
 

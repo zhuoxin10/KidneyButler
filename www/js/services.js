@@ -1,10 +1,33 @@
+angular.module('ionic-datepicker.service', [])
+
+  .service('IonicDatepickerService', function () {
+
+    this.monthsList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    this.getYearsList = function (from, to) {
+      console.log(from, to)
+      var yearsList = [];
+      var minYear = 1900;
+      var maxYear = new Date().getFullYear() + 1;
+
+      minYear = from ? new Date(from).getFullYear() : minYear;
+      maxYear = to ? new Date(to).getFullYear() : maxYear;
+
+      for (var i = maxYear; i >= minYear; i--) {
+        yearsList.push(i);
+      }
+
+      return yearsList;
+    };
+});
+
 angular.module('kidney.services', ['ionic','ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
-    appKey: 'fe7b9ba069b80316653274e4',
-    crossKey: 'cf32b94444c4eaacef86903e',
     baseUrl: 'http://121.43.107.106:4050/',
+    mediaUrl: 'http://121.43.107.106:8052/',
+    socketServer:'ws://121.43.107.106:4050/',
     imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
     imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
     cameraOptions: {
@@ -23,7 +46,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             quality: 60,
             destinationType: 1,
             sourceType: 0,
-            allowEdit: true,
+            allowEdit: false,
             encodingType: 0,
             targetWidth: 1000,
             targetHeight: 1000
@@ -48,116 +71,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
     }
   };
 }])
-
-
-// --------上传头像---------------- 
-//跟我写的Camera同名了，这是旧的，不一定有用，就先注释了 XJZ
-
-  // .factory('Camera', ['$q','$cordovaCamera','CONFIG', '$cordovaFileTransfer','Storage',function($q,$cordovaCamera,CONFIG,$cordovaFileTransfer,Storage) { //LRZ
-  //   return {
-  //     getPicture: function() {
-
-  //       var options = { 
-  //           quality : 75, 
-  //           destinationType : 0, 
-  //           sourceType : 1, 
-  //           allowEdit : true,
-  //           encodingType: 0,
-  //           targetWidth: 300,
-  //           targetHeight: 300,
-  //           popoverOptions: CONFIG.popoverOptions,
-  //           saveToPhotoAlbum: false
-  //       };
-
-  //      var q = $q.defer();
-
-  //       $cordovaCamera.getPicture(options).then(function(imageData) {
-  //           imgURI = "data:image/jpeg;base64," + imageData;
-  //           // console.log("succeed" + imageData);
-  //           q.resolve(imgURI);
-  //       }, function(err) {
-  //           // console.log("sth wrong");
-  //           imgURI = undefined;
-  //           q.resolve(err);
-  //       });      
-  //       return q.promise; //return a promise
-  //     },
-
-  //     getPictureFromPhotos: function(){
-  //       var options = { 
-  //           quality : 75, 
-  //           destinationType : 0, 
-  //           sourceType : 0, 
-  //           allowEdit : true,
-  //           encodingType: 0,
-  //           targetWidth: 300,
-  //           targetHeight: 300
-  //       };
-  //         //从相册获得的照片不能被裁减 调研~
-  //      var q = $q.defer();
-  //       $cordovaCamera.getPicture(options).then(function(imageData) {
-  //           imgURI = "data:image/jpeg;base64," + imageData;
-  //           // console.log("succeed" + imageData);
-  //           q.resolve(imgURI);
-  //       }, function(err) {
-  //           // console.log("sth wrong");
-  //           imgURI = undefined;
-  //           q.resolve(err);
-  //       });      
-  //       return q.promise; //return a promise      
-  //     },
-
-  //     uploadPicture : function(imgURI, temp_photoaddress){
-  //         // document.addEventListener('deviceready', onReadyFunction,false);
-  //         // function onReadyFunction(){
-  //           var uri = encodeURI(CONFIG.ImageAddressIP + "/upload.php");
-  //           var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
-  //           var options = {
-  //             fileKey : "file",
-  //             fileName : temp_photoaddress,
-  //             chunkedMode : true,
-  //             mimeType : "image/jpeg"
-  //           };
-  //           var q = $q.defer();
-  //           //console.log("jinlaile");
-  //           $cordovaFileTransfer.upload(uri,imgURI,options)
-  //             .then( function(r){
-  //               console.log("Code = " + r.responseCode);
-  //               console.log("Response = " + r.response);
-  //               console.log("Sent = " + r.bytesSent);
-  //               var result = "上传成功";
-  //               q.resolve(result);        
-  //             }, function(error){
-  //               console.log(error);
-  //               alert("An error has occurred: Code = " + error.code);
-  //               console.log("upload error source " + error.source);
-  //               console.log("upload error target " + error.target);
-  //               q.resolve(error);          
-  //             }, function (progress) {
-  //               console.log(progress);
-  //             })
-
-  //             ;
-  //           return q.promise;  
-  //         // }
-
-
-  //         // var ft = new FileTransfer();
-  //         // $cordovaFileTransfer.upload(imgURI, uri, win, fail, options);
-        
-  //     },
-
-  //   uploadPicture2: function(imgURI){
-  //     document.addEventListener("deviceready", onDeviceReady, false);
-
-  //     function onDeviceReady() {
-  //    // as soon as this function is called FileTransfer "should" be defined
-  //       console.log(FileTransfer);
-  //       console.log(File);
-  //     }
-  //   }
-  //   }
-  // }])
 
 //media文件操作 XJZ
 .factory('fs',['$q','$cordovaFile','$filter',function($q,$cordovaFile,$filter){
@@ -712,7 +625,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     },
     uploadPicture : function(imgURI, temp_photoaddress){
         return $q(function(resolve, reject) {
-          var uri = encodeURI("http://121.43.107.106:4050/upload")
+          var uri = encodeURI(CONFIG.baseUrl + "upload")
             // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
             var options = {
               fileKey : "file",
@@ -743,7 +656,19 @@ angular.module('kidney.services', ['ionic','ngResource'])
   }
 }])
 
+.factory('toServer',['$interval','socket',function($interval,socket){
+    var self = this;
+    self.newUser = function(name,id){
+        $interval(function newuser(){
+            // console.log('serve');
+            socket.emit('newUser', {user_name: name, user_id: id});
+            return newuser;
+        }(),10000);
+    }
+    return self;
 
+    
+}])
 
 
 //--------健康信息的缓存数据--------
@@ -906,6 +831,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
             getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
             updateAgree:{method:'POST', params:{route: 'updateUserAgreement'}, timeout: 100000},
+            getUserIDbyOpenId:{method:'GET', params:{route: 'getUserIDbyOpenId'}, timeout: 100000},
+            setOpenId:{method:'POST', params:{route: 'setOpenId'}, timeout: 100000}
 
         });
     }
@@ -941,7 +868,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getCounts:{method:'GET', params:{route: 'getCounts'}, timeout: 100000},
             modifyCounts:{method:'POST', params:{route: 'modifyCounts'}, timeout: 100000},
             rechargeDoctor:{method:'POST', params:{route: 'rechargeDoctor'}, timeout: 100000},
-            updateFreeTime:{method:'POST', params:{route: 'updateFreeTime'}, timeout: 100000}
+            updateFreeTime:{method:'POST', params:{route: 'updateFreeTime'}, timeout: 100000},
+            getCountsRespective:{method:'GET', params:{route: 'getCountsRespective'}, timeout: 100000}
         });
     }
 
@@ -950,6 +878,12 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getMessages:{method:'GET', params:{route: 'getMessages'}, timeout: 100000}
         });
     }
+
+    var Advice =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'advice'},{
+            postAdvice:{method:'POST', params:{route: 'postAdvice'}, timeout: 100000}
+        });
+    } 
 
     var News = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'new'},{
@@ -961,13 +895,27 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Communication =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'communication'},{
+            getCommunication:{method:'GET', params:{route: 'getCommunication'}, timeout: 100000},
             getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
             getTeam:{method:'GET', params:{route: 'getTeam'}, timeout: 100000},
             insertMember:{method:'POST', params:{route: 'insertMember'}, timeout: 100000},
             removeMember:{method:'POST', params:{route: 'removeMember'}, timeout: 100000}
         });
     }
+    var Expense =function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'expense'},{
+            rechargeDoctor:{method:'POST', params:{route: 'rechargeDoctor'}, timeout: 100000},
+        });
+    }
 
+    var Mywechat = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route',{path:'wechat'},{
+            messageTemplate:{method:'POST', params:{route: 'messageTemplate'}, timeout: 100000},
+            gettokenbycode:{method:'GET', params:{route: 'gettokenbycode'}, timeout: 100000},
+            addOrder:{method:'POST', params:{route: 'addOrder'}, timeout: 100000},
+            getUserInfo:{method:'GET', params:{route: 'getUserInfo'}, timeout: 100000}
+        })
+    }
     serve.abort = function ($scope) {
         abort.resolve();
         $interval(function () {
@@ -986,8 +934,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.VitalSign = VitalSign();
             serve.Account = Account();
             serve.Message = Message();
+            serve.Advice = Advice();
             serve.News = News();
-
+            serve.Expense = Expense();
+            serve.Mywechat = Mywechat();
             serve.Communication = Communication();
         }, 0, 1);
     };
@@ -1005,7 +955,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.VitalSign = VitalSign();
     serve.Account = Account();
     serve.Message = Message();
+    serve.Advice = Advice();
     serve.News = News();
+    serve.Expense = Expense();
+    serve.Mywechat = Mywechat();
     serve.Communication = Communication();
     return serve;
 }])
@@ -1391,8 +1344,31 @@ angular.module('kidney.services', ['ionic','ngResource'])
         return deferred.promise;
     }
 
-
+    self.getUserIDbyOpenId = function(params){
+        var deferred = $q.defer();
+        Data.User.getUserIDbyOpenId(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
     
+    self.setOpenId  = function(params){
+        var deferred = $q.defer();
+        Data.User.setOpenId (
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    }
     return self;
 }])
 
@@ -1861,6 +1837,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    //params-> messageType=2&id2=teamOrConsultation&limit=1&skip=0
+    //         messageType=1&id1=doc&id2=pat&limit=1&skip=0
+    self.getCommunication = function(params){
+        var deferred = $q.defer();
+        Data.Communication.getCommunication(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
     //params->0:{teamId:'team1'}
     self.getTeam = function(params){
@@ -1919,6 +1909,25 @@ angular.module('kidney.services', ['ionic','ngResource'])
     self.getMessages = function(params){
         var deferred = $q.defer();
         Data.Message.getMessages(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+
+.factory('Advice', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{type:1}
+    self.postAdvice = function(params){
+        var deferred = $q.defer();
+        Data.Advice.postAdvice(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -2036,11 +2045,23 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
-    return self;
     //
     self.updateFreeTime = function(params){
         var deferred = $q.defer();
         Data.Account.updateFreeTime(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    //
+    self.getCountsRespective = function(params){
+        var deferred = $q.defer();
+        Data.Account.getCountsRespective(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -2130,10 +2151,169 @@ angular.module('kidney.services', ['ionic','ngResource'])
     return self;
 }])
 
+.factory('Expense', ['$q', 'Data', function($q, Data){
+    var self = this;
+    //params->0:{userId:'p01'}
+    self.rechargeDoctor = function(params){
+        var deferred = $q.defer();
+        Data.Expense.rechargeDoctor(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
+return self;
+}])
 
+.factory('Mywechat', ['$q', 'Data', function($q, Data){
+    var self = this;
 
+    self.messageTemplate = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.messageTemplate(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
+    self.gettokenbycode = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.gettokenbycode(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
+    self.addOrder = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.addOrder(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
 
+    self.getUserInfo = function(params){
+        var deferred = $q.defer();
+        Data.Mywechat.getUserInfo(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    
+    return self;
+}])
+.factory('socket',['$rootScope','socketFactory','CONFIG',function($rootScope,socketFactory,CONFIG){
+    var myIoSocket = io.connect(CONFIG.socketServer+'chat');
+    var mySocket = socketFactory({
+        ioSocket: myIoSocket,
+        prefix: 'im:'
+    });
+    mySocket.forward(['getMsg','messageRes','err','disconnect']);
+    return mySocket;
+}])
+.factory('notify',['$cordovaLocalNotification','$cordovaFileTransfer','CONFIG','arrTool',function($cordovaLocalNotification,$cordovaFileTransfer,CONFIG,arrTool){
+    var notices = {},
+        iconPath = 'file://img/default_user.png',
+        COUNT_REG = /^\[([1-9]+[0-9]*)\]/;
+    function getNote(msg){
+        console.log($cordovaLocalNotification.getAll());
+    }
+    function nextCount(text){
+        var matchs = text.match(COUNT_REG);
+        return matchs===null?2:Number(matchs[1])+1;
+    }
+    function noteGen(msg){
+        var note = msg.fromName+':',
+            type = msg.contentType;
+        if(type=='text'){
+            note += msg.content.text;
+        }else if(type == 'image'){
+            note += '[图片]';
+        }else if(type == 'voice'){
+            note += '[语音]';
+        }else{
+            var subT = msg.content.type;
+            if(subT=='card'){
+                if(msg.newsType=='11') note += msg.content.counsel.type=='1'?'[新咨询]':'[新问诊]';
+                else if(msg.newsType=='12') note += '[病历转发]';
+                else note += '[团队病历]';
+            }else if(subT == 'contact'){
+                note += '[联系人名片]'
+            }else if(subT == 'endl'){
+                note += msg.content.counseltype==1?'[咨询结束]':'[问诊结束]';
+            }else{
+                note+='[新消息]';
+            }
+        }
+        return note;
+    }
+    function schedulNote(msg,note){
+        if(note){
+            note.text = '[' + nextCount(note.text) + ']' + noteGen(msg);
+            // opt.text = '[' + nextCount(note.text) + ']' + opt.text;
+        }else{
+            var noteid = msg.targetType=='single'?msg.fromID:msg.targetID;
+            noteid=Number(noteid.slice(1));
+            var note = {
+                id:noteid,
+                title:msg.targetType=='single'?msg.fromName:msg.targetName,
+                text:noteGen(msg),
+                data:msg,
+                led:'1199dd',
+                icon:'',
+                smallIcon:'texticon',
+                color:'1199dd'
+            }
+        }
+        return $cordovaLocalNotification.schedule(note);
+    }
+    return {
+        add:function(msg){
+            if(msg.contentType=='custom' && (msg.content.type=='counsel-upgrade' || msg.content.type=='count-notice')) return;
 
+            var matchId = msg.targetType=='single'?msg.fromID:msg.targetID;
+            matchId=Number(matchId.slice(1));
+            return $cordovaLocalNotification.getAll()
+                .then(function(notes){
+                    var pos=arrTool.indexOf(notes,'id',matchId);
+                    if(pos==-1) return null;
+                    return notes[pos];
+                }).then(function(note){
+                    if(note==null){
+                        return schedulNote(msg);
+                    }else{
+                        return schedulNote(msg,note);
+                    }
+                });
+        },
+        remove:function(id){
+            var matchId=Number(id.slice(1));
+            return $cordovaLocalNotification.cancel(matchId);
+        }
+    }
+}])

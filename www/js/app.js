@@ -3,21 +3,52 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload'])
+angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload','btford.socket-io'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,JM) {
+.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket) {
   $ionicPlatform.ready(function() {
 
-
     var isSignIN=Storage.get("isSignIN");
+    thisPatient=null;
+    $rootScope.conversation = {
+        type: null,
+        id: ''
+    }
     if(isSignIN=='YES'){
       $state.go('tab.tasklist');
     }
-
-    $rootScope.conversation = {
-            type: null,
-            id: ''
-        }
+    var appState = {
+        background:false
+    }
+    document.addEventListener('pause', onPause, false);
+    document.addEventListener('resume', onResume, false);
+    function onPause(){
+        appState.background = true;
+    }
+    function onResume(){
+        appState.background = false;
+    }
+    socket.on('error', function(data) {
+        console.error('socket error');
+        console.log(data);
+    });
+    socket.on('disconnected', function(data) {
+        console.error('disconnected');
+        console.error(data);
+    });
+    socket.on('reconnect', function(attempt) {
+        console.info('reconnect: ' + attempt);
+        var id = Storage.get('UID'),
+            name = thisPatient===null?'':thisPatient.name;
+        socket.emit('newUser',{ user_name: name, user_id: id });
+    });
+    socket.on('getMsg', listenGetMsg);
+    function listenGetMsg(data){
+        console.info('getMsg');
+        console.log(data);
+        if(!appState.background && (($rootScope.conversation.type == 'single' && $rootScope.conversation.id==data.msg.fromID) || ($rootScope.conversation.type == 'group' && $rootScope.conversation.id==data.msg.targetID))) return;
+        notify.add(data.msg);
+    }
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -29,102 +60,17 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       cordova.plugins.Keyboard.disableScroll(true);
     }
     if(window.StatusBar) {
-      StatusBar.styleDefault();
+        StatusBar.backgroundColorByHexString("#33bbff");
+      // StatusBar.styleDefault();
     }
-    if (window.JPush) {
-        window.JPush.init();
-    }
-    if (window.JMessage) {
-        // window.Jmessage.init();
-        JM.init();
-        document.addEventListener('jmessage.onUserLogout',function(data){
-          console.error(Storage.get(UID) +' log out');
-          alert('jmessage user log out: '+Storage.get(UID));
+    $rootScope.$on('$cordovaLocalNotification:click',function(event,note,state){
+        console.log(arguments);
+        var msg = JSON.parse(note.data);
+        if(msg.newsType=='11'){
+            $state.go('tab.consult-chat', {chatId: msg.fromID});
+        }
+    })
 
-        })
-        document.addEventListener('jmessage.onOpenMessage', function(msg) {
-            console.info('[jmessage.onOpenMessage]:');
-            console.log(msg);
-            $state.go('tab.consult-chat', { chatId: msg.targetID});
-        }, false);
-        document.addEventListener('jmessage.onReceiveMessage', function(msg) {
-            console.info('[jmessage.onReceiveMessage]:');
-            console.log(msg);
-            $rootScope.$broadcast('receiveMessage', msg);
-            if (device.platform == "Android") {
-                // message = window.JMessage.message;
-                // console.log(JSON.stringify(message));
-            }
-        }, false);
-             //显示通知栏消息
-            document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
-                console.info('[jmessage.onReceiveCustomMessage]:' );
-                console.log(msg);
-
-            //      if(msg.content.contentStringMap.type=='card'){
-                 
-
-            //     var counsel=JSON.parse(msg.content.contentStringMap.counsel);
-            //     // $rootScope.$broadcast('receiveMessage',msg);
-            //     if (msg.targetType == 'single' && msg.fromName != $rootScope.conversation.id) {
-            //         if(msg.content.contentStringMap.doctorId==msg.content.contentStringMap.targetId) prefix='[咨询]';
-            //         else prefix='[咨询转发]';
-            //         if(msg.content.contentStringMap.type=='card'){
-            //             if (device.platform == "Android") {
-            //                 window.plugins.jPushPlugin.addLocalNotification(1, prefix+counsel.help, msg.targetName, msg.serverMessageId, 0, msg);
-            //             } else {
-            //                 window.plugins.jPushPlugin.addLocalNotificationForIOS(0, prefix+counsel.help, 1, msg.serverMessageId, msg);
-            //             }
-            //         }
-                    
-            //     }
-            //     if (msg.targetType == 'group' && msg.targetID != $rootScope.conversation.id) {
-            //         if(msg.content.contentStringMap.type=='card'){
-            //             if (device.platform == "Android") {
-            //                     window.plugins.jPushPlugin.addLocalNotification(1, '[团队咨询]', msg.fromNickname, msg.serverMessageId, 0, msg);
-            //             } else {
-            //                 window.plugins.jPushPlugin.addLocalNotificationForIOS(0, '[团队咨询]', 1, msg.serverMessageId, msg);
-            //             }
-            //         }else if(msg.content.contentStringMap.type=='contact'){
-            //         }
-            //     }
-            // }else 
-            if(msg.content.contentStringMap.type=='endl'){
-                if (msg.targetType == 'single' && msg.fromName != $rootScope.conversation.id) {
-                    if(msg.content.contentStringMap.counseltype==1){
-                     prefix='[咨询已结束]';
-                    }else{prefix='[问诊已结束]';}
-                    
-                        if (device.platform == "Android") {
-                            window.plugins.jPushPlugin.addLocalNotification(1, prefix+"请评价", msg.targetName, msg.serverMessageId, 0, msg);
-                        } else {
-                            window.plugins.jPushPlugin.addLocalNotificationForIOS(0, prefix+"请评价", 1, msg.serverMessageId, msg);
-                        }
-                    
-                    
-                }
-
-            }
-
-            
-
-            }, false);
-        // document.addEventListener('jmessage.onReceiveCustomMessage', function(msg) {
-        //     console.log('[jmessage.onReceiveCustomMessage]: ' + msg);
-        //     // $rootScope.$broadcast('receiveMessage',msg);
-        //     if (msg.targetType == 'single' && msg.fromID != $rootScope.conversation.id) {
-        //         if (device.platform == "Android") {
-        //             window.plugins.jPushPlugin.addLocalNotification(1, '本地推送内容test', msg.content.contentStringMap.type, 111, 0, null)
-        //                 // message = window.JMessage.message;
-        //                 // console.log(JSON.stringify(message));
-        //         } else {
-        //             window.plugins.jPushPlugin.addLocalNotificationForIOS(0, msg.content.contentStringMap.type + '本地推送内容test', 1, 111, null)
-        //         }
-        //     }
-
-        // }, false);
-
-    }
     window.addEventListener('native.keyboardshow', function(e) {
         $rootScope.$broadcast('keyboardshow', e.keyboardHeight);
     });
@@ -241,7 +187,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-chat', {
       url: '/consult/chat/:chatId',
-      params:{type:null,status:null,msgCount:null},
+      // params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
           cache:false,
@@ -387,16 +333,27 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }     
          
     })
-     .state('tab.about',{
-      cache:false,
-      url:'/mine/about',
-      views:{
-        'tab-mine':{
-            templateUrl:'partials/about.html',
-            controller:'aboutCtrl'
+    .state('tab.about',{
+        url:'/mine/about',
+        views:{
+            'tab-mine':{
+                templateUrl:'partials/about.html',
+                controller:'aboutCtrl'
+            }
         }
-      }
       
+    })
+    .state('tab.advice', {
+        cache:false,
+        url: '/mine/advice/',
+        views: {
+            'tab-mine': {
+                templateUrl: 'partials/tabs/mine/advice.html',
+                controller: 'adviceCtrl'
+            }
+
+        }     
+         
     })
     .state('tab.changePassword',{
         cache:false,

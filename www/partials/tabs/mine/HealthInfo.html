@@ -1,23 +1,17 @@
-<ion-view cache-view="false" title="健康信息" >
+<ion-view cache-view="false" title="健康信息" hide-tabs>
 
-  <ion-nav-bar class="bar-dark nav-title-slide-ios7 green-bg" style="" >
       <ion-nav-buttons  side="left" >
-         <button class="button button-clear"  ng-click="Goback()"><i class="icon ion-chevron-left"></i>返回</button>
+        <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
       </ion-nav-buttons>
       <ion-nav-buttons  side="right" >
-         <button class="button button-clear" ng-click="newHealth()"><i class="icon iconfont icon-add1"></i></button>
+         <button class="button button-clear" ng-click="newHealth()"><i class="icon ion-ios-plus-empty"></i></button>
       </ion-nav-buttons>
-    </ion-nav-bar>
-  <!--<ion-nav-bar class="bar-dark nav-title-slide-ios7 green-bg" style="" >
-    <ion-nav-buttons side="left">
-      <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
-    </ion-nav-buttons>
-  </ion-nav-bar>-->
+  
 
 
   <ion-content  class="padding">
     <ion-list>
-      <div class="card" ng-repeat="item in items | orderBy:'-time'" ng-click="gotoHealthDetail($event,item)">
+      <div class="card" ng-repeat="item in items " ng-click="gotoHealthDetail($event,item)">
         <div class="row">
             <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
             <p class="col" style="text-align:center;">{{item.time|dateFormat:"YYYY-MM-DD"}}</p>
@@ -36,6 +30,15 @@
 
       </div>
     </ion-list>
+
+
+    <div class="card" ng-if="noHealth">
+        <div class="item item-text-wrap">
+            您还没有健康信息，可通过右上角加号添加！
+        </div>
+      </div>
+
+    
 
     
 
