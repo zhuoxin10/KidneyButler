@@ -1164,7 +1164,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     });
     $scope.$on('$ionicView.leave', function ()
     {
-      // console.log('destroy');
+      console.log('destroy');
       
       $interval.cancel(RefreshUnread);
       
@@ -3084,7 +3084,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.$on('$ionicView.leave', function ()
   {
     // console.log('destroy');
-    
+    console.log('destroy');
     $interval.cancel(RefreshUnread);
     
     
@@ -3138,6 +3138,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $scope.$emit('isSignIN',"No");
                     Storage.set("USERNAME",USERNAME);
                     mySocket.cancelAll();
+                    socket.emit('disconnect');
+                    socket.disconnect();
                      //$timeout(function () {
                     $ionicHistory.clearCache();
                     $ionicHistory.clearHistory();
@@ -5163,7 +5165,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // console.log('destroy');
       
       $interval.cancel($scope.RefreshUnread);
-      
       
     });
     //进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
@@ -8105,7 +8106,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     $scope.$on('$ionicView.leave', function ()
     {
-      // console.log('destroy');
+      console.log('destroy');
       
       $interval.cancel(RefreshUnread);
       
