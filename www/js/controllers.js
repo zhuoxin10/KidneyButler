@@ -3083,8 +3083,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   });
   $scope.$on('$ionicView.leave', function ()
   {
+    // console.log('destroy');
     console.log('destroy');
-    
     $interval.cancel(RefreshUnread);
     
     
@@ -3451,7 +3451,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             if(data.results.length){
 
                 FilteredDoctors = FilterDoctor(data.results);
-                console.log(FilteredDoctors);
+                // console.log(FilteredDoctors);
                 News.getNews({userId:MyId,type:11}).then(
                     function(data){
                         console.log(data.results);
@@ -3462,11 +3462,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         FilteredDoctors[x].lastMsgDate = data.results[y].time;
                                         FilteredDoctors[x].latestMsg = data.results[y].description;
                                         try{
-                                            data.results[y].url = JSON.parse(data.results[y].url);
-                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId == data.results[y].url.fromID ? 1:0);
+                                          data.results[y].url = JSON.parse(data.results[y].url);
+                                          
+                                          FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId === data.results[y].url.fromID ? 1:0);
+                                          console.log(FilteredDoctors[x].readOrNot);
+                                          console.log(data.results[y].url);
                                         }
                                         catch(e){
-                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot;
+                                            // console.log('error');
+                                            // console.log(data.results[y].url);
+                                            FilteredDoctors[x].readOrNot = 1;
                                         }
                                         
                                     }
@@ -5129,7 +5134,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //         $scope.DisabledConsult = false;
     //     }
     // });
-    var RefreshUnread;
+    // var RefreshUnread;
     var GetUnread = function(){
         // console.log(new Date());
         News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
@@ -5150,17 +5155,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.$on('$ionicView.enter', function() {
       if ($ionicHistory.currentView().stateId === 'tab.myDoctors')
       {
-        RefreshUnread = $interval(GetUnread,2000);
+        $scope.RefreshUnread = $interval(GetUnread,2000);
       }
       
     });
 
-    $scope.$on('$destroy', function ()
+    $scope.$on('$ionicView.leave', function ()
     {
-      console.log('destroy');
+      // console.log('destroy');
       
-      $interval.cancel(RefreshUnread);
-      
+      $interval.cancel($scope.RefreshUnread);
       
     });
     //进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
