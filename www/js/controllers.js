@@ -3138,6 +3138,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $scope.$emit('isSignIN',"No");
                     Storage.set("USERNAME",USERNAME);
                     mySocket.cancelAll();
+                    socket.emit('disconnect');
+                    socket.disconnect();
                      //$timeout(function () {
                     $ionicHistory.clearCache();
                     $ionicHistory.clearHistory();
