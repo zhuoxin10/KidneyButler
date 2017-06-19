@@ -1157,19 +1157,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
 
-    $scope.$on('$destroy', function ()
+    
+    $scope.$on('$ionicView.enter', function() {
+        GetTasks();
+        RefreshUnread = $interval(GetUnread,2000);
+    });
+    $scope.$on('$ionicView.leave', function ()
     {
-      // console.log('destroy');
+      console.log('destroy');
       
       $interval.cancel(RefreshUnread);
       
       
     });
-    $scope.$on('$ionicView.enter', function() {
-        GetTasks();
-        RefreshUnread = $interval(GetUnread,2000);
-    });
-
   //判断是否需要修改任务时间
    function IfTaskOverTime(startTime, frequencyTimes, unit, times)
    {
@@ -3061,33 +3061,34 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
   var patientId = Storage.get('UID');
   var RefreshUnread;
-    var GetUnread = function(){
-        // console.log(new Date());
-        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
-            function(data){
-                // console.log(data);
-                if(data.results.length){
-                    $scope.HasUnreadMessages = true;
-                    // console.log($scope.HasUnreadMessages);
-                }else{
-                    $scope.HasUnreadMessages = false;
-                }
-            },function(err){
-                    console.log(err);
-            });
-    }
+  var GetUnread = function(){
+      // console.log(new Date());
+      News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+          function(data){
+              // console.log(data);
+              if(data.results.length){
+                  $scope.HasUnreadMessages = true;
+                  // console.log($scope.HasUnreadMessages);
+              }else{
+                  $scope.HasUnreadMessages = false;
+              }
+          },function(err){
+                  console.log(err);
+          });
+  }
 
-    $scope.$on('$destroy', function ()
-    {
-      // console.log('destroy');
-      
-      $interval.cancel(RefreshUnread);
-      
-      
-    });
-    $scope.$on('$ionicView.enter', function() {
-        RefreshUnread = $interval(GetUnread,2000);
-    });
+  
+  $scope.$on('$ionicView.enter', function() {
+      RefreshUnread = $interval(GetUnread,2000);
+  });
+  $scope.$on('$ionicView.leave', function ()
+  {
+    console.log('destroy');
+    
+    $interval.cancel(RefreshUnread);
+    
+    
+  });
   //页面跳转---------------------------------
   $scope.GoUserDetail = function(){
     $state.go('userdetail',{last:'mine'});
@@ -5143,19 +5144,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
 
-    $scope.$on('$destroy', function ()
-    {
-      // console.log('destroy');
-      
-      $interval.cancel(RefreshUnread);
-      
-      
-    });
+    
     $scope.$on('$ionicView.enter', function() {
       if ($ionicHistory.currentView().stateId === 'tab.myDoctors')
       {
         RefreshUnread = $interval(GetUnread,2000);
       }
+      
+    });
+
+    $scope.$on('$destroy', function ()
+    {
+      console.log('destroy');
+      
+      $interval.cancel(RefreshUnread);
+      
       
     });
     //进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
@@ -8089,16 +8092,19 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
     }
 
-    $scope.$on('$destroy', function ()
+    
+    $scope.$on('$ionicView.enter', function() {
+        RefreshUnread = $interval(GetUnread,2000);
+    });
+
+
+    $scope.$on('$ionicView.leave', function ()
     {
-      // console.log('destroy');
+      console.log('destroy');
       
       $interval.cancel(RefreshUnread);
       
       
-    });
-    $scope.$on('$ionicView.enter', function() {
-        RefreshUnread = $interval(GetUnread,2000);
     });
 
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+userId+"&password="+userId);
