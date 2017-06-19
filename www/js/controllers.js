@@ -164,11 +164,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             //用户已经存在id 说明公众号注册过
             //未测试
             // if(Storage.get('wechatheadimgurl')){
-            //     // alert("image");
+            //     alert("image");
             //     Pateint.replacePhoto({userId:ret.UserId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(
                     
             //         function(data){
-            //             // alert("dfesgf");
+            //             alert(JSON.stringify(data));
             //             Storage.rm('wechatheadimgurl');
             //         }
             //     );

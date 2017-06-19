@@ -82,12 +82,15 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 })
 
 // --------路由, url模式设置----------------
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
+
+  //ios 白屏可能问题配置
+  $ionicConfigProvider.views.swipeBackEnabled(false);
   //注册与登录
   $stateProvider
     .state('signin', {
