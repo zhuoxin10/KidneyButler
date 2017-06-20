@@ -3666,39 +3666,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         .then(function(response) {
             thisPatient=response.results;
             $scope.photoUrls[response.results.userId]=response.results.photoUrl;
-            // socket.emit('newUser',{user_name:response.results.name,user_id:$scope.params.UID});
-            // socket.on('err',function(data){
-            //     console.error(data)
-            // });
-            // socket.on('getMsg',function(data){
-            //     console.info('getMsg');
-            //     console.log(data);
-            //     if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
-            //         $scope.$apply(function(){
-            //             $scope.pushMsg(data.msg);
-            //         });
-            //         News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
-            //         setTimeout(function() {
-            //             Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
-            //                 .then(function(data) {
-            //                     console.log(data);
-            //                     $scope.counselstatus=data.result.status;
-            //                 }, function(err) {
-            //                     console.log(err)
-            //                 });
-            //         }, 5000);
-            //     }
-            // });
-            // socket.on('messageRes',function(data){
-            //     console.info('messageRes');
-            //     console.log(data);
-            //     if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
-            //         $scope.$apply(function(){
-            //             $scope.updateMsg(data.msg);
-            //         });
-            //     }
-            // });
-            // $scope.params.connect=true;
+
         }, function(err) {
 
         });
@@ -3731,7 +3699,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(data);
         if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
             $scope.$apply(function(){
-                $scope.pushMsg(data.msg);
+                insertMsg(data.msg);
             });
             News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
             setTimeout(function() {
@@ -3750,7 +3718,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(data);
         if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
             $scope.$apply(function(){
-                $scope.updateMsg(data.msg);
+                insertMsg(data.msg);
             });
         }
     });
@@ -3935,15 +3903,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //     $scope.params.hidePanel = !$scope.params.hidePanel;
     // }
 
-    $scope.updateMsg = function(msg){
+    $scope.updateMsg = function(msg,pos){
         console.info('updateMsg');
-        var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
-        if(pos!=-1){
+        // var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
+        // if(pos!=-1){
             msg.diff=$scope.msgs[pos].diff;
             msg.content.src=$scope.msgs[pos].content.src;
             msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
             $scope.msgs[pos]=msg;
-        }
+        // }
     }
     $scope.pushMsg = function(msg){
         console.info('pushMsg');
@@ -3969,7 +3937,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         setTimeout(function(){
             var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
             if(pos!=-1 && $scope.msgs[pos].status=='send_going') $scope.msgs[pos].status='send_fail';
-        },20000);
+        },10000);
+    }
+    function insertMsg(msg){
+        var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
+        if(pos==-1){
+            $scope.pushMsg(msg);
+        }else{
+            $scope.updateMsg(msg,pos);
+        }
     }
     function msgGen(content,type){
         var data={};
