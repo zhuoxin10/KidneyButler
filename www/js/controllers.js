@@ -3056,7 +3056,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //我的 页面--PXY
 //我的 页面--PXY
-.controller('MineCtrl', ['$interval', 'News','$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce','mySocket',function($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce,mySocket) {
+.controller('MineCtrl', ['$interval', 'News','$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce','mySocket','socket',function($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce,mySocket,socket) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID');
