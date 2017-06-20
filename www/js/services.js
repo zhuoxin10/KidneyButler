@@ -454,7 +454,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
             editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
             bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000},
-            replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl'},timeout:10000}
+            replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl',patientId:'@patientId',wechatPhotoUrl:'@wechatPhotoUrl'},timeout:10000}
         });
     }
 
@@ -474,7 +474,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             changePassword:{method:'POST', params:{route: 'reset',phoneNo:'@phoneNo',password:'@password'}, timeout: 100000},
             logIn:{method:'POST', params:{route: 'login'}, timeout: 100000},
             logOut:{method:'POST', params:{route: 'logout',userId:'@userId'}, timeout: 100000},
-            getUserId:{method:'GET', params:{route: 'getUserID',phoneNo:'@phoneNo'}, timeout: 100000},
+            getUserID:{method:'GET', params:{route: 'getUserID',username:'@username'}, timeout: 100000},
             sendSMS:{method:'POST', params:{route: 'sendSMS',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
             verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
             getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
@@ -1142,9 +1142,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     //params->{phoneNo:"18768113668"}
     //004
-    self.getUserId = function(params){
+    self.getUserID = function(params){
         var deferred = $q.defer();
-        Data.User.getUserId(
+        Data.User.getUserID(
             params,
             function(data, headers){
                 deferred.resolve(data);
