@@ -5243,7 +5243,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
             console.log(res)
             // alert(JSON.stringify(res))
-            if(res.results=="修改成功" || res.results.errcode == 40037){
+            if(res.results=="修改成功" || res.results.errcode !=""||res.results.errcode !=null){
               $ionicPopup.alert({
                title: '绑定成功！'
               }).then(function(res) {
