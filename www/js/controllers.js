@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','Data','User','$sce','Mywechat','Patient','mySocket', function($scope, $timeout,$state,Storage,$ionicHistory,Data,User,$sce,Mywechat,Patient,mySocket) {
+.controller('SignInCtrl', ['$ionicLoading','$scope','$timeout','$state','Storage','$ionicHistory','Data','User','$sce','Mywechat','Patient','mySocket', function($ionicLoading,$scope, $timeout,$state,Storage,$ionicHistory,Data,User,$sce,Mywechat,Patient,mySocket) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
     $scope.autologflag=0;
     if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
@@ -126,7 +126,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
 
-
+    var ionicLoadingshow = function() {
+        $ionicLoading.show({
+        template: '登录中...'
+        });
+    };
+    var ionicLoadinghide = function(){
+        $ionicLoading.hide();
+    };
     $scope.toRegister = function(){
 
         $state.go('phonevalid',{phonevalidType:'register'});
@@ -176,6 +183,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             }
             
             if(ret.results==0&&ret.roles.indexOf("patient")!=-1){//直接登录
+                ionicLoadingshow();
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
                 // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
@@ -188,7 +196,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   Storage.set('bindingsucc','yes')
                   Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                     if(data.results){
-                        $timeout(function(){$state.go('tab.tasklist');},500);
+                        $timeout(function(){
+                            ionicLoadinghide();
+                            $state.go('tab.tasklist');
+                        },500);
                         mySocket.newUser(data.results.userId,data.results.name);
                     }
                   });
@@ -261,10 +272,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
 
-     var a=document.getElementById("agreement");
-        // console.log(document.body.clientHeight);
-        console.log(window.screen.height);
-        a.style.height=window.screen.height*0.65+"px";
+     // var a=document.getElementById("agreement");
+     //    // console.log(document.body.clientHeight);
+     //    console.log(window.screen.height);
+     //    a.style.height=window.screen.height*0.65+"px";
 
 }])
 
