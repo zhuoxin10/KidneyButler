@@ -454,7 +454,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
             editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
             bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000},
-            replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl'},timeout:10000}
+            replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl',patientId:'@patientId',wechatPhotoUrl:'@wechatPhotoUrl'},timeout:10000}
         });
     }
 
