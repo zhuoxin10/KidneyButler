@@ -157,16 +157,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           Storage.set('wechatheadimgurl',persondata.results.headimgurl);
           
           $scope.unionid=persondata.results.unionid;
-          alert($scope.unionid)
+          // alert($scope.unionid)
           //判断这个unionid是否已经绑定用户了 有直接登录
           User.getUserID({"username":$scope.unionid}).then(function(ret){
-            alert(JSON.stringify(ret))
+            // alert(JSON.stringify(ret))
             //用户已经存在id 说明公众号注册过
             //未测试
             if(Storage.get('wechatheadimgurl')&&ret.results===0){
-                alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+                // alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
                 Patient.replacePhoto({"patientId":ret.UserId,"wechatPhotoUrl":Storage.get('wechatheadimgurl')}).then(function(data){
-                        alert(JSON.stringify(data));
+                        // alert(JSON.stringify(data));
                         Storage.rm('wechatheadimgurl');
                     },function(err){
                         console.log(err)
@@ -7072,7 +7072,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     "KidneyfunctionValue": 0
   }
 
-  $http.get("../data/insruanceage1.json").success(function(data){
+  $http.get("data/insruanceage1.json").success(function(data){
     $scope.InsuranceAges = data
   });
 
