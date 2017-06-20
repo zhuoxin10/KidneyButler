@@ -152,30 +152,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // you may use response.code to get the access token.
         // alert(JSON.stringify(response));
         // alert(response.code);
-        Mywechat.getUserInfo({role:"appPatient",code:response.code}).then(function(persondata){
+        Mywechat.getUserInfo({role:"appPatient",code:response.code,state:""}).then(function(persondata){
           // alert(JSON.stringify(persondata));
           Storage.set('wechatheadimgurl',persondata.results.headimgurl);
           
           $scope.unionid=persondata.results.unionid;
-          // alert($scope.unionid)
+          alert($scope.unionid)
           //判断这个unionid是否已经绑定用户了 有直接登录
-          User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
-            // alert(JSON.stringify(ret))
+          User.getUserID({"username":$scope.unionid}).then(function(ret){
+            alert(JSON.stringify(ret))
             //用户已经存在id 说明公众号注册过
             //未测试
-            // if(Storage.get('wechatheadimgurl')){
-            //     alert("image");
-            //     Pateint.replacePhoto({userId:ret.UserId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(
-                    
-            //         function(data){
-            //             alert(JSON.stringify(data));
-            //             Storage.rm('wechatheadimgurl');
-            //         }
-            //     );
-            //     //已有头像，未更新;没有头像，已替换
-            // }
+            if(Storage.get('wechatheadimgurl')&&ret.results===0){
+                alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+                Patient.replacePhoto({"patientId":ret.UserId,"wechatPhotoUrl":Storage.get('wechatheadimgurl')}).then(function(data){
+                        alert(JSON.stringify(data));
+                        Storage.rm('wechatheadimgurl');
+                    },function(err){
+                        console.log(err)
+                    }
+                );
+                //已有头像，未更新;没有头像，已替换
+            }
             
-            if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
+            if(ret.results==0&&ret.roles.indexOf("patient")!=-1){//直接登录
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
                 // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
@@ -279,8 +279,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   var unablebutton = function(){
      //验证码BUTTON效果
         $scope.isable=true;
-        $scope.veritext="180S再次发送";
-        var time = 179;
+        $scope.veritext="60S再次发送";
+        var time = 59;
         var timer;
         timer = $interval(function(){
             if(time==0){
@@ -339,7 +339,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
         //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
         if($stateParams.phonevalidType=='register'){
-            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+            User.getUserId({username:Verify.Phone}).then(function(data){
                 if(data.results == 0){
                     $scope.logStatus = "该手机号码已经注册！";
                 }else if(data.results == 1){
@@ -350,7 +350,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='reset'){
-            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+            User.getUserId({username:Verify.Phone}).then(function(data){
                 if(data.results == 1){
                     $scope.logStatus = "该账户不存在！";
                 }else if(data.results == 0){
@@ -361,7 +361,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='wechatsignin'){
-          User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+          User.getUserId({username:Verify.Phone}).then(function(data){
             if(data.results == 0&&data.roles.indexOf('patient')!=-1){//导入的用户
               $scope.patientofimport=1;
               Storage.set('UID',data.UserId)
@@ -435,7 +435,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //设置密码  --PXY
-.controller('setPasswordCtrl', ['$ionicLoading','$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($ionicLoading,$http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
+.controller('setPasswordCtrl', ['$ionicLoading','$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User','Patient',function($ionicLoading,$http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User,Patient) {
     $scope.BackMain = function(){
         $state.go('signin');
     }
@@ -472,31 +472,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 var patientId = data.userNo;
                                 Storage.set('UID',patientId);
                                        
-                               
-                                User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
-                                    // alert("updateagree"+JSON.stringify(data))
-                                    if(data.results!=null){
-                                        if(setPassState=='wechatsignin'){
-                                            $scope.logStatus ="注册结束后你也可以用手机号和密码登录！";
-                                        }else{
-                                            $scope.logStatus ="恭喜您注册成功！";
-                                        }
-                                        $timeout(function(){$state.go('signin')},1000);
-                                        
-                                    }
-                                },function(err){
-                                    $ionicLoading.show({
-                                        template: '注册失败',
-                                        duration:1000
-                                    });
-                                    $scope.logStatus = "连接超时！";
-
-                                });
                                 if(setPassState=='wechatsignin'){
                                     User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
                                         Storage.set('bindingsucc','yes')
                                         console.log(response)
                                     });
+                                }
+                                if(Storage.get('wechatheadimgurl')){
+                                    Patient.replacePhoto({patientId:patientId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(function(data){
+                                            Storage.rm('wechatheadimgurl');
+                                        }
+                                    );
                                 }
                                 //注册论坛
                                 $http({
@@ -517,6 +503,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 }).success(function(data) {
                                     // console.log(data);
                                     // $state.go('tab.tasklist');
+                                });
+                               
+                                User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
+                                    // alert("updateagree"+JSON.stringify(data))
+                                    if(data.results!=null){
+                                        if(setPassState=='wechatsignin'){
+                                            $scope.logStatus ="注册结束后你也可以用手机号和密码登录！";
+                                        }else{
+                                            $scope.logStatus ="恭喜您注册成功！";
+                                        }
+                                        $timeout(function(){$state.go('signin')},1000);
+                                        
+                                    }
+                                },function(err){
+                                    $ionicLoading.show({
+                                        template: '注册失败',
+                                        duration:1000
+                                    });
+                                    $scope.logStatus = "连接超时！";
+
                                 });
                                
 
