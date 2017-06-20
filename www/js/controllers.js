@@ -7072,7 +7072,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     "KidneyfunctionValue": 0
   }
 
-  $http.get("../data/insruanceage1.json").success(function(data){
+  $http.get("data/insruanceage1.json").success(function(data){
     $scope.InsuranceAges = data
   });
 
