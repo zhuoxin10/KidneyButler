@@ -3852,11 +3852,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     if (res.length == 0) $scope.params.moreMsgs = false;
                     else {
                         $scope.params.msgCount += res.length;
-                        if ($scope.msgs.length != 0) $scope.msgs[0].diff = ($scope.msgs[0].createTimeInMillis - res[0].createTimeInMillis) > 300000 ? true : false;
+                        if ($scope.msgs.length != 0) $scope.msgs[0].diff = ($scope.msgs[0].time - res[0].time) > 300000 ? true : false;
                         for (var i = 0; i < res.length - 1; ++i) {
                             if (res[i].contentType == 'image') res[i].content.thumb = CONFIG.mediaUrl + res[i].content['src_thumb'];
                             res[i].direct = res[i].fromID == $scope.params.UID ? 'send' : 'receive';
-                            res[i].diff = (res[i].createTimeInMillis - res[i + 1].createTimeInMillis) > 300000 ? true : false;
+                            res[i].diff = (res[i].time - res[i + 1].time) > 300000 ? true : false;
                             $scope.msgs.unshift(res[i]);
                         }
                         res[i].direct = res[i].fromID == $scope.params.UID ? 'send' : 'receive';
@@ -3915,47 +3915,42 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
     
-    //病例Panel
-    // $scope.togglePanel = function() {
-    //     $scope.params.hidePanel = !$scope.params.hidePanel;
-    // }
-
-    $scope.updateMsg = function(msg,pos){
+    $scope.updateMsg = function (msg, pos) {
         console.info('updateMsg');
-        // var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
-        // if(pos!=-1){
-            msg.diff=$scope.msgs[pos].diff;
-            msg.content.src=$scope.msgs[pos].content.src;
-            msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
-            $scope.msgs[pos]=msg;
-        // }
-    }
-    $scope.pushMsg = function(msg){
+        if ($scope.msgs[pos].hasOwnProperty('diff')) {
+            msg.diff = $scope.msgs[pos].diff;
+        } else if (pos != 0 && msg.hasOwnProperty('time') && $scope.msgs[pos - 1].hasOwnProperty('time')) {
+            msg.diff = (msg.time - $scope.msgs[pos - 1].time) > 300000 ? true : false;
+        }
+        msg.content.src = $scope.msgs[pos].content.src;
+        msg.direct = $scope.msgs[pos].direct;
+        $scope.msgs[pos] = msg;
+    };
+    $scope.pushMsg = function (msg) {
         console.info('pushMsg');
         var len = $scope.msgs.length;
-        if(len==0){
-            msg.diff=true;
-        }else{
-            var m = $scope.msgs[len-1];
-            if(m.contentType == 'custom' && m.content.type =='count-notice') {
-                m=$scope.msgs[len-2];
+        if (msg.hasOwnProperty('time')) {
+            if (len == 0) {
+                msg.diff = true;
+            } else {
+                var m = $scope.msgs[len - 1];
+                if (m.contentType == 'custom' && m.content.type == 'count-notice') {
+                    m = $scope.msgs[len - 2];
+                }
+                if (m.hasOwnProperty('time')) {
+                    msg.diff = (msg.time - m.time) > 300000 ? true : false;
+                }
             }
-            msg.diff=(msg.createTimeInMillis - m.createTimeInMillis) > 300000 ? true : false;
         }
-        // if($scope.msgs.length==0){
-        //     msg.diff=true;
-        // }else{
-        //     msg.diff=(msg.createTimeInMillis - $scope.msgs[$scope.msgs.length-1].createTimeInMillis) > 300000 ? true : false;
-        // }
         // msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
+        $scope.params.msgCount++;
         $scope.msgs.push(msg);
-        $scope.msgCount++;
-        toBottom(true,100);
-        setTimeout(function(){
-            var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
-            if(pos!=-1 && $scope.msgs[pos].status=='send_going') $scope.msgs[pos].status='send_fail';
-        },10000);
-    }
+        toBottom(true, 100);
+        setTimeout(function () {
+            var pos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', msg.createTimeInMillis);
+            if (pos != -1 && $scope.msgs[pos].status == 'send_going') $scope.msgs[pos].status = 'send_fail';
+        }, 10000);
+    };
     function insertMsg(msg){
         var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
         if(pos==-1){
