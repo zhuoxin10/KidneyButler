@@ -261,10 +261,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
 
-     var a=document.getElementById("agreement");
-        // console.log(document.body.clientHeight);
-        console.log(window.screen.height);
-        a.style.height=window.screen.height*0.65+"px";
+     // var a=document.getElementById("agreement");
+     //    // console.log(document.body.clientHeight);
+     //    console.log(window.screen.height);
+     //    a.style.height=window.screen.height*0.65+"px";
 
 }])
 
@@ -7125,7 +7125,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
   ]
 
-  $http.get("../data/InsuranceParameter.json").success(function(data){
+  $http.get("data/InsuranceParameter.json").success(function(data){
     dict = data
   })
   $scope.getexpense = function(){
@@ -7190,13 +7190,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.changeAge = function(){
     if ($scope.InsuranceInfo.InsuranceTime == "5年")
     {
-      $http.get("../data/insuranceage1.json").success(function(data){
+      $http.get("data/insuranceage1.json").success(function(data){
         $scope.InsuranceAges = data
       });
     }
     else
     {
-      $http.get("../data/insuranceage2.json").success(function(data){
+      $http.get("data/insuranceage2.json").success(function(data){
         $scope.InsuranceAges = data
       });
     }
