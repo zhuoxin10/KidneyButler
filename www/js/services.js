@@ -426,7 +426,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var insurance = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'insurance'},{
-            setPrefer:{method:'GET', params:{route: 'setPrefer'}, timeout: 100000},
+            setPrefer:{method:'POST', params:{route: 'setPrefer'}, timeout: 100000},
             getPrefer:{method:'GET', params:{route: 'getPrefer'}, timeout: 100000}
         })
     }
