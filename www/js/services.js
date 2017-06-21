@@ -435,24 +435,24 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Counsels = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'counsel'},{
-            getCounsel:{method:'GET', params:{route: 'getCounsels'}, timeout: 100000},
+            getCounsel:{method:'GET', params:{route: 'counsels'}, timeout: 100000},
             questionaire:{method:'POST', params:{route: 'questionaire'}, timeout: 100000},
-            getStatus:{method:'GET', params:{route: 'getStatus'}, timeout: 100000},
-            changeStatus:{method:'POST', params:{route: 'changeStatus'}, timeout: 100000},
-            changeType:{method:'POST', params:{route: 'changeType'}, timeout: 100000},
-            insertCommentScore:{method:'POST', params:{route: 'insertCommentScore'}, timeout: 100000}
+            getStatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
+            changeStatus:{method:'POST', params:{route: 'status'}, timeout: 100000},
+            changeType:{method:'POST', params:{route: 'type'}, timeout: 100000},
+            insertCommentScore:{method:'POST', params:{route: 'score'}, timeout: 100000}
         });
     };
 
     var Patient =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'patient'},{
-            getPatientDetail:{method:'GET', params:{route: 'getPatientDetail'}, timeout: 100000},
-            getMyDoctors:{method:'GET',params:{route:'getMyDoctors'},timeout:10000},
-            getDoctorLists:{method:'GET',params:{route:'getDoctorLists'},timeout:10000},
-            getCounselRecords:{method:'GET',params:{route:'getCounselRecords'},timeout:10000},
-            insertDiagnosis:{method:'POST',params:{route:'insertDiagnosis'},timeout:10000},
-            newPatientDetail:{method:'POST',params:{route:'newPatientDetail'},timeout:10000},
-            editPatientDetail:{method:'POST',params:{route:'editPatientDetail'},timeout:10000},
+            getPatientDetail:{method:'GET', params:{route: 'detail'}, timeout: 100000},
+            getMyDoctors:{method:'GET',params:{route:'myDoctors'},timeout:10000},
+            getDoctorLists:{method:'GET',params:{route:'doctors'},timeout:10000},
+            getCounselRecords:{method:'GET',params:{route:'counselRecords'},timeout:10000},
+            // insertDiagnosis:{method:'POST',params:{route:'diagnosis'},timeout:10000},
+            // newPatientDetail:{method:'POST',params:{route:'detail'},timeout:10000},
+            editPatientDetail:{method:'POST',params:{route:'editDetail'},timeout:10000},
             bindingMyDoctor:{method:'POST',params:{route:'bindingMyDoctor'},timeout:10000},
             replacePhoto:{method:'POST',params:{route:'wechatPhotoUrl',patientId:'@patientId',wechatPhotoUrl:'@wechatPhotoUrl'},timeout:10000}
         });
@@ -460,11 +460,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Doctor =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'doctor'},{
-            createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
-            getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
-            getDoctorInfo:{method:'GET', params:{route: 'getDoctorInfo'}, timeout: 100000},
-            getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
-            getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
+            // createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
+            // getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
+            getDoctorInfo:{method:'GET', params:{route: 'detail'}, timeout: 100000},
+            // getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
+            // getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
         });
     }
 
@@ -480,17 +480,17 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getAgree:{method:'GET', params:{route: 'agreement',userId:'@userId'}, timeout: 100000},
             updateAgree:{method:'POST', params:{route: 'agreement'}, timeout: 100000},
             getUserIDbyOpenId:{method:'GET', params:{route: 'getUserIDbyOpenId'}, timeout: 100000},
-            setOpenId:{method:'POST', params:{route: 'setOpenId'}, timeout: 100000}
+            setOpenId:{method:'POST', params:{route: 'unionid'}, timeout: 100000}
 
         });
     }
 
     var Health = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'healthInfo'},{
-            createHealth:{method:'POST', params:{route: 'insertHealthInfo',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments'}, timeout: 100000},
-            modifyHealth:{method:'POST', params:{route:'modifyHealthDetail',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments',insertTime:'@insertTime'},timeout:100000},
-            getHealthDetail:{method:'GET', params:{route:'getHealthDetail',userId:'@userId',insertTime:'@insertTime'},timeout:100000},
-            getAllHealths:{method:'GET', params:{route:'getAllHealthInfo',userId:'@userId'},timeout:100000},
+            createHealth:{method:'POST', params:{route: 'healthInfo',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments'}, timeout: 100000},
+            modifyHealth:{method:'POST', params:{route:'healthDetail',userId:'@userId',type:'@type',time:'@time',url:'@url',label:'@label',description:'@description',comments:'@comments',insertTime:'@insertTime'},timeout:100000},
+            getHealthDetail:{method:'GET', params:{route:'healthDetail',userId:'@userId',insertTime:'@insertTime'},timeout:100000},
+            getAllHealths:{method:'GET', params:{route:'healthInfos',userId:'@userId'},timeout:100000},
             deleteHealth:{method:'POST', params:{route:'deleteHealthDetail',userId:'@userId',insertTime:'@insertTime'},timeout:100000}
 
         });
@@ -505,16 +505,16 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var VitalSign =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'vitalSign'},{
-            getVitalSigns:{method:'GET', params:{route: 'getVitalSigns'}, timeout: 100000},
-            insertVitalSign:{method:'POST', params:{route: 'insertVitalSign'}, timeout: 100000}
+            getVitalSigns:{method:'GET', params:{route: 'vitalSigns'}, timeout: 100000},
+            insertVitalSign:{method:'POST', params:{route: 'vitalSigns'}, timeout: 100000}
         });
     }
 
     var Account =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'account'},{
             getAccountInfo:{method:'GET', params:{route: 'getAccountInfo'}, timeout: 100000},
-            getCounts:{method:'GET', params:{route: 'getCounts'}, timeout: 100000},
-            modifyCounts:{method:'POST', params:{route: 'modifyCounts'}, timeout: 100000},
+            getCounts:{method:'GET', params:{route: 'counts'}, timeout: 100000},
+            modifyCounts:{method:'POST', params:{route: 'counts'}, timeout: 100000},
             rechargeDoctor:{method:'POST', params:{route: 'rechargeDoctor'}, timeout: 100000},
             updateFreeTime:{method:'POST', params:{route: 'updateFreeTime'}, timeout: 100000},
             getCountsRespective:{method:'GET', params:{route: 'getCountsRespective'}, timeout: 100000}
@@ -523,7 +523,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Message =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'message'},{
-            getMessages:{method:'GET', params:{route: 'getMessages'}, timeout: 100000}
+            getMessages:{method:'GET', params:{route: 'messages'}, timeout: 100000}
         });
     }
 
@@ -535,19 +535,20 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var News = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'new'},{
-            getNews:{method:'GET', params:{route: 'getNews'}, timeout: 100000},
-            insertNews:{method:'POST', params:{route: 'insertNews'}, timeout: 100000},
-            getNewsByReadOrNot:{method:'GET', params:{route: 'getNewsByReadOrNot'}, timeout: 100000}
+            getNews:{method:'GET', params:{route: 'news'}, timeout: 100000},
+            insertNews:{method:'POST', params:{route: 'news'}, timeout: 100000},
+            getNewsByReadOrNot:{method:'GET', params:{route: 'newsByReadOrNot'}, timeout: 100000}
         });
     }
 
     var Communication =function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'communication'},{
-            getCommunication:{method:'GET', params:{route: 'getCommunication'}, timeout: 100000},
-            getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
-            getTeam:{method:'GET', params:{route: 'getTeam'}, timeout: 100000},
-            insertMember:{method:'POST', params:{route: 'insertMember'}, timeout: 100000},
-            removeMember:{method:'POST', params:{route: 'removeMember'}, timeout: 100000}
+            getCommunication:{method:'GET', params:{route: 'communication'}, timeout: 100000},
+            newConsultation:{method:'POST', params:{route: 'consultation'},timeout: 100000},
+            // getCounselReport:{method:'GET', params:{route: 'getCounselReport'}, timeout: 100000},
+            // getTeam:{method:'GET', params:{route: 'getTeam'}, timeout: 100000},
+            // insertMember:{method:'POST', params:{route: 'insertMember'}, timeout: 100000},
+            // removeMember:{method:'POST', params:{route: 'removeMember'}, timeout: 100000}
         });
     }
     var Expense =function(){
@@ -1415,18 +1416,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
             //     diagprogress:'吃药',
             //     diagcontent:'blabla啥啥啥的'
             // }
-    self.insertDiagnosis = function(params){
-        var deferred = $q.defer();
-        Data.Patient.insertDiagnosis(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.insertDiagnosis = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Patient.insertDiagnosis(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
 
     //params->0:{
             //     userId:'ppost01',
@@ -1443,18 +1444,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
             //     hypertension:1,
             //     photoUrl:'http://photo/ppost01.jpg'
             // }
-    self.newPatientDetail = function(params){
-        var deferred = $q.defer();
-        Data.Patient.newPatientDetail(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.newPatientDetail = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Patient.newPatientDetail(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
 
     //params->0:{
                 // userId:'ppost01',
@@ -1531,33 +1532,33 @@ angular.module('kidney.services', ['ionic','ngResource'])
            //   charge1:150,
            //   charge2:50
            // }
-    self.postDocBasic = function(params){
-        var deferred = $q.defer();
-        Data.Doctor.postDocBasic(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.postDocBasic = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Doctor.postDocBasic(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
     //params->0:{
            //   userId:'doc01'
            // }
-    self.getPatientList = function(params){
-        var deferred = $q.defer();
-        Data.Doctor.getPatientList(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.getPatientList = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Doctor.getPatientList(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
     //params->0:{
            //   userId:'doc01'
            // }
@@ -1576,34 +1577,34 @@ angular.module('kidney.services', ['ionic','ngResource'])
     //params->0:{
            //   userId:'doc01'
            // }
-    self.getMyGroupList = function(params){
-        var deferred = $q.defer();
-        Data.Doctor.getMyGroupList(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.getMyGroupList = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Doctor.getMyGroupList(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
     //params->0:{
            //   teamId:'team1',
            //   status:1
            // }
-    self.getGroupPatientList = function(params){
-        var deferred = $q.defer();
-        Data.Doctor.getGroupPatientList(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.getGroupPatientList = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Doctor.getGroupPatientList(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
     return self;
 }])
 
@@ -1717,9 +1718,9 @@ angular.module('kidney.services', ['ionic','ngResource'])
 .factory('Communication', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->0:{counselId:'counsel01'}
-    self.getCounselReport = function(params){
+    self.newConsultation = function(params){
         var deferred = $q.defer();
-        Data.Communication.getCounselReport(
+        Data.Communication.newConsultation(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -1745,53 +1746,53 @@ angular.module('kidney.services', ['ionic','ngResource'])
     };
 
     //params->0:{teamId:'team1'}
-    self.getTeam = function(params){
-        var deferred = $q.defer();
-        Data.Communication.getTeam(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.getTeam = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Communication.getTeam(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
 
     //params->0:{
             //      teamId:'teampost2',
             //      membersuserId:'id1',
             //      membersname:'name2'
             //  }
-    self.insertMember = function(params){
-        var deferred = $q.defer();
-        Data.Communication.insertMember(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.insertMember = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Communication.insertMember(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
 
     //params->0:{
             //      teamId:'teampost2',
             //      membersuserId:'id2'
             //  }
-    self.removeMember = function(params){
-        var deferred = $q.defer();
-        Data.Communication.removeMember(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.removeMember = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Communication.removeMember(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
 
     return self;
 }])

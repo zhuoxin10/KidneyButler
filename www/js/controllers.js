@@ -7888,9 +7888,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         return sortNo;
 
     }
-    $scope.submit = function(a,b){
-        console.log(a);
-        console.log(b);
+    $scope.submit = function(){
 
         $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
         $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
