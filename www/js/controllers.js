@@ -350,7 +350,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
         //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
         if($stateParams.phonevalidType=='register'){
-            User.getUserId({username:Verify.Phone}).then(function(data){
+            User.getUserID({username:Verify.Phone}).then(function(data){
                 if(data.results == 0){
                     $scope.logStatus = "该手机号码已经注册！";
                 }else if(data.results == 1){
@@ -361,7 +361,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='reset'){
-            User.getUserId({username:Verify.Phone}).then(function(data){
+            User.getUserID({username:Verify.Phone}).then(function(data){
                 if(data.results == 1){
                     $scope.logStatus = "该账户不存在！";
                 }else if(data.results == 0){
@@ -372,7 +372,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='wechatsignin'){
-          User.getUserId({username:Verify.Phone}).then(function(data){
+          User.getUserID({username:Verify.Phone}).then(function(data){
             if(data.results == 0&&data.roles.indexOf('patient')!=-1){//导入的用户
               $scope.patientofimport=1;
               Storage.set('UID',data.UserId)
