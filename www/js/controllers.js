@@ -3917,10 +3917,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
     $scope.updateMsg = function (msg, pos) {
         console.info('updateMsg');
-        if ($scope.msgs[pos].hasOwnProperty('diff')) {
-            msg.diff = $scope.msgs[pos].diff;
-        } else if (pos != 0 && msg.hasOwnProperty('time') && $scope.msgs[pos - 1].hasOwnProperty('time')) {
-            msg.diff = (msg.time - $scope.msgs[pos - 1].time) > 300000 ? true : false;
+        if (pos == 0) {
+            msg.diff = true;
+        } else if (msg.hasOwnProperty('time')) {
+            var m = $scope.msgs[pos - 1];
+            if (m.contentType == 'custom' && m.content.type == 'count-notice') {
+                m = $scope.msgs[pos - 2];
+            }
+            if (m.hasOwnProperty('time')) {
+                msg.diff = (msg.time - m.time) > 300000 ? true : false;
+            } else {
+                msg.diff = false;
+            }
         }
         msg.content.src = $scope.msgs[pos].content.src;
         msg.direct = $scope.msgs[pos].direct;
