@@ -36,7 +36,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
 
     // 测试服务器地址
-    baseUrl: 'http://121.43.107.106:4050/',
+    baseUrl: 'http://121.43.107.106:4050/api/v1/',
     mediaUrl: 'http://121.43.107.106:8052/',
     socketServer:'ws://121.43.107.106:4050/',
     imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
@@ -401,33 +401,33 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
     };
 
-    var Task1 = function(){
-        return $resource(CONFIG.baseUrl + ':path',{path:'tasks'},{
-            getTask:{method:'GET', params:{}, timeout: 100000}
-        });
-    };
+    // var Task1 = function(){
+    //     return $resource(CONFIG.baseUrl + ':path',{path:'tasks'},{
+    //         getTask:{method:'GET', params:{}, timeout: 100000}
+    //     });
+    // };
 
-    var Task2 = function(){
+    var Task = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'tasks'},{
             changeTaskstatus:{method:'GET', params:{route: 'status'}, timeout: 100000},
             changeTasktime:{method:'GET', params:{route: 'time'}, timeout: 100000},
-            insertTask:{method:'POST', params:{route: 'insertTaskModel'}, timeout: 100000},
-            getUserTask:{method:'GET', params:{route: 'getUserTask'}, timeout: 100000},
-            updateUserTask:{method:'POST', params:{route: 'updateUserTask'}, timeout: 100000}
+            insertTask:{method:'POST', params:{route: 'taskModel'}, timeout: 100000},
+            getUserTask:{method:'GET', params:{route: 'task'}, timeout: 100000},
+            updateUserTask:{method:'POST', params:{route: 'task'}, timeout: 100000}
         });
     };
 
     var Compliance = function(){
-        return $resource(CONFIG.baseUrl + ':path/:route',{path:'compliance'},{            
+        return $resource(CONFIG.baseUrl + ':path',{path:'compliance'},{            
             getcompliance:{method:'GET', params:{}, timeout: 100000},
-            postcompliance:{method:'POST', params:{route:'update'}, timeout: 100000}
+            postcompliance:{method:'POST', params:{}, timeout: 100000}
         });
     };
 
     var insurance = function(){
         return $resource(CONFIG.baseUrl + ':path/:route',{path:'insurance'},{
-            setPrefer:{method:'GET', params:{route: 'setPrefer'}, timeout: 100000},
-            getPrefer:{method:'GET', params:{route: 'getPrefer'}, timeout: 100000}
+            setPrefer:{method:'GET', params:{route: 'prefer'}, timeout: 100000},
+            getPrefer:{method:'GET', params:{route: 'prefer'}, timeout: 100000}
         })
     }
 
@@ -474,11 +474,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
             changePassword:{method:'POST', params:{route: 'reset',phoneNo:'@phoneNo',password:'@password'}, timeout: 100000},
             logIn:{method:'POST', params:{route: 'login'}, timeout: 100000},
             logOut:{method:'POST', params:{route: 'logout',userId:'@userId'}, timeout: 100000},
-            getUserID:{method:'GET', params:{route: 'getUserID',username:'@username'}, timeout: 100000},
-            sendSMS:{method:'POST', params:{route: 'sendSMS',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
-            verifySMS:{method:'GET', params:{route: 'verifySMS',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
-            getAgree:{method:'GET', params:{route: 'getUserAgreement',userId:'@userId'}, timeout: 100000},
-            updateAgree:{method:'POST', params:{route: 'updateUserAgreement'}, timeout: 100000},
+            getUserID:{method:'GET', params:{route: 'userID',username:'@username'}, timeout: 100000},
+            sendSMS:{method:'POST', params:{route: 'sms',mobile:'@mobile',smsType:'@smsType'}, timeout: 100000},//第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
+            verifySMS:{method:'GET', params:{route: 'sms',mobile:'@mobile',smsType:'@smsType',smsCode:'@smsCode'}, timeout: 100000},
+            getAgree:{method:'GET', params:{route: 'agreement',userId:'@userId'}, timeout: 100000},
+            updateAgree:{method:'POST', params:{route: 'agreement'}, timeout: 100000},
             getUserIDbyOpenId:{method:'GET', params:{route: 'getUserIDbyOpenId'}, timeout: 100000},
             setOpenId:{method:'POST', params:{route: 'setOpenId'}, timeout: 100000}
 
@@ -569,8 +569,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
         $interval(function () {
             abort = $q.defer();
             serve.Dict = Dict();
-            serve.Task1 = Task1();
-            serve.Task2 = Task2();
+            serve.Task = Task();
+            // serve.Task2 = Task2();
             serve.Compliance = Compliance();
             serve.Counsels = Counsels();
             serve.Patient = Patient();
@@ -590,8 +590,8 @@ angular.module('kidney.services', ['ionic','ngResource'])
         }, 0, 1);
     };
     serve.Dict = Dict();
-    serve.Task1 = Task1();
-    serve.Task2 = Task2();
+    serve.Task = Task();
+    // serve.Task2 = Task2();
     serve.Compliance = Compliance();
     serve.Counsels = Counsels();
     serve.Patient = Patient();
@@ -702,18 +702,18 @@ angular.module('kidney.services', ['ionic','ngResource'])
             //  userId:'U201704050002',//usderId="Admin"，sortNo为空时获取系统全部任务模板，sortNo="1"时获取指定任务模板，userId为用户ID时获取指定用户的任务信息
             //  sortNo:'1'
            // }
-    self.getTask = function(params){
-        var deferred = $q.defer();
-        Data.Task1.getTask(
-            params,
-            function(data, headers){
-                deferred.resolve(data);
-            },
-            function(err){
-                deferred.reject(err);
-        });
-        return deferred.promise;
-    };
+    // self.getTask = function(params){
+    //     var deferred = $q.defer();
+    //     Data.Task1.getTask(
+    //         params,
+    //         function(data, headers){
+    //             deferred.resolve(data);
+    //         },
+    //         function(err){
+    //             deferred.reject(err);
+    //     });
+    //     return deferred.promise;
+    // };
     //params->{
             //  userId:'U201704050002',//unique
             //  sortNo:1,
@@ -723,7 +723,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
            // }
     self.changeTaskstatus = function(params){
         var deferred = $q.defer();
-        Data.Task2.changeTaskstatus(
+        Data.Task.changeTaskstatus(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -742,7 +742,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
            // }
     self.changeTasktime = function(params){
         var deferred = $q.defer();
-        Data.Task2.changeTasktime(
+        Data.Task.changeTasktime(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -758,7 +758,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
            // }
     self.insertTask = function(params){
         var deferred = $q.defer();
-        Data.Task2.insertTask(
+        Data.Task.insertTask(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -771,7 +771,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     self.getUserTask = function(params){
         var deferred = $q.defer();
-        Data.Task2.getUserTask(
+        Data.Task.getUserTask(
             params,
             function(data, headers){
                 deferred.resolve(data);
@@ -784,7 +784,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     self.updateUserTask = function(params){
         var deferred = $q.defer();
-        Data.Task2.updateUserTask(
+        Data.Task.updateUserTask(
             params,
             function(data, headers){
                 deferred.resolve(data);
