@@ -1010,33 +1010,33 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
                 Task.insertTask({userId:patientId,sortNo:task}).then(function(data){
                     if(data.result=="插入成功"){
-                        if($scope.User.weight){
-                            var now = new Date()
-                            now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                            VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                function(data){
-                                    // $scope.User.weight = data.results;
-                                    if($stateParams.last == 'mine'){
-                                        $scope.canEdit = false;
-                                        // initialPatient();
-                                    }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
-                                        // console.log('goBack2');
+                        // if($scope.User.weight){
+                        //     var now = new Date()
+                        //     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                        //     VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                        //         function(data){
+                        //             // $scope.User.weight = data.results;
+                        //             if($stateParams.last == 'mine'){
+                        //                 $scope.canEdit = false;
+                        //                 // initialPatient();
+                        //             }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
+                        //                 // console.log('goBack2');
 
-                                        $ionicHistory.goBack();
-                                    }
-                                },function(e){
+                        //                 $ionicHistory.goBack();
+                        //             }
+                        //         },function(e){
 
-                                });
+                        //         });
                            
-                        }else{
-                            if($stateParams.last == 'mine'){
-                                $scope.canEdit = false;
-                                initialPatient();
-                            }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
-                                // console.log('goBack1');
-                                $ionicHistory.goBack();
-                            }
+                        // }else{
+                        if($stateParams.last == 'mine'){
+                            $scope.canEdit = false;
+                            // initialPatient();
+                        }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
+                            // console.log('goBack1');
+                            $ionicHistory.goBack();
                         }
+                        // }
                     }
                 },function(err){
                     console.log("err" + err);
@@ -7891,9 +7891,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         return sortNo;
 
     }
-    $scope.submit = function(a,b){
-        console.log(a);
-        console.log(b);
+    $scope.submit = function(){
 
         $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
         $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
@@ -7919,16 +7917,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 },function(err){
                     console.log("err" + err);
                 });
-            if($scope.BasicInfo.weight){
-                var now = new Date() ;
-                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
-                // console.log($scope.BasicInfo.weight);
-                 // $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
-                },function(err){
-                    console.log(err);
-                });
-            }
+            // if($scope.BasicInfo.weight){
+            //     var now = new Date() ;
+            //     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+            //     VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
+            //     // console.log($scope.BasicInfo.weight);
+            //      // $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+            //     },function(err){
+            //         console.log(err);
+            //     });
+            // }
 
         },function(err){
             console.log(err);
