@@ -8304,6 +8304,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // console.log(Storage.get("UID"))
         $cordovaBarcodeScanner.scan().then(function(imageData) {
             // alert(imageData.text);
+            if(imageData.cancelled)
+                return;
             $ionicPopup.show({
                 title:'确定绑定此设备？',
                 cssClass:'popupWithKeyboard',
@@ -8311,7 +8313,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     text:'确定',
                     onTap:function(e){
                         console.log('ok');
-                        Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData,userId:Storage.get('UID')})
+                        Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData.text,userId:Storage.get('UID')})
                         .then(function(succ){
                             refresh();
                             console.log(succ);
