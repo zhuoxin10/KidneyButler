@@ -391,6 +391,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }           
     })  
 
+    .state('tab.devices', {
+        url: '/mine/devices/',
+        views: {
+          'tab-mine': {
+            templateUrl: 'partials/tabs/mine/devices.html',
+            controller: 'devicesCtrl'
+          }
+        }           
+    })  
+
      //肾病保险
   $stateProvider
     .state('insurance', {

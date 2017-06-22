@@ -3122,6 +3122,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.GoManagement = function(){
     $state.go('tab.taskSet');
   }
+  $scope.GoDevices = function(){
+      console.log('tab.devices');
+    $state.go('tab.devices');
+  }
 
   $scope.GoMoney = function(){
     $state.go('tab.myMoney');
@@ -5254,6 +5258,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // console.log(Storage.get("UID"))
       $cordovaBarcodeScanner.scan().then(function(imageData) {
           // alert(imageData.text);
+          if(imageData.cancelled)
+            return;
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
             console.log(res)
             // alert(JSON.stringify(res))
@@ -8270,4 +8276,62 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             })
         
     }
+}])
+.controller('devicesCtrl',['$scope','$ionicPopup','$cordovaBarcodeScanner','Devicedata','Storage', function($scope,$ionicPopup,$cordovaBarcodeScanner,Devicedata,Storage){
+    console.log('deviceCtrl');
+    $scope.deviceList=[{name:"n1"}];
+    var refresh = function()
+    {
+        Devicedata.devices({userId:Storage.get('UID')})
+        .then(function(data){
+            console.log(data);
+            $scope.deviceList=data.results;
+        },function(err){
+            console.log(err);
+        })
+    }
+    refresh();
+    $scope.deleteDevice = function(index)
+    {
+        console.log("delete");
+        Devicedata.BPDeviceDeBinding({appId:'ssgj',sn:$scope.deviceList[index].deviceInfo.sn,imei:$scope.deviceList[index].deviceInfo.imei,userId:Storage.get('UID')})
+        .then(function(succ){
+            console.log(succ);
+            refresh();
+        },function(err){
+            console.log(err);
+        })
+    }
+    $scope.scanbarcode = function () {
+        // console.log(Storage.get("UID"))
+        $cordovaBarcodeScanner.scan().then(function(imageData) {
+            // alert(imageData.text);
+            if(imageData.cancelled)
+                return;
+            $ionicPopup.show({
+                title:'确定绑定此设备？',
+                cssClass:'popupWithKeyboard',
+                buttons:[{
+                    text:'确定',
+                    onTap:function(e){
+                        console.log('ok');
+                        Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData.text,userId:Storage.get('UID')})
+                        .then(function(succ){
+                            refresh();
+                            console.log(succ);
+                        },function(err){
+                            console.log(err);
+                        })
+                    }
+                },{
+                    text:'取消',
+                    onTap:function(e){
+                        console.log('cancle');
+                    }
+                }]
+            })
+        }, function(error) {
+            console.log("An error happened -> " + error);
+        });
+    };
 }])

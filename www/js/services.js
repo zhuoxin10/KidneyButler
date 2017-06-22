@@ -566,6 +566,14 @@ angular.module('kidney.services', ['ionic','ngResource'])
             getUserInfo:{method:'GET', params:{route: 'getUserInfo'}, timeout: 100000}
         })
     }
+
+    var Devicedata = function(){
+        return $resource(CONFIG.baseUrl + ':path/:route/:op',{path:'devicedata'},{
+            devices:{method:'GET',params:{route: 'devices'},timeout: 10000},
+            BPDeviceBinding:{method:'POST', params:{route: 'BPDevice',op:'binding'},timeout: 10000},
+            BPDeviceDeBinding:{method:'POST', params:{route: 'BPDevice',op:'debinding'},timeout: 10000}
+        })
+    }
     serve.abort = function ($scope) {
         abort.resolve();
         $interval(function () {
@@ -589,6 +597,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.insurance = insurance();
             serve.Mywechat = Mywechat();
             serve.Communication = Communication();
+            serve.devicedata = Devicedata();
         }, 0, 1);
     };
     serve.Dict = Dict();
@@ -610,9 +619,69 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.insurance = insurance();
     serve.Mywechat = Mywechat();
     serve.Communication = Communication();
+    serve.Devicedata = Devicedata();
     return serve;
 }])
 
+.factory('Devicedata',['$q', 'Data', function($q, Data){
+    var self = this;
+
+    //params->{appId:'ssgj',twoDimensionalCode:'http://we.qq.com/d/AQBT7BO3BlTz76fGHXleVnu5t8dqu7uYwtxgoeuH',userId:'doc01'}
+    self.BPDeviceBinding = function(params)
+    {
+        var deferred = $q.defer();
+        Data.Devicedata.BPDeviceBinding(
+            params,
+            function(data,headers)
+            {
+                deferred.resolve(data);
+            },
+            function(err)
+            {
+                deferred.reject(err);
+            }
+        );
+        return deferred.promise;
+    }
+    
+    //params->{appId:'ssgj',sn:'',imei:'',userId:''}
+    self.BPDeviceDeBinding = function(params)
+    {
+        var deferred = $q.defer();
+        Data.Devicedata.BPDeviceDeBinding(
+            params,
+            function(data,headers)
+            {
+                deferred.resolve(data);
+            },
+            function(err)
+            {
+                deferred.reject(err);
+            }
+        );
+        return deferred.promise;
+    }
+
+    //params->{userId:'doc01',deviceType:'sphygmomanometer'}
+    self.devices = function(params)
+    {
+        var deferred = $q.defer();
+        Data.Devicedata.devices(
+            params,
+            function(data,headers)
+            {
+                deferred.resolve(data);
+            },
+            function(err)
+            {
+                deferred.reject(err);
+            }
+        );
+        return deferred.promise;
+    }
+
+    return self;
+}])
 .factory('Dict', ['$q', 'Data', function($q, Data){
     var self = this;
     //params->{
