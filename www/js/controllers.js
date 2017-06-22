@@ -5258,6 +5258,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // console.log(Storage.get("UID"))
       $cordovaBarcodeScanner.scan().then(function(imageData) {
           // alert(imageData.text);
+          if(imageData.cancelled)
+            return;
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
             console.log(res)
             // alert(JSON.stringify(res))
