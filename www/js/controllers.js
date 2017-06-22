@@ -8278,22 +8278,27 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('devicesCtrl',['$scope','$ionicPopup','$cordovaBarcodeScanner','Devicedata','Storage', function($scope,$ionicPopup,$cordovaBarcodeScanner,Devicedata,Storage){
     console.log('deviceCtrl');
     $scope.deviceList=[{name:"n1"}];
-    Devicedata.devices({userId:Storage.get('UID')})
-    .then(function(data){
-        console.log(data);
-        $scope.deviceList=data.results;
-    },function(err){
-        console.log(err);
-    })
-    $scope.deleteDevice = function()
+    var refresh = function()
+    {
+        Devicedata.devices({userId:Storage.get('UID')})
+        .then(function(data){
+            console.log(data);
+            $scope.deviceList=data.results;
+        },function(err){
+            console.log(err);
+        })
+    }
+    refresh();
+    $scope.deleteDevice = function(index)
     {
         console.log("delete");
-            // Devicedata.BPDeviceDeBinding({appId:'ssgj',twoDimensionalCode:'imageData',userId:Storage.get('UID')})
-            //             .then(function(succ){
-            //                 console.log(succ);
-            //             },function(err){
-            //                 console.log(err);
-            //             })
+        Devicedata.BPDeviceDeBinding({appId:'ssgj',sn:$scope.deviceList[index].deviceInfo.sn,imei:$scope.deviceList[index].deviceInfo.imei,userId:Storage.get('UID')})
+        .then(function(succ){
+            console.log(succ);
+            refresh();
+        },function(err){
+            console.log(err);
+        })
     }
     $scope.scanbarcode = function () {
         // console.log(Storage.get("UID"))
@@ -8302,13 +8307,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             $ionicPopup.show({
                 title:'确定绑定此设备？',
                 cssClass:'popupWithKeyboard',
-                template:'<p>'+imageData+'</p>',
                 buttons:[{
                     text:'确定',
                     onTap:function(e){
                         console.log('ok');
                         Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData,userId:Storage.get('UID')})
                         .then(function(succ){
+                            refresh();
                             console.log(succ);
                         },function(err){
                             console.log(err);

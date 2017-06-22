@@ -11,8 +11,8 @@
     <ion-content class="padding" scroll="true" overflow-scroll="true">
         <ion-list can-swipe="true">
             <ion-item ng-repeat="d in deviceList">
-                {{d.name}}
-                <ion-option-button class="button-positive" ng-click="deleteDevice()">
+                {{d.deviceName}}
+                <ion-option-button class="button-positive" ng-click="deleteDevice($index)">
                     删除
                 </ion-option-button>
             </ion-item>
