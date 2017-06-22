@@ -3122,6 +3122,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.GoManagement = function(){
     $state.go('tab.taskSet');
   }
+  $scope.GoDevices = function(){
+      console.log('tab.devices');
+    $state.go('tab.devices');
+  }
 
   $scope.GoMoney = function(){
     $state.go('tab.myMoney');
@@ -8270,4 +8274,47 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             })
         
     }
+}])
+.controller('devicesCtrl',['$scope','$ionicPopup','$cordovaBarcodeScanner','Devicedata','Storage', function($scope,$ionicPopup,$cordovaBarcodeScanner,Devicedata,Storage){
+    console.log('deviceCtrl');
+    $scope.deviceList=[{name:"n1"}];
+    $scope.deleteDevice = function()
+    {
+        console.log("delete");
+            // Devicedata.BPDeviceDeBinding({appId:'ssgj',twoDimensionalCode:'imageData',userId:Storage.get('UID')})
+            //             .then(function(succ){
+            //                 console.log(succ);
+            //             },function(err){
+            //                 console.log(err);
+            //             })
+    }
+    $scope.scanbarcode = function () {
+        // console.log(Storage.get("UID"))
+        $cordovaBarcodeScanner.scan().then(function(imageData) {
+            // alert(imageData.text);
+            $ionicPopup.show({
+                title:'确定绑定此设备？',
+                cssClass:'popupWithKeyboard',
+                buttons:[{
+                    text:'确定',
+                    onTap:function(e){
+                        console.log('ok');
+                        Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData,userId:Storage.get('UID')})
+                        .then(function(succ){
+                            console.log(succ);
+                        },function(err){
+                            console.log(err);
+                        })
+                    }
+                },{
+                    text:'取消',
+                    onTap:function(e){
+                        console.log('cancle');
+                    }
+                }]
+            })
+      }, function(error) {
+          console.log("An error happened -> " + error);
+      });
+    };
 }])
