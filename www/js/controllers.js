@@ -8278,6 +8278,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('devicesCtrl',['$scope','$ionicPopup','$cordovaBarcodeScanner','Devicedata','Storage', function($scope,$ionicPopup,$cordovaBarcodeScanner,Devicedata,Storage){
     console.log('deviceCtrl');
     $scope.deviceList=[{name:"n1"}];
+    Devicedata.devices({userId:Storage.get('UID')})
+    .then(function(data){
+        console.log(data);
+        $scope.deviceList=data.results;
+    },function(err){
+        console.log(err);
+    })
     $scope.deleteDevice = function()
     {
         console.log("delete");
@@ -8295,6 +8302,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             $ionicPopup.show({
                 title:'确定绑定此设备？',
                 cssClass:'popupWithKeyboard',
+                template:'<p>'+imageData+'</p>',
                 buttons:[{
                     text:'确定',
                     onTap:function(e){
@@ -8313,8 +8321,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     }
                 }]
             })
-      }, function(error) {
-          console.log("An error happened -> " + error);
-      });
+        }, function(error) {
+            console.log("An error happened -> " + error);
+        });
     };
 }])

@@ -569,6 +569,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
     var Devicedata = function(){
         return $resource(CONFIG.baseUrl + ':path/:route/:op',{path:'devicedata'},{
+            devices:{method:'GET',params:{route: 'devices'},timeout: 10000},
             BPDeviceBinding:{method:'POST', params:{route: 'BPDevice',op:'binding'},timeout: 10000},
             BPDeviceDeBinding:{method:'POST', params:{route: 'BPDevice',op:'debinding'},timeout: 10000}
         })
@@ -637,7 +638,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             },
             function(err)
             {
-                deferred,reject(err);
+                deferred.reject(err);
             }
         );
         return deferred.promise;
@@ -655,7 +656,25 @@ angular.module('kidney.services', ['ionic','ngResource'])
             },
             function(err)
             {
-                deferred,reject(err);
+                deferred.reject(err);
+            }
+        );
+        return deferred.promise;
+    }
+
+    //params->{userId:'doc01',deviceType:'sphygmomanometer'}
+    self.devices = function(params)
+    {
+        var deferred = $q.defer();
+        Data.Devicedata.devices(
+            params,
+            function(data,headers)
+            {
+                deferred.resolve(data);
+            },
+            function(err)
+            {
+                deferred.reject(err);
             }
         );
         return deferred.promise;
