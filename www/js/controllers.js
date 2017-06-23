@@ -128,7 +128,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     var ionicLoadingshow = function() {
         $ionicLoading.show({
-        template: '登录中...'
+            template: '登录中...'
         });
     };
     var ionicLoadinghide = function(){
@@ -4183,7 +4183,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康信息--PXY
-.controller('HealthInfoCtrl', ['$ionicLoading','$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($ionicLoading,$scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
+.controller('HealthInfoCtrl', ['$ionicLoading','$scope','$timeout','$state','$ionicHistory','$ionicPopup','Storage','Health','Dict',function($ionicLoading,$scope, $timeout,$state,$ionicHistory,$ionicPopup,Storage,Health,Dict) {
   var patientId = Storage.get('UID');
 
   $scope.Goback = function(){
@@ -4315,7 +4315,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['otherTask','$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera','CONFIG',function(otherTask,$scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera,CONFIG) {
+.controller('HealthDetailCtrl', ['otherTask','$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','$ionicLoading','$timeout','Dict','Health','Storage','Camera','CONFIG',function(otherTask,$scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,$ionicLoading,$timeout,Dict,Health,Storage,Camera,CONFIG) {
     var patientId = Storage.get('UID');
     $scope.healthDetailStyle = {'top': '43px'};
     if(ionic.Platform.isIOS()){
@@ -4470,11 +4470,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
 
-  // console.log($ionicHistory.backView())
+  $scope.$on('$ionicView.beforeLeave',function(){
+    $ionicLoading.hide();
+  })
   $scope.HealthInfoSetup = function(){
     // console.log($scope.health.text);
     if(($scope.health.label&&$scope.health.date)&&($scope.health.text||$scope.health.imgurl.length)){
       console.log($stateParams.id)
+        $ionicLoading.show({
+            template: '上传中...'}
+        );
         if($stateParams.id==null||$stateParams==""){
             Health.createHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
               function(data)
