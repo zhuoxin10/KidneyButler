@@ -698,8 +698,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     var initialPatient = function(){
-        Patient.getPatientDetail({userId: Storage.get('UID'),token:Storage.get('token')}).then(function(data){   
-            if (data.results != "没有填写个人信息"){
+        Patient.getPatientDetail({userId: Storage.get('UID'),token:Storage.get('token')}).then(function(data){  
+
+            if (data.results && data.results != "没有填写个人信息"){
                 if($stateParams.last =='mine'){
                     $scope.canEdit = false;
                 }
@@ -1924,10 +1925,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           {
             $scope.Tasks.Other[i].startTime = SetTaskTime($scope.Tasks.Other[i].frequencyUnits, $scope.Tasks.Other[i].times);
           }
-          else
-          {
-             $scope.Tasks.Other[i].startTime = $scope.Tasks.Other[i].startTime.substr(0,10);
-          }
+          //注释掉了else那段不知道会不会有影响
+          // else
+          // {
+             // $scope.Tasks.Other[i].startTime = $scope.Tasks.Other[i].startTime.substr(0,10);
+          // }
           /*var item = $scope.Tasks.Other[i];  //先不管吧
           var CompRes = CompareTime(item.startTime, item.frequencyTimes, item.frequencyUnits, item.times);
           if(!CompRes.Flag)
@@ -3152,9 +3154,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $state.go('signin');
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
-                    //Storage.clear();
-                    Storage.rm('patientunionid');
-                    Storage.rm('PASSWORD');
+                    Storage.clear();
+                    // Storage.rm('patientunionid');
+                    // Storage.rm('PASSWORD');
                     Storage.set("isSignIN","No");
                     $scope.$emit('isSignIN',"No");
                     Storage.set("USERNAME",USERNAME);
@@ -4470,9 +4472,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
 
-  $scope.$on('$ionicView.beforeLeave',function(){
-    $ionicLoading.hide();
-  })
+
   $scope.HealthInfoSetup = function(){
     // console.log($scope.health.text);
     if(($scope.health.label&&$scope.health.date)&&($scope.health.text||$scope.health.imgurl.length)){
@@ -4541,6 +4541,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
 }
+    $scope.$on('$destroy', function ()
+    {
+      // console.log('destroy');
+      
+      $ionicLoading.hide();
+      
+      
+    });
+   
 
 
   // --------datepicker设置----------------
