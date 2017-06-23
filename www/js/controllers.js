@@ -8335,6 +8335,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             refresh();
                             console.log(succ);
                         },function(err){
+                            var confirmPopup = $ionicPopup.alert({
+                                title: '警告',
+                                template: '一个设备只能绑定一个用户，如果要重新绑定，请先从原来的用户上删除该设备！',
+                                okText:'好的'
+                            });
                             console.log(err);
                         })
                     }
