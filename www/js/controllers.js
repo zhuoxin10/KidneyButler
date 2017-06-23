@@ -698,7 +698,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     var initialPatient = function(){
-        Patient.getPatientDetail({userId: Storage.get('UID'),token:Storage.get('token')}).then(function(data){  
+        Patient.getPatientDetail({userId: Storage.get('UID')}).then(function(data){  
 
             if (data.results && data.results != "没有填写个人信息"){
                 if($stateParams.last =='mine'){
