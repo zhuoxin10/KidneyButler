@@ -3959,7 +3959,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
         $scope.params.msgCount++;
         $scope.msgs.push(msg);
-        toBottom(true, 100);
+        toBottom(true, 200);
+        toBottom(true, 600);
         setTimeout(function () {
             var pos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', msg.createTimeInMillis);
             if (pos != -1 && $scope.msgs[pos].status == 'send_going') $scope.msgs[pos].status = 'send_fail';
