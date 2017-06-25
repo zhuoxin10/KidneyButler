@@ -2033,6 +2033,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.showMesPop = function(task, type) {
 
         //首先swipe-back
+
         $scope.data = {};
         $scope.data.alertFlag = false;
       //console.log(task);
@@ -2049,6 +2050,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
              text: '保存',
              type: 'button-positive',
              onTap: function(e) {
+
                if(PopInfo.flag == 'InputBP')
                {
                  if((!$scope.data.value1) || (!$scope.data.value2))
@@ -2659,6 +2661,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   //获取模板后进行处理
     function HandleTasks()
     {
+
       $scope.Tasks.Other = [];
       $scope.Tasks.Hemo = []; //血透排班
       $scope.Tasks.Hemo.Flag = false;
@@ -8268,6 +8271,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     $scope.deliverAdvice = function(adv){
         // console.log(adv);
+        $scope.hasDeliver = true;
         Advice.postAdvice({userId:Storage.get('UID'),role:"patient",content:adv.content}).then(
             function(data){
                 
@@ -8282,6 +8286,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $timeout(function(){$state.go('tab.mine');},900);
                 }
             },function(err){
+                $scope.hasDeliver = false;
                 $ionicLoading.show({
                     template: '提交失败',
                     noBackdrop: false,
