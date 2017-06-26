@@ -43,7 +43,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
     cameraOptions: {
         cam: {
-            quality: 60,
+            quality: 70,
             destinationType: 1,
             sourceType: 1,
             allowEdit: true,
@@ -54,10 +54,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
             saveToPhotoAlbum: false
         },
         gallery: {
-            quality: 60,
+            quality: 70,
             destinationType: 1,
             sourceType: 0,
-            allowEdit: false,
+            allowEdit: true,
             encodingType: 0,
             targetWidth: 1000,
             targetHeight: 1000
@@ -187,9 +187,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
 //获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
 .factory('Camera', ['$q','$cordovaCamera','$cordovaFileTransfer','CONFIG','fs',function($q,$cordovaCamera,$cordovaFileTransfer,CONFIG,fs) { 
   return {
-    getPicture: function(type){
-      console.log(type);
+    getPicture: function(type,noCrop){
         return $q(function(resolve, reject) {
+            var opt = CONFIG.cameraOptions[type];
+            if(noCrop) opt.allowEdit = false;
             $cordovaCamera.getPicture(CONFIG.cameraOptions[type]).then(function(imageUrl) {
               console.log(imageUrl)
               resolve(imageUrl)
