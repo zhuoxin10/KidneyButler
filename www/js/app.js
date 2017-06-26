@@ -156,7 +156,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       abstract: true,
       url: '/tab',
       templateUrl: 'partials/tabs/tabs.html',
-      controller:'GoToMessageCtrl'
+      controller:'TabsCtrl'
     })
     .state('tab.tasklist', {
       url: '/tasklist',
