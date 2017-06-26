@@ -4118,7 +4118,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.getImage = function(type) {
         if($scope.counselstatus!=1) return nomoney();
         $scope.showMore = false;
-        Camera.getPicture(type)
+        Camera.getPicture(type,true)
             .then(function(url) {
                 console.log(url);
                 var fm = md5(Date.now(), $scope.params.chatId) + '.jpg',
@@ -4136,7 +4136,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         $ionicLoading.show({ template: '图片上传失败', duration: 2000 })
                     });
             }, function(err) {
-                $ionicLoading.show({ template: '打开图片失败', duration: 2000 })
                 console.error(err);
             });
     };
@@ -4165,35 +4164,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         voice.stopRec();
     }
 
-    // // $scope.goChats = function() {
-    // $scope.backview = $ionicHistory.viewHistory().backView
-    // $scope.backstateId = null;
-    // if ($scope.backview != null) {
-    //     $scope.backstateId = $scope.backview.stateId
-    // }
-    // console.log($scope.backview)
-    // $scope.goChats = function() {
-    //     console.log($scope.backstateId);
-    //     // $ionicHistory.nextViewOptions({
-    //     //     disableBack: true
-    //     // });
-    //     if ($scope.backstateId == "tab.myConsultRecord") {
-    //         $state.go("tab.myConsultRecord")
-    //     } else if ($scope.backstateId == "messages") {
-    //         $state.go('messages');
-    //     } else {
-    //         $state.go('tab.myDoctors');
-    //     }
-    //     // $ionicHistory.goBack();
-    // }
-
-
-    // }
-
-
-    
-
-    
     $scope.chatBack = function () {
         var allowedBackviews = [
             'tab.myConsultRecord',
