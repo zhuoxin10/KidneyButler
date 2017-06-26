@@ -235,7 +235,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           // alert(JSON.stringify(err));
         })
     }, function (reason) {
-        // alert("Failed: " + reason);
+        $ionicLoading.show({
+          template: reason,
+          duration:1000
+        });
     });
   // }
 
@@ -5683,10 +5686,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                                         })
                                     }, function (reason) {
-                                        $ionicLoading.show({
+                                        if(reason=="发送请求失败"){
+                                            $ionicLoading.show({
+                                              template: "请正确安装微信后使用此功能",
+                                              duration:1000
+                                            });
+                                        }else{
+                                            $ionicLoading.show({
                                               template: reason,
                                               duration:1000
                                             });
+                                        }
                                         // alert("Failed: " + reason);
                                     });
                                 },function(err){
@@ -5882,10 +5892,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                       })
                                     
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                     // alert("Failed: " + reason);
                                 });
                             },function(err){
@@ -6027,11 +6044,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                             $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                         })
                                     }, function (reason) {
-                                        $ionicLoading.show({
-                                            template:reason,
-                                            duration:1000
-                                        })
-                                        // alert("Failed: " + reason);
+                                        if(reason=="发送请求失败"){
+                                            $ionicLoading.show({
+                                              template: "请正确安装微信后使用此功能",
+                                              duration:1000
+                                            });
+                                        }else{
+                                            $ionicLoading.show({
+                                              template: reason,
+                                              duration:1000
+                                            });
+                                        }
                                     });
                                 },function(err){
                                     ionicLoadinghide();
@@ -6136,11 +6159,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                                     })
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                 });
                             },function(err){
                                 ionicLoadinghide();
@@ -6447,11 +6476,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
                                     })
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                            template:reason,
-                                            duration:1000
-                                        })
-                                    // alert("Failed: " + reason);
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                 });
                             },function(err){
                                 ionicLoadinghide();
@@ -6647,11 +6682,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                       console.log(err)
                                   })
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                 });
                             },function(err){
                                 ionicLoadinghide();
@@ -6794,11 +6835,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                                     })
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                 });
                             },function(err){
                                 ionicLoadinghide();
@@ -6901,11 +6948,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                                     })
                                 }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
+                                    if(reason=="发送请求失败"){
+                                        $ionicLoading.show({
+                                          template: "请正确安装微信后使用此功能",
+                                          duration:1000
+                                        });
+                                    }else{
+                                        $ionicLoading.show({
+                                          template: reason,
+                                          duration:1000
+                                        });
+                                    }
                                 });
                             },function(err){
                                 ionicLoadinghide();
