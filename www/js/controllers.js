@@ -193,12 +193,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
                   Storage.set('bindingsucc','yes')
 
+                  mySocket.newUser(ret.UserId);
 
                   $timeout(function(){
                     ionicLoadinghide();
                     $state.go('tab.tasklist');
                   },500);
-                  mySocket.newUser(data.results.userId,data.results.name);
                   // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                   //   alert(JSON.stringify(data))
                   //   if(data.results){
