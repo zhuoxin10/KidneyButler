@@ -190,21 +190,40 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   Storage.set('isSignIN',"Yes");
                   Storage.set('UID',ret.UserId);//后续页面必要uid
 
-
-
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
                   Storage.set('bindingsucc','yes')
-                  Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-                    if(data.results){
-                        $timeout(function(){
-                            ionicLoadinghide();
-                            $state.go('tab.tasklist');
-                        },500);
-                        mySocket.newUser(data.results.userId,data.results.name);
-                    }
-                  });
+
+
+                  $timeout(function(){
+                    ionicLoadinghide();
+                    $state.go('tab.tasklist');
+                  },500);
+                  mySocket.newUser(data.results.userId,data.results.name);
+                  // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
+                  //   alert(JSON.stringify(data))
+                  //   if(data.results){
+                  //       $timeout(function(){
+                  //           ionicLoadinghide();
+                  //           $state.go('tab.tasklist');
+                  //       },500);
+                  //       mySocket.newUser(data.results.userId,data.results.name);
+                  //   }else{
+                  //       $timeout(function(){
+                  //           ionicLoadinghide();
+                  //           $state.go('tab.tasklist');
+                  //       },500);
+                  //       mySocket.newUser(data.results.userId,data.results.name);
+                  //   }
+                  // },function(e){
+                  //   console.log(e)
+                  //   // alert(JSON.stringify(e))
+                  //   ionicLoadinghide();
+                  // });
                   // $state.go('tab.tasklist')  
                 }
+              },function(er){
+                // alert(JSON.stringify(er))
+                ionicLoadinghide();
               })
             }else{
                 // alert('else');
