@@ -273,49 +273,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
   }
 }])
 
-.factory('mySocket',['socket','$interval',function(socket,$interval){
-    var timer = null;
-    var currentUser ={
-        id:'',
-        name:''
-    };
-    function newUserOnce(userId,name){
-        if(userId=='') return;
-        var n = name || '';
-        socket.emit('newUser',{ user_name:n , user_id: userId, client:'patient'});
-    }
-    return {
-        newUser:function(userId,name){
-            socket.connect();
-            currentUser.id=userId;
-            currentUser.name = name;
-            timer = $interval(function newuser(){
-                newUserOnce(userId,name);
-                // socket.emit('newUser',{ user_name:n , user_id: userId, client:'app'});
-                return newuser;
-            }(),60000);
-        },
-        newUserOnce:newUserOnce,
-        newUserForTempUse:function(userId,name){
-            $interval.cancel(timer);
-            newUserOnce(userId,name);
-            return function(){
-                socket.emit('disconnect');
-                setTimeout(function(){
-                    newUser(currentUser.id,currentUser.name);
-                },1000);
-                // socket.emit('newUser',{ user_name:currentUser.name , user_id: currentUser.id, client:'app'});
-            }
-        },
-        cancelAll:function(){
-            if(timer!=null){
-                $interval.cancel(timer);
-                timers = null;
-            }
-            currentUser.id = '';
-        }
-    }
-}])
+
 
 
 //数据模型
@@ -2122,6 +2080,49 @@ return self;
     
     return self;
 }])
+.factory('mySocket',['socket','$interval',function(socket,$interval){
+    var timer = null;
+    var currentUser ={
+        id:'',
+        name:''
+    };
+    function newUserOnce(userId,name){
+        if(userId=='') return;
+        var n = name || '';
+        socket.emit('newUser',{ user_name:n , user_id: userId, client:'patient'});
+    }
+    return {
+        newUser:function(userId,name){
+            socket.connect();
+            currentUser.id=userId;
+            currentUser.name = name;
+            timer = $interval(function newuser(){
+                newUserOnce(userId,name);
+                // socket.emit('newUser',{ user_name:n , user_id: userId, client:'app'});
+                return newuser;
+            }(),600000);
+        },
+        newUserOnce:newUserOnce,
+        newUserForTempUse:function(userId,name){
+            $interval.cancel(timer);
+            newUserOnce(userId,name);
+            return function(){
+                socket.emit('disconnect');
+                setTimeout(function(){
+                    newUser(currentUser.id,currentUser.name);
+                },1000);
+                // socket.emit('newUser',{ user_name:currentUser.name , user_id: currentUser.id, client:'app'});
+            }
+        },
+        cancelAll:function(){
+            if(timer!=null){
+                $interval.cancel(timer);
+                timers = null;
+            }
+            currentUser.id = '';
+        }
+    }
+}])
 .factory('socket',['$rootScope','socketFactory','CONFIG',function($rootScope,socketFactory,CONFIG){
     var myIoSocket = io.connect(CONFIG.socketServer+'chat');
     var mySocket = socketFactory({
@@ -2248,4 +2249,20 @@ return self;
     };
 
     return self;
+}])
+.factory('session',['Storage','socket','mySocket',function(Storage,socket,mySocket){
+    return {
+        logOut:function(){
+            Storage.rm('TOKEN');
+            var USERNAME=Storage.get("USERNAME");
+            Storage.clear();
+            Storage.set("isSignIN","No");
+            Storage.set("USERNAME",USERNAME);
+            mySocket.cancelAll();
+            socket.emit('disconnect');
+            socket.disconnect();
+            $ionicHistory.clearCache();
+            $ionicHistory.clearHistory();
+        }
+    }
 }])
