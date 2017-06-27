@@ -3702,24 +3702,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
     $scope.$on('$ionicView.leave', function() {
         for(var i in $scope.timer) clearTimeout($scope.timer[i]);
-        // socket.off('messageRes');
-        // socket.off('getMsg');
-        // socket.off('err');
-        // socket.emit('disconnect');
         $scope.msgs = [];
         if($scope.modal)$scope.modal.remove();
         $rootScope.conversation.type = null;
         $rootScope.conversation.id = '';
     });
     $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 60;
+        $scope.params.helpDivHeight = height ;
         setTimeout(function() {
             $scope.scrollHandle.scrollBottom();
         }, 100);
 
     });
     $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 60;
+        $scope.params.helpDivHeight = 0;
+        $scope.scrollHandle.resize();
     });
     $scope.$on('im:getMsg',function(event,data){
         console.info('getMsg');
