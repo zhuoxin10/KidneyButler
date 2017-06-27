@@ -2250,7 +2250,7 @@ return self;
 
     return self;
 }])
-.factory('session',['Storage','socket','mySocket',function(Storage,socket,mySocket){
+.factory('session',['Storage','socket','mySocket','$ionicHistory',function(Storage,socket,mySocket,$ionicHistory){
     return {
         logOut:function(){
             Storage.rm('TOKEN');
