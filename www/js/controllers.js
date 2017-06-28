@@ -8183,7 +8183,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 return;
             $ionicPopup.show({
                 title:'确定绑定此设备？',
-                subtitle:'在设备列表页面向左滑动设备标签可以解除绑定',
                 cssClass:'popupWithKeyboard',
                 buttons:[{
                     text:'确定',
@@ -8192,7 +8191,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData.text,userId:Storage.get('UID')})
                         .then(function(succ){
                             if(succ.results.requestStatus=="Success")
+                            {
+                                $ionicPopup.alert({
+                                    title: '绑定成功！',
+                                    template: '在设备列表页面向左滑动设备标签可以解除绑定',
+                                    okText:'好的'
+                                });
                                 refresh();
+                            }
                             else
                             {
                                 var name=succ.results.substr(0,1)+'*';
