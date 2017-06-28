@@ -835,7 +835,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
           };
           var VersionParams = {
             versionName: version,
-            versionType: 'app'
+            versionType: 'apppatient'
           };
           // alert(JSON.stringify(VersionParams));
 
