@@ -20,17 +20,17 @@ angular.module('kidneyAppUpdate.services', ['ionic','ngResource','kidney.service
       versionName: 'v0.0.0.1',
       versionType: 'app'
     };
-    version.getVersion(params).then(function (data) {
-        // 判断是否需要更新
-        console.log(data.results);
-        if (angular.isArray(data.results.msg)){
-          console.log("版本号更新")
-        }
+    // version.getVersion(params).then(function (data) {
+    //     // 判断是否需要更新
+    //     console.log(data.results);
+    //     if (angular.isArray(data.results.msg)){
+    //       console.log("版本号更新")
+    //     }
         
-        else{
-          console.log("版本号无更新")
-        }
-    });
+    //     else{
+    //       console.log("版本号无更新")
+    //     }
+    // });
     // 获取手机的网络状态，返回的值包括：WIFI 4g等网络状态，这里用来检测手机是否处于WiFi状态
     var networkType = $cordovaNetwork.getNetwork();
     // 获取App 内的版本信息

@@ -1162,7 +1162,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
     var GetUnread = function(){
         // console.log(new Date());
-        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
             function(data){
                 // console.log(data);
                 if(data.results.length){
@@ -4841,7 +4841,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         );
 
 
-        News.getNewsByReadOrNot({userId:receiver,type:11,readOrNot:0}).then(
+        News.getNewsByReadOrNot({userId:receiver,type:11,readOrNot:0,userRole:"patient"}).then(
             function(data){
                 console.log(data);
                 if(data.results.length){
@@ -5113,7 +5113,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 .controller('DoctorCtrl', ['$interval', 'News', '$q','$http','$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket','Mywechat',function($interval, News, $q,$http,$cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket,Mywechat) {
     var GetUnread = function(){
         // console.log(new Date());
-        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
             function(data){
                 // console.log(data);
                 if(data.results.length){
@@ -5128,16 +5128,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     $scope.$on('$ionicView.enter', function () {
+      
       if($ionicHistory.currentView().stateId === "tab.myDoctors") {
+        console.log("enter");
         RefreshUnread = $interval(GetUnread,2000);
       }
     })
 
     $scope.$on('$ionicView.leave', function ()
     {
-      console.log('destroy');
+      // console.log($ionicHistory.currentView());
+      if($ionicHistory.currentView().stateId !== "tab.myDoctors") {
+        console.log('destroy');
+        $interval.cancel(RefreshUnread);
+      }
       
-      $interval.cancel(RefreshUnread);
       
     });
     //进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
@@ -8107,7 +8112,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     
     var GetUnread = function(){
         // console.log(new Date());
-        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
             function(data){
                 // console.log(data);
                 if(data.results.length){
