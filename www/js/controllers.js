@@ -8344,6 +8344,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 return;
             $ionicPopup.show({
                 title:'确定绑定此设备？',
+                subtitle:'在设备列表页面向左滑动设备标签可以解除绑定',
                 cssClass:'popupWithKeyboard',
                 buttons:[{
                     text:'确定',
@@ -8351,12 +8352,21 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         console.log('ok');
                         Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData.text,userId:Storage.get('UID')})
                         .then(function(succ){
-                            refresh();
+                            if(succ.results.requestStatus=="Success")
+                                refresh();
+                            else
+                            {
+                                var name=succ.results.substr(0,1)+'*';
+                                $ionicPopup.alert({
+                                    title: '警告',
+                                    template: '该血压计已被'+name+'绑定，需要原使用者解除绑定后您才能绑定该设备',
+                                    okText:'好的'
+                                });
+                            }
                             console.log(succ);
                         },function(err){
-                            var confirmPopup = $ionicPopup.alert({
-                                title: '警告',
-                                template: '一个设备只能绑定一个用户，如果要重新绑定，请先从原来的用户上删除该设备！',
+                            $ionicPopup.alert({
+                                title: '绑定失败,未知原因',
                                 okText:'好的'
                             });
                             console.log(err);
