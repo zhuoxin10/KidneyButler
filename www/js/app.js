@@ -28,6 +28,9 @@ angular.module('kidney',['kidneyAppUpdate.services','ionic','kidney.services','k
     }
     function onResume(){
         appState.background = false;
+        var id = Storage.get('UID'),
+            name = thisDoctor===null?'':thisDoctor.name;
+        mySocket.newUserOnce(id,name);
     }
     socket.on('error', function(data) {
         console.error('socket error');

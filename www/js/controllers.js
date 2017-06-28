@@ -5565,13 +5565,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             })
                         }else{
                           ionicLoadingshow();
-                          var json = 'http://ipv4.myexternalip.com/json';
-                            $http.get(json).then(function(result) {
-                                console.log(result.data.ip)
-                                if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                                {
-                                  result.data.ip = "121.196.221.44"
-                                }
+                          // var json = 'http://ipv4.myexternalip.com/json';
+                          //   $http.get(json).then(function(result) {
+                          //       console.log(result.data.ip)
+                          //       if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                          //       {
+                          //         result.data.ip = "121.196.221.44"
+                          //       }
                                 var neworder = {
                                     "userId":Storage.get('UID'),
                                     "role":"appPatient",
@@ -5582,7 +5582,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     "notes":DoctorId,
                                     "paystatus":0,
                                     "paytime":new Date(),
-                                    "ip":result.data.ip,
+                                    // "ip":result.data.ip,
                                     "trade_type":"APP",
                                     "body_description":"咨询服务"
                                   }
@@ -5642,9 +5642,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     ionicLoadinghide();
                                     console.log(err);
                                 })
-                            }, function(e) {
-                                console.log(e);
-                            });
+                            // }, function(e) {
+                            //     console.log(e);
+                            // });
                         }
                     }else{
                       $scope.consultable=1
@@ -5734,12 +5734,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                           })
                     }else{
                       ionicLoadingshow();
-                      var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                      // var json = 'http://ipv4.myexternalip.com/json';
+                      //   $http.get(json).then(function(result) {
+                      //       if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                      //       {
+                      //         result.data.ip = "121.196.221.44"
+                      //       }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -5750,7 +5750,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"咨询升级服务"
                               }
@@ -5847,9 +5847,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ionicLoadinghide();
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                   
                 }else{
@@ -5926,12 +5926,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         })
                     }else{
                         ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                            $http.get(json).then(function(result) {
-                                if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                                {
-                                  result.data.ip = "121.196.221.44"
-                                }
+                        // var json = 'http://ipv4.myexternalip.com/json';
+                        //     $http.get(json).then(function(result) {
+                        //         if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        //         {
+                        //           result.data.ip = "121.196.221.44"
+                        //         }
                                 var neworder = {
                                     "userId":Storage.get('UID'),
                                     "role":"appPatient",
@@ -5942,7 +5942,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     "notes":DoctorId,
                                     "paystatus":0,
                                     "paytime":new Date(),
-                                    "ip":result.data.ip,
+                                    // "ip":result.data.ip,
                                     "trade_type":"APP",
                                     "body_description":"咨询升级服务"
                                   }
@@ -5998,9 +5998,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                     ionicLoadinghide();
                                     console.log(err);
                                 })
-                            }, function(e) {
-                                console.log(e);
-                            });
+                            // }, function(e) {
+                            //     console.log(e);
+                            // });
                     }
                   }else{
                     $scope.consultable=1
@@ -6038,13 +6038,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                             $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                         })
                     }else{
+                      // alert(11)
                         ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                        // var json = 'http://ipv4.myexternalip.com/json';
+                        // $http.get(json).then(function(result) {
+                        //     if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        //     {
+                        //       result.data.ip = "121.196.221.44"
+                        //     }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -6055,7 +6056,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"问诊服务"
                               }
@@ -6111,11 +6112,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 });
                             },function(err){
                                 ionicLoadinghide();
+                                alert(JSON.stringify(err))
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                     
                   }else{
@@ -6357,12 +6359,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         })
                     }else{
                       ionicLoadingshow();
-                      var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                      // var json = 'http://ipv4.myexternalip.com/json';
+                      //   $http.get(json).then(function(result) {
+                      //       if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                      //       {
+                      //         result.data.ip = "121.196.221.44"
+                      //       }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -6373,7 +6375,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"咨询服务"
                               }
@@ -6430,9 +6432,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ionicLoadinghide();
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                   
                 }else{
@@ -6524,12 +6526,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                           })
                     }else{
                         ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                        // var json = 'http://ipv4.myexternalip.com/json';
+                        // $http.get(json).then(function(result) {
+                        //     if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        //     {
+                        //       result.data.ip = "121.196.221.44"
+                        //     }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -6540,7 +6542,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"咨询升级服务"
                               }
@@ -6636,9 +6638,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ionicLoadinghide();
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                   
                 }else{
@@ -6715,12 +6717,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         })
                     }else{
                         ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                        // var json = 'http://ipv4.myexternalip.com/json';
+                        // $http.get(json).then(function(result) {
+                        //     if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        //     {
+                        //       result.data.ip = "121.196.221.44"
+                        //     }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -6731,7 +6733,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"咨询升级服务"
                               }
@@ -6789,9 +6791,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ionicLoadinghide();
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                     
                   }else{
@@ -6829,12 +6831,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         })
                     }else{
                         ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
+                        // var json = 'http://ipv4.myexternalip.com/json';
+                        // $http.get(json).then(function(result) {
+                        //     if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
+                        //     {
+                        //       result.data.ip = "121.196.221.44"
+                        //     }
                             var neworder = {
                                 "userId":Storage.get('UID'),
                                 "role":"appPatient",
@@ -6845,7 +6847,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 "notes":DoctorId,
                                 "paystatus":0,
                                 "paytime":new Date(),
-                                "ip":result.data.ip,
+                                // "ip":result.data.ip,
                                 "trade_type":"APP",
                                 "body_description":"问诊服务"
                               }
@@ -6902,9 +6904,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 ionicLoadinghide();
                                 console.log(err);
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                        // }, function(e) {
+                        //     console.log(e);
+                        // });
                     }
                     
                   }else{
