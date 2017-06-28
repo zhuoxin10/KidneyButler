@@ -3610,7 +3610,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$ionicPlatform','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($ionicPlatform,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+.controller('ChatCtrl',['$ionicPlatform','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify','$timeout', function($ionicPlatform,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify,$timeout) {
     if($ionicPlatform.is('ios')) cordova.plugins.Keyboard.disableScroll(true);
     $scope.input = {
         text: ''
@@ -3618,7 +3618,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
     function toBottom(animate,delay){
         if(!delay) delay=100;
-        setTimeout(function(){
+        $timeout(function(){
             $scope.scrollHandle.scrollBottom(animate);
         },delay)
     }
@@ -3651,11 +3651,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(lastMsg.fromID==$scope.params.UID) return;
                 return News.insertNews({userId:lastMsg.targetID,sendBy:lastMsg.fromID,type:'11',readOrNot:1});
             }
-        });
-        $scope.getMsg(15).then(function(data){
-            $scope.msgs=data;
-            $scope.params.loaded = true;
-            toBottom(true,400);
         });
     });
     $scope.$on('$ionicView.enter', function() {
@@ -3698,28 +3693,30 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
         });
         imgModalInit();
+        $scope.getMsg(15).then(function(data){
+            $scope.msgs=data;
+            $scope.params.loaded = true;
+            toBottom(true,400);
+        });
     });
     
     $scope.$on('$ionicView.leave', function() {
         for(var i in $scope.timer) clearTimeout($scope.timer[i]);
-        // socket.off('messageRes');
-        // socket.off('getMsg');
-        // socket.off('err');
-        // socket.emit('disconnect');
         $scope.msgs = [];
         if($scope.modal)$scope.modal.remove();
         $rootScope.conversation.type = null;
         $rootScope.conversation.id = '';
     });
     $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 60;
+        $scope.params.helpDivHeight = height ;
         setTimeout(function() {
             $scope.scrollHandle.scrollBottom();
         }, 100);
 
     });
     $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 60;
+        $scope.params.helpDivHeight = 0;
+        $scope.scrollHandle.resize();
     });
     $scope.$on('im:getMsg',function(event,data){
         console.info('getMsg');
@@ -4627,7 +4624,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
    $scope.closePopover();
   };
   $scope.choosePhotos = function() {
-  Camera.getPictureFromPhotos('gallery').then(function(data) {
+  Camera.getPictureFromPhotos('gallery',true).then(function(data) {
       // data里存的是图像的地址
       // console.log(data);
       var imgURI = data;
@@ -4647,7 +4644,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   };
   $scope.isShow=true;
   $scope.takePicture = function() {
-   Camera.getPicture('cam').then(function(data) {
+   Camera.getPicture('cam',true).then(function(data) {
       var imgURI = data;
       photo_upload_display(imgURI);
     }, function(err) {

@@ -5,7 +5,8 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['kidneyAppUpdate.services','ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload','btford.socket-io'])
 
-.run(function(AppUpdateService, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket) {
+
+.run(function(AppUpdateService,$ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket,session) {
   $ionicPlatform.ready(function() {
     AppUpdateService.checkVersion($rootScope);
     var isSignIN=Storage.get("isSignIN");
@@ -41,6 +42,14 @@ angular.module('kidney',['kidneyAppUpdate.services','ionic','kidney.services','k
         var id = Storage.get('UID'),
             name = thisPatient===null?'':thisPatient.name;
         mySocket.newUser(id,name);
+    });
+    socket.on('kick', function() {
+        session.logOut();
+        $ionicPopup.alert({
+            title: '请重新登录',
+        }).then(function(){
+            $state.go('signin');
+        })
     });
     socket.on('getMsg', listenGetMsg);
     function listenGetMsg(data){
