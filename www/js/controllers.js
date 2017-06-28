@@ -3086,7 +3086,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   var patientId = Storage.get('UID');
   var GetUnread = function(){
       // console.log(new Date());
-      News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
+      News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0, userRole:"patient"}).then(//
           function(data){
               // console.log(data);
               if(data.results.length){

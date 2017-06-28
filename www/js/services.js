@@ -359,7 +359,13 @@ angular.module('kidney.services', ['ionic','ngResource'])
             setPrefer:{method:'GET', params:{route: 'prefer'}, timeout: 100000},
             getPrefer:{method:'GET', params:{route: 'prefer'}, timeout: 100000}
             
-        })
+        });
+    }
+
+    var version = function(){
+        return $resource(CONFIG.baseUrl + ':path',{path:'version'},{
+            getVersion:{method:'GET', params:{}, timeout: 100000}
+        });
     }
 
     
@@ -525,6 +531,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
             serve.News = News();
             serve.Expense = Expense();
             serve.insurance = insurance();
+            serve.version = version();
             serve.Mywechat = Mywechat();
             serve.Communication = Communication();
             serve.devicedata = Devicedata();
@@ -547,6 +554,7 @@ angular.module('kidney.services', ['ionic','ngResource'])
     serve.News = News();
     serve.Expense = Expense();
     serve.insurance = insurance();
+    serve.version = version();
     serve.Mywechat = Mywechat();
     serve.Communication = Communication();
     serve.Devicedata = Devicedata();
@@ -838,6 +846,26 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
+    return self;
+}])
+
+
+.factory('version', ['$q', 'Data', function($q, Data){
+    var self = this;
+    
+    self.getVersion = function(params){
+        var deferred = $q.defer();
+        Data.version.getVersion(
+            params,
+            function(data, headers){
+                deferred.resolve(data);
+            },
+            function(err){
+                deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+   
     return self;
 }])
 
