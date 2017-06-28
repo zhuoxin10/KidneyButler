@@ -810,10 +810,10 @@ angular.module('kidney.services', ['ionic','ngResource'])
 }])
 
 
-.factory('version', ['$q', 'Data', function($q, Data){
+.factory('version', ['$q', 'Data', '$cordovaAppVersion','$ionicPopup',  function($q, Data, $cordovaAppVersion, $ionicPopup){
     var self = this;
     
-    self.getVersion = function(params){
+    var getVersion = function(params){
         var deferred = $q.defer();
         Data.version.getVersion(
             params,
@@ -825,7 +825,49 @@ angular.module('kidney.services', ['ionic','ngResource'])
         });
         return deferred.promise;
     };
-   
+
+    self.checkUpdate = function(scope){
+        $cordovaAppVersion.getAppVersion().then(function (version) {
+          // alert(version);
+          var json = {
+            title: "",
+            template: ""
+          };
+          var VersionParams = {
+            versionName: version,
+            versionType: 'app'
+          };
+          // alert(JSON.stringify(VersionParams));
+
+          getVersion(VersionParams).then(function(data){
+            // alert(JSON.stringify(data.results));
+            if (angular.isArray(data.results.msg)){
+              json.title = "APP版本更新"
+              for(x in data.results.msg){
+                json.template += data.results.msg[x].versionName + "更新: " + data.results.msg[x].content + "\n";
+              }
+              return $ionicPopup.alert({
+                title: json.title,
+                template: json.template,
+                scope: scope,
+                buttons: [
+                  {
+                    text: '好的',
+                    type: 'button-clear button-assertive',
+                    onTap: function () {
+                      return 'ok';
+                    }
+                  },
+                ]
+              });
+            }
+          },function(err){
+            // alert("err");
+          });
+          
+        });
+    }
+    
     return self;
 }])
 
