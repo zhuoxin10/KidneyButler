@@ -36,11 +36,11 @@ angular.module('kidney.services', ['ionic','ngResource'])
 
 
     // 测试服务器地址
-    baseUrl: 'http://121.43.107.106:4050/api/v1/',
-    mediaUrl: 'http://121.43.107.106:8052/',
-    socketServer:'ws://121.43.107.106:4050/',
-    imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
-    imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
+    baseUrl: 'http://121.196.221.44:4060/api/v1/',
+    mediaUrl: 'http://121.196.221.44:8055/',
+    socketServer:'ws://121.196.221.44:4060/',
+    imgThumbUrl: 'http://121.196.221.44:8055/uploads/photos/resize',
+    imgLargeUrl: 'http://121.196.221.44:8055/uploads/photos/',
     cameraOptions: {
         cam: {
             quality: 70,
