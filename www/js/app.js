@@ -8,7 +8,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 
 .run(function(version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket,session) {
   $ionicPlatform.ready(function() {
-    version.checkUpdate($rootScope);
+    // version.checkUpdate($rootScope);
     var isSignIN=Storage.get("isSignIN");
     thisPatient=null;
     $rootScope.conversation = {
@@ -93,14 +93,23 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
   });
 })
 
+
+
+
 // --------路由, url模式设置----------------
-.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
+.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider,$httpProvider) {
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
 
+// --------Provisional headers are shown-------
+  //Reset headers to avoid OPTIONS request (aka preflight)
+  $httpProvider.defaults.headers.common = {};
+  $httpProvider.defaults.headers.post = {};
+  $httpProvider.defaults.headers.put = {};
+  $httpProvider.defaults.headers.patch = {};
   //ios 白屏可能问题配置
   $ionicConfigProvider.views.swipeBackEnabled(false);
   //注册与登录
