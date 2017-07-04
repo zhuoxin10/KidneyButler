@@ -34,13 +34,6 @@ angular.module('kidney.services', ['ionic','ngResource'])
     imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
 
 
-
-    // 测试服务器地址
-    // baseUrl: 'http://121.43.107.106:4050/api/v1/',
-    // mediaUrl: 'http://121.43.107.106:8052/',
-    // socketServer:'ws://121.43.107.106:4050/',
-    // imgThumbUrl: 'http://121.43.107.106:8052/uploads/photos/resize',
-    // imgLargeUrl: 'http://121.43.107.106:8052/uploads/photos/',
     cameraOptions: {
         cam: {
             quality: 70,
