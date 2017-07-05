@@ -4,11 +4,13 @@
         <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
       </ion-nav-buttons>
       <ion-nav-buttons  side="right" >
+         <button  id= "healthButton" class="button button-outline" ng-click="SaveHealthList()" > 确定{{selectNumber}}/{{maxNumber}} </button><!--  -->
       </ion-nav-buttons>
   
 
     <script type="text/javascript"></script>
     <ion-content  class="padding">
+        <ion-checkbox id="healthCheck" ng-repeat="item in items " ng-disabled = "!item.selected && overflow" ng-checked="item.selected" on-hold="gotoHealthDetail(item)" ng-model="item.selected" ng-change="selectOrdeselect(item.insertTime,item.selected)" on-tap="popAlert(selectNumber)" >
             
                 <div class="row">
                     <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
