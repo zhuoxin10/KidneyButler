@@ -3337,20 +3337,29 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
-// 聊天 XJZ
-
+/**
+ * 聊天页面
+ * @Author   xjz
+ * @DateTime 2017-07-05
+ */
 .controller('ChatCtrl', ['$ionicPlatform', '$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice', 'CONFIG', '$ionicPopup', 'Counsels', 'Storage', 'Mywechat', '$q', 'Communication', 'Account', 'News', 'Doctor', '$ionicLoading', 'Patient', 'arrTool', 'socket', 'notify', '$timeout', function ($ionicPlatform, $scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice, CONFIG, $ionicPopup, Counsels, Storage, Mywechat, $q, Communication, Account, News, Doctor, $ionicLoading, Patient, arrTool, socket, notify, $timeout) {
   if ($ionicPlatform.is('ios')) cordova.plugins.Keyboard.disableScroll(true)
   $scope.input = {
     text: ''
   }
   $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll')
+  /**
+   * 拉到底的动画效果
+   * @Author   xjz
+   * @DateTime 2017-07-05
+   */
   function toBottom (animate, delay) {
     if (!delay) delay = 100
     $timeout(function () {
       $scope.scrollHandle.scrollBottom(animate)
     }, delay)
   }
+  // 进入页面前：
   $scope.$on('$ionicView.beforeEnter', function () {
     $scope.timer = []
     $scope.photoUrls = {}
@@ -3382,6 +3391,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }
     })
   })
+  // 进入页面时：获取咨询状态、剩余次数
   $scope.$on('$ionicView.enter', function () {
     $rootScope.conversation.type = 'single'
     $rootScope.conversation.id = $state.params.chatId
@@ -3407,6 +3417,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             }, function (err) {
               console.log(err)
             })
+            // 显示头像
     Doctor.getDoctorInfo({userId: $state.params.chatId})
             .then(function (data) {
               $scope.photoUrls[data.results.userId] = data.results.photoUrl
@@ -3419,13 +3430,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
         })
     imgModalInit()
+    // 先显示15条
     $scope.getMsg(15).then(function (data) {
       $scope.msgs = data
       $scope.params.loaded = true
       toBottom(true, 400)
     })
   })
-
+  // 离开页面时：
   $scope.$on('$ionicView.leave', function () {
     for (var i in $scope.timer) clearTimeout($scope.timer[i])
     $scope.msgs = []
@@ -3433,12 +3445,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.type = null
     $rootScope.conversation.id = ''
   })
+  // 显示键盘
   $scope.$on('keyboardshow', function (event, height) {
     $scope.params.helpDivHeight = height
     setTimeout(function () {
       $scope.scrollHandle.scrollBottom()
     }, 100)
   })
+  // 收起键盘
   $scope.$on('keyboardhide', function (event) {
     $scope.params.helpDivHeight = 0
     $scope.scrollHandle.resize()
@@ -3471,7 +3485,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     }
   })
-
+  // 点击图片
   $scope.$on('image', function (event, args) {
     console.log(args)
     event.stopPropagation()
@@ -3479,6 +3493,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.imageUrl = args[2].localPath || (CONFIG.mediaUrl + (args[2].src || args[2].src_thumb))
     $scope.modal.show()
   })
+  // 点击语音
   $scope.$on('voice', function (event, args) {
     console.log(args)
     event.stopPropagation()
@@ -3492,12 +3507,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
     $scope.sound.play()
   })
+  // 点击头像
   $scope.$on('profile', function (event, args) {
     event.stopPropagation()
     if (args[1].direct == 'receive') {
       $state.go('tab.DoctorDetail', {DoctorId: args[1].fromID})
     }
   })
+  // 监听点击评价的事件
   $scope.$on('gopingjia', function (event, args) {
     event.stopPropagation()
     $state.go('tab.consult-comment', {counselId: $scope.params.counsel.counselId, doctorId: $scope.params.chatId, patientId: $scope.params.counsel.patientId.userId})
@@ -3603,7 +3620,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 })
     })
   }
-
+  // 没有更多消息了
   function noMore () {
     $scope.params.moreMsgs = false
     setTimeout(function () {
@@ -3612,6 +3629,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     }, 5000)
   }
+  // 多显示15条
   $scope.DisplayMore = function () {
     $scope.getMsg(15).then(function (data) {
       $scope.msgs = data
@@ -3621,7 +3639,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.scrollHandle.scrollBottom(true)
   }
 
-    // view image
+  // 查看图片
   function imgModalInit () {
     $scope.zoomMin = 1
     $scope.imageUrl = ''
@@ -3812,7 +3830,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     sendmsg($scope.input.text, 'text')
     $scope.input.text = ''
   }
-        // get image
+  // 上传图片
   $scope.getImage = function (type) {
     if ($scope.counselstatus != 1) return nomoney()
     $scope.showMore = false
@@ -3837,7 +3855,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               console.error(err)
             })
   }
-        // get voice
+  // 上传语音
   $scope.getVoice = function () {
     if ($scope.counselstatus != 1) return nomoney()
         // voice.record() do 2 things: record --- file manipulation
