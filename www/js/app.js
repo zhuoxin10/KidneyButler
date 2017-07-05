@@ -3,107 +3,104 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload','btford.socket-io'])
+angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io'])
 
-
-.run(function(version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket,session) {
-  $ionicPlatform.ready(function() {
-    version.checkUpdate($rootScope);
-    var isSignIN=Storage.get("isSignIN");
-    thisPatient=null;
+.run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
+  $ionicPlatform.ready(function () {
+    version.checkUpdate($rootScope)
+    var isSignIN = Storage.get('isSignIN')
+    thisPatient = null
     $rootScope.conversation = {
-        type: null,
-        id: ''
+      type: null,
+      id: ''
     }
-    if(isSignIN=='YES'){
-      $state.go('tab.tasklist');
+    if (isSignIN == 'YES') {
+      $state.go('tab.tasklist')
     }
     var appState = {
-        background:false
+      background: false
     }
-    document.addEventListener('pause', onPause, false);
-    document.addEventListener('resume', onResume, false);
-    function onPause(){
-        appState.background = true;
+    document.addEventListener('pause', onPause, false)
+    document.addEventListener('resume', onResume, false)
+    function onPause () {
+      appState.background = true
     }
-    function onResume(){
-        appState.background = false;
-        var id = Storage.get('UID'),
-            name = thisDoctor===null?'':thisDoctor.name;
-        mySocket.newUserOnce(id,name);
+    function onResume () {
+      appState.background = false
+      var id = Storage.get('UID'),
+        name = thisDoctor === null ? '' : thisDoctor.name
+      mySocket.newUserOnce(id, name)
     }
-    socket.on('error', function(data) {
-        console.error('socket error');
-        console.log(data);
-    });
-    socket.on('disconnected', function(data) {
-        console.error('disconnected');
-        console.error(data);
-    });
-    socket.on('reconnect', function(attempt) {
-        console.info('reconnect: ' + attempt);
-        var id = Storage.get('UID'),
-            name = thisPatient===null?'':thisPatient.name;
-        mySocket.newUser(id,name);
-    });
-    socket.on('kick', function() {
-        session.logOut();
-        $ionicPopup.alert({
-            title: '请重新登录',
-        }).then(function(){
-            $state.go('signin');
-        })
-    });
-    socket.on('getMsg', listenGetMsg);
-    function listenGetMsg(data){
-        console.info('getMsg');
-        console.log(data);
-        if(!appState.background && (($rootScope.conversation.type == 'single' && $rootScope.conversation.id==data.msg.fromID) || ($rootScope.conversation.type == 'group' && $rootScope.conversation.id==data.msg.targetID))) return;
-        notify.add(data.msg);
+    socket.on('error', function (data) {
+      console.error('socket error')
+      console.log(data)
+    })
+    socket.on('disconnected', function (data) {
+      console.error('disconnected')
+      console.error(data)
+    })
+    socket.on('reconnect', function (attempt) {
+      console.info('reconnect: ' + attempt)
+      var id = Storage.get('UID'),
+        name = thisPatient === null ? '' : thisPatient.name
+      mySocket.newUser(id, name)
+    })
+    socket.on('kick', function () {
+      session.logOut()
+      $ionicPopup.alert({
+        title: '请重新登录'
+      }).then(function () {
+        $state.go('signin')
+      })
+    })
+    socket.on('getMsg', listenGetMsg)
+    function listenGetMsg (data) {
+      console.info('getMsg')
+      console.log(data)
+      if (!appState.background && (($rootScope.conversation.type == 'single' && $rootScope.conversation.id == data.msg.fromID) || ($rootScope.conversation.type == 'group' && $rootScope.conversation.id == data.msg.targetID))) return
+      notify.add(data.msg)
     }
-    if(window.cordova && window.cordova.plugins.Keyboard) {
+    if (window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true)
 
       // Don't remove this line unless you know what you are doing. It stops the viewport
       // from snapping when text inputs are focused. Ionic handles this internally for
       // a much nicer keyboard experience.
-      cordova.plugins.Keyboard.disableScroll(true);
+      cordova.plugins.Keyboard.disableScroll(true)
     }
-    if(window.StatusBar) {
-        StatusBar.backgroundColorByHexString("#33bbff");
+    if (window.StatusBar) {
+      StatusBar.backgroundColorByHexString('#33bbff')
       // StatusBar.styleDefault();
     }
-    $rootScope.$on('$cordovaLocalNotification:click',function(event,note,state){
-        console.log(arguments);
-        var msg = JSON.parse(note.data);
-        if(msg.newsType=='11'){
-            $state.go('tab.consult-chat', {chatId: msg.fromID});
-        }
+    $rootScope.$on('$cordovaLocalNotification:click', function (event, note, state) {
+      console.log(arguments)
+      var msg = JSON.parse(note.data)
+      if (msg.newsType == '11') {
+        $state.go('tab.consult-chat', {chatId: msg.fromID})
+      }
     })
 
-    window.addEventListener('native.keyboardshow', function(e) {
-        $rootScope.$broadcast('keyboardshow', e.keyboardHeight);
-    });
-    window.addEventListener('native.keyboardhide', function(e) {
-        $rootScope.$broadcast('keyboardhide');
-    });
-
-  });
+    window.addEventListener('native.keyboardshow', function (e) {
+      $rootScope.$broadcast('keyboardshow', e.keyboardHeight)
+    })
+    window.addEventListener('native.keyboardhide', function (e) {
+      $rootScope.$broadcast('keyboardhide')
+    })
+  })
 })
 
 // --------路由, url模式设置----------------
-.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
-
+.config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
 
-  //ios 白屏可能问题配置
-  $ionicConfigProvider.views.swipeBackEnabled(false);
-  //注册与登录
+  // ios 白屏可能问题配置
+  $ionicConfigProvider.views.swipeBackEnabled(false)
+  // 注册与登录
   $stateProvider
     .state('signin', {
       cache: false,
@@ -114,67 +111,67 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     .state('agreement', {
       cache: false,
       url: '/agreeOrNot',
-      params:{last:null},
+      params: {last: null},
 
       templateUrl: 'partials/login/agreement.html',
       controller: 'AgreeCtrl'
     })
-    .state('phonevalid', { 
+    .state('phonevalid', {
       cache: false,
       url: '/phonevalid',
-      params:{phonevalidType:null},
+      params: {phonevalidType: null},
       templateUrl: 'partials/login/phonevalid.html',
       controller: 'phonevalidCtrl'
     })
     .state('setpassword', {
-      cache:false,
+      cache: false,
       url: '/setpassword',
-      params:{phonevalidType:null},
+      params: {phonevalidType: null},
       templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
     })
-    .state('userdetail',{
-      cache:false,
-      url:'mine/userdetail',
-      params:{last:null},
-      templateUrl:'partials/login/userDetail.html',
-      controller:'userdetailCtrl'
+    .state('userdetail', {
+      cache: false,
+      url: 'mine/userdetail',
+      params: {last: null},
+      templateUrl: 'partials/login/userDetail.html',
+      controller: 'userdetailCtrl'
     })
-    .state('messages',{
-      cache:false,
-      url:'/messages',
-      templateUrl:'partials/messages/AllMessage.html',
-      controller:'messageCtrl'
+    .state('messages', {
+      cache: false,
+      url: '/messages',
+      templateUrl: 'partials/messages/AllMessage.html',
+      controller: 'messageCtrl'
     })
-    .state('messagesDetail',{
-      cache:false,
-      url:'/messagesDetail',
-      params:{messageType:null},
-      templateUrl:'partials/messages/VaryMessage.html',
-      controller:'VaryMessageCtrl'
+    .state('messagesDetail', {
+      cache: false,
+      url: '/messagesDetail',
+      params: {messageType: null},
+      templateUrl: 'partials/messages/VaryMessage.html',
+      controller: 'VaryMessageCtrl'
     })
-    .state('payment',{
-      cache:false,
-      url:'/payment',
-      params:{messageType:null},
-      templateUrl:'partials/payment/payment.html',
-      controller:'paymentCtrl'
-    });   
-    
-    //主页面    
+    .state('payment', {
+      cache: false,
+      url: '/payment',
+      params: {messageType: null},
+      templateUrl: 'partials/payment/payment.html',
+      controller: 'paymentCtrl'
+    })
+
+    // 主页面
   $stateProvider
     .state('tab', {
-      cache:false,
+      cache: false,
       abstract: true,
       url: '/tab',
       templateUrl: 'partials/tabs/tabs.html',
-      controller:'TabsCtrl'
+      controller: 'TabsCtrl'
     })
     .state('tab.tasklist', {
       url: '/tasklist',
       views: {
         'tab-tasks': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/task/tasklist.html',
           controller: 'tasklistCtrl'
         }
@@ -184,7 +181,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       url: '/forum',
       views: {
         'tab-forum': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/forum.html',
           controller: 'forumCtrl'
         }
@@ -194,7 +191,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       url: '/myDoctors',
       views: {
         'tab-consult': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/consult/myDoctors.html',
           controller: 'DoctorCtrl'
         }
@@ -205,7 +202,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       // params:{type:null,status:null,msgCount:null},
       views: {
         'tab-consult': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/consult/consult-chat.html',
           controller: 'ChatCtrl'
         }
@@ -213,11 +210,11 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consult-comment', {
       url: '/consult/comment',
-      params:{counselId:null,doctorId:null,patientId:null},
-      cache:false,
+      params: {counselId: null, doctorId: null, patientId: null},
+      cache: false,
       views: {
         'tab-consult': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/consult/commentDoctor.html',
           controller: 'SetCommentCtrl'
         }
@@ -227,7 +224,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       url: '/AllDoctors',
       views: {
         'tab-consult': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/consult/allDoctors.html',
           controller: 'DoctorCtrl'
         }
@@ -237,7 +234,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       url: '/DoctorDetail/:DoctorId',
       views: {
         'tab-consult': {
-          cache:false,
+          cache: false,
           templateUrl: 'partials/tabs/consult/DoctorDetail.html',
           controller: 'DoctorDetailCtrl'
         }
@@ -245,100 +242,75 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     })
     .state('tab.consultQuestionnaire', {
       url: '/Questionnaire',
-      params:{DoctorId:null,counselType:null},
+      params: {DoctorId: null, counselType: null},
       views: {
         'tab-consult': {
-          cache:true,
+          cache: true,
           templateUrl: 'partials/tabs/consult/questionnaire.html',
           controller: 'consultquestionCtrl'
         }
-      },
+      }
     })
-    // .state('tab.consultquestion1', {
-    //   url: '/consultquestion1',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion1.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
-    // .state('tab.consultquestion2', {
-    //   url: '/consultquestion2',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion2.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
-    // .state('tab.consultquestion3', {
-    //   url: '/consultquestion3',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion3.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
+    .state('tab.healthList', {
+      url: '/healthList',
+      views: {
+        'tab-consult': {
+          cache: true,
+          templateUrl: 'partials/tabs/consult/healthList.html',
+          controller: 'healthListCtrl'
+        }
+      }
+      // params:{DoctorId:null}
+    })
 
     .state('tab.mine', {
-        url: '/mine',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/mine.html',
-            controller: 'MineCtrl'
-          }
-
+      url: '/mine',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/mine.html',
+          controller: 'MineCtrl'
         }
-         
+
+      }
+
     })
     .state('tab.DiagnosisInfo', {
-        url: '/mine/DiagnosisInfo',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/diagnosisInfo.html',
-            controller: 'DiagnosisCtrl'
-          }
-
+      url: '/mine/DiagnosisInfo',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/diagnosisInfo.html',
+          controller: 'DiagnosisCtrl'
         }
-         
+
+      }
+
     })
     .state('tab.myConsultRecord', {
-        url: '/mine/ConsultRecord',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/consultRecord.html',
-            controller: 'ConsultRecordCtrl'
-          }
-
+      url: '/mine/ConsultRecord',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/consultRecord.html',
+          controller: 'ConsultRecordCtrl'
         }
-         
+
+      }
+
     })
     .state('tab.myHealthInfo', {
-        url: '/mine/HealthInfo',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/HealthInfo.html',
-            controller: 'HealthInfoCtrl'
-          }
-
+      url: '/mine/HealthInfo',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/HealthInfo.html',
+          controller: 'HealthInfoCtrl'
         }
-         
+
+      }
+
     })
     .state('tab.myHealthInfoDetail', {
-      cache:false,
+      cache: false,
       url: '/mine/HealthInfoDetail/',
-      params: {id:null,caneidt:null},
+      params: {id: null, caneidt: null},
       views: {
         'tab-mine': {
           templateUrl: 'partials/tabs/mine/editHealthInfo.html',
@@ -346,74 +318,74 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         }
 
       }
-         
+
     })
      .state('tab.myMoney', {
-        url: '/mine/Account/',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/money.html',
-            controller: 'MoneyCtrl'
-          }
+       url: '/mine/Account/',
+       views: {
+         'tab-mine': {
+           templateUrl: 'partials/tabs/mine/money.html',
+           controller: 'MoneyCtrl'
+         }
 
-        }     
-         
-    })
-    .state('tab.about',{
-        url:'/mine/about',
-        views:{
-            'tab-mine':{
-                templateUrl:'partials/about.html',
-                controller:'aboutCtrl'
-            }
+       }
+
+     })
+    .state('tab.about', {
+      url: '/mine/about',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/about.html',
+          controller: 'aboutCtrl'
         }
-      
+      }
+
     })
     .state('tab.advice', {
-        cache:false,
-        url: '/mine/advice/',
-        views: {
-            'tab-mine': {
-                templateUrl: 'partials/tabs/mine/advice.html',
-                controller: 'adviceCtrl'
-            }
-
-        }     
-         
-    })
-    .state('tab.changePassword',{
-        cache:false,
-        url:'/mine/changePassword',
-        views:{
-            'tab-mine':{
-                templateUrl:'partials/changePassword.html',
-                controller:'changePasswordCtrl'
-            }
+      cache: false,
+      url: '/mine/advice/',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/advice.html',
+          controller: 'adviceCtrl'
         }
-      
+
+      }
+
+    })
+    .state('tab.changePassword', {
+      cache: false,
+      url: '/mine/changePassword',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/changePassword.html',
+          controller: 'changePasswordCtrl'
+        }
+      }
+
     })
 
     .state('tab.taskSet', {
-        url: '/mine/taskSet/',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/task/taskSet.html',
-            controller: 'TaskSetCtrl'
-          }
-        }           
-    })  
+      url: '/mine/taskSet/',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/task/taskSet.html',
+          controller: 'TaskSetCtrl'
+        }
+      }
+    })
 
     .state('tab.devices', {
-        url: '/mine/devices/',
-        views: {
-          'tab-mine': {
-            templateUrl: 'partials/tabs/mine/devices.html',
-            controller: 'devicesCtrl'
-          }
-        }           
-    })  
+      url: '/mine/devices/',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/devices.html',
+          controller: 'devicesCtrl'
+        }
+      }
+    })
 
-     //肾病保险
+     // 肾病保险
   $stateProvider
     .state('insurance', {
       cache: false,
@@ -450,18 +422,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       url: '/insurancestaff',
       templateUrl: 'partials/insurance/insurancestaff.html',
       controller: 'insurancestaffCtrl'
-    });
+    })
 
-  $urlRouterProvider.otherwise('/signin');
-
-
-
-   
- 
-
-
-
-});   
-
-
- 
+  $urlRouterProvider.otherwise('/signin')
+})

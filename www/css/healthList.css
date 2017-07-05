@@ -1,0 +1,47 @@
+#chooseHealth:after {
+  content: "\2714";
+  display: block;
+  position: absolute;
+  /*margin: auto;*/
+  top: 0; 
+  /*left: 0; */
+  /*bottom: 0; */
+  right: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  background:  #00c09e;
+  border-radius: 50px;
+  color: #fff;
+  text-align: center;
+  font-size: 16px;
+  z-index: 100;
+  opacity: 0;
+  transition:         0.3s linear;
+  -o-transition:      0.3s linear;
+  -ms-transition:     0.3s linear;
+  -moz-transition:    0.3s linear;
+  -webkit-transition: 0.3s linear;
+  -o-user-select:      none;
+  -moz-user-select:    none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+#healthCheck.item-checkbox{
+  padding-left: 0 !important;
+}
+
+#healthCheck.item-checkbox .checkbox {
+  top:35px;
+  left: 90%;
+  margin-bottom: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+}
+
+#healthButton{
+  border-color: #ffffff;
+  color: #ffffff;
+}
