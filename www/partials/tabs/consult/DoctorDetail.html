@@ -1,4 +1,4 @@
-<ion-view cache-view="false" title="医生详情" >
+<ion-view cache-view="false" title="医生详情" show-tabs>
     <ion-nav-buttons side="left">
         <my-nav-back-button ng-click="GoBack()"></my-nav-back-button>
     </ion-nav-buttons>
@@ -25,7 +25,7 @@
 
         <div class="row">
             <button style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-zixun2"></i>咨询</button>
-            <button  style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-baojifuben""></i>问诊</button>
+            <button  style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
         </div>
        
         

@@ -1,5 +1,5 @@
 <div class="msgbox no-bubble-color image-msgbox {{'msgbox-'+msg.direct}}">
-    <div ng-if="msg.diff" class="msg-time"><span>{{msg.createTimeInMillis | msgdate}}</span></div>
+    <div ng-if="msg.diff" class="msg-time"><span>{{msg.time | msgdate}}</span></div>
     <img class="avatar" ng-src="{{photourls[msg.fromID]|| 'img/DefaultAvatar.jpg'}}" ng-click="emitEvent('profile',msg)" />
     <div my-spin="msg.status" class="msg-body media-image" ng-click="emitEvent('image','img',msg.content)" on-hold="emitEvent('holdmsg',msg.createTimeInMillis,$event,'image')">
         <img src="{{msg.content.thumb}}" />

@@ -5,9 +5,10 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.directives','kidney.filters','ngCordova','ngFileUpload','btford.socket-io'])
 
-.run(function($ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket) {
-  $ionicPlatform.ready(function() {
 
+.run(function(version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup,$rootScope,CONFIG,notify,$interval,socket,mySocket,session) {
+  $ionicPlatform.ready(function() {
+    version.checkUpdate($rootScope);
     var isSignIN=Storage.get("isSignIN");
     thisPatient=null;
     $rootScope.conversation = {
@@ -27,6 +28,9 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
     }
     function onResume(){
         appState.background = false;
+        var id = Storage.get('UID'),
+            name = thisDoctor===null?'':thisDoctor.name;
+        mySocket.newUserOnce(id,name);
     }
     socket.on('error', function(data) {
         console.error('socket error');
@@ -40,7 +44,15 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
         console.info('reconnect: ' + attempt);
         var id = Storage.get('UID'),
             name = thisPatient===null?'':thisPatient.name;
-        socket.emit('newUser',{ user_name: name, user_id: id });
+        mySocket.newUser(id,name);
+    });
+    socket.on('kick', function() {
+        session.logOut();
+        $ionicPopup.alert({
+            title: '请重新登录',
+        }).then(function(){
+            $state.go('signin');
+        })
     });
     socket.on('getMsg', listenGetMsg);
     function listenGetMsg(data){
@@ -82,12 +94,15 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
 })
 
 // --------路由, url模式设置----------------
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider,$ionicConfigProvider) {
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
+
+  //ios 白屏可能问题配置
+  $ionicConfigProvider.views.swipeBackEnabled(false);
   //注册与登录
   $stateProvider
     .state('signin', {
@@ -153,7 +168,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       abstract: true,
       url: '/tab',
       templateUrl: 'partials/tabs/tabs.html',
-      controller:'GoToMessageCtrl'
+      controller:'TabsCtrl'
     })
     .state('tab.tasklist', {
       url: '/tasklist',
@@ -233,7 +248,7 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
       params:{DoctorId:null,counselType:null},
       views: {
         'tab-consult': {
-          cache:false,
+          cache:true,
           templateUrl: 'partials/tabs/consult/questionnaire.html',
           controller: 'consultquestionCtrl'
         }
@@ -384,6 +399,16 @@ angular.module('kidney',['ionic','kidney.services','kidney.controllers','kidney.
           'tab-mine': {
             templateUrl: 'partials/tabs/task/taskSet.html',
             controller: 'TaskSetCtrl'
+          }
+        }           
+    })  
+
+    .state('tab.devices', {
+        url: '/mine/devices/',
+        views: {
+          'tab-mine': {
+            templateUrl: 'partials/tabs/mine/devices.html',
+            controller: 'devicesCtrl'
           }
         }           
     })  

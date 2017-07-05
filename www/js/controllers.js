@@ -1,7 +1,7 @@
 
 angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','ionic-datepicker','kidney.directives'])//,'ngRoute'
 //登录--PXY
-.controller('SignInCtrl', ['$scope','$timeout','$state','Storage','$ionicHistory','Data','User','$sce','Mywechat','Patient','toServer', function($scope, $timeout,$state,Storage,$ionicHistory,Data,User,$sce,Mywechat,Patient,toServer) {
+.controller('SignInCtrl', ['$ionicLoading','$scope','$timeout','$state','Storage','$ionicHistory','Data','User','$sce','Mywechat','Patient','mySocket', function($ionicLoading,$scope, $timeout,$state,Storage,$ionicHistory,Data,User,$sce,Mywechat,Patient,mySocket) {
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx");
     $scope.autologflag=0;
     if(Storage.get('USERNAME')!=null&&Storage.get('USERNAME')!=undefined){
@@ -17,9 +17,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             if(data.results.mesg=="login success!"){
               Storage.set('isSignIN',"Yes");
               Storage.set('UID',data.results.userId);//后续页面必要uid
+          
               Storage.set('bindingsucc','yes');
               var name = data.results.userName?data.results.userName:data.results.userId;
-              toServer.newUser(name,data.results.userId);
+              mySocket.newUser(data.results.userId,name);
               $timeout(function(){$state.go('tab.tasklist');},500);
             // $state.go('tab.tasklist')  
             }
@@ -32,7 +33,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     Storage.set('UID',data.results.userId);//后续页面必要uid
                     // Storage.set('bindingsucc','yes')
                     var name = data.results.userName?data.results.userName:data.results.userId;
-                    toServer.newUser(name,data.results.userId);
+                    mySocket.newUser(data.results.userId,name);
                     $timeout(function(){$state.go('tab.tasklist');},500);
                     
                     // $state.go('tab.tasklist')  
@@ -79,7 +80,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         // Storage.set('UName',data.results.userName);
                         //如果姓名不为空就发送姓名，否则直接发送id
                         var name = data.results.userName?data.results.userName:data.results.userId;
-                        toServer.newUser(name,data.results.userId);
+                        mySocket.newUser(data.results.userId,name);
                         User.getAgree({userId:data.results.userId}).then(function(res){
                             if(res.results.agreement=="0"){
                                 $timeout(function(){$state.go('tab.tasklist');},500);
@@ -125,7 +126,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
 
-
+    var ionicLoadingshow = function() {
+        $ionicLoading.show({
+            template: '登录中...'
+        });
+    };
+    var ionicLoadinghide = function(){
+        $ionicLoading.hide();
+    };
     $scope.toRegister = function(){
 
         $state.go('phonevalid',{phonevalidType:'register'});
@@ -150,44 +158,87 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
         // alert(JSON.stringify(response));
-        // alert(response.code)
-        Mywechat.getUserInfo({role:"appPatient",code:response.code}).then(function(persondata){
-          // alert(persondata.headimgurl)
-          Storage.set('wechatheadimgurl',persondata.results.headimgurl)
+        // alert(response.code);
+        Mywechat.getUserInfo({role:"appPatient",code:response.code,state:""}).then(function(persondata){
+          // alert(JSON.stringify(persondata));
+          Storage.set('wechatheadimgurl',persondata.results.headimgurl);
           
           $scope.unionid=persondata.results.unionid;
           // alert($scope.unionid)
           //判断这个unionid是否已经绑定用户了 有直接登录
-          User.getUserIDbyOpenId({"openId":$scope.unionid}).then(function(ret){
+          User.getUserID({"username":$scope.unionid}).then(function(ret){
             // alert(JSON.stringify(ret))
             //用户已经存在id 说明公众号注册过
-            if(ret.results==0&&ret.role.indexOf("patient")!=-1){//直接登录
+            //未测试
+            if(Storage.get('wechatheadimgurl')&&ret.results===0){
+                // alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+                Patient.replacePhoto({"patientId":ret.UserId,"wechatPhotoUrl":Storage.get('wechatheadimgurl')}).then(function(data){
+                        // alert(JSON.stringify(data));
+                        Storage.rm('wechatheadimgurl');
+                    },function(err){
+                        console.log(err)
+                    }
+                );
+                //已有头像，未更新;没有头像，已替换
+            }
+            
+            if(ret.results==0&&ret.roles.indexOf("patient")!=-1){//直接登录
+                ionicLoadingshow();
               User.logIn({username:$scope.unionid,password:"112233",role:"patient"}).then(function(data){
                 // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
                 if(data.results.mesg=="login success!"){
                   Storage.set('isSignIN',"Yes");
                   Storage.set('UID',ret.UserId);//后续页面必要uid
+
                   Storage.set("patientunionid",$scope.unionid);//自动登录使用
                   Storage.set('bindingsucc','yes')
-                  Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-                    if(data.results){
-                        $timeout(function(){$state.go('tab.tasklist');},500);
-                        toServer.newUser(data.results.name,data.results.userId);
-                    }
-                  });
+
+                  mySocket.newUser(ret.UserId);
+
+                  $timeout(function(){
+                    ionicLoadinghide();
+                    $state.go('tab.tasklist');
+                  },500);
+                  // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
+                  //   alert(JSON.stringify(data))
+                  //   if(data.results){
+                  //       $timeout(function(){
+                  //           ionicLoadinghide();
+                  //           $state.go('tab.tasklist');
+                  //       },500);
+                  //       mySocket.newUser(data.results.userId,data.results.name);
+                  //   }else{
+                  //       $timeout(function(){
+                  //           ionicLoadinghide();
+                  //           $state.go('tab.tasklist');
+                  //       },500);
+                  //       mySocket.newUser(data.results.userId,data.results.name);
+                  //   }
+                  // },function(e){
+                  //   console.log(e)
+                  //   // alert(JSON.stringify(e))
+                  //   ionicLoadinghide();
+                  // });
                   // $state.go('tab.tasklist')  
                 }
+              },function(er){
+                // alert(JSON.stringify(er))
+                ionicLoadinghide();
               })
             }else{
-              Storage.set("patientunionid",$scope.unionid);//自动登录使用
-              $state.go('phonevalid',{phonevalidType:'wechatsignin'})
+                // alert('else');
+                Storage.set("patientunionid",$scope.unionid);//自动登录使用
+                $state.go('phonevalid',{phonevalidType:'wechatsignin'})
             }
           })
         },function(err){
-          alert(JSON.stringify(err));
+          // alert(JSON.stringify(err));
         })
     }, function (reason) {
-        alert("Failed: " + reason);
+        $ionicLoading.show({
+          template: reason,
+          duration:1000
+        });
     });
   // }
 
@@ -196,15 +247,13 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 }])
 
-.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$ionicPopup','toServer', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$ionicPopup,toServer) {
+.controller('AgreeCtrl', ['$stateParams','$scope','$timeout','$state','Storage','$ionicHistory','$http','Data','User','$ionicPopup','mySocket', function($stateParams,$scope, $timeout,$state,Storage,$ionicHistory,$http,Data,User,$ionicPopup,mySocket) {
     $scope.YesIdo = function(){
         console.log('yesido');
         if($stateParams.last=='signin'){
             User.updateAgree({userId:Storage.get('UID'),agreement:"0"}).then(function(data){
                 if(data.results!=null){
                     $timeout(function(){$state.go('tab.tasklist');},500);
-                    // toServer.newUser(Storage.get('UserFullName'),Storage.get('UID'));
-
                 }else{
                     console.log("用户不存在!");
                 }
@@ -245,10 +294,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
 
-     var a=document.getElementById("agreement");
-        // console.log(document.body.clientHeight);
-        console.log(window.screen.height);
-        a.style.height=window.screen.height*0.65+"px";
+     // var a=document.getElementById("agreement");
+     //    // console.log(document.body.clientHeight);
+     //    console.log(window.screen.height);
+     //    a.style.height=window.screen.height*0.65+"px";
 
 }])
 
@@ -263,8 +312,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   var unablebutton = function(){
      //验证码BUTTON效果
         $scope.isable=true;
-        $scope.veritext="180S再次发送";
-        var time = 179;
+        $scope.veritext="60S再次发送";
+        var time = 59;
         var timer;
         timer = $interval(function(){
             if(time==0){
@@ -323,7 +372,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
         //如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码
         if($stateParams.phonevalidType=='register'){
-            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+            User.getUserID({username:Verify.Phone}).then(function(data){
                 if(data.results == 0){
                     $scope.logStatus = "该手机号码已经注册！";
                 }else if(data.results == 1){
@@ -334,7 +383,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='reset'){
-            User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+            User.getUserID({username:Verify.Phone}).then(function(data){
                 if(data.results == 1){
                     $scope.logStatus = "该账户不存在！";
                 }else if(data.results == 0){
@@ -345,7 +394,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             });
         }
         else if($stateParams.phonevalidType=='wechatsignin'){
-          User.getUserId({phoneNo:Verify.Phone}).then(function(data){
+          User.getUserID({username:Verify.Phone}).then(function(data){
             if(data.results == 0&&data.roles.indexOf('patient')!=-1){//导入的用户
               $scope.patientofimport=1;
               Storage.set('UID',data.UserId)
@@ -366,40 +415,41 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             var phoneReg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
             //手机正则表达式验证
             if(phoneReg.test(Verify.Phone)){
+
                 //测试用
-                if(Verify.Code==5566){
-                    $scope.logStatus = "验证成功";
-                    Storage.set('USERNAME',Verify.Phone);
-                    if($stateParams.phonevalidType == 'register'){
-                        $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                    }else{
-                       $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                    }
-
-                }else{$scope.logStatus = "验证码错误";}
-
-                //发送手机验证码
-                // var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
-                // verifyPromise.then(function(data){
-                //     if(data.results==0){
-                //         $scope.logStatus = "验证成功";
-                //         Storage.set('USERNAME',Verify.Phone);
-                //             if($stateParams.phonevalidType == 'register'){
-                //               $timeout(function(){$state.go('agreement',{last:'register'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
-                //               $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
-                //             }else if($stateParams.phonevalidType=='wechatsignin'){
-                //               $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
-                //             }else{
-                //               $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
-                //             }
+                // if(Verify.Code==5566){
+                //     $scope.logStatus = "验证成功";
+                //     Storage.set('USERNAME',Verify.Phone);
+                //     if($stateParams.phonevalidType == 'register'){
+                //         $timeout(function(){$state.go('agreement',{last:'register'});},500);
                 //     }else{
-                //         $scope.logStatus = data.mesg;
-                //         return;
+                //        $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
                 //     }
-                // },function(){
-                //     $scope.logStatus = "连接超时！";
-                // });
+
+                // }else{$scope.logStatus = "验证码错误";}
+
+                // 发送手机验证码
+                var verifyPromise =  User.verifySMS({mobile:Verify.Phone,smsType:1,smsCode:Verify.Code});
+                verifyPromise.then(function(data){
+                    if(data.results==0){
+                        $scope.logStatus = "验证成功";
+                        Storage.set('USERNAME',Verify.Phone);
+                            if($stateParams.phonevalidType == 'register'){
+                              $timeout(function(){$state.go('agreement',{last:'register'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'&&$scope.patientofimport){//微信登录 同时该患者是导入的病人即有uid
+                              $timeout(function(){$state.go('agreement',{last:'patientofimport'});},500);
+                            }else if($stateParams.phonevalidType=='wechatsignin'){
+                              $timeout(function(){$state.go('agreement',{last:'wechatsignin'});},500);
+                            }else{
+                              $timeout(function(){$state.go('setpassword',{phonevalidType:$stateParams.phonevalidType});},500);
+                            }
+                    }else{
+                        $scope.logStatus = data.mesg;
+                        return;
+                    }
+                },function(){
+                    $scope.logStatus = "连接超时！";
+                });
             }
             else{$scope.logStatus="手机号验证失败！";}
 
@@ -418,7 +468,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //设置密码  --PXY
-.controller('setPasswordCtrl', ['$ionicLoading','$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User',function($ionicLoading,$http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User) {
+.controller('setPasswordCtrl', ['$ionicLoading','$http','$scope','$state','$rootScope' ,'$timeout' ,'Storage','$stateParams','User','Patient',function($ionicLoading,$http,$scope,$state,$rootScope,$timeout,Storage,$stateParams,User,Patient) {
     $scope.BackMain = function(){
         $state.go('signin');
     }
@@ -455,31 +505,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 var patientId = data.userNo;
                                 Storage.set('UID',patientId);
                                        
-                               
-                                User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
-                                    // alert("updateagree"+JSON.stringify(data))
-                                    if(data.results!=null){
-                                        if(setPassState=='wechatsignin'){
-                                            $scope.logStatus ="注册结束后你也可以用手机号和密码登录！";
-                                        }else{
-                                            $scope.logStatus ="恭喜您注册成功！";
-                                        }
-                                        $timeout(function(){$state.go('signin')},1000);
-                                        
-                                    }
-                                },function(err){
-                                    $ionicLoading.show({
-                                        template: '注册失败',
-                                        duration:1000
-                                    });
-                                    $scope.logStatus = "连接超时！";
-
-                                });
                                 if(setPassState=='wechatsignin'){
                                     User.setOpenId({phoneNo:Storage.get('USERNAME'),openId:Storage.get('patientunionid')}).then(function(response){
                                         Storage.set('bindingsucc','yes')
                                         console.log(response)
                                     });
+                                }
+                                if(Storage.get('wechatheadimgurl')){
+                                    Patient.replacePhoto({patientId:patientId,wechatPhotoUrl:Storage.get('wechatheadimgurl')}).then(function(data){
+                                            Storage.rm('wechatheadimgurl');
+                                        }
+                                    );
                                 }
                                 //注册论坛
                                 $http({
@@ -500,6 +536,26 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                 }).success(function(data) {
                                     // console.log(data);
                                     // $state.go('tab.tasklist');
+                                });
+                               
+                                User.updateAgree({userId:patientId,agreement:"0"}).then(function(data){
+                                    // alert("updateagree"+JSON.stringify(data))
+                                    if(data.results!=null){
+                                        if(setPassState=='wechatsignin'){
+                                            $scope.logStatus ="注册结束后你也可以用手机号和密码登录！";
+                                        }else{
+                                            $scope.logStatus ="恭喜您注册成功！";
+                                        }
+                                        $timeout(function(){$state.go('signin')},1000);
+                                        
+                                    }
+                                },function(err){
+                                    $ionicLoading.show({
+                                        template: '注册失败',
+                                        duration:1000
+                                    });
+                                    $scope.logStatus = "连接超时！";
+
                                 });
                                
 
@@ -544,7 +600,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //个人信息--PXY
-.controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User','toServer',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User,toServer){
+.controller('userdetailCtrl',['$http','$stateParams','$scope','$state','$ionicHistory','$timeout' ,'Storage', '$ionicPopup','$ionicLoading','$ionicPopover','Dict','Patient', 'VitalSign','$filter','Task','User','mySocket',function($http,$stateParams,$scope,$state,$ionicHistory,$timeout,Storage, $ionicPopup,$ionicLoading, $ionicPopover,Dict,Patient, VitalSign,$filter,Task,User,mySocket){
     
 
     $scope.User = 
@@ -664,8 +720,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     var initialPatient = function(){
-        Patient.getPatientDetail({userId: Storage.get('UID'),token:Storage.get('token')}).then(function(data){   
-            if (data.results != null){
+        Patient.getPatientDetail({userId: Storage.get('UID')}).then(function(data){  
+
+            if (data.results && data.results != "没有填写个人信息"){
                 if($stateParams.last =='mine'){
                     $scope.canEdit = false;
                 }
@@ -742,7 +799,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             },function(err){
                 console.log(err);
             });
-            console.log($scope.User)
+            // console.log($scope.User)
         },function(err){
             console.log(err);
         });
@@ -969,37 +1026,40 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         // console.log(userInfo);
         var patientId = Storage.get('UID');
         userInfo.userId = patientId;
-        userInfo.photoUrl = Storage.get('wechatheadimgurl')?Storage.get('wechatheadimgurl'):"";
+
         Patient.editPatientDetail(userInfo).then(function(data){
             if(data.result=="修改成功"){
                 console.log(data.results);
                 var task = distinctTask(data.results.class,data.results.operationTime,data.results.class_info);
                 Task.insertTask({userId:patientId,sortNo:task}).then(function(data){
                     if(data.result=="插入成功"){
-                        if($scope.User.weight){
-                            var now = new Date()
-                            now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                            VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
-                                function(data){
-                                    // $scope.User.weight = data.results;
-                                    if($stateParams.last == 'mine'){
-                                        $scope.canEdit = false;
-                                        // initialPatient();
-                                    }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
-                                        $ionicHistory.goBack();
-                                    }
-                                },function(e){
+                        // if($scope.User.weight){
+                        //     var now = new Date()
+                        //     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+                        //     VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.User.weight,unit:"kg"}).then(
+                        //         function(data){
+                        //             // $scope.User.weight = data.results;
+                        //             if($stateParams.last == 'mine'){
+                        //                 $scope.canEdit = false;
+                        //                 // initialPatient();
+                        //             }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
+                        //                 // console.log('goBack2');
 
-                                });
+                        //                 $ionicHistory.goBack();
+                        //             }
+                        //         },function(e){
+
+                        //         });
                            
-                        }else{
-                            if($stateParams.last == 'mine'){
-                                $scope.canEdit = false;
-                                initialPatient();
-                            }else if($stateParams.last == 'tasklist'){
-                                $state.go('tab.tasklist');
-                            }
+                        // }else{
+                        if($stateParams.last == 'mine'){
+                            $scope.canEdit = false;
+                            // initialPatient();
+                        }else if($stateParams.last == 'tasklist'||$stateParams.last == 'consult'){
+                            // console.log('goBack1');
+                            $ionicHistory.goBack();
                         }
+                        // }
                     }
                 },function(err){
                     console.log("err" + err);
@@ -1040,10 +1100,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //主页面--PXY
-.controller('GoToMessageCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
+.controller('TabsCtrl', ['$ionicHistory','$interval','News','Storage','$scope','$timeout','$state', function($ionicHistory,$interval,News,Storage,$scope, $timeout,$state) {
 
 
-    $scope.HasUnreadMessages = false;
+    // $scope.HasUnreadMessages = false;
     $scope.GoToMessage = function(){
         Storage.set('messageBackState',$ionicHistory.currentView().stateId);
         $state.go('messages');
@@ -1056,26 +1116,25 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $state.go('tab.myDoctors');
         
     }
-    var RefreshUnread;
-    var GetUnread = function(){
-        // console.log(new Date());
-        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0}).then(//
-            function(data){
-                if(data.results.length){
-                    $scope.HasUnreadMessages = true;
-                    // console.log($scope.HasUnreadMessages);
-                }
-            },function(err){
-                    console.log(err);
-            });
-    }
-    GetUnread();
 
-    if(Storage.get('isSignIN')=='Yes'){
-        RefreshUnread = $interval(GetUnread,2000);
-    }
+    // var RefreshUnread;
     
-    //获取二维码信息
+
+    $scope.cancelGetMessage = function(){
+        
+        // console.log(RefreshUnread);
+        console.log('cancel');
+        if (RefreshUnread) {
+            $interval.cancel(RefreshUnread);
+        };
+    }
+        
+        
+
+
+    
+   
+
 
 
 }])
@@ -1085,8 +1144,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //任务列表--GL
-.controller('tasklistCtrl', ['otherTask','$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function(otherTask, $scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
-
+.controller('tasklistCtrl', ['$interval', 'News', 'otherTask','$scope','$timeout','$state','Storage','$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function($interval, News,otherTask, $scope, $timeout,$state,Storage,$ionicHistory,$ionicPopup,$ionicModal,Compliance, $window, Task, Patient, VitalSign) {
 
     $scope.goinsurance=function(){
         $state.go("insurance");
@@ -1100,10 +1158,38 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     var OverTimeTaks = [];
     var index = 0;
     var dateNowStr = ChangeTimeForm(new Date()); //方便设定当前日期进行调试，或是之后从数据库获取当前日期
+
+    
+    var GetUnread = function(){
+        // console.log(new Date());
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
+            function(data){
+                // console.log(data);
+                if(data.results.length){
+                    $scope.HasUnreadMessages = true;
+                    // console.log($scope.HasUnreadMessages);
+                }else{
+                    $scope.HasUnreadMessages = false;
+                }
+            },function(err){
+                    console.log(err);
+            });
+    }
+
     $scope.$on('$ionicView.enter', function() {
         GetTasks();
+        RefreshUnread = $interval(GetUnread,2000);
+        
     });
 
+
+    $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+      if (toState.name !== "tab.myDoctors" && toState.name !== "tab.forum" && toState.name !== "tab.mine" && toState.name !=="tab.tasklist"){
+        if (RefreshUnread) {
+            $interval.cancel(RefreshUnread);
+        };
+      }
+    });
   //判断是否需要修改任务时间
    function IfTaskOverTime(startTime, frequencyTimes, unit, times)
    {
@@ -1841,10 +1927,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
           {
             $scope.Tasks.Other[i].startTime = SetTaskTime($scope.Tasks.Other[i].frequencyUnits, $scope.Tasks.Other[i].times);
           }
-          else
-          {
-             $scope.Tasks.Other[i].startTime = $scope.Tasks.Other[i].startTime.substr(0,10);
-          }
+          //注释掉了else那段不知道会不会有影响
+          // else
+          // {
+             // $scope.Tasks.Other[i].startTime = $scope.Tasks.Other[i].startTime.substr(0,10);
+          // }
           /*var item = $scope.Tasks.Other[i];  //先不管吧
           var CompRes = CompareTime(item.startTime, item.frequencyTimes, item.frequencyUnits, item.times);
           if(!CompRes.Flag)
@@ -1948,6 +2035,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.showMesPop = function(task, type) {
 
         //首先swipe-back
+
         $scope.data = {};
         $scope.data.alertFlag = false;
       //console.log(task);
@@ -1964,6 +2052,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
              text: '保存',
              type: 'button-positive',
              onTap: function(e) {
+
                if(PopInfo.flag == 'InputBP')
                {
                  if((!$scope.data.value1) || (!$scope.data.value2))
@@ -2540,7 +2629,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //任务设置--GL
-.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', 'Storage', 'Patient', 'Task',  '$ionicPopup',function($scope, $state, $ionicHistory, Storage, Patient, Task,  $ionicPopup) {
+.controller('TaskSetCtrl', ['$scope', '$state', '$ionicHistory', 'Storage', 'Patient', 'Task',  '$ionicPopup','$ionicLoading',function($scope, $state, $ionicHistory, Storage, Patient, Task,  $ionicPopup ,$ionicLoading) {
 
   //初始化
     var UserId = Storage.get('UID');
@@ -2550,6 +2639,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.EditFlag = false;
     var dateNowStr = ChangeTimeForm(new Date()); //方便设定当前日期进行调试，或是之后从数据库获取当前日期
     $scope.$on('$ionicView.enter', function() {
+        $scope.noTasks = false;
         GetTasks();
     });
 
@@ -2558,21 +2648,22 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
    {
      var promise =  Task.getUserTask({userId:UserId});
      promise.then(function(data){
-        // console.log(data);
-       if(data.result)
-       {
-          $scope.Tasks = data.result.task;
-          console.log($scope.Tasks);
-          HandleTasks();
+        console.log(data);
+        if(data.result)
+        {   $scope.noTasks = true;
+            $scope.Tasks = data.result.task;
+            console.log($scope.Tasks);
+            HandleTasks();
+        }else{
+            $ionicLoading.show({template:"请您先在个人信息中完善用户信息",duration:1000});
        }
-     },function(){
-
-     })
+     });
    }
 
   //获取模板后进行处理
     function HandleTasks()
     {
+
       $scope.Tasks.Other = [];
       $scope.Tasks.Hemo = []; //血透排班
       $scope.Tasks.Hemo.Flag = false;
@@ -2989,10 +3080,38 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //我的 页面--PXY
 //我的 页面--PXY
-.controller('MineCtrl', ['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce',function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce) {
+.controller('MineCtrl', ['$interval', 'News','$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','CONFIG','$ionicLoading','$ionicPopover','Camera', 'Patient','Upload','$sce','mySocket','socket',function($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera,Patient,Upload,$sce,mySocket,socket) {
   // Storage.set("personalinfobackstate","mine")
 
-  var patientId = Storage.get('UID')
+  var patientId = Storage.get('UID');
+  var GetUnread = function(){
+      // console.log(new Date());
+      News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0, userRole:"patient"}).then(//
+          function(data){
+              // console.log(data);
+              if(data.results.length){
+                  $scope.HasUnreadMessages = true;
+                  // console.log($scope.HasUnreadMessages);
+              }else{
+                  $scope.HasUnreadMessages = false;
+              }
+          },function(err){
+                  console.log(err);
+          });
+  }
+
+  
+    $scope.$on('$ionicView.enter', function() {
+        RefreshUnread = $interval(GetUnread,2000);
+    });
+
+    $scope.$on('$ionicView.leave', function ()
+    {
+        console.log('destroy');
+        $interval.cancel(RefreshUnread);
+        
+        
+    });
   //页面跳转---------------------------------
   $scope.GoUserDetail = function(){
     $state.go('userdetail',{last:'mine'});
@@ -3008,6 +3127,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
   $scope.GoManagement = function(){
     $state.go('tab.taskSet');
+  }
+  $scope.GoDevices = function(){
+      console.log('tab.devices');
+    $state.go('tab.devices');
   }
 
   $scope.GoMoney = function(){
@@ -3025,24 +3148,28 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               { text: '取消',
                 type: 'button-small',
                 onTap: function(e) {
-
                 }
               },
               {
                 text: '确定',
                 type: 'button-small button-positive ',
-                onTap: function(e) {
+                onTap: function (e) 
+                {
                     $state.go('signin');
                     Storage.rm('TOKEN');
                     var USERNAME=Storage.get("USERNAME");
-                    //Storage.clear();
-                    Storage.rm('patientunionid')
-                    Storage.rm('PASSWORD')
+                    Storage.clear();
+                    // Storage.rm('patientunionid');
+                    // Storage.rm('PASSWORD');
                     Storage.set("isSignIN","No");
-                     Storage.set("USERNAME",USERNAME);
+                    $scope.$emit('isSignIN',"No");
+                    Storage.set("USERNAME",USERNAME);
+                    mySocket.cancelAll();
+                    socket.emit('disconnect');
+                    socket.disconnect();
                      //$timeout(function () {
-                     $ionicHistory.clearCache();
-                     $ionicHistory.clearHistory();
+                    $ionicHistory.clearCache();
+                    $ionicHistory.clearHistory();
 
                     //}, 30);
                     //$ionicPopup.hide();
@@ -3068,15 +3195,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //根据用户ID查询用户头像
     $scope.myAvatar="img/DefaultAvatar.jpg";
     Patient.getPatientDetail({userId:Storage.get("UID")}).then(function(res){
-        console.log(Storage.get("UID"))
+        console.log(Storage.get("UID"));
         // console.log(res.results)
         // console.log(res.results.photoUrl)
         // console.log(angular.fromJson(res.results))
-        if(Storage.get('wechatheadimgurl')!=undefined||Storage.get('wechatheadimgurl')!=""||Storage.get('wechatheadimgurl')!=null){
-            $scope.myAvatar=Storage.get('wechatheadimgurl');
-        }
-        else if(res.results){
-            console.log(res.results);
+        if(res.results){
+            // console.log(res.results);
             if(res.results.photoUrl&&res.results.photoUrl!="http://pp.jpg"){
                 $scope.myAvatar=res.results.photoUrl;
             }
@@ -3225,8 +3349,8 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.noDiags =false;
         Patient.getPatientDetail({userId:Storage.get('UID')}).then(//userId:Storage.get('UID')
         function(data){
-            // console.log(data.results);
-            if(data.results){
+            console.log(data.results);
+            if(data.results && data.results!="没有填写个人信息"){
                 if(data.results.diagnosisInfo.length){
                 var allDiags = data.results.diagnosisInfo;
                 console.log(allDiags);
@@ -3351,10 +3475,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         var promise = Patient.getCounselRecords({userId:MyId});
         promise.then(function(data){
             console.log(data);
-            if(data.results){
+            if(data.results.length){
 
                 FilteredDoctors = FilterDoctor(data.results);
-                console.log(FilteredDoctors);
+                // console.log(FilteredDoctors);
                 News.getNews({userId:MyId,type:11}).then(
                     function(data){
                         console.log(data.results);
@@ -3365,11 +3489,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                                         FilteredDoctors[x].lastMsgDate = data.results[y].time;
                                         FilteredDoctors[x].latestMsg = data.results[y].description;
                                         try{
-                                            data.results[y].url = JSON.parse(data.results[y].url);
-                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId == data.results[y].url.fromID ? 1:0);
+                                          data.results[y].url = JSON.parse(data.results[y].url);
+                                          
+                                          FilteredDoctors[x].readOrNot = data.results[y].readOrNot || ( MyId === data.results[y].url.fromID ? 1:0);
+                                          console.log(FilteredDoctors[x].readOrNot);
+                                          console.log(data.results[y].url);
                                         }
                                         catch(e){
-                                            FilteredDoctors[x].readOrNot = data.results[y].readOrNot;
+                                            // console.log('error');
+                                            // console.log(data.results[y].url);
+                                            FilteredDoctors[x].readOrNot = 1;
                                         }
                                         
                                     }
@@ -3481,14 +3610,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //聊天 XJZ
 
-.controller('ChatCtrl',['$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify', function($scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify) {
+.controller('ChatCtrl',['$ionicPlatform','$scope', '$state', '$rootScope', '$ionicModal', '$ionicScrollDelegate', '$ionicHistory', 'Camera', 'voice','CONFIG','$ionicPopup','Counsels','Storage','Mywechat','$q','Communication','Account','News','Doctor','$ionicLoading','Patient','arrTool','socket','notify','$timeout', function($ionicPlatform,$scope, $state, $rootScope, $ionicModal, $ionicScrollDelegate, $ionicHistory, Camera, voice,CONFIG,$ionicPopup,Counsels,Storage,Mywechat,$q,Communication,Account,News,Doctor,$ionicLoading,Patient,arrTool,socket,notify,$timeout) {
+    if($ionicPlatform.is('ios')) cordova.plugins.Keyboard.disableScroll(true);
     $scope.input = {
         text: ''
     }
     $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll');
     function toBottom(animate,delay){
         if(!delay) delay=100;
-        setTimeout(function(){
+        $timeout(function(){
             $scope.scrollHandle.scrollBottom(animate);
         },delay)
     }
@@ -3508,7 +3638,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             counselstatus:'',
             needlisten:0,
             counsel:'',
-            connect:false,
+            loaded:false,
             recording:false
         }
         try{
@@ -3521,10 +3651,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(lastMsg.fromID==$scope.params.UID) return;
                 return News.insertNews({userId:lastMsg.targetID,sendBy:lastMsg.fromID,type:'11',readOrNot:1});
             }
-        });
-        $scope.getMsg(15).then(function(data){
-            $scope.msgs=data;
-            toBottom(true,400);
         });
     });
     $scope.$on('$ionicView.enter', function() {
@@ -3539,10 +3665,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
                 Account.getCounts({doctorId:$scope.params.chatId,patientId:Storage.get('UID')})
                 .then(function(res){
-                    if($scope.params.connect){
+                    if($scope.params.loaded){
                         return sendNotice($scope.params.counseltype,$scope.counselstatus,res.result.count);
                     }else{
-                        var connectWatcher = $scope.$watch('params.connect',function(newv,oldv){
+                        var connectWatcher = $scope.$watch('params.loaded',function(newv,oldv){
                             if(newv) {
                                 connectWatcher();
                                 return sendNotice($scope.params.counseltype,$scope.counselstatus,res.result.count);
@@ -3562,72 +3688,42 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         .then(function(response) {
             thisPatient=response.results;
             $scope.photoUrls[response.results.userId]=response.results.photoUrl;
-            // socket.emit('newUser',{user_name:response.results.name,user_id:$scope.params.UID});
-            // socket.on('err',function(data){
-            //     console.error(data)
-            // });
-            // socket.on('getMsg',function(data){
-            //     console.info('getMsg');
-            //     console.log(data);
-            //     if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
-            //         $scope.$apply(function(){
-            //             $scope.pushMsg(data.msg);
-            //         });
-            //         News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
-            //         setTimeout(function() {
-            //             Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
-            //                 .then(function(data) {
-            //                     console.log(data);
-            //                     $scope.counselstatus=data.result.status;
-            //                 }, function(err) {
-            //                     console.log(err)
-            //                 });
-            //         }, 5000);
-            //     }
-            // });
-            // socket.on('messageRes',function(data){
-            //     console.info('messageRes');
-            //     console.log(data);
-            //     if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
-            //         $scope.$apply(function(){
-            //             $scope.updateMsg(data.msg);
-            //         });
-            //     }
-            // });
-            $scope.params.connect=true;
+
         }, function(err) {
 
         });
         imgModalInit();
+        $scope.getMsg(15).then(function(data){
+            $scope.msgs=data;
+            $scope.params.loaded = true;
+            toBottom(true,400);
+        });
     });
     
     $scope.$on('$ionicView.leave', function() {
         for(var i in $scope.timer) clearTimeout($scope.timer[i]);
-        // socket.off('messageRes');
-        // socket.off('getMsg');
-        // socket.off('err');
-        // socket.emit('disconnect');
         $scope.msgs = [];
         if($scope.modal)$scope.modal.remove();
         $rootScope.conversation.type = null;
         $rootScope.conversation.id = '';
     });
     $scope.$on('keyboardshow', function(event, height) {
-        $scope.params.helpDivHeight = height + 60;
+        $scope.params.helpDivHeight = height ;
         setTimeout(function() {
             $scope.scrollHandle.scrollBottom();
         }, 100);
 
     });
     $scope.$on('keyboardhide', function(event) {
-        $scope.params.helpDivHeight = 60;
+        $scope.params.helpDivHeight = 0;
+        $scope.scrollHandle.resize();
     });
     $scope.$on('im:getMsg',function(event,data){
         console.info('getMsg');
         console.log(data);
         if (data.msg.targetType == 'single' && data.msg.fromID == $state.params.chatId) {
             $scope.$apply(function(){
-                $scope.pushMsg(data.msg);
+                insertMsg(data.msg);
             });
             News.insertNews({userId:Storage.get('UID'),sendBy:$scope.params.groupId,type:'11',readOrNot:1});
             setTimeout(function() {
@@ -3646,7 +3742,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         console.log(data);
         if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
             $scope.$apply(function(){
-                $scope.updateMsg(data.msg);
+                insertMsg(data.msg);
             });
         }
     });
@@ -3682,10 +3778,10 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $state.go('tab.consult-comment',{counselId:$scope.params.counsel.counselId,doctorId:$scope.params.chatId,patientId:$scope.params.counsel.patientId.userId});
     });
     function sendNotice(type,status,cnt){
-        var t = setTimeout(function(){
+        // var t = setTimeout(function(){
             return sendCnNotice(type,status,cnt);
-        },2000);
-        $scope.timer.push(t);
+        // },2000);
+        // $scope.timer.push(t);
     }
     function sendCnNotice(type,status,cnt){
         var len=$scope.msgs.length;
@@ -3723,7 +3819,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 fromID:$scope.params.UID,
                 fromName:thisPatient.name,
                 fromUser:{
-                    avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+$scope.params.UID+'_myAvatar.jpg'
+                    // avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+$scope.params.UID+'_myAvatar.jpg'
                 },
                 targetID:$scope.params.chatId,
                 targetName:$scope.params.counsel.doctorId.name,
@@ -3731,10 +3827,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 status:'send_going',
                 createTimeInMillis: Date.now(),
                 newsType:11,
+                targetRole:'doctor',
                 content:notice
             }
-            socket.emit('message',{msg:msgJson,to:$scope.params.chatId,role:'patient'});
-            $scope.pushMsg(msgJson);
+            // socket.emit('message',{msg:msgJson,to:$scope.params.chatId,role:'patient'});
+            // $scope.pushMsg(msgJson);
+            $scope.msgs.push(msgJson);
         }
     }
     $scope.getMsg = function(num) {
@@ -3742,6 +3840,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         return $q(function(resolve, reject) {
             var q = {
                 messageType: '1',
+                newsType:'11',
                 id1: Storage.get('UID'),
                 id2: $scope.params.chatId,
                 skip: $scope.params.msgCount,
@@ -3760,11 +3859,11 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     if (res.length == 0) $scope.params.moreMsgs = false;
                     else {
                         $scope.params.msgCount += res.length;
-                        if ($scope.msgs.length != 0) $scope.msgs[0].diff = ($scope.msgs[0].createTimeInMillis - res[0].createTimeInMillis) > 300000 ? true : false;
+                        if ($scope.msgs.length != 0) $scope.msgs[0].diff = ($scope.msgs[0].time - res[0].time) > 300000 ? true : false;
                         for (var i = 0; i < res.length - 1; ++i) {
                             if (res[i].contentType == 'image') res[i].content.thumb = CONFIG.mediaUrl + res[i].content['src_thumb'];
                             res[i].direct = res[i].fromID == $scope.params.UID ? 'send' : 'receive';
-                            res[i].diff = (res[i].createTimeInMillis - res[i + 1].createTimeInMillis) > 300000 ? true : false;
+                            res[i].diff = (res[i].time - res[i + 1].time) > 300000 ? true : false;
                             $scope.msgs.unshift(res[i]);
                         }
                         res[i].direct = res[i].fromID == $scope.params.UID ? 'send' : 'receive';
@@ -3823,35 +3922,58 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         }
     }
     
-    //病例Panel
-    // $scope.togglePanel = function() {
-    //     $scope.params.hidePanel = !$scope.params.hidePanel;
-    // }
-
-    $scope.updateMsg = function(msg){
+    $scope.updateMsg = function (msg, pos) {
         console.info('updateMsg');
-        var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
-        if(pos!=-1){
-            msg.diff=$scope.msgs[pos].diff;
-            msg.content.src=$scope.msgs[pos].content.src;
-            msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
-            $scope.msgs[pos]=msg;
+        if (pos == 0) {
+            msg.diff = true;
+        } else if (msg.hasOwnProperty('time')) {
+            var m = $scope.msgs[pos - 1];
+            if (m.contentType == 'custom' && m.content.type == 'count-notice' && pos>1) {
+                m = $scope.msgs[pos - 2];
+            }
+            if (m.hasOwnProperty('time')) {
+                msg.diff = (msg.time - m.time) > 300000 ? true : false;
+            } else {
+                msg.diff = false;
+            }
         }
-    }
-    $scope.pushMsg = function(msg){
+        msg.content.src = $scope.msgs[pos].content.src;
+        msg.direct = $scope.msgs[pos].direct;
+        $scope.msgs[pos] = msg;
+    };
+    $scope.pushMsg = function (msg) {
         console.info('pushMsg');
-        if($scope.msgs.length==0){
-            msg.diff=true;
-        }else{
-            msg.diff=(msg.createTimeInMillis - $scope.msgs[$scope.msgs.length-1].createTimeInMillis) > 300000 ? true : false;
+        var len = $scope.msgs.length;
+        if (msg.hasOwnProperty('time')) {
+            if (len == 0) {
+                msg.diff = true;
+            } else {
+                var m = $scope.msgs[len - 1];
+                if (m.contentType == 'custom' && m.content.type == 'count-notice' && len>1) {
+                    m = $scope.msgs[len - 2];
+                }
+                if (m.hasOwnProperty('time')) {
+                    msg.diff = (msg.time - m.time) > 300000 ? true : false;
+                }
+            }
         }
-        msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
+        // msg.direct = msg.fromID==$scope.params.UID?'send':'receive';
+        $scope.params.msgCount++;
         $scope.msgs.push(msg);
-        toBottom(true,100);
-        setTimeout(function(){
-            var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
-            if(pos!=-1 && $scope.msgs[pos].status=='send_going') $scope.msgs[pos].status='send_fail';
-        },20000);
+        toBottom(true, 200);
+        toBottom(true, 600);
+        setTimeout(function () {
+            var pos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', msg.createTimeInMillis);
+            if (pos != -1 && $scope.msgs[pos].status == 'send_going') $scope.msgs[pos].status = 'send_fail';
+        }, 10000);
+    };
+    function insertMsg(msg){
+        var pos=arrTool.indexOf($scope.msgs,'createTimeInMillis',msg.createTimeInMillis);
+        if(pos==-1){
+            $scope.pushMsg(msg);
+        }else{
+            $scope.updateMsg(msg,pos);
+        }
     }
     function msgGen(content,type){
         var data={};
@@ -3870,7 +3992,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             };
         }
         return {
-            clientType:'app',
+            clientType:'patient',
             contentType:type,
             fromID:$scope.params.UID,
             fromName:thisPatient.name,
@@ -3884,6 +4006,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             status:'send_going',
             createTimeInMillis: Date.now(),
             newsType:'11',
+            targetRole:'doctor',
             content:data
         };
     }
@@ -3899,7 +4022,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             d.src = msg.content.src;
         }
         return {
-            clientType:'app',
+            clientType:'patient',
             contentType:type,
             fromID:msg.fromID,
             fromName:msg.fromName,
@@ -3910,6 +4033,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             status:'send_going',
             createTimeInMillis: msg.createTimeInMillis,
             newsType:msg.newsType,
+            targetRole:'doctor',
             content:d
         };
     }
@@ -3970,7 +4094,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     $scope.getImage = function(type) {
         if($scope.counselstatus!=1) return nomoney();
         $scope.showMore = false;
-        Camera.getPicture(type)
+        Camera.getPicture(type,true)
             .then(function(url) {
                 console.log(url);
                 var fm = md5(Date.now(), $scope.params.chatId) + '.jpg',
@@ -3988,7 +4112,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                         $ionicLoading.show({ template: '图片上传失败', duration: 2000 })
                     });
             }, function(err) {
-                $ionicLoading.show({ template: '打开图片失败', duration: 2000 })
                 console.error(err);
             });
     };
@@ -4017,35 +4140,6 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         voice.stopRec();
     }
 
-    // // $scope.goChats = function() {
-    // $scope.backview = $ionicHistory.viewHistory().backView
-    // $scope.backstateId = null;
-    // if ($scope.backview != null) {
-    //     $scope.backstateId = $scope.backview.stateId
-    // }
-    // console.log($scope.backview)
-    // $scope.goChats = function() {
-    //     console.log($scope.backstateId);
-    //     // $ionicHistory.nextViewOptions({
-    //     //     disableBack: true
-    //     // });
-    //     if ($scope.backstateId == "tab.myConsultRecord") {
-    //         $state.go("tab.myConsultRecord")
-    //     } else if ($scope.backstateId == "messages") {
-    //         $state.go('messages');
-    //     } else {
-    //         $state.go('tab.myDoctors');
-    //     }
-    //     // $ionicHistory.goBack();
-    // }
-
-
-    // }
-
-
-    
-
-    
     $scope.chatBack = function () {
         var allowedBackviews = [
             'tab.myConsultRecord',
@@ -4063,7 +4157,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康信息--PXY
-.controller('HealthInfoCtrl', ['$ionicLoading','$scope','$timeout','$state','$ionicHistory','$ionicPopup','HealthInfo','Storage','Health','Dict',function($ionicLoading,$scope, $timeout,$state,$ionicHistory,$ionicPopup,HealthInfo,Storage,Health,Dict) {
+.controller('HealthInfoCtrl', ['$ionicLoading','$scope','$timeout','$state','$ionicHistory','$ionicPopup','Storage','Health','Dict',function($ionicLoading,$scope, $timeout,$state,$ionicHistory,$ionicPopup,Storage,Health,Dict) {
   var patientId = Storage.get('UID');
 
   $scope.Goback = function(){
@@ -4195,7 +4289,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //健康详情--PXY
-.controller('HealthDetailCtrl', ['otherTask','$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','HealthInfo','$ionicLoading','$timeout','Dict','Health','Storage','Camera','CONFIG',function(otherTask,$scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,HealthInfo,$ionicLoading,$timeout,Dict,Health,Storage,Camera,CONFIG) {
+.controller('HealthDetailCtrl', ['otherTask','$scope','$state','$ionicHistory','$ionicPopup','$stateParams','$ionicPopover','$ionicModal','$ionicScrollDelegate','$ionicLoading','$timeout','Dict','Health','Storage','Camera','CONFIG',function(otherTask,$scope, $state,$ionicHistory,$ionicPopup,$stateParams,$ionicPopover,$ionicModal,$ionicScrollDelegate,$ionicLoading,$timeout,Dict,Health,Storage,Camera,CONFIG) {
     var patientId = Storage.get('UID');
     $scope.healthDetailStyle = {'top': '43px'};
     if(ionic.Platform.isIOS()){
@@ -4350,11 +4444,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // }
 
 
-  // console.log($ionicHistory.backView())
+
   $scope.HealthInfoSetup = function(){
     // console.log($scope.health.text);
     if(($scope.health.label&&$scope.health.date)&&($scope.health.text||$scope.health.imgurl.length)){
       console.log($stateParams.id)
+        $ionicLoading.show({
+            template: '上传中...'}
+        );
         if($stateParams.id==null||$stateParams==""){
             Health.createHealth({userId:patientId,type:$scope.health.label.code,time:$scope.health.date,url:$scope.health.imgurl,label:$scope.health.label.name,description:$scope.health.text,comments:""}).then(
               function(data)
@@ -4365,7 +4462,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 var healthinfoToconsult=[];
                 //从咨询过来的需要返回对应的健康信息
                 if($ionicHistory.backView()!=null){
-                    if($ionicHistory.backView().stateName=='tab.consultquestion2'){
+                    if($ionicHistory.backView().stateName=='tab.consultQuestionnaire'){
                         if(Storage.get('consulthealthinfo')==''||Storage.get('consulthealthinfo')==null||Storage.get('consulthealthinfo')=='undefined'){
                             healthinfoToconsult.push({'time':data.results.insertTime});
                         }else{
@@ -4416,6 +4513,15 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
 }
+    $scope.$on('$destroy', function ()
+    {
+      // console.log('destroy');
+      
+      $ionicLoading.hide();
+      
+      
+    });
+   
 
 
   // --------datepicker设置----------------
@@ -4518,7 +4624,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
    $scope.closePopover();
   };
   $scope.choosePhotos = function() {
-  Camera.getPictureFromPhotos('gallery').then(function(data) {
+  Camera.getPictureFromPhotos('gallery',true).then(function(data) {
       // data里存的是图像的地址
       // console.log(data);
       var imgURI = data;
@@ -4538,7 +4644,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   };
   $scope.isShow=true;
   $scope.takePicture = function() {
-   Camera.getPicture('cam').then(function(data) {
+   Camera.getPicture('cam',true).then(function(data) {
       var imgURI = data;
       photo_upload_display(imgURI);
     }, function(err) {
@@ -4735,7 +4841,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         );
 
 
-        News.getNewsByReadOrNot({userId:receiver,type:11,readOrNot:0}).then(
+        News.getNewsByReadOrNot({userId:receiver,type:11,readOrNot:0,userRole:"patient"}).then(
             function(data){
                 console.log(data);
                 if(data.results.length){
@@ -5004,43 +5110,70 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 //医生列表--PXY
 
-.controller('DoctorCtrl', ['$q','$http','$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket','Mywechat',function($q,$http,$cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket,Mywechat) {
+.controller('DoctorCtrl', ['$interval', 'News', '$q','$http','$cordovaBarcodeScanner','Storage','$ionicLoading','$scope','$state','$ionicPopup','$ionicHistory','Dict','Patient','$location','Doctor','Counsels','Account','CONFIG','Expense','socket','Mywechat',function($interval, News, $q,$http,$cordovaBarcodeScanner,Storage,$ionicLoading,$scope, $state,$ionicPopup,$ionicHistory,Dict,Patient,$location,Doctor,Counsels,Account,CONFIG,Expense,socket,Mywechat) {
+    var GetUnread = function(){
+        // console.log(new Date());
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
+            function(data){
+                // console.log(data);
+                if(data.results.length){
+                    $scope.HasUnreadMessages = true;
+                    // console.log($scope.HasUnreadMessages);
+                }else{
+                    $scope.HasUnreadMessages = false;
+                }
+            },function(err){
+                    console.log(err);
+            });
+    }
 
-    // $scope.$on('ifUserInfoCompleted',function(event,data){
-    //     if(data=='uncompleted'){
-    //         console.log(data);
-    //         $scope.DisabledConsult = true;
-    //     }else if(data == 'completed'){
-    //         $scope.DisabledConsult = false;
-    //     }
-    // });
+    $scope.$on('$ionicView.enter', function () {
+      
+      if($ionicHistory.currentView().stateId === "tab.myDoctors") {
+        console.log("enter");
+        RefreshUnread = $interval(GetUnread,2000);
+      }
+    })
+
+    $scope.$on('$ionicView.leave', function ()
+    {
+      // console.log($ionicHistory.currentView());
+      if($ionicHistory.currentView().stateId !== "tab.myDoctors") {
+        console.log('destroy');
+        $interval.cancel(RefreshUnread);
+      }
+      
+      
+    });
     //进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
     $scope.$on('$ionicView.beforeEnter',function(){
         Patient.getPatientDetail({userId:Storage.get('UID')}).then(function(data){
             console.log(data);
-            if(data.results){
-                $scope.DisabledConsult = false;
-            }else{
+            if(data.results == "没有填写个人信息"){
+                console.log('123');
                 $scope.DisabledConsult = true;
                 var unComPatPopup = $ionicPopup.show({
-                title: '温馨提示',
-                template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
-                buttons:[
-                    {
-                        text:'取消',
-                        onTap:function(e){
-                            // e.preventDefault();
+                    title: '温馨提示',
+                    template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
+                    buttons:[
+                        {
+                            text:'取消',
+                            onTap:function(e){
+                                // e.preventDefault();
+                            }
+                        },
+                        {
+                            text:'确定',
+                            type:'button-calm',
+                            onTap:function(e){
+                                $state.go('userdetail',{last:'consult'});
+                            }
                         }
-                    },
-                    {
-                        text:'确定',
-                        type:'button-calm',
-                        onTap:function(e){
-                            $state.go('userdetail',{last:'consult'});
-                        }
-                    }
-                ]
-            });
+                    ]
+                });
+                
+            }else{
+                $scope.DisabledConsult = false;
             }
         },function(err){
             console.log(err);
@@ -5103,13 +5236,17 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       // console.log(Storage.get("UID"))
       $cordovaBarcodeScanner.scan().then(function(imageData) {
           // alert(imageData.text);
+          if(imageData.cancelled)
+            return;
           Patient.bindingMyDoctor({"patientId":Storage.get("UID"),"doctorId":imageData.text}).then(function(res){
             console.log(res)
-            if(res.results=="修改成功" || res.results.errcode == 40037){
+            // alert(JSON.stringify(res))
+            if(res.results=="修改成功" || res.results.errcode !=""||res.results.errcode !=null){
               $ionicPopup.alert({
                title: '绑定成功！'
               }).then(function(res) {
                 mydoc();
+                $scope.hasDoctor = true;
                 // $state.go('tab.myDoctors');
               });
             }else if(res.result=="不存在的医生ID！"){
@@ -5275,7 +5412,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
 
     $scope.consultable=1;
-    $scope.question = function(DoctorId,docname){
+        $scope.question = function(DoctorId,docname,charge1,charge2){
         console.log(docname);
         Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
           .then(function(data){
@@ -5409,84 +5546,116 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     if(res){
                       $scope.consultable=1
                       ionicLoadingshow();
-                      var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            console.log(result.data.ip)
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                "money":$scope.doctor.charge1*100,
-                                // "money":10,
-                                "class":"01",
-                                "name":"咨询",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"咨询服务"
-                              }
+                      var neworder = {
+                          "userId":Storage.get('UID'),
+                          "role":"appPatient",
+                          "money":charge1*100,
+                          // "money":10,
+                          "class":"01",
+                          "name":"咨询",
+                          "notes":DoctorId,
+                          "paystatus":0,
+                          "paytime":new Date(),
+                          // "ip":result.data.ip,
+                          "trade_type":"APP",
+                          "body_description":"咨询服务"
+                        }
 
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                                // $ionicLoading.hide();
-                                ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    //chargedoc
-                                    $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
-                                            console.log(data)
-                                            return data
-                                        },function(err){
-                                            console.log(err)
-                                        }),
-                                        //plus doc answer count  patientId:doctorId:modify
-                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
-                                            console.log(data)
-                                        },function(err){
-                                            console.log(err)
-                                        })
-                                    ]).then(function(allres){
-                                        
-                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                          template: reason,
-                                          duration:1000
-                                        });
-                                    // alert("Failed: " + reason);
-                                });
+                      Mywechat.addOrder(neworder).then(function(orderdata){
+                        if(orderdata.results.status===1){
+                          ionicLoadinghide();
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:charge1}).then(function(data){
+                                console.log(data)
+                                return data
                             },function(err){
-                                console.log(err);
+                                console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                                console.log(data)
+                            },function(err){
+                                console.log(err)
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
+                          ]).then(function(allres){
+                              $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                          })
+                        }
+                        else if(orderdata.results.status===0){
+                          ionicLoadinghide();
+                          $ionicLoading.show({
+                            template: orderdata.results.msg,
+                            duration:1000
+                          });
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:charge1}).then(function(data){
+                                console.log(data)
+                                return data
+                            },function(err){
+                                console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                                console.log(data)
+                            },function(err){
+                                console.log(err)
+                            })
+                          ]).then(function(allres){
+                              $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                          })
+                        }else{
+                          ionicLoadinghide();
+                          var params = {
+                              'partnerid': '1480817392', // merchant id
+                              'prepayid': orderdata.results.prepay_id[0], // prepay id
+                              'noncestr': orderdata.results.nonceStr, // nonce
+                              'timestamp': orderdata.results.timestamp, // timestamp
+                              'sign': orderdata.results.paySign, // signed string
+                          };
+                          // alert(JSON.stringify(params));
+                          Wechat.sendPaymentRequest(params, function () {
+                              // alert("Success");
+                              $q.all([
+                                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"咨询",doctorName:docname,money:charge1}).then(function(data){
+                                      console.log(data)
+                                      return data
+                                  },function(err){
+                                      console.log(err)
+                                  }),
+                                  //plus doc answer count  patientId:doctorId:modify
+                                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                                      console.log(data)
+                                  },function(err){
+                                      console.log(err)
+                                  })
+                              ]).then(function(allres){
+                                  
+                                  $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                              })
+                          }, function (reason) {
+                              if(reason=="发送请求失败"){
+                                  $ionicLoading.show({
+                                    template: "请正确安装微信后使用此功能",
+                                    duration:1000
+                                  });
+                              }else{
+                                  $ionicLoading.show({
+                                    template: reason,
+                                    duration:1000
+                                  });
+                              }
+                          });
+                        }
+                      },function(err){
+                        ionicLoadinghide();
+                        console.log(err);
+                      })
                     }else{
                       $scope.consultable=1
                     }
                   })
                 }
               }
-              // }
             },function(err){
               console.log(err)
             })
@@ -5496,7 +5665,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         })
   }
 
-  $scope.consult = function(DoctorId,docname){
+  $scope.consult = function(DoctorId,docname,charge1,charge2){
     Counsels.getStatus({doctorId:DoctorId,patientId:Storage.get('UID')})
       .then(function(data){
         //zxf 判断条件重写
@@ -5512,110 +5681,194 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
-                    console.log(data.result)
-                    if(data.result=="修改成功"){
-                      //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                      ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                // "money":$scope.doctor.charge1*100,
-                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
-                                "class":"03",
-                                "name":"升级",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"咨询升级服务"
-                              }
-
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                              ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    //chargedoc
-                                    $q.all([
-                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
-                                        console.log(data)
-                                      },function(err){
-                                        console.log(err)
-                                      }),
-                                      //plus doc answer count  patientId:doctorId:modify
-                                      Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                        console.log(data)
-                                      },function(err){
-                                        console.log(err)
-                                      })
-                                    ]).then(function(allres){
-                                      var msgJson={
-                                            clientType:'app',
-                                            contentType:'custom',
-                                            fromName:'',
-                                            fromID:Storage.get('UID'),
-                                            fromUser:{
-                                                avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
-                                            },
-                                            targetID:DoctorId,
-                                            targetName:'',
-                                            targetType:'single',
-                                            status:'send_going',
-                                            createTimeInMillis: Date.now(),
-                                            newsType:'11',
-                                            content:{
-                                                type:'counsel-upgrade',
-                                            }
-                                        }
-                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
-                                        socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-                                        $scope.$on('im:messageRes',function(event,data){
-                                          // socket.off('messageRes');
-                                          $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
-                                        })
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
-                                });
-                            },function(err){
-                                console.log(err);
-                            })
-                        }, function(e) {
-                            console.log(e);
-                        });
-
-
-                      
-                      // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
+                  ionicLoadingshow();
+                  var neworder = {
+                      "userId":Storage.get('UID'),
+                      "role":"appPatient",
+                      "money":charge2*100-charge1*100,
+                      "class":"03",
+                      "name":"升级",
+                      "notes":DoctorId,
+                      "paystatus":0,
+                      "paytime":new Date(),
+                      "trade_type":"APP",
+                      "body_description":"咨询升级服务"
                     }
-                  },function(err)
-                  {
-                      console.log(err)
+                  Mywechat.addOrder(neworder).then(function(orderdata){
+                    if(orderdata.results.status===1){
+                      ionicLoadinghide();
+                      Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                        if(data.result=="修改成功"){
+                          //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
+                            })
+                          ]).then(function(allres){
+                            var msgJson={
+                              clientType:'app',
+                              contentType:'custom',
+                              fromName:'',
+                              fromID:Storage.get('UID'),
+                              fromUser:{
+                                  avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                              },
+                              targetID:DoctorId,
+                              targetName:'',
+                              targetType:'single',
+                              status:'send_going',
+                              createTimeInMillis: Date.now(),
+                              newsType:'11',
+                              targetRole:'doctor',
+                              content:{
+                                  type:'counsel-upgrade',
+                              }
+                          }
+                          socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                          socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                            setTimeout(function(){
+                              $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                            },500);
+                          })
+                        }
+                      },function(err)
+                      {
+                          console.log(err)
+                      })
+                    }
+                    else if(orderdata.results.status===0){
+                        ionicLoadinghide();
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration:1000
+                        });
+                      Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                        if(data.result=="修改成功"){
+                          //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                          $q.all([
+                              Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              }),
+                              //plus doc answer count  patientId:doctorId:modify
+                              Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              })
+                            ]).then(function(allres){
+                              var msgJson={
+                                clientType:'app',
+                                contentType:'custom',
+                                fromName:'',
+                                fromID:Storage.get('UID'),
+                                fromUser:{
+                                    avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                                },
+                                targetID:DoctorId,
+                                targetName:'',
+                                targetType:'single',
+                                status:'send_going',
+                                createTimeInMillis: Date.now(),
+                                newsType:'11',
+                                targetRole:'doctor',
+                                content:{
+                                    type:'counsel-upgrade',
+                                }
+                            }
+                            socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                            socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                              setTimeout(function(){
+                                $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                              },500);
+                            })
+                        }
+                      },function(err)
+                      {
+                          console.log(err)
+                      })
+                    }else{
+                      ionicLoadinghide();
+                      var params = {
+                        'partnerid': '1480817392', // merchant id
+                        'prepayid': orderdata.results.prepay_id[0], // prepay id
+                        'noncestr': orderdata.results.nonceStr, // nonce
+                        'timestamp': orderdata.results.timestamp, // timestamp
+                        'sign': orderdata.results.paySign // signed string
+                      };
+                      Wechat.sendPaymentRequest(params, function () {
+                        Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                          if(data.result=="修改成功"){
+                            //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                            $q.all([
+                              Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              }),
+                              //plus doc answer count  patientId:doctorId:modify
+                              Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              })
+                            ]).then(function(allres){
+                              var msgJson={
+                                clientType:'app',
+                                contentType:'custom',
+                                fromName:'',
+                                fromID:Storage.get('UID'),
+                                fromUser:{
+                                    avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                                },
+                                targetID:DoctorId,
+                                targetName:'',
+                                targetType:'single',
+                                status:'send_going',
+                                createTimeInMillis: Date.now(),
+                                newsType:'11',
+                                targetRole:'doctor',
+                                content:{
+                                    type:'counsel-upgrade',
+                                }
+                            }
+                            socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                            socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                              setTimeout(function(){
+                                $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                              },500);
+                            })
+                          }
+                        },function(err)
+                        {
+                            console.log(err)
+                        })
+                      }, function (reason) {
+                        if(reason=="发送请求失败"){
+                          $ionicLoading.show({
+                            template: "请正确安装微信后使用此功能",
+                            duration:1000
+                          });
+                        }else{
+                          $ionicLoading.show({
+                            template: reason,
+                            duration:1000
+                          });
+                        }
+                      });
+                    }
+                  },function(err){
+                    ionicLoadinghide();
+                    console.log(err);
                   })
                 }else{
                   $scope.consultable=1
@@ -5672,75 +5925,106 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
                     ionicLoadingshow();
-                    var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                // "money":$scope.doctor.charge1*100,
-                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
-                                "class":"03",
-                                "name":"升级",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"咨询升级服务"
-                              }
-
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                              ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        }),
-                                        //plus doc answer count  patientId:doctorId:modify
-                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                          console.log(DoctorId+Storage.get('UID'))
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        })
-                                    ]).then(function(allres){
-                                        // ionicLoadinghide();
-                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
-                                });
-                            },function(err){
-                                console.log(err);
+                    var neworder = {
+                        "userId":Storage.get('UID'),
+                        "role":"appPatient",
+                        // "money":$scope.doctor.charge1*100,
+                        "money":charge2*100-charge1*100,
+                        "class":"03",
+                        "name":"升级",
+                        "notes":DoctorId,
+                        "paystatus":0,
+                        "paytime":new Date(),
+                        // "ip":result.data.ip,
+                        "trade_type":"APP",
+                        "body_description":"咨询升级服务"
+                      }
+                    Mywechat.addOrder(neworder).then(function(orderdata){
+                      if(orderdata.results.status===1){
+                        ionicLoadinghide();
+                        q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(DoctorId+Storage.get('UID'))
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                        })
+                      }
+                      else if(orderdata.results.status===0){
+                          ionicLoadinghide();
+                          $ionicLoading.show({
+                            template: orderdata.results.msg,
+                            duration:1000
+                          });
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(DoctorId+Storage.get('UID'))
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                        })
+                      }else{
+                        ionicLoadinghide();
+                        var params = {
+                          'partnerid': '1480817392', // merchant id
+                          'prepayid': orderdata.results.prepay_id[0], // prepay id
+                          'noncestr': orderdata.results.nonceStr, // nonce
+                          'timestamp': orderdata.results.timestamp, // timestamp
+                          'sign': orderdata.results.paySign // signed string
+                        };
+                        Wechat.sendPaymentRequest(params, function () {
+                            $q.all([
+                                Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:charge2-charge1}).then(function(data){
+                                  console.log(data)
+                                },function(err){
+                                  console.log(err)
+                                }),
+                                //plus doc answer count  patientId:doctorId:modify
+                                Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                                  console.log(DoctorId+Storage.get('UID'))
+                                  console.log(data)
+                                },function(err){
+                                  console.log(err)
+                                })
+                            ]).then(function(allres){
+                                // ionicLoadinghide();
+                                $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
                             })
-                        }, function(e) {
-                            console.log(e);
+                        }, function (reason) {
+                          if(reason=="发送请求失败"){
+                            $ionicLoading.show({
+                              template: "请正确安装微信后使用此功能",
+                              duration:1000
+                            });
+                          }else{
+                            $ionicLoading.show({
+                              template: reason,
+                              duration:1000
+                            });
+                          }
                         });
-                    
+                      }
+                    },function(err){
+                      ionicLoadinghide();
+                    })
                   }else{
                     $scope.consultable=1
                   }
@@ -5757,79 +6041,105 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 }).then(function(res){
                   if(res){
                     $scope.consultable=1
-
                     ionicLoadingshow();
-                    var json = 'http://ipv4.myexternalip.com/json';
-                    $http.get(json).then(function(result) {
-                        if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                        {
-                          result.data.ip = "121.196.221.44"
-                        }
-                        var neworder = {
-                            "userId":Storage.get('UID'),
-                            "role":"appPatient",
-                            // "money":$scope.doctor.charge1*100,
-                            "money":$scope.doctor.charge2*100,
-                            "class":"02",
-                            "name":"问诊",
-                            "notes":DoctorId,
-                            "paystatus":0,
-                            "paytime":new Date(),
-                            "ip":result.data.ip,
-                            "trade_type":"APP",
-                            "body_description":"问诊服务"
-                          }
-
-                        // alert(JSON.stringify(neworder));
-                        Mywechat.addOrder(neworder).then(function(orderdata){
-                          // alert(JSON.stringify(orderdata));
-                          // alert(orderdata.results.prepay_id[0])
-                            ionicLoadinghide();
-                            var params = {
-                              'appid': orderdata.results.appId,
-                              'package': 'Sign=WXPay',
-                                'partnerid': '1480817392', // merchant id
-                                'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                'noncestr': orderdata.results.nonceStr, // nonce
-                                'timestamp': orderdata.results.timestamp, // timestamp
-                                'sign': orderdata.results.paySign, // signed string
-                            };
-                            // alert(JSON.stringify(params));
-                            Wechat.sendPaymentRequest(params, function () {
-                                // alert("Success");
-                              //chargedoc
-                              $q.all([
-                                    Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
-                                      console.log(data)
-                                      // alert(data)
-                                    },function(err){
-                                      console.log(err)
-                                    }),
-                                    //plus doc answer count  patientId:doctorId:modify
-                                    Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                      console.log(data)
-                                    },function(err){
-                                      console.log(err)
-                                    })
-                                ]).then(function(allres){
-                                    // alert("allres:"+allres)
-                                    // ionicLoadinghide();
-                                    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
-                                })
-                            }, function (reason) {
-                                $ionicLoading.show({
-                                    template:reason,
-                                    duration:1000
-                                })
-                                // alert("Failed: " + reason);
-                            });
-                        },function(err){
-                            console.log(err);
+                    var neworder = {
+                      "userId":Storage.get('UID'),
+                      "role":"appPatient",
+                      "money":charge2*100,
+                      "class":"02",
+                      "name":"问诊",
+                      "notes":DoctorId,
+                      "paystatus":0,
+                      "paytime":new Date(),
+                      // "ip":result.data.ip,
+                      "trade_type":"APP",
+                      "body_description":"问诊服务"
+                    }
+                    Mywechat.addOrder(neworder).then(function(orderdata){
+                      if(orderdata.results.status===1){
+                        ionicLoadinghide();
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:charge2}).then(function(data){
+                            console.log(data)
+                            // alert(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
                         })
-                    }, function(e) {
-                        console.log(e);
-                    });
-                    
+                      }
+                      else if(orderdata.results.status===0){
+                          ionicLoadinghide();
+                          $ionicLoading.show({
+                            template: orderdata.results.msg,
+                            duration:1000
+                          });
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:charge2}).then(function(data){
+                            console.log(data)
+                            // alert(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
+                        })
+                      }else{
+                        ionicLoadinghide();
+                        var params = {
+                          'partnerid': '1480817392', // merchant id
+                          'prepayid': orderdata.results.prepay_id[0], // prepay id
+                          'noncestr': orderdata.results.nonceStr, // nonce
+                          'timestamp': orderdata.results.timestamp, // timestamp
+                          'sign': orderdata.results.paySign // signed string
+                        };
+                        Wechat.sendPaymentRequest(params, function () {
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"问诊",doctorName:docname,money:charge2}).then(function(data){
+                              console.log(data)
+                              },function(err){
+                                console.log(err)
+                              }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(data)
+                              },function(err){
+                                console.log(err)
+                              })
+                          ]).then(function(allres){
+                            $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
+                          })
+                        }, function (reason) {
+                          if(reason=="发送请求失败"){
+                            $ionicLoading.show({
+                              template: "请正确安装微信后使用此功能",
+                              duration:1000
+                            });
+                          }else{
+                            $ionicLoading.show({
+                              template: reason,
+                              duration:1000
+                            });
+                          }
+                        });
+                      }
+                    },function(err){
+                      ionicLoadinghide();
+                      console.log(err);
+                    })
                   }else{
                     $scope.consultable=1
                   }
@@ -5859,7 +6169,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 
-.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket) {
+.controller('DoctorDetailCtrl', ['$ionicLoading','Mywechat','$http','$ionicPopup','$scope','$state','$ionicHistory','$stateParams','Doctor','Counsels','Storage','Account','CONFIG','Expense','socket','$q','Patient',function($ionicLoading,Mywechat,$http,$ionicPopup,$scope, $state,$ionicHistory,$stateParams,Doctor,Counsels,Storage,Account,CONFIG,Expense,socket,$q,Patient) {
 
   $scope.GoBack = function(){
     // console.log('111');
@@ -6051,76 +6361,103 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 if(res){
                   $scope.consultable=1
                   ionicLoadingshow();
-                  var json = 'http://ipv4.myexternalip.com/json';
-                    $http.get(json).then(function(result) {
-                        if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                        {
-                          result.data.ip = "121.196.221.44"
-                        }
-                        var neworder = {
-                            "userId":Storage.get('UID'),
-                            "role":"appPatient",
-                            // "money":$scope.doctor.charge1*100,
-                            "money":$scope.doctor.charge1*100,
-                            "class":"01",
-                            "name":"咨询",
-                            "notes":DoctorId,
-                            "paystatus":0,
-                            "paytime":new Date(),
-                            "ip":result.data.ip,
-                            "trade_type":"APP",
-                            "body_description":"咨询服务"
-                          }
-
-                        // alert(JSON.stringify(neworder));
-                        Mywechat.addOrder(neworder).then(function(orderdata){
-                          // alert(JSON.stringify(orderdata));
-                          // alert(orderdata.results.prepay_id[0])
-                            ionicLoadinghide();
-                            var params = {
-                              'appid': orderdata.results.appId,
-                              'package': 'Sign=WXPay',
-                                'partnerid': '1480817392', // merchant id
-                                'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                'noncestr': orderdata.results.nonceStr, // nonce
-                                'timestamp': orderdata.results.timestamp, // timestamp
-                                'sign': orderdata.results.paySign, // signed string
-                            };
-                            // alert(JSON.stringify(params));
-                            Wechat.sendPaymentRequest(params, function () {
-                                // alert("Success");
-                                //chargedoc
-                                  
-                                $q.all([
-                                  Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
-                                    console.log(data)
-                                  },function(err){
-                                    console.log(err)
-                                  }),
-                                  //plus doc answer count  patientId:doctorId:modify
-                                  Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
-                                    console.log(data)
-                                  },function(err){
-                                    console.log(err)
-                                  })
-                                ]).then(function(alllres){
-                                    // ionicLoadinghide();
-                                    $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
-                                })
-                            }, function (reason) {
-                                $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                // alert("Failed: " + reason);
-                            });
+                  var neworder = {
+                      "userId":Storage.get('UID'),
+                      "role":"appPatient",
+                      // "money":$scope.doctor.charge1*100,
+                      "money":$scope.doctor.charge1*100,
+                      "class":"01",
+                      "name":"咨询",
+                      "notes":DoctorId,
+                      "paystatus":0,
+                      "paytime":new Date(),
+                      // "ip":result.data.ip,
+                      "trade_type":"APP",
+                      "body_description":"咨询服务"
+                    }
+                  Mywechat.addOrder(neworder).then(function(orderdata){
+                    if(orderdata.results.status===1){
+                      ionicLoadinghide();
+                      $q.all([
+                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
+                          console.log(data)
                         },function(err){
-                            console.log(err);
+                          console.log(err)
+                        }),
+                        //plus doc answer count  patientId:doctorId:modify
+                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                          console.log(data)
+                        },function(err){
+                          console.log(err)
                         })
-                    }, function(e) {
-                        console.log(e);
-                    });
-                  
+                      ]).then(function(alllres){
+                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                      })
+                    }
+                    else if(orderdata.results.status===0){
+                        ionicLoadinghide();
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration:1000
+                        });
+                      $q.all([
+                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
+                          console.log(data)
+                        },function(err){
+                          console.log(err)
+                        }),
+                        //plus doc answer count  patientId:doctorId:modify
+                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                          console.log(data)
+                        },function(err){
+                          console.log(err)
+                        })
+                      ]).then(function(alllres){
+                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                      })
+                    }else{
+                      ionicLoadinghide();
+                      var params = {
+                        'partnerid': '1480817392', // merchant id
+                        'prepayid': orderdata.results.prepay_id[0], // prepay id
+                        'noncestr': orderdata.results.nonceStr, // nonce
+                        'timestamp': orderdata.results.timestamp, // timestamp
+                        'sign': orderdata.results.paySign, // signed string
+                      };
+                      Wechat.sendPaymentRequest(params, function () {
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'咨询',doctorName:docname,money:$scope.doctor.charge1}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:3}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(alllres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:1});
+                        })
+                      }, function (reason) {
+                        if(reason=="发送请求失败"){
+                          $ionicLoading.show({
+                            template: "请正确安装微信后使用此功能",
+                            duration:1000
+                          });
+                        }else{
+                          $ionicLoading.show({
+                            template: reason,
+                            duration:1000
+                          });
+                        }
+                      });
+                    }
+                  },function(err){
+                      ionicLoadinghide();
+                      console.log(err);
+                  })
                 }else{
                   $scope.consultable=1
                 }
@@ -6154,112 +6491,197 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               }).then(function(res){
                 if(res){
                   $scope.consultable=1
-                  //点击确认 将咨询的type=1 变成type=3
-                  Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
-                    console.log(data.result)
-                    if(data.result=="修改成功"){
-                      //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                      ionicLoadingshow();
-                        var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                // "money":$scope.doctor.charge1*100,
-                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
-                                "class":"03",
-                                "name":"升级",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"咨询升级服务"
-                              }
-
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                                // $ionicLoading.hide();
-                                ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    //chargedoc
-                                    // ionicLoadingshow();
-                                    $q.all([
-                                      Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
-                                        console.log(data)
-                                      },function(err){
-                                        console.log(err)
-                                      }),
-                                      //plus doc answer count  patientId:doctorId:modify
-                                      Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                        console.log(data)
-                                      },function(err){
-                                        console.log(err)
-                                      })
-                                    ]).then(function(allres){
-                                      var msgJson={
-                                            clientType:'app',
-                                            contentType:'custom',
-                                            fromName:'',
-                                            fromID:Storage.get('UID'),
-                                            fromUser:{
-                                                avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
-                                            },
-                                            targetID:DoctorId,
-                                            targetName:'',
-                                            targetType:'single',
-                                            status:'send_going',
-                                            createTimeInMillis: Date.now(),
-                                            newsType:'11',
-                                            content:{
-                                                type:'counsel-upgrade',
-                                            }
-                                        }
-                                        socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID')});
-                                        socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-                                        $scope.$on('im:messageRes',function(event,data){
-                                          // socket.off('messageRes');
-                                          // socket.emit('disconnect');
-                                          // ionicLoadinghide();
-                                          $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
-                                        })
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
-                                });
+                  ionicLoadingshow();
+                  var neworder = {
+                    "userId":Storage.get('UID'),
+                    "role":"appPatient",
+                    // "money":$scope.doctor.charge1*100,
+                    "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
+                    "class":"03",
+                    "name":"升级",
+                    "notes":DoctorId,
+                    "paystatus":0,
+                    "paytime":new Date(),
+                    // "ip":result.data.ip,
+                    "trade_type":"APP",
+                    "body_description":"咨询升级服务"
+                  }
+                  Mywechat.addOrder(neworder).then(function(orderdata){
+                    if(orderdata.results.status===1){
+                      ionicLoadinghide();
+                      Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                        if(data.result=="修改成功"){
+                          //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                              console.log(data)
                             },function(err){
-                                console.log(err);
+                              console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
                             })
-                        }, function(e) {
-                            console.log(e);
-                        });
-                      
-                      // $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1});
+                          ]).then(function(allres){
+                            var msgJson={
+                              clientType:'app',
+                              contentType:'custom',
+                              fromName:'',
+                              fromID:Storage.get('UID'),
+                              fromUser:{
+                                  avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                              },
+                              targetID:DoctorId,
+                              targetName:'',
+                              targetType:'single',
+                              status:'send_going',
+                              createTimeInMillis: Date.now(),
+                              newsType:'11',
+                              targetRole:'doctor',
+                              content:{
+                                  type:'counsel-upgrade',
+                              }
+                          }
+                          socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                          socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                            setTimeout(function(){
+                              $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                            },500)
+                          })
+                        }
+                      },function(err)
+                      {
+                          console.log(err)
+                      })
                     }
-                  },function(err)
-                  {
-                      console.log(err)
+                    else if(orderdata.results.status===0){
+                      ionicLoadinghide();
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration:1000
+                      });
+                      Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                        if(data.result=="修改成功"){
+                          //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
+                            })
+                          ]).then(function(allres){
+                            var msgJson={
+                              clientType:'app',
+                              contentType:'custom',
+                              fromName:'',
+                              fromID:Storage.get('UID'),
+                              fromUser:{
+                                  avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                              },
+                              targetID:DoctorId,
+                              targetName:'',
+                              targetType:'single',
+                              status:'send_going',
+                              createTimeInMillis: Date.now(),
+                              newsType:'11',
+                              targetRole:'doctor',
+                              content:{
+                                  type:'counsel-upgrade',
+                              }
+                          }
+                          socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                          socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                            setTimeout(function(){
+                              $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                            },500)
+                          })
+                        }
+                      },function(err)
+                      {
+                          console.log(err)
+                      })
+                    }else{
+                      ionicLoadinghide();
+                      var params = {
+                        'partnerid': '1480817392', // merchant id
+                        'prepayid': orderdata.results.prepay_id[0], // prepay id
+                        'noncestr': orderdata.results.nonceStr, // nonce
+                        'timestamp': orderdata.results.timestamp, // timestamp
+                        'sign': orderdata.results.paySign, // signed string
+                      };
+                      Wechat.sendPaymentRequest(params, function () {
+                          //点击确认 将咨询的type=1 变成type=3
+                        Counsels.changeType({doctorId:DoctorId,patientId:Storage.get('UID'),type:1,changeType:"true"}).then(function(data){
+                          if(data.result=="修改成功"){
+                            //确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
+                            $q.all([
+                              Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:"升级",doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              }),
+                              //plus doc answer count  patientId:doctorId:modify
+                              Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                                console.log(data)
+                              },function(err){
+                                console.log(err)
+                              })
+                            ]).then(function(allres){
+                              var msgJson={
+                                clientType:'app',
+                                contentType:'custom',
+                                fromName:'',
+                                fromID:Storage.get('UID'),
+                                fromUser:{
+                                  avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+Storage.get('UID')+'_myAvatar.jpg'
+                                },
+                                targetID:DoctorId,
+                                targetName:'',
+                                targetType:'single',
+                                status:'send_going',
+                                createTimeInMillis: Date.now(),
+                                newsType:'11',
+                                targetRole:'doctor',
+                                content:{
+                                  type:'counsel-upgrade',
+                                }
+                              }
+                            socket.emit('newUser',{user_name:Storage.get('UID'),user_id:Storage.get('UID'),client:'patient'});
+                            socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
+                              setTimeout(function(){
+                                $state.go("tab.consult-chat",{chatId:DoctorId,type:3,status:1}); 
+                              },500)
+                            })
+                          }
+                        },function(err)
+                        {
+                            console.log(err)
+                        })
+                      }, function (reason) {
+                        if(reason=="发送请求失败"){
+                          $ionicLoading.show({
+                            template: "请正确安装微信后使用此功能",
+                            duration:1000
+                          });
+                        }else{
+                          $ionicLoading.show({
+                            template: reason,
+                            duration:1000
+                          });
+                        }
+                      });
+                    }
+                  },function(err){
+                    ionicLoadinghide();
+                    console.log(err);
                   })
                 }else{
                   $scope.consultable=1
@@ -6316,77 +6738,106 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
                     ionicLoadingshow();
-                    var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                // "money":$scope.doctor.charge1*100,
-                                "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
-                                "class":"03",
-                                "name":"升级",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"咨询升级服务"
-                              }
-
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                                // $ionicLoading.hide();
-                                ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    // ionicLoadingshow();
-                                    $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        }),
-                                        //plus doc answer count  patientId:doctorId:modify
-                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                          console.log(DoctorId+Storage.get('UID'))
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        })
-                                    ]).then(function(allres){
-                                        // ionicLoadinghide();
-                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
-                                });
+                    var neworder = {
+                      "userId":Storage.get('UID'),
+                      "role":"appPatient",
+                      // "money":$scope.doctor.charge1*100,
+                      "money":$scope.doctor.charge2*100-$scope.doctor.charge1*100,
+                      "class":"03",
+                      "name":"升级",
+                      "notes":DoctorId,
+                      "paystatus":0,
+                      "paytime":new Date(),
+                      // "ip":result.data.ip,
+                      "trade_type":"APP",
+                      "body_description":"咨询升级服务"
+                    }
+                    Mywechat.addOrder(neworder).then(function(orderdata){
+                      if(orderdata.results.status===1){
+                        ionicLoadinghide();
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(DoctorId+Storage.get('UID'))
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                        })
+                      }
+                      else if(orderdata.results.status===0){
+                          ionicLoadinghide();
+                          $ionicLoading.show({
+                            template: orderdata.results.msg,
+                            duration:1000
+                          });
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(DoctorId+Storage.get('UID'))
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                        })
+                      }else{
+                        ionicLoadinghide();
+                        var params = {
+                          'partnerid': '1480817392', // merchant id
+                          'prepayid': orderdata.results.prepay_id[0], // prepay id
+                          'noncestr': orderdata.results.nonceStr, // nonce
+                          'timestamp': orderdata.results.timestamp, // timestamp
+                          'sign': orderdata.results.paySign, // signed string
+                        };
+                        Wechat.sendPaymentRequest(params, function () {
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'升级',doctorName:docname,money:$scope.doctor.charge2-$scope.doctor.charge1}).then(function(data){
+                              console.log(data)
                             },function(err){
-                                console.log(err);
+                              console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(DoctorId+Storage.get('UID'))
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
                             })
-                        }, function(e) {
-                            console.log(e);
+                          ]).then(function(allres){
+                            $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});//这里的type是2不是3 因为还没有新建成功，
+                          })
+                        }, function (reason) {
+                          if(reason=="发送请求失败"){
+                            $ionicLoading.show({
+                              template: "请正确安装微信后使用此功能",
+                              duration:1000
+                            });
+                          }else{
+                            $ionicLoading.show({
+                              template: reason,
+                              duration:1000
+                            });
+                          }
                         });
-                    
+                      }
+                    },function(err){
+                      ionicLoadinghide();
+                      console.log(err);
+                    })
                   }else{
                     $scope.consultable=1
                   }
@@ -6404,76 +6855,103 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                   if(res){
                     $scope.consultable=1
                     ionicLoadingshow();
-                    var json = 'http://ipv4.myexternalip.com/json';
-                        $http.get(json).then(function(result) {
-                            if (result.data.ip == null || result.data.ip == undefined || result.data.ip == "")
-                            {
-                              result.data.ip = "121.196.221.44"
-                            }
-                            var neworder = {
-                                "userId":Storage.get('UID'),
-                                "role":"appPatient",
-                                // "money":$scope.doctor.charge1*100,
-                                "money":$scope.doctor.charge2*100,
-                                "class":"02",
-                                "name":"问诊",
-                                "notes":DoctorId,
-                                "paystatus":0,
-                                "paytime":new Date(),
-                                "ip":result.data.ip,
-                                "trade_type":"APP",
-                                "body_description":"问诊服务"
-                              }
-
-                            // alert(JSON.stringify(neworder));
-                            Mywechat.addOrder(neworder).then(function(orderdata){
-                              // alert(JSON.stringify(orderdata));
-                              // alert(orderdata.results.prepay_id[0])
-                                ionicLoadinghide();
-                                var params = {
-                                  'appid': orderdata.results.appId,
-                                  'package': 'Sign=WXPay',
-                                    'partnerid': '1480817392', // merchant id
-                                    'prepayid': orderdata.results.prepay_id[0], // prepay id
-                                    'noncestr': orderdata.results.nonceStr, // nonce
-                                    'timestamp': orderdata.results.timestamp, // timestamp
-                                    'sign': orderdata.results.paySign, // signed string
-                                };
-                                // alert(JSON.stringify(params));
-                                Wechat.sendPaymentRequest(params, function () {
-                                    // alert("Success");
-                                    //chargedoc
-                                    // ionicLoadingshow();
-                                    $q.all([
-                                        Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        }),
-                                        //plus doc answer count  patientId:doctorId:modify
-                                        Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
-                                          console.log(data)
-                                        },function(err){
-                                          console.log(err)
-                                        })
-                                    ]).then(function(allres){
-                                        // ionicLoadinghide();
-                                        $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
-                                    })
-                                }, function (reason) {
-                                    $ionicLoading.show({
-                                        template:reason,
-                                        duration:1000
-                                    })
-                                    // alert("Failed: " + reason);
-                                });
+                    var neworder = {
+                      "userId":Storage.get('UID'),
+                      "role":"appPatient",
+                      // "money":$scope.doctor.charge1*100,
+                      "money":$scope.doctor.charge2*100,
+                      "class":"02",
+                      "name":"问诊",
+                      "notes":DoctorId,
+                      "paystatus":0,
+                      "paytime":new Date(),
+                      // "ip":result.data.ip,
+                      "trade_type":"APP",
+                      "body_description":"问诊服务"
+                    }
+                    Mywechat.addOrder(neworder).then(function(orderdata){
+                      if(orderdata.results.status===1){
+                        ionicLoadinghide();
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
+                        })
+                      }
+                      else if(orderdata.results.status===0){
+                          ionicLoadinghide();
+                          $ionicLoading.show({
+                            template: orderdata.results.msg,
+                            duration:1000
+                          });
+                        $q.all([
+                          Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          }),
+                          //plus doc answer count  patientId:doctorId:modify
+                          Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                            console.log(data)
+                          },function(err){
+                            console.log(err)
+                          })
+                        ]).then(function(allres){
+                          $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
+                        })
+                      }else{
+                        ionicLoadinghide();
+                        var params = {
+                          'partnerid': '1480817392', // merchant id
+                          'prepayid': orderdata.results.prepay_id[0], // prepay id
+                          'noncestr': orderdata.results.nonceStr, // nonce
+                          'timestamp': orderdata.results.timestamp, // timestamp
+                          'sign': orderdata.results.paySign, // signed string
+                        };
+                        Wechat.sendPaymentRequest(params, function () {
+                          $q.all([
+                            Expense.rechargeDoctor({patientId:Storage.get('UID'),doctorId:DoctorId,type:'问诊',doctorName:docname,money:$scope.doctor.charge2}).then(function(data){
+                              console.log(data)
                             },function(err){
-                                console.log(err);
+                              console.log(err)
+                            }),
+                            //plus doc answer count  patientId:doctorId:modify
+                            Account.modifyCounts({patientId:Storage.get('UID'),doctorId:DoctorId,modify:999}).then(function(data){
+                              console.log(data)
+                            },function(err){
+                              console.log(err)
                             })
-                        }, function(e) {
-                            console.log(e);
+                          ]).then(function(allres){
+                            $state.go("tab.consultQuestionnaire",{DoctorId:DoctorId,counselType:2});
+                          })
+                        }, function (reason) {
+                          if(reason=="发送请求失败"){
+                            $ionicLoading.show({
+                              template: "请正确安装微信后使用此功能",
+                              duration:1000
+                            });
+                          }else{
+                            $ionicLoading.show({
+                              template: reason,
+                              duration:1000
+                            });
+                          }
                         });
-                    
+                      }
+                    },function(err){
+                      ionicLoadinghide();
+                      console.log(err);
+                    })
                   }else{
                     $scope.consultable=1
                   }
@@ -6606,7 +7084,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 }])
 
 //肾病保险主页面--TDY
-.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory',function ($scope, $state,$ionicHistory) {
+.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory','insurance','Storage','$filter','$ionicPopup',function ($scope, $state,$ionicHistory,insurance,Storage,$filter,$ionicPopup) {
   var show = false;
 
   $scope.isShown = function() {
@@ -6634,26 +7112,43 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   }
 
   $scope.submitintension = function(){
-    alert("您的信息已发送到后台，在24小时内会有相关人员与您联系")
+    var time = new Date()
+    time =  $filter("date")(time, "yyyy-MM-dd HH:mm:ss");
+    var temp = {
+      "patientId":Storage.get('UID'),
+      "status":1,
+      "date": time.substr(0,10)
+    }
+    insurance.setPrefer(temp).then(function(data){
+      if (data.results == "success")
+      {
+        $ionicPopup.show({   
+             title: '已收到您的保险意向，工作人员将尽快与您联系！',
+             buttons: [
+               {
+                    text: '確定',
+                    type: 'button-positive'
+               },
+               ]
+        })
+      }
+    },
+    function(err){
+
+    })
   }
 
   $scope.cancel = function(){
-    $state.go("insurance")
+    $state.go("insurance");
   }
 
-  $scope.Goback = function(){
-    $state.go("insurance")
-  }
 
-  $scope.Back = function(){
-    $ionicHistory.goBack()
-  }
 }])
 
 //肾病保险相关工具--TDY
-.controller('insurancefunctionCtrl', ['$scope', '$state', '$http', function ($scope, $state, $http) {
+.controller('insurancefunctionCtrl', ['$scope', '$state', '$http', '$ionicPopup',function ($scope, $state, $http,$ionicPopup) {
   $scope.InsuranceInfo = {
-    "InsuranceAge": null,
+    "InsuranceAge": 25,
     "Gender": "NotSelected",
     "InsuranceTime": "5年",
     "CalculationType": "CalculateMoney",
@@ -6665,10 +7160,14 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   $scope.Kidneyfunction = {
     "Gender": "NotSelected",
     "Age": null,
-    "CreatinineUnit": "mg/dl",
+    "CreatinineUnit": "μmol/L",
     "Creatinine": null,
     "KidneyfunctionValue": 0
   }
+
+  $http.get("data/insruanceage1.json").success(function(data){
+    $scope.InsuranceAges = data
+  });
 
   $scope.Genders = [
     {
@@ -6710,44 +7209,70 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     }
   ]
 
+  $scope.CreatinineUnits = [
+    {
+      "Type":"mg/dl"
+    },
+    {
+      "Type":"μmol/L"
+    }
+  ]
+
   $http.get("data/InsuranceParameter.json").success(function(data){
     dict = data
   })
   $scope.getexpense = function(){
-    if ($scope.InsuranceInfo.InsuranceAge == null)
-    {
-      alert("请输入年龄")
-    }
     if ($scope.InsuranceInfo.Gender == "NotSelected")
     {
       alert("请选择性别")
     }
-    if ($scope.InsuranceInfo.InsuranceMoney == null)
+    else if ($scope.InsuranceInfo.InsuranceMoney == null)
     {
       alert("请输入金额")
     }
-    for (var i=0;i<dict.length;i++){
-      if (dict[i].Age == $scope.InsuranceInfo.InsuranceAge && dict[i].Gender == $scope.InsuranceInfo.Gender && dict[i].Time == $scope.InsuranceInfo.InsuranceTime)
-      {
-        $scope.InsuranceInfo.InsuranceParameter = dict[i].Parameter
-        break
+    else
+    {
+      for (var i=0;i<dict.length;i++){
+        if (dict[i].Age == $scope.InsuranceInfo.InsuranceAge && dict[i].Gender == $scope.InsuranceInfo.Gender && dict[i].Time == $scope.InsuranceInfo.InsuranceTime)
+        {
+          $scope.InsuranceInfo.InsuranceParameter = dict[i].Parameter
+          break
+        }
       }
-    }
-    if ($scope.InsuranceInfo.CalculationType == "CalculateMoney")
-    {
-      $scope.InsuranceInfo.InsuranceExpense = $scope.InsuranceInfo.InsuranceMoney*$scope.InsuranceInfo.InsuranceParameter/1000
-      alert("您的保费为：" + $scope.InsuranceInfo.InsuranceExpense)
-    }
-    else if ($scope.InsuranceInfo.CalculationType == "CalculateExpense")
-    {
-      $scope.InsuranceInfo.InsuranceExpense = 1000*$scope.InsuranceInfo.InsuranceMoney/$scope.InsuranceInfo.InsuranceParameter
-      alert("您的保额为：" + $scope.InsuranceInfo.InsuranceExpense)
+      if ($scope.InsuranceInfo.CalculationType == "CalculateExpense")
+      {
+        $scope.InsuranceInfo.InsuranceExpense = $scope.InsuranceInfo.InsuranceMoney*$scope.InsuranceInfo.InsuranceParameter/1000
+        // alert("您的保费为：" + $scope.InsuranceInfo.InsuranceExpense.toFixed(2) + "元")
+        $ionicPopup.show({   
+             title: "您的保费为：" + $scope.InsuranceInfo.InsuranceExpense.toFixed(2) + "元",
+             buttons: [
+               {
+                    text: '確定',
+                    type: 'button-positive'
+               },
+               ]
+        })
+      }
+      else if ($scope.InsuranceInfo.CalculationType == "CalculateMoney")
+      {
+        $scope.InsuranceInfo.InsuranceExpense = 1000*$scope.InsuranceInfo.InsuranceMoney/$scope.InsuranceInfo.InsuranceParameter
+        // alert("您的保额为：" + $scope.InsuranceInfo.InsuranceExpense.toFixed(2) + "元")
+        $ionicPopup.show({   
+             title: "您的保额为：" + $scope.InsuranceInfo.InsuranceExpense.toFixed(2) + "元",
+             buttons: [
+               {
+                    text: '確定',
+                    type: 'button-positive'
+               },
+               ]
+        })
+      }
     }
   }
 
   $scope.resetexpense = function(){
     $scope.InsuranceInfo = {
-      "InsuranceAge": null,
+      "InsuranceAge": 25,
       "Gender": "NotSelected",
       "InsuranceTime": "5年",
       "CalculationType": "CalculateMoney",
@@ -6755,7 +7280,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       "InsuranceExpense": 0
     }
   }
-
+  $scope.changeAge = function(){
+    if ($scope.InsuranceInfo.InsuranceTime == "5年")
+    {
+      $http.get("data/insuranceage1.json").success(function(data){
+        $scope.InsuranceAges = data
+      });
+    }
+    else
+    {
+      $http.get("data/insuranceage2.json").success(function(data){
+        $scope.InsuranceAges = data
+      });
+    }
+  }
   $scope.getkidneyfunction = function(){
     if ($scope.Kidneyfunction.Age == null)
     {
@@ -6787,22 +7325,71 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         $scope.Kidneyfunction.KidneyfunctionValue = 141*Math.pow(($scope.Kidneyfunction.Creatinine/0.9),-1.209)*Math.pow(0.993,$scope.Kidneyfunction.Age)
       }
     }
-    alert($scope.Kidneyfunction.KidneyfunctionValue)
+    else if ($scope.Kidneyfunction.CreatinineUnit == "μmol/L" && $scope.Kidneyfunction.Gender == "Female")
+    {
+      if ($scope.Kidneyfunction.Creatinine <= 62)
+      {
+        $scope.Kidneyfunction.KidneyfunctionValue = 141*Math.pow(($scope.Kidneyfunction.Creatinine*0.01131/0.9),-0.411)*Math.pow(0.993,$scope.Kidneyfunction.Age)
+      }
+      else
+      {
+        $scope.Kidneyfunction.KidneyfunctionValue = 141*Math.pow(($scope.Kidneyfunction.Creatinine*0.01131/0.9),-1.209)*Math.pow(0.993,$scope.Kidneyfunction.Age)
+      }
+    }
+    else if ($scope.Kidneyfunction.CreatinineUnit == "μmol/L" && $scope.Kidneyfunction.Gender == "Male")
+    {
+      if ($scope.Kidneyfunction.Creatinine <= 80)
+      {
+        $scope.Kidneyfunction.KidneyfunctionValue = 141*Math.pow(($scope.Kidneyfunction.Creatinine*0.01131/0.9),-0.411)*Math.pow(0.993,$scope.Kidneyfunction.Age)
+      }
+      else
+      {
+        $scope.Kidneyfunction.KidneyfunctionValue = 141*Math.pow(($scope.Kidneyfunction.Creatinine*0.01131/0.9),-1.209)*Math.pow(0.993,$scope.Kidneyfunction.Age)
+      }
+    }
+    var kidneyclass = ""
+    if ($scope.Kidneyfunction.KidneyfunctionValue >= 90)
+    {
+      kidneyclass = "慢性肾病1期";
+    }
+    else if ($scope.Kidneyfunction.KidneyfunctionValue < 90 && $scope.Kidneyfunction.KidneyfunctionValue >= 60)
+    {
+      kidneyclass = "慢性肾病2期";
+    }
+    else if ($scope.Kidneyfunction.KidneyfunctionValue < 60 && $scope.Kidneyfunction.KidneyfunctionValue >= 30)
+    {
+      kidneyclass = "慢性肾病3期";
+    }
+    else if ($scope.Kidneyfunction.KidneyfunctionValue < 30 && $scope.Kidneyfunction.KidneyfunctionValue >= 15)
+    {
+      kidneyclass = "慢性肾病4期";
+    }
+    else if ($scope.Kidneyfunction.KidneyfunctionValue < 15)
+    {
+      kidneyclass = "慢性肾病5期";
+    }
+    // alert("估算您的肾小球滤过率为：" + $scope.Kidneyfunction.KidneyfunctionValue.toFixed(2) + ",您处于" +kidneyclass)
+    $ionicPopup.show({   
+         title: "估算您的肾小球滤过率为：" + $scope.Kidneyfunction.KidneyfunctionValue.toFixed(2) + ",您处于" +kidneyclass,
+         buttons: [
+           {
+                text: '確定',
+                type: 'button-positive'
+           },
+           ]
+    })
   }
 
   $scope.resetkidneyfunction = function(){
     $scope.Kidneyfunction = {
       "Gender": "NotSelected",
       "Age": null,
-      "CreatinineUnit": "mg/dl",
+      "CreatinineUnit": "μmol/L",
       "Creatinine": null,
       "KidneyfunctionValue": 0
     }
   }
 
-  $scope.Goback = function(){
-    $state.go("insurance")
-  }
 }])
 
 //肾病保险工作人员--TDY
@@ -6838,39 +7425,130 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 //咨询问卷--TDY
 
 .controller('consultquestionCtrl', ['$ionicLoading','Task','$scope', '$ionicPopup','$ionicModal','$state', 'Dict','Storage', 'Patient', 'VitalSign','$filter','$stateParams','$ionicPopover','Camera','Counsels','CONFIG','Health','Account','socket',function ($ionicLoading,Task,$scope,$ionicPopup, $ionicModal,$state,Dict,Storage,Patient,VitalSign,$filter,$stateParams,$ionicPopover,Camera,Counsels,CONFIG,Health,Account,socket) {
-  $scope.showProgress = false;
-  $scope.showSurgicalTime = false;
-  $scope.openPersonal = true;
-  $scope.openDiag = true;
-  var patientId = Storage.get('UID');
-  var DoctorId = $stateParams.DoctorId;
-  var counselType = $stateParams.counselType;
+    $scope.showProgress = false;
+    $scope.showSurgicalTime = false;
+    $scope.openPersonal = true;
+    $scope.openDiag = true;
+    var patientId = Storage.get('UID');
+    var DoctorId = $stateParams.DoctorId;
+    var counselType = $stateParams.counselType;
+   
 
     $scope.submitable=false;
 
-
-    //20140421 zxf
-    $scope.items = []//HealthInfo.getall();
-    var healthinfotimes=[]
-    if(Storage.get('consulthealthinfo')!=''&&Storage.get('consulthealthinfo')!='undefined'&&Storage.get('consulthealthinfo')!=null){
-        healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'))
-    }
-    for(var i=0;i<healthinfotimes.length;i++){
-        Health.getHealthDetail({userId:Storage.get('UID'),insertTime:healthinfotimes[i].time}).then(
+    var BasicInfoInitial = function(){ //页面基本信息初始化
+        $scope.BasicInfo =
+        {
+            "userId": patientId,
+            "name": null,
+            "gender": null,
+            "bloodType": null,
+            "hypertension": null,
+            "class": null,
+            "class_info": null,
+            "operationTime": null,
+            "allergic":null,
+            "height": null,
+            "weight": null,
+            "birthday": null,
+            "IDNo": null,
+            "lastVisit":{
+                "time":null,
+                "hospital":null,
+                "diagnosis":null
+                }
+        }
+        Patient.getPatientDetail({userId: patientId}).then(
             function(data)
             {
-                if(data.results!=null){
-                $scope.items.push(data.results)
-                $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
-              // $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
-              // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
+                if (data.results != null)
+                {
+                    $scope.BasicInfo=angular.merge($scope.BasicInfo, data.results);
+                    console.log($scope.BasicInfo);
+                    thisPatient = data.results;
+                    if ($scope.BasicInfo.gender != null)
+                    {
+                        $scope.BasicInfo.gender = searchObj($scope.BasicInfo.gender,$scope.Genders)
+                    }
+                    if ($scope.BasicInfo.bloodType != null)
+                    {
+                        $scope.BasicInfo.bloodType = searchObj($scope.BasicInfo.bloodType,$scope.BloodTypes)
+                    }
+                    if ($scope.BasicInfo.hypertension != null)
+                    {
+                        $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
+                    }
+                
+
+                    VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
+                    function(data)
+                    {
+                        if(data.results.length){
+                            var n = data.results.length - 1
+                            var m = data.results[n].data.length - 1
+                            $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
+                        }
+
+                    },
+                    function(err)
+                    {
+                        console.log(err);
+                    });
+                }else{
+                    $scope.openPersonal = false;
                 }
+                initialDict();
+                // console.log($scope.BasicInfo)
             },
             function(err)
             {
                 console.log(err);
-            });
+            }
+        );
+
+        $scope.Questionare = {
+            "LastDiseaseTime":"",
+            "title":"",
+            "help":""
+        }
     }
+
+    
+    
+
+    BasicInfoInitial();
+    var localRefresh = function(){
+        //20140421 zxf
+        $scope.items = []//HealthInfo.getall();
+        var healthinfotimes=[]
+        if(Storage.get('consulthealthinfo')!=''&&Storage.get('consulthealthinfo')!='undefined'&&Storage.get('consulthealthinfo')!=null){
+            healthinfotimes=angular.fromJson(Storage.get('consulthealthinfo'));
+        }
+        for(var i=0;i<healthinfotimes.length;i++){
+            Health.getHealthDetail({userId:Storage.get('UID'),insertTime:healthinfotimes[i].time}).then(
+                function(data)
+                {
+                    if(data.results!=null){
+                    $scope.items.push(data.results)
+                    $scope.items[$scope.items.length-1].acture = $scope.items[$scope.items.length-1].insertTime
+                  // $scope.items[$scope.items.length-1].time = $scope.items[$scope.items.length-1].time.substr(0,10)
+                  // $scope.items.push({'label':data.results.label,'time':data.results.time.substr(0,10),'description':data.results.description,'insertTime':data.results.insertTime})
+                    }
+                },
+                function(err)
+                {
+                    console.log(err);
+                });
+        }
+    }
+    $scope.$on('$ionicView.beforeEnter', function() {
+        localRefresh();//局部刷新
+        // console.log($stateParams);
+        
+            
+
+    });
+    
 
     //跳转修改健康信息
     $scope.gotoEditHealth=function(ele,editId){
@@ -7040,80 +7718,9 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             console.log(err);
         });
     }
-    $scope.BasicInfo =
-    {
-    "userId": patientId,
-    "name": null,
-    "gender": null,
-    "bloodType": null,
-    "hypertension": null,
-    "class": null,
-    "class_info": null,
-    "operationTime": null,
-    "allergic":null,
-    "height": null,
-    "weight": null,
-    "birthday": null,
-    "IDNo": null,
-    "lastVisit":{
-        "time":null,
-        "hospital":null,
-        "diagnosis":null
-        }
-    }
-    Patient.getPatientDetail({userId: patientId}).then(
-        function(data)
-        {
-            if (data.results != null)
-            {
-                $scope.BasicInfo=angular.merge($scope.BasicInfo, data.results);
-                console.log($scope.BasicInfo);
-                thisPatient = data.results;
-                if ($scope.BasicInfo.gender != null)
-                {
-                    $scope.BasicInfo.gender = searchObj($scope.BasicInfo.gender,$scope.Genders)
-                }
-                if ($scope.BasicInfo.bloodType != null)
-                {
-                    $scope.BasicInfo.bloodType = searchObj($scope.BasicInfo.bloodType,$scope.BloodTypes)
-                }
-                if ($scope.BasicInfo.hypertension != null)
-                {
-                    $scope.BasicInfo.hypertension = searchObj($scope.BasicInfo.hypertension,$scope.Hypers)
-                }
-            
+    
 
-                VitalSign.getVitalSigns({userId:patientId, type: "Weight"}).then(
-                function(data)
-                {
-                    if(data.results.length){
-                        var n = data.results.length - 1
-                        var m = data.results[n].data.length - 1
-                        $scope.BasicInfo.weight = data.results[n].data[m]?data.results[n].data[m].value:"";
-                    }
-
-                },
-                function(err)
-                {
-                    console.log(err);
-                });
-            }else{
-                $scope.openPersonal = false;
-            }
-            initialDict();
-            // console.log($scope.BasicInfo)
-        },
-        function(err)
-        {
-            console.log(err);
-        }
-    );
-
-    $scope.Questionare = {
-        "LastDiseaseTime":"",
-        "title":"",
-        "help":""
-    }
+    
     // if(Storage.get('consultcacheinfo')!=null&&Storage.get('consultcacheinfo')!=""&&Storage.get('consultcacheinfo')!='undefined'){
     //     $scope.Questionare=angular.fromJson(Storage.get('consultcacheinfo'))
     // }
@@ -7125,18 +7732,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
   // console.log($scope.Questionare)
   // console.log(Storage.get('tempquestionare'))
 
-    $scope.images = [];
-    if (Storage.get('tempimgrul') != "" && Storage.get('tempimgrul') != null)
-    {
-        $scope.images = angular.fromJson(Storage.get('tempimgrul'));
-    //http://121.43.107.106:8052/uploads/photos/resized13735579254_1492596394430.jpg
-
-    }
-  //测试用 20170419 zxf
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492596394430.jpg");
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492593051359.jpg");
-  // $scope.images.push("http://121.43.107.106:8052/uploads/photos/resized13735579254_1492592986223.jpg");
-
+   
 
   // --------datepicker设置----------------
   var  monthList=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
@@ -7154,7 +7750,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       var d=dd<10?('0'+String(dd)):String(dd);
       var m=mm<10?('0'+String(mm)):String(mm);
       //日期的存储格式和显示格式不一致
-      $scope.Questionare.LastVisitDate=yyyy+'-'+m+'-'+d;
+      $scope.BasicInfo.lastVisit.time=yyyy+'-'+m+'-'+d;
     }
   };
 
@@ -7374,9 +7970,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         return sortNo;
 
     }
-    $scope.submit = function(a,b){
-        console.log(a);
-        console.log(b);
+    $scope.submit = function(){
 
         $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
         $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
@@ -7402,16 +7996,16 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                 },function(err){
                     console.log("err" + err);
                 });
-            if($scope.BasicInfo.weight){
-                var now = new Date() ;
-                now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
-                VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
-                // console.log($scope.BasicInfo.weight);
-                 // $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
-                },function(err){
-                    console.log(err);
-                });
-            }
+            // if($scope.BasicInfo.weight){
+            //     var now = new Date() ;
+            //     now =  $filter("date")(now, "yyyy-MM-dd HH:mm:ss");
+            //     VitalSign.insertVitalSign({patientId:patientId, type: "Weight",code: "Weight_1", date:now.substr(0,10),datatime:now,datavalue:$scope.BasicInfo.weight,unit:"kg"}).then(function(data){
+            //     // console.log($scope.BasicInfo.weight);
+            //      // $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType});
+            //     },function(err){
+            //         console.log(err);
+            //     });
+            // }
 
         },function(err){
             console.log(err);
@@ -7420,7 +8014,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
         Storage.set('tempquestionare',angular.toJson($scope.Questionare))
         Storage.set('tempimgrul',angular.toJson($scope.images))
         console.log($scope.Questionare);
-        var temp = {
+         var temp = {
           "patientId":patientId,
           "type":counselType,
           "doctorId":$stateParams.DoctorId,
@@ -7457,7 +8051,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     targetId:DoctorId
                 };
                 var msgJson={
-                    clientType:'app',
+                    clientType:'patient',
                     contentType:'custom',
                     fromName:thisPatient.name,
                     fromID:patientId,
@@ -7470,71 +8064,63 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     status:'send_going',
                     createTimeInMillis: Date.now(),
                     newsType:'11',
+                    targetRole:'doctor',
                     content:msgContent
                 }
-                socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId});
+                socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId,client:'patient'});
                 socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-                $scope.$on('im:messageRes',function(event,messageRes){
+                // $scope.$on('im:messageRes',function(event,messageRes){
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
                     if(DoctorId=='U201612291283'){
-                        Communication.getTeam({teamId:'10050278'})
-                        .then(function(response){
-                            var team = response.results,
-                                idarr = [];
-                            team.members.forEach(function(member){
-                                this.push(member.userId);
-                            },idarr);
-                            jmapi.groups(DoctorId,idarr,thisPatient.name + '-' +team.name,'consultatioin_open')
-                            .then(function(res){
-                                var d = {
-                                    teamId: team.teamId,
-                                    counselId: data.results.counselId,
-                                    sponsorId: DoctorId,
-                                    patientId: patientId,
-                                    consultationId: res.results.gid,
-                                    status: '1'
-                                }
-                                msgContent.consultationId=res.results.gid;
-                                var msgTeam={
-                                    contentType:'custom',
-                                    fromID:DoctorId,
-                                    fromName:'陈江华',
-                                    fromUser:{
-                                        avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+DoctorId+'_myAvatar.jpg'
-                                    },
-                                    targetID:team.teamId,
-                                    teamId:team.teamId,
-                                    targetName:team.name,
-                                    targetType:'group',
-                                    status:'send_going',
-                                    newsType:'13',
-                                    createTimeInMillis: Date.now(),
-                                    content:msgContent
-                                }
+                        var time = new Date();
+                        var gid='G'+$filter('date')(time, 'MMddHmsss');
+                        // var msgdata = $state.params.msg;
 
-                                Communication.newConsultation(d)
-                                .then(function(con){
-                                    console.log(con);
-                                    socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
-                                    socket.emit('message',{msg:msgTeam,to:team.teamId,role:'patient'});
-                                    $scope.$on('im:messageRes',function(event,messageRes){
-                                        // socket.off('messageRes');
-                                        // socket.emit('disconnect');
-                                        $state.go('tab.consult-chat',{chatId:DoctorId});
-                                    });
-                                },function(er){
-                                    console.error(err);
-                                })
-                            },function(err){
-                                console.error(err);
-                            })                
-
-                        });
+                        var d = {
+                            teamId: '10050278',
+                            counselId: data.results.counselId,
+                            sponsorId: DoctorId,
+                            patientId: patientId,
+                            consultationId: gid,
+                            status: '1'
+                        }
+                        msgContent.consultationId=gid;
+                        var msgTeam={
+                            clientType:'doctor',
+                            targetRole:'doctor',
+                            contentType:'custom',
+                            fromID:DoctorId,
+                            fromName:'陈江华',
+                            fromUser:{
+                                avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+DoctorId+'_myAvatar.jpg'
+                            },
+                            targetID:'10050278',
+                            teamId:'10050278',
+                            targetName:'陈江华主任医师团队',
+                            targetType:'group',
+                            status:'send_going',
+                            newsType:'13',
+                            createTimeInMillis: Date.now(),
+                            content:msgContent
+                        }
+                        Communication.newConsultation(d)
+                        .then(function(con){
+                            console.log(con);
+                            // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
+                            socket.emit('message',{msg:msgTeam,to:'10050278',role:'patient'});
+                                setTimeout(function(){
+                                    $state.go('tab.consult-chat',{chatId:DoctorId});
+                                },500);
+                        },function(er){
+                            console.error(err);
+                        })
                     }else{
-                        $state.go('tab.consult-chat',{chatId:DoctorId});
+                        setTimeout(function(){
+                            $state.go('tab.consult-chat',{chatId:DoctorId});
+                        },500);
                     }
-                });
+                // });
             }
             console.log(data.results)
           },
@@ -7547,170 +8133,12 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     }
 
-  // $scope.nexttoquestion = function(){
-    // Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-    // Storage.set('tempimgrul',angular.toJson($scope.images))
-    // console.log($scope.Questionare);
 
-    // if($scope.Questionare.LastVisitDate!=""||$scope.Questionare.LastHospital!=""||$scope.Questionare.LastDiagnosis!=""){
-    //     console.log("Attention");
-    //     Patient.editPatientDetail({userId:Storage.get('UID'),lastVisit:{time:$scope.Questionare.LastVisitDate,hospital:$scope.Questionare.LastHospital,diagnosis:$scope.Questionare.LastDiagnosis}}).then(function(data){
-    //         console.log(data.results);
-    //         $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
-
-    //     },function(err){
-    //     console.log(err);
-    //     });
-    // }else{
-    //     $state.go("tab.consultquestion3",{DoctorId:DoctorId,counselType:counselType});
-    // }
-
-    // }
-
-  // $scope.backtoDisease = function(){
-  //   Storage.set('tempquestionare',angular.toJson($scope.Questionare))
-  //   $state.go("tab.consultquestion2",{DoctorId:DoctorId,counselType:counselType})
-  // }
-
-  // $scope.Submitquestion = function(){
-  //   // Storage.set('consultcacheinfo',angular.toJson([]));
-  //   if(($scope.Questionare.title)&&($scope.Questionare.help)){
-  //           var temp = {
-  //         "patientId":patientId,
-  //         "type":counselType,
-  //         "doctorId":$stateParams.DoctorId,
-  //         "hospital":$scope.Questionare.LastHospital,
-  //         "visitDate":$scope.Questionare.LastVisitDate,
-  //         "diagnosis":$scope.Questionare.LastDiagnosis,
-  //         "diagnosisPhotoUrl":$scope.images,
-  //         "sickTime":$scope.Questionare.LastDiseaseTime,
-  //         "symptom":$scope.Questionare.title,
-  //         "symptomPhotoUrl":$scope.images,
-  //         "help":$scope.Questionare.help
-  //       }
-
-  //   Counsels.questionaire(temp).then(
-  //     function(data)
-  //     {
-  //       console.log(data);
-  //       if (data.result == "新建成功")
-  //       {
-  //         //不能重复提交
-  //         $scope.submitable=true;
-
-
-  //         Storage.rm('tempquestionare')
-  //         Storage.rm('tempimgrul')
-  //         var msgContent={
-  //               counsel:data.results,
-  //               type:'card',
-  //               counselId:data.results.counselId,
-  //               patientId:patientId,
-  //               patientName:$scope.BasicInfo.name,
-  //               doctorId:DoctorId,
-  //               fromId:patientId,
-  //               targetId:DoctorId
-  //           };
-  //           var msgJson={
-  //               clientType:'app',
-  //               contentType:'custom',
-  //               fromName:thisPatient.name,
-  //               fromID:patientId,
-  //               fromUser:{
-  //                   avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+patientId+'_myAvatar.jpg'
-  //               },
-  //               targetID:DoctorId,
-  //               targetName:'',
-  //               targetType:'single',
-  //               status:'send_going',
-  //               createTimeInMillis: Date.now(),
-  //               newsType:'11',
-  //               content:msgContent
-  //           }
-  //           socket.emit('newUser',{user_name:$scope.BasicInfo.name,user_id:patientId});
-  //           socket.emit('message',{msg:msgJson,to:DoctorId,role:'patient'});
-  //           $scope.$on('im:messageRes',function(event,messageRes){
-  //               // socket.off('messageRes');
-  //               // socket.emit('disconnect');
-  //               if(DoctorId=='U201612291283'){
-  //                   Communication.getTeam({teamId:'10050278'})
-  //                   .then(function(response){
-  //                       var team = response.results,
-  //                           idarr = [];
-  //                       team.members.forEach(function(member){
-  //                           this.push(member.userId);
-  //                       },idarr);
-  //                       jmapi.groups(DoctorId,idarr,thisPatient.name + '-' +team.name,'consultatioin_open')
-  //                       .then(function(res){
-  //                           var d = {
-  //                               teamId: team.teamId,
-  //                               counselId: data.results.counselId,
-  //                               sponsorId: DoctorId,
-  //                               patientId: patientId,
-  //                               consultationId: res.results.gid,
-  //                               status: '1'
-  //                           }
-  //                           msgContent.consultationId=res.results.gid;
-  //                           var msgTeam={
-  //                               contentType:'custom',
-  //                               fromID:DoctorId,
-  //                               fromName:'陈江华',
-  //                               fromUser:{
-  //                                   avatarPath:CONFIG.mediaUrl+'uploads/photos/resized'+DoctorId+'_myAvatar.jpg'
-  //                               },
-  //                               targetID:team.teamId,
-  //                               teamId:team.teamId,
-  //                               targetName:team.name,
-  //                               targetType:'group',
-  //                               status:'send_going',
-  //                               newsType:'13',
-  //                               createTimeInMillis: Date.now(),
-  //                               content:msgContent
-  //                           }
-
-  //                           Communication.newConsultation(d)
-  //                           .then(function(con){
-  //                               console.log(con);
-  //                               socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
-  //                               socket.emit('message',{msg:msgTeam,to:team.teamId,role:'patient'});
-  //                               $scope.$on('im:messageRes',function(event,messageRes){
-  //                                   // socket.off('messageRes');
-  //                                   // socket.emit('disconnect');
-  //                                   $state.go('tab.consult-chat',{chatId:DoctorId});
-  //                               });
-  //                           },function(er){
-  //                               console.error(err);
-  //                           })
-  //                       },function(err){
-  //                           console.error(err);
-  //                       })                
-
-  //                   });
-  //               }else{
-  //                   $state.go('tab.consult-chat',{chatId:DoctorId});
-  //               }
-  //           });
-  //       }
-  //       console.log(data.results)
-  //     },
-  //     function(err)
-  //     {
-  //       console.log(err);
-  //     }
-  //   )
-  //   }else{
-  //       $ionicLoading.show({
-  //           template: '信息填写不完整,请完善必填信息',
-  //           duration:1000
-  //           });
-  //   }
-
-  // }
 
 
   // 上传头像的点击事件----------------------------
   $scope.addnewimage = function($event){
-    Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
+    // Storage.set('consultcacheinfo',angular.toJson($scope.Questionare))
     $state.go('tab.myHealthInfoDetail',{id:null,caneidt:true})
     // $scope.openPopover($event);
   };
@@ -7721,11 +8149,35 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
 
 //论坛
-.controller('forumCtrl', ['$scope', '$state', '$sce','$http','Storage','Patient',function ($scope, $state,$sce,$http,Storage,Patient) {
+.controller('forumCtrl', ['$interval', 'News', '$scope', '$state', '$sce','$http','Storage','Patient',function ($interval, News, $scope, $state,$sce,$http,Storage,Patient) {
     var phoneNum=Storage.get('USERNAME')
-    console.log(phoneNum)
+    // console.log(phoneNum)
 
     var userId=Storage.get('UID');
+    
+    var GetUnread = function(){
+        // console.log(new Date());
+        News.getNewsByReadOrNot({userId:Storage.get('UID'),readOrNot:0,userRole:"patient"}).then(//
+            function(data){
+                // console.log(data);
+                if(data.results.length){
+                    $scope.HasUnreadMessages = true;
+                    // console.log($scope.HasUnreadMessages);
+                }else{
+                    $scope.HasUnreadMessages = false;
+                }
+            },function(err){
+                    console.log(err);
+            });
+    }
+
+    $scope.$on('$ionicView.enter', function() {
+      RefreshUnread = $interval(GetUnread,2000);
+        
+    });
+
+    
+    
 
     $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+userId+"&password="+userId);
     $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
@@ -7736,6 +8188,20 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
     //   $scope.navigation_login=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username="+data.results.name+phoneNum.slice(7)+"&password="+data.results.name+phoneNum.slice(7));
     //   $scope.navigation=$sce.trustAsResourceUrl("http://patientdiscuss.haihonghospitalmanagement.com/");
     // })
+    // $scope.$on('$ionicView.enter', function() {
+    //     // RefreshUnread = $interval(GetUnread,2000);
+    // });
+
+
+
+    $scope.$on('$ionicView.leave', function ()
+    {
+        // console.log('destroy');
+        console.log('destroy');
+        $interval.cancel(RefreshUnread);
+    
+    
+    });
 
 }])
 
@@ -7761,21 +8227,24 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
       };
       //$stateParams.counselId
        //获取历史评论
-      if($stateParams.counselId!=undefined&&$stateParams.counselId!=""&&$stateParams.counselId!=null){
-        console.log($stateParams.counselId)
+       // console.log($stateParams);
+    if($stateParams.counselId!=undefined&&$stateParams.counselId!=""&&$stateParams.counselId!=null){
+        // console.log($stateParams.counselId)
         Comment.getCommentsByC({counselId:$stateParams.counselId}).then(function(data){
-          if(data.results.length=0){
-            // //初始化
-            $scope.comment.score=data.results[0].totalScore/2
-            $scope.comment.commentContent=data.results[0].content
-             //评论星星初始化
-             $scope.$broadcast('changeratingstar',$scope.comment.score,true);
-             $scope.editable=true;
-          }
+            // console.log('attention');
+            // console.log(data);
+            if(data.results.length){
+                // //初始化
+                $scope.comment.score=data.results[0].totalScore/2
+                $scope.comment.commentContent=data.results[0].content
+                 //评论星星初始化
+                 $scope.$broadcast('changeratingstar',$scope.comment.score,true);
+                 $scope.editable=true;
+            }
         }, function(err){
           console.log(err)
         })
-      }
+    }
 
 
 
@@ -7787,18 +8256,18 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
       //上传评论-有效性验证
       $scope.deliverComment = function() {
-        if($scope.comment.commentContent.length <10)
-        {
-            $ionicLoading.show({
-              template: '输入字数不足10字',
-              noBackdrop: false,
-              duration: 1000,
-              hideOnStateChange: true
-            });
-        }
+        // if($scope.comment.commentContent.length <10)
+        // {
+        //     $ionicLoading.show({
+        //       template: '输入字数不足10字',
+        //       noBackdrop: false,
+        //       duration: 1000,
+        //       hideOnStateChange: true
+        //     });
+        // }
 
-        else
-        {//20170504 zxf
+        // else
+        // {//20170504 zxf
           Counsels.insertCommentScore({doctorId:$stateParams.doctorId,patientId:$stateParams.patientId,counselId:$stateParams.counselId,totalScore:$scope.comment.score*2,content:$scope.comment.commentContent})
           // Counsels.insertCommentScore({doctorId:"doc01",patientId:"p01",counselId:"counsel01",totalScore:$scope.comment.score,content:$scope.comment.commentContent})
           .then(function(data){
@@ -7819,7 +8288,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
               console.log(err);
           })
           // SetComment();
-        }
+        // }
       };
       // $scope.Goback=function(){
       //   $ionicHistory.goBack();
@@ -7864,6 +8333,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
 
     $scope.deliverAdvice = function(adv){
         // console.log(adv);
+        $scope.hasDeliver = true;
         Advice.postAdvice({userId:Storage.get('UID'),role:"patient",content:adv.content}).then(
             function(data){
                 
@@ -7878,6 +8348,7 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
                     $timeout(function(){$state.go('tab.mine');},900);
                 }
             },function(err){
+                $scope.hasDeliver = false;
                 $ionicLoading.show({
                     template: '提交失败',
                     noBackdrop: false,
@@ -7887,4 +8358,83 @@ angular.module('kidney.controllers', ['ionic','kidney.services','ngResource','io
             })
         
     }
+}])
+.controller('devicesCtrl',['$scope','$ionicPopup','$cordovaBarcodeScanner','Devicedata','Storage', function($scope,$ionicPopup,$cordovaBarcodeScanner,Devicedata,Storage){
+    console.log('deviceCtrl');
+    $scope.deviceList=[{name:"n1"}];
+    var refresh = function()
+    {
+        Devicedata.devices({userId:Storage.get('UID')})
+        .then(function(data){
+            console.log(data);
+            $scope.deviceList=data.results;
+        },function(err){
+            console.log(err);
+        })
+    }
+    refresh();
+    $scope.deleteDevice = function(index)
+    {
+        console.log("delete");
+        Devicedata.BPDeviceDeBinding({appId:'ssgj',sn:$scope.deviceList[index].deviceInfo.sn,imei:$scope.deviceList[index].deviceInfo.imei,userId:Storage.get('UID')})
+        .then(function(succ){
+            console.log(succ);
+            refresh();
+        },function(err){
+            console.log(err);
+        })
+    }
+    $scope.scanbarcode = function () {
+        // console.log(Storage.get("UID"))
+        $cordovaBarcodeScanner.scan().then(function(imageData) {
+            // alert(imageData.text);
+            if(imageData.cancelled)
+                return;
+            $ionicPopup.show({
+                title:'确定绑定此设备？',
+                cssClass:'popupWithKeyboard',
+                buttons:[{
+                    text:'确定',
+                    onTap:function(e){
+                        console.log('ok');
+                        Devicedata.BPDeviceBinding({appId:'ssgj',twoDimensionalCode:imageData.text,userId:Storage.get('UID')})
+                        .then(function(succ){
+                            if(succ.results.requestStatus=="Success")
+                            {
+                                $ionicPopup.alert({
+                                    title: '绑定成功！',
+                                    template: '在设备列表页面向左滑动设备标签可以解除绑定',
+                                    okText:'好的'
+                                });
+                                refresh();
+                            }
+                            else
+                            {
+                                var name=succ.results.substr(0,1)+'*';
+                                $ionicPopup.alert({
+                                    title: '警告',
+                                    template: '该血压计已被'+name+'绑定，需要原使用者解除绑定后您才能绑定该设备',
+                                    okText:'好的'
+                                });
+                            }
+                            console.log(succ);
+                        },function(err){
+                            $ionicPopup.alert({
+                                title: '绑定失败,未知原因',
+                                okText:'好的'
+                            });
+                            console.log(err);
+                        })
+                    }
+                },{
+                    text:'取消',
+                    onTap:function(e){
+                        console.log('cancle');
+                    }
+                }]
+            })
+        }, function(error) {
+            console.log("An error happened -> " + error);
+        });
+    };
 }])
