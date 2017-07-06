@@ -604,6 +604,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                                     )
                 }
                 // 注册论坛
+                //发送http请求，请求的地址是从论坛中抽出来的api
+                //参数：username->用户名->病人端用的是病人UID
+                //     password->密码->密码和用户名一样
+                //     password2->密码的确认->同上
+                //     email->这里随便取得，邮箱的域名不一定有效
+                //     regsubmit、formhash两个参数就这样填就行，forhash参数已经在论坛的代码中被注释掉了，随便填什么都行，它的作用是防止恶意注册
                 $http({
                   method: 'POST',
                   url: 'http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
@@ -8402,7 +8408,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
+  //用来登录论坛,这个对应的iframe标签是隐藏的
   $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username=' + userId + '&password=' + userId)
+  //用来指向论坛首页
   $scope.navigation = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/')
     // Patient.getPatientDetail({userId: Storage.get('UID')})
     // .then(function(data)
