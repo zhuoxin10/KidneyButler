@@ -53,7 +53,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       targetWidth: 1000,
       targetHeight: 1000
     }
-  }
+  },
+  // 咨询时最多能上传多少条健康信息
+  maxHealthNumber: 3
+
 })
 
 // 本地存储函数
