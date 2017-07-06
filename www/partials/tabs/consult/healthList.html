@@ -4,7 +4,7 @@
         <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
       </ion-nav-buttons>
       <ion-nav-buttons  side="right" >
-         <button  id= "healthButton" class="button button-outline" ng-click="SaveHealthList()" > 确定{{selectNumber}}/{{maxNumber}} </button><!--  -->
+         <button  id= "healthButton" class="button button-outline" ng-disabled = "!hasChanged" ng-click="SaveHealthList()" > 确定{{selectNumber}}/{{maxNumber}} </button><!--  -->
       </ion-nav-buttons>
   
 

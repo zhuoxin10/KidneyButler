@@ -6796,7 +6796,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // console.log(121212)
       var confirmPopup = $ionicPopup.confirm({
         title: '删除提示',
-        template: '记录删除后将无法恢复，确认删除？',
+        template: '记录删除后将无法恢复，\'我的\'健康信息中的记录也会同时被删除，确认删除？',
         cancelText: '取消',
         okText: '删除'
       })
@@ -7622,6 +7622,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.items = new Array()// HealthInfo.getall();
   var healthCache = angular.fromJson(Storage.get('consulthealthinfo')) ? angular.fromJson(Storage.get('consulthealthinfo')) : []
+  var cushion = false // 缓冲一下，别刚选中第3条时就出现弹窗提示
   var RefreshHealthRecords = function () {
     $scope.noHealth = false
 
@@ -7654,16 +7655,18 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         }
       )
   }
-
+  
   $scope.$on('$ionicView.enter', function () {
     $scope.maxNumber = CONFIG.maxHealthNumber
     $scope.selectNumber = healthCache.length
     $scope.overflow = ($scope.selectNumber >= CONFIG.maxHealthNumber)
+    cushion = ($scope.selectNumber >= CONFIG.maxHealthNumber)
     RefreshHealthRecords()
   })
 
   
   $scope.selectOrdeselect = function (itemId, selected) {
+    $scope.hasChanged = true
     if (selected) {
       healthCache.push({time: itemId})
       ++$scope.selectNumber
@@ -7682,7 +7685,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 保存的时候才用
   }
 
-  var cushion = false // 缓冲一下，别刚选中第3条时就出现弹窗提示
+  
   $scope.popAlert = function (selectNumber) {
     if (selectNumber >= CONFIG.maxHealthNumber) {
       if (cushion) {
