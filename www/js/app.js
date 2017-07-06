@@ -7,7 +7,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
 .run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   $ionicPlatform.ready(function () {
-    // version.checkUpdate($rootScope);
+    version.checkUpdate($rootScope)
+
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
     $rootScope.conversation = {
@@ -92,7 +93,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 })
 
 // --------路由, url模式设置----------------
-.config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider, $httpProvider) {
+
+.config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -251,42 +253,17 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         }
       }
     })
-    // .state('tab.consultquestion1', {
-    //   url: '/consultquestion1',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion1.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
-    // .state('tab.consultquestion2', {
-    //   url: '/consultquestion2',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion2.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
-    // .state('tab.consultquestion3', {
-    //   url: '/consultquestion3',
-    //   params:{DoctorId:null,counselType:null},
-    //   views: {
-    //     'tab-consult': {
-    //       cache:false,
-    //       templateUrl: 'partials/tabs/consult/consultquestion3.html',
-    //       controller: 'consultquestionCtrl'
-    //     }
-    //   },
-    //   // params:{DoctorId:null}
-    // })
+    .state('tab.healthList', {
+      url: '/healthList',
+      views: {
+        'tab-consult': {
+          cache: true,
+          templateUrl: 'partials/tabs/consult/healthList.html',
+          controller: 'healthListCtrl'
+        }
+      }
+      // params:{DoctorId:null}
+    })
 
     .state('tab.mine', {
       url: '/mine',
@@ -374,9 +351,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
           templateUrl: 'partials/tabs/mine/advice.html',
           controller: 'adviceCtrl'
         }
-
       }
-
     })
     .state('tab.changePassword', {
       cache: false,
