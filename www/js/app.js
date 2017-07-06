@@ -8,6 +8,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 .run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   $ionicPlatform.ready(function () {
     version.checkUpdate($rootScope)
+
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
     $rootScope.conversation = {
@@ -92,6 +93,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 })
 
 // --------路由, url模式设置----------------
+
 .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -349,9 +351,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
           templateUrl: 'partials/tabs/mine/advice.html',
           controller: 'adviceCtrl'
         }
-
       }
-
     })
     .state('tab.changePassword', {
       cache: false,
