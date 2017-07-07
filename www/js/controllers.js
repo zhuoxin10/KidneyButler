@@ -1679,6 +1679,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             'unit': task.Unit
           }
         }
+        // debugger
         InsertVitalSign(temp)
       }
     }
@@ -1904,10 +1905,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   function InsertVitalSign (task) {
     var promise = VitalSign.insertVitalSign(task)
     promise.then(function (data) {
+      console.log(data)
+      // debugger
       if (data.results) {
         console.log(data.results)
       }
-    }, function () {
+    }, function (err) {
+      console.log(err)
     })
   }
 
