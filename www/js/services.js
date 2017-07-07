@@ -312,7 +312,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var insurance = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'insurance'}, {
-      setPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000},
+      setPrefer: {method: 'POST', params: {route: 'prefer'}, timeout: 100000},
       getPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
 
     })
@@ -397,7 +397,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var VitalSign = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'vitalSign'}, {
       getVitalSigns: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 100000},
-      insertVitalSign: {method: 'POST', params: {route: 'vitalSigns'}, timeout: 100000}
+      insertVitalSign: {method: 'POST', params: {route: 'vitalSign'}, timeout: 100000}
     })
   }
 

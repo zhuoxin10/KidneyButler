@@ -1679,6 +1679,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             'unit': task.Unit
           }
         }
+        // debugger
         InsertVitalSign(temp)
       }
     }
@@ -1904,10 +1905,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   function InsertVitalSign (task) {
     var promise = VitalSign.insertVitalSign(task)
     promise.then(function (data) {
+      console.log(data)
+      // debugger
       if (data.results) {
         console.log(data.results)
       }
-    }, function () {
+    }, function (err) {
+      console.log(err)
     })
   }
 
@@ -5493,6 +5497,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   Mywechat.addOrder(neworder).then(function (orderdata) {
                     if (orderdata.results.status === 1) {
                       ionicLoadinghide()
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000
+                      })
                       /**
                        * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                        * @Author   ZXF
@@ -5842,8 +5850,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                      * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                      */
                     Mywechat.addOrder(neworder).then(function (orderdata) {
+                      // alert(JSON.stringify(orderdata))
                       if (orderdata.results.status === 1) {
                         ionicLoadinghide()
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration: 1000
+                        })
                         q.all([
                           /**
                            * *患者咨询医生 给医生账户‘转账’
@@ -6654,6 +6667,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   Mywechat.addOrder(neworder).then(function (orderdata) {
                     if (orderdata.results.status === 1) {
                       ionicLoadinghide()
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000
+                      })
                       /**
                        * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                        * @Author   ZXF
@@ -7006,6 +7023,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     Mywechat.addOrder(neworder).then(function (orderdata) {
                       if (orderdata.results.status === 1) {
                         ionicLoadinghide()
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration: 1000
+                        })
                         $q.all([
                           /**
                            * *患者咨询医生 给医生账户‘转账’
@@ -8240,16 +8261,18 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return sortNo
   }
   $scope.submit = function () {
-    $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
-    $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
-    $scope.BasicInfo.hypertension = $scope.BasicInfo.hypertension.Type
-    if ($scope.BasicInfo.class.typeName == 'ckd5期未透析') {
-      $scope.BasicInfo.class_info = null
-    } else if ($scope.BasicInfo.class_info != null) {
-      $scope.BasicInfo.class_info = $scope.BasicInfo.class_info.code
+    // 非引用赋值，避免保存时更改了选择输入select的值时对应项显示空白
+    var userInfo = $.extend(true, {}, $scope.BasicInfo)
+    userInfo.gender = userInfo.gender.Type
+    userInfo.bloodType = userInfo.bloodType.Type
+    userInfo.hypertension = userInfo.hypertension.Type
+    if (userInfo.class.typeName == 'ckd5期未透析') {
+      userInfo.class_info = null
+    } else if (userInfo.class_info != null) {
+      userInfo.class_info = userInfo.class_info.code
     }
-    $scope.BasicInfo.class = $scope.BasicInfo.class.type
-    Patient.editPatientDetail($scope.BasicInfo).then(function (data) {
+    userInfo.class = userInfo.class.type
+    Patient.editPatientDetail(userInfo).then(function (data) {
                     // 保存成功
       console.log($scope.BasicInfo)
             // console.log(data.results);
