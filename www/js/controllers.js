@@ -5479,6 +5479,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   Mywechat.addOrder(neworder).then(function (orderdata) {
                     if (orderdata.results.status === 1) {
                       ionicLoadinghide()
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000
+                      })
                       /**
                        * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                        * @Author   ZXF
@@ -5831,6 +5835,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                       // alert(JSON.stringify(orderdata))
                       if (orderdata.results.status === 1) {
                         ionicLoadinghide()
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration: 1000
+                        })
                         q.all([
                           /**
                            * *患者咨询医生 给医生账户‘转账’
@@ -6641,6 +6649,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   Mywechat.addOrder(neworder).then(function (orderdata) {
                     if (orderdata.results.status === 1) {
                       ionicLoadinghide()
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000
+                      })
                       /**
                        * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                        * @Author   ZXF
@@ -6993,6 +7005,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     Mywechat.addOrder(neworder).then(function (orderdata) {
                       if (orderdata.results.status === 1) {
                         ionicLoadinghide()
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration: 1000
+                        })
                         $q.all([
                           /**
                            * *患者咨询医生 给医生账户‘转账’
