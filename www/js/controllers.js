@@ -74,7 +74,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *          err
          */
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
-          console.log(data)
           if (data.results == 1) {
             $scope.logStatus = '账号密码错误！'
           } else if (data.results.mesg == 'login success!') {
