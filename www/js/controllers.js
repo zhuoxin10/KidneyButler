@@ -604,8 +604,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                                     )
                 }
                 // 注册论坛
-                //发送http请求，请求的地址是从论坛中抽出来的api
-                //参数：username->用户名->病人端用的是病人UID
+                // 发送http请求，请求的地址是从论坛中抽出来的api
+                // 参数：username->用户名->病人端用的是病人UID
                 //     password->密码->密码和用户名一样
                 //     password2->密码的确认->同上
                 //     email->这里随便取得，邮箱的域名不一定有效
@@ -3404,6 +3404,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.timer = []
     $scope.photoUrls = {}
     $scope.msgs = []
+    $scope.imgIndex = 0  // 当前显示的图片在消息队列中的位置
+    $scope.imgPosition = 0
     $scope.params = {
       msgCount: 0,
       helpDivHeight: 0,
@@ -3530,7 +3532,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     console.log(args)
     event.stopPropagation()
     $scope.imageHandle.zoomTo(1, true)
-    $scope.imageUrl = args[2].localPath || (CONFIG.mediaUrl + (args[2].src || args[2].src_thumb))
+    $scope.imgIndex = $scope.msgs.indexOf(args[2])
+    $scope.imgPosition = $scope.imgIndex
+    $scope.imageUrl = args[2].content.localPath || (CONFIG.mediaUrl + (args[2].content.src || args[2].content.src_thumb))
     $scope.modal.show()
   })
   // 点击语音
@@ -3700,6 +3704,32 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.switchZoomLevel = function () {
     if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin) { $scope.imageHandle.zoomTo(1, true) } else {
       $scope.imageHandle.zoomTo(5, true)
+    }
+  }
+  $scope.onSwipeRight = function () {
+    if ($scope.imageHandle.getScrollPosition().zoom === $scope.zoomMin) {  // 没有缩放时才允许切换
+      $scope.imgIndex--
+      if ($scope.imgIndex >= 0) {
+        if ($scope.msgs[$scope.imgIndex].contentType === 'image') {
+          $scope.imgPosition = $scope.imgIndex
+          $scope.imageUrl = (CONFIG.mediaUrl + ($scope.msgs[$scope.imgIndex].content.src || $scope.msgs[$scope.imgIndex].content.src_thumb))
+        } else {
+          $scope.onSwipeRight()
+        }
+      } else { $scope.imgIndex = $scope.imgPosition }
+    }
+  }
+  $scope.onSwipeLeft = function () {
+    if ($scope.imageHandle.getScrollPosition().zoom === $scope.zoomMin) {  // 没有缩放时才允许切换
+      $scope.imgIndex++
+      if ($scope.imgIndex < $scope.msgs.length) {
+        if ($scope.msgs[$scope.imgIndex].contentType === 'image') {
+          $scope.imgPosition = $scope.imgIndex
+          $scope.imageUrl = (CONFIG.mediaUrl + ($scope.msgs[$scope.imgIndex].content.src || $scope.msgs[$scope.imgIndex].content.src_thumb))
+        } else {
+          $scope.onSwipeLeft()
+        }
+      } else { $scope.imgIndex = $scope.imgPosition }
     }
   }
 
@@ -5062,7 +5092,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    */
   $scope.question = function (DoctorId, docname, charge1, charge2) {
     console.log(docname)
-    
+
     /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
@@ -8426,9 +8456,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
-  //用来登录论坛,这个对应的iframe标签是隐藏的
+  // 用来登录论坛,这个对应的iframe标签是隐藏的
   $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username=' + userId + '&password=' + userId)
-  //用来指向论坛首页
+  // 用来指向论坛首页
   $scope.navigation = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/')
     // Patient.getPatientDetail({userId: Storage.get('UID')})
     // .then(function(data)
