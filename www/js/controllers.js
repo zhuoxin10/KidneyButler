@@ -603,8 +603,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                                     )
                 }
                 // 注册论坛
-                //发送http请求，请求的地址是从论坛中抽出来的api
-                //参数：username->用户名->病人端用的是病人UID
+                // 发送http请求，请求的地址是从论坛中抽出来的api
+                // 参数：username->用户名->病人端用的是病人UID
                 //     password->密码->密码和用户名一样
                 //     password2->密码的确认->同上
                 //     email->这里随便取得，邮箱的域名不一定有效
@@ -5065,7 +5065,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    */
   $scope.question = function (DoctorId, docname, charge1, charge2) {
     console.log(docname)
-    
+
     /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
@@ -7484,30 +7484,59 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 .controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory', 'insurance', 'Storage', '$filter', '$ionicPopup', function ($scope, $state, $ionicHistory, insurance, Storage, $filter, $ionicPopup) {
   var show = false
 
+  /**
+   * [点击后显示菜单]
+   * @Author   TongDanyang
+   * @DateTime 2017-07-09
+   * @return   {Boolean}   [description]
+   */
   $scope.isShown = function () {
     return show
   }
-
+  /**
+   * [再次点击后收回菜单]
+   * @Author   TongDanyang
+   * @DateTime 2017-07-09
+   * @return   {[type]}    [description]
+   */
   $scope.toggle = function () {
     show = !show
   }
 
-  $scope.intension = function () {
-    $state.go('intension')
-  }
+  // $scope.intension = function () {
+  //   $state.go('intension')
+  // }
 
+  /**
+   * [跳转至保费计算页面]
+   * @Author   TongDanyang
+   * @DateTime 2017-07-09
+   * @return   {[type]}    [description]
+   */
   $scope.expense = function () {
     $state.go('insuranceexpense')
   }
-
+  /**
+   * [跳转至肾功能计算页面]
+   * @Author   TongDanyang
+   * @DateTime 2017-07-09
+   * @return   {[type]}    [description]
+   */
   $scope.kidneyfunction = function () {
     $state.go('kidneyfunction')
   }
 
-  $scope.staff = function () {
-    $state.go('insurancestafflogin')
-  }
+  // $scope.staff = function () {
+  //   $state.go('insurancestafflogin')
+  // }
 
+  /**
+   * [提交保险意向，点击后会将患者ID及点击时间存到后台]
+   * @Author   TongDanyang
+   * @DateTime 2017-07-09
+   * @param    {[object]}  temp [包括患者的ID及点击的时间]
+   * @return   {[type]}    [description]
+   */
   $scope.submitintension = function () {
     var time = new Date()
     time = $filter('date')(time, 'yyyy-MM-dd HH:mm:ss')
@@ -7534,13 +7563,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
   }
 
-  $scope.cancel = function () {
-    $state.go('insurance')
-  }
+  // $scope.cancel = function () {
+  //   $state.go('insurance')
+  // }
 }])
 
 // 肾病保险相关工具--TDY
 .controller('insurancefunctionCtrl', ['$scope', '$state', '$http', '$ionicPopup', function ($scope, $state, $http, $ionicPopup) {
+  /*
+  保费计算页面数据初始化
+   */
   $scope.InsuranceInfo = {
     'InsuranceAge': 25,
     'Gender': 'NotSelected',
@@ -7550,7 +7582,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     'InsuranceExpense': 0,
     'InsuranceParameter': 0
   }
-
+  /*
+  肾功能计算页面数据初始化
+   */
   $scope.Kidneyfunction = {
     'Gender': 'NotSelected',
     'Age': null,
@@ -7558,7 +7592,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     'Creatinine': null,
     'KidneyfunctionValue': 0
   }
-
+  /*
+  获取本地保险年龄列表
+   */
   $http.get('data/insruanceage1.json').success(function (data) {
     $scope.InsuranceAges = data
   })
@@ -7611,10 +7647,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'Type': 'μmol/L'
     }
   ]
-
+  /*
+  获取本地保费计算系数
+   */
   $http.get('data/InsuranceParameter.json').success(function (data) {
     dict = data
   })
+  /*
+  根据患者填写的数据计算保费
+   */
   $scope.getexpense = function () {
     if ($scope.InsuranceInfo.Gender == 'NotSelected') {
       alert('请选择性别')
@@ -7654,7 +7695,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }
     }
   }
-
+  /*
+  重置保费计算相关数据
+   */
   $scope.resetexpense = function () {
     $scope.InsuranceInfo = {
       'InsuranceAge': 25,
@@ -7665,6 +7708,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'InsuranceExpense': 0
     }
   }
+  /*
+  根据保险年限读取不同的年龄列表
+   */
   $scope.changeAge = function () {
     if ($scope.InsuranceInfo.InsuranceTime == '5年') {
       $http.get('data/insuranceage1.json').success(function (data) {
@@ -7676,6 +7722,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     }
   }
+  /*
+  根据患者填写的数据计算肾功能
+   */
   $scope.getkidneyfunction = function () {
     if ($scope.Kidneyfunction.Age == null) {
       alert('请输入年龄')
@@ -7731,7 +7780,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       ]
     })
   }
-
+  /*
+  重置肾功能计算页面数据
+   */
   $scope.resetkidneyfunction = function () {
     $scope.Kidneyfunction = {
       'Gender': 'NotSelected',
@@ -7743,7 +7794,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
-// 肾病保险工作人员--TDY
+// 肾病保险工作人员--TDY  暂时不用了
 .controller('insurancestaffCtrl', ['$scope', '$state', function ($scope, $state) {
   $scope.intensions =
   [
@@ -8448,9 +8499,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
-  //用来登录论坛,这个对应的iframe标签是隐藏的
+  // 用来登录论坛,这个对应的iframe标签是隐藏的
   $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username=' + userId + '&password=' + userId)
-  //用来指向论坛首页
+  // 用来指向论坛首页
   $scope.navigation = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/')
     // Patient.getPatientDetail({userId: Storage.get('UID')})
     // .then(function(data)
