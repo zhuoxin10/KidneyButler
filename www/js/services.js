@@ -24,6 +24,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
 // 客户端配置
 .constant('CONFIG', {
+
+  // 测试服务器地址
+  // baseUrl: 'http://121.43.107.106:4060/',
+  // mediaUrl: 'http://121.43.107.106:4060/',
+  // socketServer: 'ws://121.43.107.106:4060/',
+  // imgThumbUrl: 'http://121.43.107.106:4060/uploads/photos/resize',
+  // imgLargeUrl: 'http://121.43.107.106:4060/uploads/photos/',
+  // NiaodaifuUrl: 'https://open.niaodaifu.cn/wap',
     // 正式服务器地址
 
   baseUrl: 'http://appserviceserver.haihonghospitalmanagement.com/api/v1/',
@@ -31,6 +39,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   socketServer: 'ws://appserviceserver.haihonghospitalmanagement.com/',
   imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
   imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
+  NiaodaifuUrl: 'https://open.niaodaifu.cn/',
 
   cameraOptions: {
     cam: {
@@ -454,7 +463,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     return $resource(CONFIG.baseUrl + ':path/:route/:op', {path: 'devicedata'}, {
       devices: {method: 'GET', params: {route: 'devices'}, timeout: 10000},
       BPDeviceBinding: {method: 'POST', params: {route: 'BPDevice', op: 'binding'}, timeout: 10000},
-      BPDeviceDeBinding: {method: 'POST', params: {route: 'BPDevice', op: 'debinding'}, timeout: 10000}
+      BPDeviceDeBinding: {method: 'POST', params: {route: 'BPDevice', op: 'debinding'}, timeout: 10000},
+      urineConnect: {method: 'GET', url: 'http://121.43.107.106:4060/' + ':path/:route/:op', params: {route: 'niaodaifu', op: 'loginparam'}, timeout: 10000}
+    })
+  }
+
+  var urineDoctor = function () {
+    return $resource(CONFIG.NiaodaifuUrl + ':path/:route', {path: 'wap'}, {
+      LogIn: {method: 'GET', params: {route: 'login'}, timeout: 10000}
     })
   }
   serve.abort = function ($scope) {
@@ -482,6 +498,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Mywechat = Mywechat()
       serve.Communication = Communication()
       serve.devicedata = Devicedata()
+      serve.urineDoctor = urineDoctor()
     }, 0, 1)
   }
   serve.Dict = Dict()
@@ -505,6 +522,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Mywechat = Mywechat()
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
+  serve.urineDoctor = urineDoctor()
   return serve
 }])
 
@@ -555,9 +573,44 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
         )
     return deferred.promise
   }
+ // params->{client:'Android',userbind:'U201705170001',redirect_uri:'http://10.12.43.28:8100/#/tab/mine/devices/'}
+  self.urineConnect = function (params) {
+    var deferred = $q.defer()
+    Data.Devicedata.urineConnect(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
 
   return self
 }])
+
+.factory('urineDoctor', ['$q', 'Data', function ($q, Data) {
+  var self = this
+
+    // params->{appkey:"Ge4WtrsZc2",sign:"9a5ad635ff39bbbbaed3adc8fd70888b",atime:"1499666974",userbind:"U201705170001",mode:1,redirect_uri:"http://121.43.107.106:4060"}
+  self.LogIn = function (params) {
+    var deferred = $q.defer()
+    Data.urineDoctor.LogIn(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  return self
+}])
+
 .factory('Dict', ['$q', 'Data', function ($q, Data) {
   var self = this
     // params->{

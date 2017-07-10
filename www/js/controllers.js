@@ -3998,7 +3998,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 健康信息--PXY
-.controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict', function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict) {
+.controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover) {
   var patientId = Storage.get('UID')
 
   $scope.Goback = function () {
@@ -4091,8 +4091,42 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
   }
 
+
+  $ionicPopover.fromTemplateUrl('partials/pop/newHealthPopover.html', {
+    scope: $scope,
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+
+  $scope.openPopover = function($event) {
+    $scope.popover.show($event);
+  };
+  $scope.closePopover = function() {
+    $scope.popover.hide();
+  };
+  //Cleanup the popover when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.popover.remove();
+  });
+  // Execute action on hide popover
+  $scope.$on('popover.hidden', function() {
+    // Execute action
+  });
+  // Execute action on remove popover
+  $scope.$on('popover.removed', function() {
+    // Execute action
+  });
+
   $scope.newHealth = function () {
+    $scope.closePopover()
     $state.go('tab.myHealthInfoDetail', {id: null, caneidt: true})
+  }
+
+  $scope.urineUpload = function(){
+    $scope.closePopover()
+    $state.go('tab.urineDoctor')
+
   }
 
   // $scope.EditHealth = function(editId){
@@ -4100,6 +4134,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   //   console.log(editId);
   //   $state.go('tab.myHealthInfoDetail',{id:editId});
   // }
+}])
+
+.controller('urineDoctorCtrl', ['$scope', '$state', 'Storage','Devicedata', '$sce',function ( $scope, $state, Storage,Devicedata,$sce) {
+   Devicedata.urineConnect({client:'Android',userbind:Storage.get('UID')}).then(function(data){
+    var ssss="https://open.niaodaifu.cn/wap/login?appkey=Ge4WtrsZc2&sign="+data.results.sign+"&atime="+data.results.atime+"&userbind="+Storage.get('UID')+"&mode=1"
+    $scope.navigation = $sce.trustAsResourceUrl(ssss)
+    console.log(data)
+  },function(err){
+    console.log(err)
+  })
+
 }])
 
 // 健康详情--PXY
@@ -8671,7 +8716,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
   }
 }])
-.controller('devicesCtrl', ['$scope', '$ionicPopup', '$cordovaBarcodeScanner', 'Devicedata', 'Storage', function ($scope, $ionicPopup, $cordovaBarcodeScanner, Devicedata, Storage) {
+.controller('devicesCtrl', ['$http','$scope', '$ionicPopup', '$cordovaBarcodeScanner', 'Devicedata', 'Storage', function ($http,$scope, $ionicPopup, $cordovaBarcodeScanner, Devicedata, Storage) {
   console.log('deviceCtrl')
   $scope.deviceList = [{name: 'n1'}]
   var refresh = function () {
@@ -8694,6 +8739,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           console.log(err)
         })
   }
+
+ 
+
   $scope.scanbarcode = function () {
         // console.log(Storage.get("UID"))
     $cordovaBarcodeScanner.scan().then(function (imageData) {

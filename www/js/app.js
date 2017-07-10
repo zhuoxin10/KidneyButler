@@ -322,6 +322,17 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       }
 
     })
+    .state('tab.urineDoctor', {
+      url: '/mine/urineDoctor',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/urineDoctor.html',
+          controller: 'urineDoctorCtrl'
+        }
+
+      }
+
+    })
      .state('tab.myMoney', {
        url: '/mine/Account/',
        views: {
