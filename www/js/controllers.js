@@ -604,8 +604,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                                     )
                 }
                 // 注册论坛
-                //发送http请求，请求的地址是从论坛中抽出来的api
-                //参数：username->用户名->病人端用的是病人UID
+                // 发送http请求，请求的地址是从论坛中抽出来的api
+                // 参数：username->用户名->病人端用的是病人UID
                 //     password->密码->密码和用户名一样
                 //     password2->密码的确认->同上
                 //     email->这里随便取得，邮箱的域名不一定有效
@@ -4756,8 +4756,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 医生列表--PXY
 
 .controller('DoctorCtrl', ['$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function ($interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
+  /**
+   * [获取新消息]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   var GetUnread = function () {
-        // console.log(new Date());
+    /**
+     * [从数据库获取未读消息，如果有页面右上角铃铛则显示红点提示]
+     * @Author   PXY
+     * @DateTime 2017-07-10
+     * @param    {userId：String,readOrNot:Number,userRole:String} 注：readOrNot为0表示未读消息，为1则为已读消息；userRole为接收客户端
+     * @return data:Array
+     *         err
+     */
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
             function (data) {
                 // console.log(data);
@@ -4771,27 +4783,44 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log(err)
     })
   }
-
+  /**
+   * [消息轮询启动，每隔2s获取是否有未读消息]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.$on('$ionicView.enter', function () {
+    // 在我的医生页面才启动
     if ($ionicHistory.currentView().stateId === 'tab.myDoctors') {
-      console.log('enter')
+      // console.log('enter')
       RefreshUnread = $interval(GetUnread, 2000)
     }
   })
-
+  /**
+   * [消息轮询取消]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
+      // // 在我的医生页面才取消
     if ($ionicHistory.currentView().stateId !== 'tab.myDoctors') {
-      console.log('destroy')
+      // console.log('destroy')
       $interval.cancel(RefreshUnread)
     }
   })
     // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
+    /**
+     * [获取患者个人信息]
+     * @Author   PXY
+     * @DateTime 2017-07-10
+     * @param {userId:String}
+     * @return data:{results:Object/String}  注：如果填了个人信息返回的为对象，如果没填则为字符串
+     */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      console.log(data)
+      // console.log(data)
       if (data.results == '没有填写个人信息') {
-        console.log('123')
+        // console.log('123')
         $scope.DisabledConsult = true
         var unComPatPopup = $ionicPopup.show({
           title: '温馨提示',
@@ -4822,25 +4851,41 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
    // 清空搜索框
   $scope.searchCont = {}
-
+  /**
+   * [点击返回，返回我的医生页面]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.Goback = function () {
     $state.go('tab.myDoctors')
     // console.log($ionicHistory.backView())
     // console.log(123);
     // $ionicHistory.goBack();
   }
+
   $scope.alldoctortype = '88px'
   if (ionic.Platform.isIOS()) {
     $scope.alldoctortype = '108px'
   }
-
+  /**
+   * [点击搜索框的删除键，清空搜索内容，并重新获取医生列表]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.clearSearch = function () {
     $scope.searchCont = {}
         // 清空之后获取所有医生
     ChangeSearch()
   }
 
-    // 获取我的主管医生信息
+  /**
+   * [获取我的主管医生信息,如果有则绑定页面数据，如果没有则显示没有主管医生]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param {userId:String}
+   * @return   data:{results:{doctorId:{userId:String,name:String,title:String,department:String,......}}}
+   *           err
+   */
   var mydoc = function () {
     Patient.getMyDoctors({userId: Storage.get('UID')}).then(
         function (data) {
@@ -4849,11 +4894,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               // console.log(111)
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
-              // if($ionicHistory.currentView().stateName=='tab.myDoctors'){
-              //   $ionicLoading.show({
-              //     template: '没有绑定的医生', duration: 1000
-              // });
-              // }
           } else {
             $scope.hasDoctor = false
           }
@@ -4890,19 +4930,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log('An error happened -> ' + error)
     })
   }
-
+  // 页面基本信息初始化
   $scope.Provinces = {}
   $scope.Cities = {}
     // $scope.Districts={};
   $scope.Hospitals = {}
-
   $scope.doctors = []
   $scope.doctor = ''
   $scope.moredata = true
-
   var pagecontrol = {skip: 0, limit: 10}
   var alldoctors = new Array()
-
+  /**
+   * [获取所有省份]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param    {level:Number} 注：level为1查询所有省份
+   * @return   data:{results:[{_id: String,code: String,province: String,city:String,district: String,name: String,level: Number},...,{}]}
+   */
   Dict.getDistrict({level: 1}).then(
         function (data) {
           $scope.Provinces = data.results
@@ -4911,39 +4955,53 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           console.log(err)
         }
     )
-
+  /**
+   * [分页显示，主要由skip参数控制，表示从第几条开始读取limit条记录，ion-infinite-scroll控件触发]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param     {province: String, city: String, workUnit: String, name: String} 注：搜索及筛选的参数
+   */
   $scope.loadMore = function (params) {
         // $scope.$apply(function() {
     console.log('i am  loadMore')
     if (!params) {
       params = {province: '', city: '', workUnit: '', name: ''}
     }
-        // console.log(params);
-    Patient.getDoctorLists({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name})
-            .then(function (data) {
-              console.log(data.results)
-              $scope.$broadcast('scroll.infiniteScrollComplete')
+    /**
+     * [获取医生列表]
+     * @Author   PXY
+     * @DateTime 2017-07-10
+     * @param    {skip: Number, limit: Number, province: String, city: String, workUnit: String, name：String}
+     * @return   data:{results:[{name:String,userId:String,title:String,workUnit:String,...},..,{}]}
+     *           err
+     */
+    Patient.getDoctorLists({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name}).then(function (data) {
+      // console.log(data.results)
+      $scope.$broadcast('scroll.infiniteScrollComplete')
 
-              alldoctors = alldoctors.concat(data.results)
-              $scope.doctors = alldoctors
-              if (alldoctors.length == 0) {
-                console.log('aaa')
-                $ionicLoading.show({
-                  template: '没有医生', duration: 1000
-                })
-              }
+      alldoctors = alldoctors.concat(data.results)
+      $scope.doctors = alldoctors
+      if (alldoctors.length == 0) {
+        console.log('aaa')
+        $ionicLoading.show({
+          template: '没有医生', duration: 1000
+        })
+      }
                 // $scope.nexturl=data.nexturl;
-              var skiploc = data.nexturl.indexOf('skip')
-              pagecontrol.skip = data.nexturl.substring(skiploc + 5)
-              console.log(pagecontrol.skip)
-              if (data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
-            }, function (err) {
-              console.log(err)
-            })
+      var skiploc = data.nexturl.indexOf('skip')
+      pagecontrol.skip = data.nexturl.substring(skiploc + 5)
+      console.log(pagecontrol.skip)
+      if (data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
+    }, function (err) {
+      console.log(err)
+    })
   }
 
-    // $scope.loadMore();
-
+  /**
+   * [更改筛选或搜索条件之后重新读取医生列表]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   var ChangeSearch = function () {
     pagecontrol = {skip: 0, limit: 10}
     alldoctors = new Array()
@@ -4957,19 +5015,35 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var params = {province: _province, city: _city, workUnit: _hospital, name: ($scope.searchCont.t || '')}
     $scope.loadMore(params)
   }
-
+  /**
+   * [搜索内容变化后待用changeSearch]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.search = function () {
         // console.log("清空了");
     ChangeSearch()
   }
-
+  /**
+   * [选中省份之后获取该省份所有城市,把城市、医院的筛选条件清空，根据更改后的条件获取医生列表]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param    province:{_id: String, code: String, province: String, city: String, district: String,name:String,level:Number}
+   */
   $scope.getCity = function (province) {
-    console.log(province)
+    // console.log(province)
     if (province != null) {
-      Dict.getDistrict({level: '2', province: province.province, city: ''}).then(
+      /**
+       * [从数据库获取某省份的所有城市]
+       * @Author   PXY
+       * @DateTime 2017-07-10
+       * @param    {level: Number, province:String, city: String}
+       * @return   data:{[{_id: String, code: String, province: String, city: String, district: String,name:String,level:Number},..,{}]}
+       */
+      Dict.getDistrict({level: 2, province: province.province, city: ''}).then(
               function (data) {
                 $scope.Cities = data.results
-                // console.log($scope.Cities);
+                // console.log($scope.Cities)
               },
               function (err) {
                 console.log(err)
@@ -4985,12 +5059,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.Hospital = ''
     ChangeSearch()
   }
-
+  /**
+   * [根据选中省份，城市获取该地区的所有医院，把医院的筛选条件清空，根据更改后的条件获取医生列表]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param    province:{_id: String, code: String, province: String, city: String, district: String,name:String,level:Number}
+   * @param    city:{_id: String, code: String, province: String, city: String, district: String,name:String,level:Number}
+   */
   $scope.getHospital = function (province, city) {
     console.log(city)
     if (city != null) {
+      /**
+       * [根据选中省份，城市获取该地区的所有医院]
+       * @Author   PXY
+       * @DateTime 2017-07-10
+       * @param    {province:String,city:String}
+       * @return   data:{[{city:String,hospitalName:String,province:String,_id:String},..,{}]}            [description]
+       */
       Dict.getHospital({province: province.name, city: city.name}).then(
           function (data) {
+            console.log(data)
             $scope.Hospitals = data.results
           },
           function (err) {
@@ -5019,10 +5107,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var ionicLoadinghide = function () {
     $ionicLoading.hide()
   }
+  /**
+   * [根据选中医院，重新获取医生列表]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   * @param    hospital：{city:String,hospitalName:String,province:String,_id:String}
+   */
   $scope.getDoctorByHospital = function (hospital) {
     ChangeSearch()
   }
-
+  /**
+   * [点击更多医生跳转到医生列表页面]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.allDoctors = function () {
     $state.go('tab.AllDoctors')
     // $scope.loadMore()
@@ -5044,7 +5142,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    */
   $scope.question = function (DoctorId, docname, charge1, charge2) {
     console.log(docname)
-    
+
     /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
@@ -6185,7 +6283,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
       })
   }
-
+  /**
+   * [点击医生卡片，跳转医生详情页面传参（医生的userId）]
+   * @Author   PXY
+   * @DateTime 2017-07-10
+   */
   $scope.getDoctorDetail = function (id) {
     $state.go('tab.DoctorDetail', {DoctorId: id})
   }
@@ -8408,9 +8510,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
-  //用来登录论坛,这个对应的iframe标签是隐藏的
+  // 用来登录论坛,这个对应的iframe标签是隐藏的
   $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=login&loginsubmit=yes&loginhash=$loginhash&mobile=2&username=' + userId + '&password=' + userId)
-  //用来指向论坛首页
+  // 用来指向论坛首页
   $scope.navigation = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/')
     // Patient.getPatientDetail({userId: Storage.get('UID')})
     // .then(function(data)
