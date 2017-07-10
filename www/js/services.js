@@ -26,11 +26,21 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 .constant('CONFIG', {
     // 正式服务器地址
 
-  baseUrl: 'http://appserviceserver.haihonghospitalmanagement.com/api/v1/',
-  mediaUrl: 'http://appmediaservice.haihonghospitalmanagement.com/',
-  socketServer: 'ws://appserviceserver.haihonghospitalmanagement.com/',
-  imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
-  imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
+  baseUrl: 'https://appserviceserver.haihonghospitalmanagement.com/api/v1/',
+  mediaUrl: 'https://appmediaservice.haihonghospitalmanagement.com/',
+  socketServer: 'https://appserviceserver.haihonghospitalmanagement.com/',
+  imgThumbUrl: 'https://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
+  imgLargeUrl: 'https://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
+  // baseUrl: 'http://121.196.221.44:4060/api/v1/',
+  // mediaUrl: 'http://121.196.221.44:8055/',
+  // socketServer: 'ws://121.196.221.44:4060/',
+  // imgThumbUrl: 'http://121.196.221.44:8055/uploads/photos/resize',
+  // imgLargeUrl: 'http://121.196.221.44:8055/uploads/photos/',
+  // baseUrl: 'http://appserviceserver.haihonghospitalmanagement.com/api/v1/',
+  // mediaUrl: 'http://appmediaservice.haihonghospitalmanagement.com/',
+  // socketServer: 'http://appserviceserver.haihonghospitalmanagement.com/',
+  // imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
+  // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
 
   cameraOptions: {
     cam: {
@@ -241,7 +251,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
         }
             // var q = $q.defer();
             // console.log("jinlaile");
-        $cordovaFileTransfer.upload(uri, imgURI, options)
+        $cordovaFileTransfer.upload(uri, imgURI, options,true)
               .then(function (r) {
                 console.log('Code = ' + r.responseCode)
                 console.log('Response = ' + r.response)
@@ -302,7 +312,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var insurance = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'insurance'}, {
-      setPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000},
+      setPrefer: {method: 'POST', params: {route: 'prefer'}, timeout: 100000},
       getPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
 
     })
@@ -387,7 +397,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var VitalSign = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'vitalSign'}, {
       getVitalSigns: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 100000},
-      insertVitalSign: {method: 'POST', params: {route: 'vitalSigns'}, timeout: 100000}
+      insertVitalSign: {method: 'POST', params: {route: 'vitalSign'}, timeout: 100000}
     })
   }
 
