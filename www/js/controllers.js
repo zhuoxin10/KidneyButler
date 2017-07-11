@@ -145,12 +145,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.toReset = function () {
     $state.go('phonevalid', {phonevalidType: 'reset'})
   }
-/**
- * *[微信登录点击，获取用户unionid，以及个人基本信息]
- * @Author   ZXF
- * @DateTime 2017-07-05
- * @return   {[type]}
- */
+  /**
+  * *[微信登录点击，获取用户unionid，以及个人基本信息]
+  * @Author   ZXF
+  * @DateTime 2017-07-05
+  * @return   {[type]}
+  */
   $scope.wxsignIn = function () {
       /**
        * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
@@ -694,7 +694,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 个人信息--PXY
 .controller('userdetailCtrl', ['$http', '$stateParams', '$scope', '$state', '$ionicHistory', '$timeout', 'Storage', '$ionicPopup', '$ionicLoading', '$ionicPopover', 'Dict', 'Patient', 'VitalSign', '$filter', 'Task', 'User', 'mySocket', function ($http, $stateParams, $scope, $state, $ionicHistory, $timeout, Storage, $ionicPopup, $ionicLoading, $ionicPopover, Dict, Patient, VitalSign, $filter, Task, User, mySocket) {
-   // 页面绑定数据初始化
+  // 页面绑定数据初始化
   $scope.User =
   {
     userId: null,
@@ -717,11 +717,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
 
   }
-/**
- * [进入页面之前完成个人信息的初始化,]
- * @Author   PXY
- * @DateTime 2017-07-05
- */
+  /**
+  * [进入页面之前完成个人信息的初始化,]
+  * @Author   PXY
+  * @DateTime 2017-07-05
+  */
   $scope.$on('$ionicView.beforeEnter', function () {
     // showProgress为真显示疾病进程（自由文本）
     $scope.showProgress = false
@@ -735,11 +735,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.timename = ''
     initialPatient()
   })
-/**
- * [点击返回，如果上一个页面是“我的”并且当前是编辑状态，则变为不可编辑状态，否则返回上一页]
- * @Author   PXY
- * @DateTime 2017-07-05
- */
+  /**
+  * [点击返回，如果上一个页面是“我的”并且当前是编辑状态，则变为不可编辑状态，否则返回上一页]
+  * @Author   PXY
+  * @DateTime 2017-07-05
+  */
   $scope.Goback = function () {
     if ($stateParams.last == 'mine' && $scope.canEdit == true) {
       $scope.canEdit = false
@@ -1238,24 +1238,31 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 主页面--PXY
 .controller('TabsCtrl', ['$ionicHistory', '$interval', 'News', 'Storage', '$scope', '$timeout', '$state', function ($ionicHistory, $interval, News, Storage, $scope, $timeout, $state) {
-    // $scope.HasUnreadMessages = false;
+  /**
+   * [点击消息中心按钮，跳转消息中心并记住跳转前的页面state]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.GoToMessage = function () {
     Storage.set('messageBackState', $ionicHistory.currentView().stateId)
     $state.go('messages')
   }
+  // 点击“我的” tab
   $scope.gotomine = function () {
     $state.go('tab.mine')
   }
-
+  // 点击“咨询” tab
   $scope.gotomyDoctors = function () {
     $state.go('tab.myDoctors')
   }
 
-    // var RefreshUnread;
-
+  /**
+   * [切换tab时取消消息轮询，避免出现两个消息轮询]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.cancelGetMessage = function () {
-        // console.log(RefreshUnread);
-    console.log('cancel')
+    // console.log('cancel')
     if (RefreshUnread) {
       $interval.cancel(RefreshUnread)
     };
@@ -2903,9 +2910,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 我的 页面--PXY
 .controller('MineCtrl', ['$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
-  // Storage.set("personalinfobackstate","mine")
-
   var patientId = Storage.get('UID')
+  /**
+   * [参照DoctorCtrl中同名函数，获取是否有未读消息]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   var GetUnread = function () {
       // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -2921,40 +2931,59 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log(err)
     })
   }
-
+  /**
+   * [消息轮询启动]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.$on('$ionicView.enter', function () {
     RefreshUnread = $interval(GetUnread, 2000)
   })
-
+  /**
+   * [消息轮询取消]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.$on('$ionicView.leave', function () {
     console.log('destroy')
     $interval.cancel(RefreshUnread)
   })
   // 页面跳转---------------------------------
+  // 点击个人信息，页面跳转并传递参数
+  // last表明是从“我的”入口进入个人信息
   $scope.GoUserDetail = function () {
     $state.go('userdetail', {last: 'mine'})
   }
+  // 点击诊断记录，页面跳转
   $scope.GoDiagnosiInfo = function () {
     $state.go('tab.DiagnosisInfo')
   }
+  // 点击咨询记录，页面跳转
   $scope.GoConsultRecord = function () {
     $state.go('tab.myConsultRecord')
   }
+  // 点击健康信息，页面跳转
   $scope.GoHealthInfo = function () {
     $state.go('tab.myHealthInfo')
   }
+  // 点击肾病管理方案，页面跳转
   $scope.GoManagement = function () {
     $state.go('tab.taskSet')
   }
+  // 点击我的设备，页面跳转
   $scope.GoDevices = function () {
-    console.log('tab.devices')
+    // console.log('tab.devices')
     $state.go('tab.devices')
   }
-
+  // 点击增值服务，页面跳转
   $scope.GoMoney = function () {
     $state.go('tab.myMoney')
   }
-
+  /**
+   * [点击退出账号，论坛退出登录，弹窗提示，确认后socket断开，清除除了用户名之外的缓存]  注：好像不用调用logout数据库方法
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.SignOut = function () {
     $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
     var myPopup = $ionicPopup.show({
@@ -2995,26 +3024,29 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       ]
     })
   }
-
+  // 点击意见反馈，页面跳转
   $scope.ReflectAdvice = function () {
     $state.go('tab.advice')
   }
-
+  // 点击关于，页面跳转
   $scope.About = function () {
     $state.go('tab.about')
   }
-
+  // 点击修改密码，页面跳转
   $scope.ChangePassword = function () {
     $state.go('tab.changePassword')
   }
     // $scope.myAvatar = ""
     // 根据用户ID查询用户头像
   $scope.myAvatar = 'img/DefaultAvatar.jpg'
+  /**
+   * [获取患者个人信息，显示头像]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   * @param    {userId：String}
+   * @return   res:{results:{photoUrl:String,..}}
+   */
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (res) {
-    console.log(Storage.get('UID'))
-        // console.log(res.results)
-        // console.log(res.results.photoUrl)
-        // console.log(angular.fromJson(res.results))
     if (res.results) {
             // console.log(res.results);
       if (res.results.photoUrl && res.results.photoUrl != 'http://pp.jpg') {
@@ -3022,13 +3054,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }
     }
   })
-
-  // var Picturepath=Storage.get("myAvatarpath")
-  // if(Picturepath==""||Picturepath==null){
-  //   $scope.myAvatar="img/DefaultAvatar.jpg"
-  // }else{
-  //   $scope.myAvatar=Picturepath;
-  // }
 
   // 上传头像的点击事件----------------------------
   $scope.onClickCamera = function ($event) {
@@ -3094,7 +3119,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // Execute action
   })
 
-// 相册键的点击事件---------------------------------
+  // 相册键的点击事件---------------------------------
   $scope.onClickCameraPhotos = function () {
    // console.log("选个照片");
     $scope.choosePhotos()
@@ -3112,7 +3137,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })// 从相册获取照片结束
   } // function结束
 
-    // 照相机的点击事件----------------------------------
+  // 照相机的点击事件----------------------------------
   $scope.getPhoto = function () {
       // console.log("要拍照了！");
     $scope.takePicture()
@@ -3136,7 +3161,27 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $state.go('tab.mine')
   }
 
-    // 过滤重复的医生诊断 顺序从后往前，保证最新的一次诊断不会被过滤掉
+  // 过滤重复的医生诊断 顺序从后往前，保证最新的一次诊断不会被过滤掉
+  /**
+   * [过滤重复的医生诊断]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   * @param    arr:[ {
+                "name": "class_4",
+                "time": "2017-05-14T16:00:00.000Z",
+                "hypertension": 1,
+                "progress": "stage_5",
+                "operationTime": "2017-05-12T16:00:00.000Z",
+                "content": "肾小球肾炎",
+                "doctor": {
+                    "name": "徐楠",
+                    "workUnit": "杏康门诊部",
+                    "department": "肾内科",
+                    "userId": "U201612260027"
+                }
+                },...,{}]
+   * @return   result:[{},...,{}] 注：跟输入结构一致，只是过滤了同一医生的诊断
+   */
   var FilterDiagnosis = function (arr) {
     var result = []
     var hash = {}
@@ -3149,24 +3194,42 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
     return result
   }
-
+  /**
+   * [获取患者诊断记录，绑定数据]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   var RefreshDiagnosisInfo = function () {
     $scope.noDiags = false
+    /**
+     * [获取患者诊断记录]
+     * @Author   PXY
+     * @DateTime 2017-07-11
+     * @param    {userId:String}
+     * @return   data:{results:{diagnosisiInfo:[{},...,{}],...}}  注：data.results也可能为String类型（没填个人信息时）
+     */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(// userId:Storage.get('UID')
         function (data) {
-          console.log(data.results)
+          // console.log(data.results)
           if (data.results && data.results != '没有填写个人信息') {
             if (data.results.diagnosisInfo.length) {
               var allDiags = data.results.diagnosisInfo
-              console.log(allDiags)
+              // console.log(allDiags)
               var DoctorDiags = FilterDiagnosis(allDiags)
                 // console.log(DoctorDiags);
+              /**
+               * [从数据库获取疾病类型字典表，并根据诊断中的疾病类型决定显示疾病进程还是手术时间以及时间控件的名称]
+               * @Author   PXY
+               * @DateTime 2017-07-11
+               * @param    {category: String}
+               * @return   data:{results:{content:[{details:[{},...,{}],type:String,typeName:String},...,{}]}}
+               */
               Dict.getDiseaseType({category: 'patient_class'}).then(
                     function (data) {
                       $scope.Diseases = data.results[0].content
                       $scope.Diseases.push($scope.Diseases[0])
                       $scope.Diseases.shift()
-                      console.log($scope.Diseases)
+                      // console.log($scope.Diseases)
                       for (var i = 0; i < DoctorDiags.length; i++) {
                         if (DoctorDiags[i].name != null) {
                             // console.log(i);
@@ -3192,7 +3255,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                             DoctorDiags[i].showProgress = true
                             DoctorDiags[i].showSurgicalTime = false
                             DoctorDiags[i].DiseaseDetails = DoctorDiags[i].name.details
-                            console.log(DoctorDiags[i].DiseaseDetails)
+                            // console.log(DoctorDiags[i].DiseaseDetails)
                               // if(DoctorDiags[i].DiseaseDetails!=undefined){
                               //   DoctorDiags[i].progress = searchObj(DoctorDiags[i].progress,DoctorDiags[i].DiseaseDetails);
                               // }
@@ -3217,10 +3280,19 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log(err)
     })
   }
+  /**
+   * [进入视图后调用方法RefreshDiagnosisInfo]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.$on('$ionicView.enter', function () {
     RefreshDiagnosisInfo()
   })
-
+  /**
+   * [下拉刷新重新调用方法RefreshDiagnosisInfo]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   $scope.do_refresher = function () {
     RefreshDiagnosisInfo()
     $scope.$broadcast('scroll.refreshComplete')
@@ -3228,13 +3300,32 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询记录--PXY
 .controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup) {
+  // 返回按钮
   $scope.Goback = function () {
     $state.go('tab.mine')
   }
 
   $scope.noConsult = false
 
-    // 过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
+  // 过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
+  /**
+   * [过滤重复的医生咨询记录]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   * @param    arr:[ {
+                      "doctorId": {
+                          "userId": "U201705120008",
+                          "name": "马志彬",
+                          "photoUrl": "http://121.196.221.44:8052/uploads/photos/resizedU201705120008_myAvatar.jpg?1494654670367"
+                      },
+                      "time": "2017-05-13T07:14:10.651Z",
+                      "messages": []
+                    },
+                    ...,
+                    {}
+                    ]
+   * @return   result:[{},...,{}] 注：跟输入结构一致，只是过滤了同一医生的咨询记录
+   */
   var FilterDoctor = function (arr) {
     var result = []
     var hash = {}
@@ -3249,49 +3340,86 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
     return result
   }
-
+  /**
+   * [获取咨询记录和最新消息，两个数组关联起来，绑定页面数据]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   */
   var RefreshCounSelRecords = function () {
     var MyId = Storage.get('UID')
-    var promise = Patient.getCounselRecords({userId: MyId})
-    promise.then(function (data) {
+    /**
+     * [获取患者咨询记录]
+     * @Author   PXY
+     * @DateTime 2017-07-11
+     * @param    {userId:String}
+     * @return   data：[ {
+                      "doctorId": {
+                          "userId": "U201705120008",
+                          "name": "马志彬",
+                          "photoUrl": "http://121.196.221.44:8052/uploads/photos/resizedU201705120008_myAvatar.jpg?1494654670367"
+                      },
+                      "time": "2017-05-13T07:14:10.651Z",
+                      "messages": []
+                    },
+                    ...,
+                    {}
+                    ]
+     */
+    Patient.getCounselRecords({userId: MyId}).then(function (data) {
       console.log(data)
       if (data.results.length) {
         FilteredDoctors = FilterDoctor(data.results)
-                // console.log(FilteredDoctors);
-        News.getNews({userId: MyId, type: 11}).then(
-                    function (data) {
-                      console.log(data.results)
-                      if (data.results) {
-                        for (x in FilteredDoctors) {
-                          for (y in data.results) {
-                            if (FilteredDoctors[x].userId == data.results[y].sendBy || FilteredDoctors[x].userId == data.results[y].userId) {
-                              FilteredDoctors[x].lastMsgDate = data.results[y].time
-                              FilteredDoctors[x].latestMsg = data.results[y].description
-                              try {
-                                data.results[y].url = JSON.parse(data.results[y].url)
+        /**
+         * [获取患者和医生沟通的最新消息]
+         * @Author   PXY
+         * @DateTime 2017-07-11
+         * @param    {userId:String,type:Number}   注：type为11是医患沟通消息，建议写在constant里
+         * @return   data:{results:[{
+                                      "_id": "59186ef4cad54e3990442fdd",
+                                      "userId": "U201705120006",
+                                      "sendBy": "U201612260027",
+                                      "readOrNot": 1,
+                                      "type": 11,
+                                      "messageId": "CMU20170515000105",
+                                      "time": "2017-06-05T13:28:13.887Z",
+                                      "title": "{\"U201612260027\":\"潘晓妍\",\"U201705120006\":\"徐楠\"}",
+                                      "description": "[咨询结束]",
+                                      "url": "{\"contentType\":\"custom\",\"fromID\":\"U201612260027\",\"fromName\":\"徐楠\",\"fromUser\":{\"avatarPath\":\"http://121.196.221.44:8052/uploads/photos/resizedU201612260027_myAvatar.jpg\"},\"targetID\":\"U201705120006\",\"targetName\":\"潘晓妍\",\"targetType\":\"single\",\"status\":\"send_success\",\"createTimeInMillis\":1494832929240,\"newsType\":\"11\",\"content\":{\"type\":\"endl\",\"info\":\"咨询已结束\",\"docId\":\"U201612260027\",\"counseltype\":1,\"src\":\"\"}}",
+                                      "__v": 0
+                                    },
+                                    ...,
+                                    {}
+                                  ]}
+         */
+        News.getNews({userId: MyId, type: 11}).then(function (data) {
+                      // console.log(data.results)
+          if (data.results) {
+                        // 两个for循环关联数据，只有当消息未读且不是患者发出的才显示消息红点
+            for (x in FilteredDoctors) {
+              for (y in data.results) {
+                if (FilteredDoctors[x].userId == data.results[y].sendBy || FilteredDoctors[x].userId == data.results[y].userId) {
+                  FilteredDoctors[x].lastMsgDate = data.results[y].time
+                  FilteredDoctors[x].latestMsg = data.results[y].description
+                  try {
+                    data.results[y].url = JSON.parse(data.results[y].url)
 
-                                FilteredDoctors[x].readOrNot = data.results[y].readOrNot || (MyId === data.results[y].url.fromID ? 1 : 0)
-                                console.log(FilteredDoctors[x].readOrNot)
-                                console.log(data.results[y].url)
-                              } catch (e) {
+                    FilteredDoctors[x].readOrNot = data.results[y].readOrNot || (MyId === data.results[y].url.fromID ? 1 : 0)
+                                // console.log(FilteredDoctors[x].readOrNot)
+                                // console.log(data.results[y].url)
+                  } catch (e) {
                                             // console.log('error');
                                             // console.log(data.results[y].url);
-                                FilteredDoctors[x].readOrNot = 1
-                              }
-                            }
-                          }
-                        }
-                      }
-                      $scope.items = FilteredDoctors
-                      console.log(FilteredDoctors)
-                    }, function (err) {
+                    FilteredDoctors[x].readOrNot = 1
+                  }
+                }
+              }
+            }
+          }
+          $scope.items = FilteredDoctors
+          // console.log(FilteredDoctors)
+        }, function (err) {
           console.log(err)
-        }
-                )
-                // setSingleUnread(FilteredDoctors)
-                // .then(function(doctors){
-                //     $scope.items=doctors;
-                // });
+        })
       } else {
         $scope.noConsult = true
       }
@@ -3299,16 +3427,22 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log(err)
     })
   }
-
+  // 进入视图后调用方法RefreshCounSelRecords
   $scope.$on('$ionicView.enter', function () {
     RefreshCounSelRecords()
   })
-
+  // 下拉刷新重新调用方法RefreshCounSelRecords
   $scope.do_refresher = function () {
     RefreshCounSelRecords()
     $scope.$broadcast('scroll.refreshComplete')
   }
-
+  /**
+   * [点击咨询记录，如果点击医生头像则进入医生详情，否则进入咨询详情(参照doctorCtrl里咨询)]
+   * @Author   PXY
+   * @DateTime 2017-07-11
+   * @param    ele：Object      [MouseEvent,target为点击事件的对象]
+   * @param    doctorId：String
+   */
   $scope.getConsultRecordDetail = function (ele, doctorId) {
     var template = ''
     var counseltype = 0
@@ -3319,9 +3453,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // zz最新方法根据docid pid 不填写type获取最新一条咨询信息
       Counsels.getStatus({doctorId: doctorId, patientId: Storage.get('UID')})
         .then(function (data) {
-          console.log(data.result)
-          console.log(data.result.type)
-          console.log(data.result.status)
+          // console.log(data.result)
+          // console.log(data.result.type)
+          // console.log(data.result.status)
           if (data.result.type == 1) {
             if (data.result.status == 1) { // 有尚未完成的咨询 直接进入
               $ionicPopup.confirm({
