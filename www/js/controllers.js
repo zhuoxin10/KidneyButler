@@ -5140,13 +5140,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     //     $scope.avatar='task.png'
     // else if(messageType=='BX')
     //     $scope.avatar='security.png'
-
+  // 返回
   $scope.Goback = function () {
     $ionicHistory.goBack()
   }
 }])
-
-// 医生列表--PXY
 
 .controller('DoctorCtrl', ['$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function ($interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
   /**
@@ -6696,6 +6694,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 .controller('DoctorDetailCtrl', ['$ionicLoading', 'Mywechat', '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams', 'Doctor', 'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function ($ionicLoading, Mywechat, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams, Doctor, Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
+  // 返回
   $scope.GoBack = function () {
     // console.log('111');
     // console.log($ionicHistory.backView());
@@ -6706,6 +6705,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   console.log(DoctorId)
   // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
+    /**
+     * [获取患者个人信息]
+     * @Author   PXY
+     * @DateTime 2017-07-10
+     * @param {userId:String}
+     * @return data:{results:Object/String}  注：如果填了个人信息返回的为对象，如果没填则为字符串
+     */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       console.log(data)
       if (data.results) {
@@ -6739,6 +6745,28 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
 
   $scope.doctor = ''
+  /**
+   * [获取医生的详细信息]
+   * @Author   PXY
+   * @DateTime 2017-07-12
+   * @param    {userId：String}
+   * @return   data:{
+               *  "results": {
+                    "_id": "59008dea0ae89f31383e662d",
+                    "name": "徐楠",
+                    "workUnit": "杏康门诊部",
+                    "department": "肾内科",
+                    "title": "主治医师",
+                    "province": "浙江省",
+                    "city": "杭州市",
+                    "job": "专科医生",
+                    "userId": "U201612260027",
+                    "gender": 2,
+                    "score": 8,
+                    "photoUrl": "http://wx.qlogo.cn/mmopen/Q3auHgzwzM4KoJ7NTdoDOxBoqvLnnaJwSWhkgyUl2COtpDXib4uhtXZIDC1j4WIdjM1sZxPFCPtyT7kMb2Ag4XQ/0",
+                    ...,}
+                    }
+   */
   Doctor.getDoctorInfo({userId: DoctorId}).then(
       function (data) {
         $scope.doctor = data.results
@@ -7862,6 +7890,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 关于--PXY
 .controller('aboutCtrl', ['$scope', '$timeout', '$state', 'Storage', '$ionicHistory', function ($scope, $timeout, $state, Storage, $ionicHistory) {
+  // 返回
   $scope.Goback = function () {
     // console.log(123);
     $state.go('tab.mine')
@@ -7877,11 +7906,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.ishide = true
   $scope.change = {oldPassword: '', newPassword: '', confirmPassword: ''}
-
+  /**
+   * [验证旧密码，如果验证通过则显示新密码的输入框]
+   * @Author   PXY
+   * @DateTime 2017-07-12
+   * @param    change:{oldPassword: String, newPassword: String, confirmPassword: String}
+   */
   $scope.passwordCheck = function (change) {
     $scope.logStatus1 = ''
     if (change.oldPassword != '') {
       var username = Storage.get('USERNAME')
+      // 调用登录方法验证密码是否正确，有点不恰当
       User.logIn({username: username, password: $scope.change.oldPassword, role: 'patient'})
         .then(function (succ) {
           console.log(succ)
@@ -7893,22 +7928,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         }, function (err) {
           console.log(err)
         })
-        // var usernames = Storage.get('usernames').split(",");
-        // var index = usernames.indexOf(username);
-        // var passwords = Storage.get('passwords').split(",");
-        // if(passwords[index]!=change.oldPassword){
-        //   $scope.logStatus1 = "密码错误！";
-        // }
-        // else{
-        //   $scope.logStatus1='验证成功';
-        //   $timeout(function(){$scope.ishide=false;} , 500);
-
-        // }
     } else {
       $scope.logStatus1 = '请输入旧密码！'
     }
   }
-
+  /**
+   * [验证新密码两次输入是否一致，如果一致则修改密码，修改成功后弹窗提示并跳转“我的”页面]
+   * @Author   PXY
+   * @DateTime 2017-07-12
+   * @param    change:{oldPassword: String, newPassword: String, confirmPassword: String}
+   */
   $scope.gotoChange = function (change) {
     $scope.logStatus2 = ''
     if ((change.newPassword != '') && (change.confirmPassword != '')) {
@@ -7916,35 +7945,30 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (change.newPassword.length < 6) {
           $scope.logStatus2 = '密码长度太短了！'
         } else {
-          User.changePassword({phoneNo: Storage.get('USERNAME'), password: change.newPassword})
-            .then(function (succ) {
-              console.log(succ)
-              if (succ.mesg == 'password reset success!') {
-                $ionicPopup.alert({
-                  title: '修改密码成功！'
-                }).then(function (res) {
-                  $scope.logStatus2 = '修改密码成功！'
-                  $state.go('tab.mine')
-                })
-              }
-            }, function (err) {
-              console.log(err)
-            })
+          /**
+           * [修改密码]
+           * @Author   PXY
+           * @DateTime 2017-07-12
+           * @param    {phoneNo：String,password:String}
+           * @return   succ:{
+                          "results": 0,
+                          "mesg": "password reset success!"
+                      }
+           */
+          User.changePassword({phoneNo: Storage.get('USERNAME'), password: change.newPassword}).then(function (succ) {
+            console.log(succ)
+            if (succ.mesg == 'password reset success!') {
+              $ionicPopup.alert({
+                title: '修改密码成功！'
+              }).then(function (res) {
+                $scope.logStatus2 = '修改密码成功！'
+                $state.go('tab.mine')
+              })
+            }
+          }, function (err) {
+            console.log(err)
+          })
         }
-
-          // //把新用户和密码写入
-          // var username = Storage.get('USERNAME');
-          // var usernames = Storage.get('usernames').split(",");
-          // var index = usernames.indexOf(username);
-          // var passwords = Storage.get('passwords').split(",");
-          // passwords[index] = change.newPassword;
-
-          // Storage.set('passwords',passwords);
-          // $scope.logStatus2 ="修改密码成功！";
-          // $timeout(function(){$scope.change={originalPassword:"",newPassword:"",confirmPassword:""};
-          // $state.go('tab.tasklist');
-          // $scope.ishide=true;
-          // } , 500);
       } else {
         $scope.logStatus2 = '两次输入的密码不一致'
       }
@@ -8301,6 +8325,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 咨询问卷--TDY
 
 .controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+  // 除了submit函数外其他函数均可参考userdetailCtrl和healthinfoCtrl
   $scope.showProgress = false
   $scope.showSurgicalTime = false
   $scope.openPersonal = true
@@ -8311,7 +8336,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.submitable = false
 
-  var BasicInfoInitial = function () { // 页面基本信息初始化
+  var BasicInfoInitial = function () {
+  // 页面基本信息初始化
     $scope.BasicInfo =
     {
       'userId': patientId,
@@ -9105,10 +9131,32 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     //     console.log('123');
     //     $state.go('tab.mine');
     // }
-
+  /**
+   * [提交反馈意见，并且点击后禁用按钮]
+   * @Author   PXY
+   * @DateTime 2017-07-12
+   * @param    adv：Object
+   */
   $scope.deliverAdvice = function (adv) {
         // console.log(adv);
     $scope.hasDeliver = true
+    /**
+     * [提交反馈意见]
+     * @Author   PXY
+     * @DateTime 2017-07-12
+     * @param    {userId:String,role:String,content:String}
+     * @return   data:{
+                      "result": "新建成功",
+                      "newResults": {
+                          "__v": 0,
+                          "userId": "U201705120006",
+                          "role": "patient",
+                          "time": "2017-07-12T14:54:29.000Z",
+                          "content": "内容",
+                          "_id": "5965c7a5bd332a1068ea40d9"
+                      }
+                  }
+     */
     Advice.postAdvice({userId: Storage.get('UID'), role: 'patient', content: adv.content}).then(
             function (data) {
                 // console.log(data);
