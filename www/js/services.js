@@ -39,7 +39,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   socketServer: 'ws://appserviceserver.haihonghospitalmanagement.com/',
   imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
   imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
-  NiaodaifuUrl: 'https://open.niaodaifu.cn/',
+  NiaodaifuUrl: 'https://open.niaodaifu.cn/wap/login',
 
   cameraOptions: {
     cam: {
@@ -468,11 +468,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  var urineDoctor = function () {
-    return $resource(CONFIG.NiaodaifuUrl + ':path/:route', {path: 'wap'}, {
-      LogIn: {method: 'GET', params: {route: 'login'}, timeout: 10000}
-    })
-  }
   serve.abort = function ($scope) {
     abort.resolve()
     $interval(function () {
@@ -498,7 +493,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Mywechat = Mywechat()
       serve.Communication = Communication()
       serve.devicedata = Devicedata()
-      serve.urineDoctor = urineDoctor()
     }, 0, 1)
   }
   serve.Dict = Dict()
@@ -522,7 +516,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Mywechat = Mywechat()
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
-  serve.urineDoctor = urineDoctor()
   return serve
 }])
 
@@ -588,26 +581,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     return deferred.promise
   }
 
-  return self
-}])
-
-.factory('urineDoctor', ['$q', 'Data', function ($q, Data) {
-  var self = this
-
-    // params->{appkey:"Ge4WtrsZc2",sign:"9a5ad635ff39bbbbaed3adc8fd70888b",atime:"1499666974",userbind:"U201705170001",mode:1,redirect_uri:"http://121.43.107.106:4060"}
-  self.LogIn = function (params) {
-    var deferred = $q.defer()
-    Data.urineDoctor.LogIn(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
   return self
 }])
 

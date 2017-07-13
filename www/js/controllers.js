@@ -4129,17 +4129,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   }
 
-  // $scope.EditHealth = function(editId){
-  //   console.log("健康信息");
-  //   console.log(editId);
-  //   $state.go('tab.myHealthInfoDetail',{id:editId});
-  // }
 }])
 
-.controller('urineDoctorCtrl', ['$scope', '$state', 'Storage','Devicedata', '$sce',function ( $scope, $state, Storage,Devicedata,$sce) {
-   Devicedata.urineConnect({client:'Android',userbind:Storage.get('UID')}).then(function(data){
-    var ssss="https://open.niaodaifu.cn/wap/login?appkey=Ge4WtrsZc2&sign="+data.results.sign+"&atime="+data.results.atime+"&userbind="+Storage.get('UID')+"&mode=1"
-    $scope.navigation = $sce.trustAsResourceUrl(ssss)
+.controller('urineDoctorCtrl', ['$scope', '$state', 'Storage','Devicedata', '$sce', 'CONFIG', function ( $scope, $state, Storage,Devicedata,$sce,CONFIG) {
+  var client = ionic.Platform.isIOS() ? 'iOS' : 'Android'
+  Devicedata.urineConnect({client:client,userbind:Storage.get('UID')}).then(function(data){
+    var urineUrl = CONFIG.NiaodaifuUrl + "?appkey=" + data.results.appkey + "&sign=" + data.results.sign + "&atime=" + data.results.atime + "&userbind=" + Storage.get('UID') + "&mode=1"
+    $scope.navigation = $sce.trustAsResourceUrl(urineUrl)
     console.log(data)
   },function(err){
     console.log(err)

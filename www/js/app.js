@@ -323,6 +323,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
     })
     .state('tab.urineDoctor', {
+      cache: false,
       url: '/mine/urineDoctor',
       views: {
         'tab-mine': {
