@@ -4796,6 +4796,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.varyMes = {name: '保险'}
         $scope.notInsurance = false
         break
+      case '6':
+        $scope.varyMes = {name: '退款', avatar: 'payment.png'}
+        break
+
     }
 
     Message.getMessages({userId: Storage.get('UID'), type: Storage.get('getMessageType')}).then(
@@ -5229,7 +5233,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     $scope.consultable = 0
                     $ionicPopup.confirm({
                       title: '咨询确认',
-                      template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。',
+                      template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                       okText: '确认',
                       cancelText: '取消'
                     }).then(function (res) {
@@ -5246,7 +5250,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     $scope.consultable = 0
                     $ionicPopup.confirm({
                       title: '咨询确认',
-                      template: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。',
+                      template: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                       okText: '确认',
                       cancelText: '取消'
                     }).then(function (res) {
@@ -5264,7 +5268,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     $scope.consultable = 0
                     $ionicPopup.confirm({
                       title: '咨询确认',
-                      template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。点击确认进入免费咨询',
+                      template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不耗费免费咨询次数。点击确认进入免费咨询',
                       okText: '确认',
                       cancelText: '取消'
                     }).then(function (res) {
@@ -5330,7 +5334,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     $scope.consultable = 0
                     $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
                       title: '咨询确认',
-                      template: '进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？',
+                      template: '进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
                       okText: '确认',
                       cancelText: '取消'
                     }).then(function (res) {
@@ -5560,7 +5564,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               $scope.consultable = 0
               $ionicPopup.confirm({
                 title: '问诊确认',
-                template: '您有尚未结束的咨询，补齐差价可升级为问诊，问诊中询问医生的次数不限。确认付费升级为问诊？',
+                template: '您有尚未结束的咨询，补齐差价可升级为问诊，问诊将在升级后24小时自动结束或者由医生结束，问诊中询问医生的次数不限。确认付费升级为问诊？',
                 okText: '确认',
                 cancelText: '取消'
               }).then(function (res) {
@@ -5892,7 +5896,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '问诊确认',
-                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。',
+                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -5909,7 +5913,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '问诊确认',
-                  template: '您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费升级为问诊？',
+                  template: '您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。确认付费升级为问诊？',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -6105,7 +6109,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
                   title: '问诊确认',
-                  template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？',
+                  template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -6421,7 +6425,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '咨询确认',
-                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。',
+                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -6438,7 +6442,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '咨询确认',
-                  template: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。',
+                  template: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -6455,7 +6459,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '咨询确认',
-                  template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。点击确认进入免费咨询',
+                  template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不耗费免费咨询次数。点击确认进入免费咨询',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -6509,7 +6513,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
                   title: '咨询确认',
-                  template: '进入咨询后，根据您提供的问卷描述，医生会最多作三次回答，之后此次咨询自动结束，请谨慎组织语言，尽可能在咨询问卷以及咨询过程中详细描述病情和需求。确认付费咨询？',
+                  template: '进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -7055,7 +7059,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '问诊确认',
-                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。',
+                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -7072,7 +7076,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({
                   title: '问诊确认',
-                  template: '您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费升级为问诊？',
+                  template: '您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。确认付费升级为问诊？',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {
@@ -7268,7 +7272,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.consultable = 0
                 $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
                   title: '问诊确认',
-                  template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽可能在咨询问卷以及问诊过程中详细描述病情和需求。确认付费问诊？',
+                  template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
                   okText: '确认',
                   cancelText: '取消'
                 }).then(function (res) {

@@ -37,6 +37,16 @@
         <!-- </div> -->
         <!-- <span class="row" style="margin-left:5px;">{{task.description}}</span> -->
       </ion-item>
+
+      <!-- 退款消息 -->
+      <ion-item class="item item-avatar card" ng-if="refund" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(refund)">
+        <img ng-src="img/icon_paymessage.png" image-red-point="!refund.readOrNot">
+        <!-- <div class="row"> -->
+            <h2>退款消息</h2>
+            <!-- <span class="col" style="font-size: 12px">{{task.time|dateFormat:"YYYY-MM-DD h:m"}}</span> -->
+        <!-- </div> -->
+        <!-- <span class="row" style="margin-left:5px;">{{task.description}}</span> -->
+      </ion-item>
      
       <!-- 保险消息 -->
       <ion-item class="item item-avatar card" ng-if="insurance" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(insurance)">
