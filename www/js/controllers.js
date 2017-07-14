@@ -2912,6 +2912,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 .controller('MineCtrl', ['$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
   var patientId = Storage.get('UID')
   /**
+
    * [参照DoctorCtrl中同名函数，获取是否有未读消息]
    * @Author   PXY
    * @DateTime 2017-07-11
@@ -2932,6 +2933,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
   }
   /**
+
    * [消息轮询启动]
    * @Author   PXY
    * @DateTime 2017-07-11
@@ -2985,6 +2987,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-11
    */
   $scope.SignOut = function () {
+    //论坛退出登录
     $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
     var myPopup = $ionicPopup.show({
       template: '<center>确定要退出登录吗?</center>',
@@ -3038,8 +3041,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
     // $scope.myAvatar = ""
     // 根据用户ID查询用户头像
+  /**
+   * 用户默认头像地址
+   * [myAvatar description]
+   * @type {String}
+   */
   $scope.myAvatar = 'img/DefaultAvatar.jpg'
   /**
+
    * [获取患者个人信息，显示头像]
    * @Author   PXY
    * @DateTime 2017-07-11
@@ -3082,6 +3091,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log($scope.myAvatar)
       // $state.reload("tab.mine")
       // Storage.set('myAvatarpath',$scope.myAvatar);
+      /**
+       * *上传用户头像信息
+       * @Author   ZXF
+       * @DateTime 2017-07-14
+       * @param    {[type]}   r) {                   console.log(r)      } [description]
+       * @return   {[type]}      [description]
+       */
       Patient.editPatientDetail({userId: Storage.get('UID'), photoUrl: $scope.myAvatar}).then(function (r) {
         console.log(r)
       })
@@ -3090,10 +3106,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       reject(err)
     })
   }
-  // -----------------------上传头像---------------------
-      // ionicPopover functions 弹出框的预定义
-        // --------------------------------------------
-        // .fromTemplateUrl() method
+  /**
+   * *点击上传头像 弹框
+   * @Author   ZXF
+   * @DateTime 2017-07-14
+   * @param    {[type]}   popover) {               $scope.popover [description]
+   * @return   {[type]}            [description]
+   */
   $ionicPopover.fromTemplateUrl('partials/pop/cameraPopover.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -3125,6 +3144,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.choosePhotos()
     $scope.closePopover()
   }
+  //从相册选取相片
   $scope.choosePhotos = function () {
     Camera.getPictureFromPhotos('gallery').then(function (data) {
         // data里存的是图像的地址
@@ -3342,6 +3362,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return result
   }
   /**
+
    * [获取咨询记录和最新消息，两个数组关联起来，绑定页面数据]
    * @Author   PXY
    * @DateTime 2017-07-11
@@ -3452,6 +3473,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $state.go('tab.DoctorDetail', {DoctorId: doctorId})
     } else {
         // zz最新方法根据docid pid 不填写type获取最新一条咨询信息
+        
+        /**获取用户和当前医生的咨询状态
+         * [doctorId description]
+         * @type {[type]}
+         */
       Counsels.getStatus({doctorId: doctorId, patientId: Storage.get('UID')})
         .then(function (data) {
           // console.log(data.result)
@@ -4096,6 +4122,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var RefreshHealthRecords = function () {
     $scope.noHealth = false
     /**
+
      * [获取患者健康信息]
      * @Author   PXY
      * @DateTime 2017-07-11
@@ -4159,6 +4186,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.$broadcast('scroll.refreshComplete')
   }
   /**
+
    * [点击健康信息，如果点击对象为删除图标，则弹窗提示并在确认后删除记录；否则跳转健康详情页面（传参id：对应的健康信息，caneidt:是否可编辑）]
    * @Author   PXY
    * @DateTime 2017-07-11
@@ -4203,6 +4231,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }
             )
             // 20140421 zxf
+            // 
+            /**咨询问卷页面也有健康信息列表，删除健康信息页面的一条健康信息时也要更新咨询问卷页面的列表
+             * [healthinfotimes description]
+             * @type {[type]}
+             */
            // 同时要删除缓存中对应的健康信息
           var healthinfotimes = angular.fromJson(Storage.get('consulthealthinfo')) ? angular.fromJson(Storage.get('consulthealthinfo')) : []
           for (var i = 0; i < healthinfotimes.length; i++) {
@@ -4564,8 +4597,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       datePickerCallback(val)
     }
   }
-// --------------copy from minectrl
-  // 上传头像的点击事件----------------------------
+  // 上传图片的点击事件----------------------------
   $scope.onClickCamera = function ($event) {
     $scope.openPopover($event)
   }
@@ -4589,10 +4621,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       reject(err)
     })
   }
-// -----------------------上传头像---------------------
-      // ionicPopover functions 弹出框的预定义
-        // --------------------------------------------
-        // .fromTemplateUrl() method
+  /**
+   * *点击上传图片事件的弹框
+   * @Author   ZXF
+   * @DateTime 2017-07-14
+   * @param    {[type]}   popover) {               $scope.popover [description]
+   * @return   {[type]}            [description]
+   */
   $ionicPopover.fromTemplateUrl('partials/pop/cameraPopover.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -4624,6 +4659,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.choosePhotos()
     $scope.closePopover()
   }
+  /**
+   * *从用户相册获取图片
+   * @Author   ZXF
+   * @DateTime 2017-07-14
+   * @return   {[type]}   [description]
+   */
   $scope.choosePhotos = function () {
     Camera.getPictureFromPhotos('gallery', true).then(function (data) {
       // data里存的是图像的地址
@@ -4636,13 +4677,18 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })// 从相册获取照片结束
   } // function结束
 
-  // 照相机的点击事件----------------------------------
   $scope.getPhoto = function () {
     // console.log("要拍照了！");
     $scope.takePicture()
     $scope.closePopover()
   }
   $scope.isShow = true
+  /**
+   * *从用户的拍照动作获取图片
+   * @Author   ZXF
+   * @DateTime 2017-07-14
+   * @return   {[type]}   [description]
+   */
   $scope.takePicture = function () {
     Camera.getPicture('cam', true).then(function (data) {
       var imgURI = data
@@ -4673,9 +4719,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // });
 
   // //点击图片返回
-  // $scope.imggoback = function(){
-  //   $scope.modal.hide();
-  // };
+  /**
+   * *点击查看大图
+   * @Author   ZXF
+   * @DateTime 2017-07-14
+   * @param    {[type]}   resizedpath [description]
+   * @return   {[type]}               [description]
+   */
   $scope.showoriginal = function (resizedpath) {
     // $scope.openModal();
     // console.log(resizedpath)
@@ -4716,11 +4766,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.Goback = function () {
     $state.go('tab.mine')
   }
-  // $scope.TimesRemain ="0";
+  //  剩余咨询次数
   $scope.TimesRemainZX = '0'
+  //剩余问诊次数
   $scope.TimesRemainWZ = '0'
+  /**免费咨询次数
+   * [TimesRemainZX description]
+   * @type {String}
+   */
   $scope.freeTimesRemain = '0'
   // 20170504 zxf
+
   /**
    * [加载患者账号信息]
    * @Author   ZXF
