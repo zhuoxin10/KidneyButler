@@ -4025,6 +4025,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     Health.getAllHealths({userId: patientId}).then(
         function (data) {
+          // console.log(data.results)
           if (data.results != '' && data.results != null) {
             $scope.items = data.results
           } else {
