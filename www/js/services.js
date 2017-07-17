@@ -25,20 +25,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 // 客户端配置
 .constant('CONFIG', {
 
-  // 测试服务器地址
-  // baseUrl: 'http://121.43.107.106:4060/',
-  // mediaUrl: 'http://121.43.107.106:4060/',
-  // socketServer: 'ws://121.43.107.106:4060/',
-  // imgThumbUrl: 'http://121.43.107.106:4060/uploads/photos/resize',
-  // imgLargeUrl: 'http://121.43.107.106:4060/uploads/photos/',
-  // NiaodaifuUrl: 'https://open.niaodaifu.cn/wap',
     // 正式服务器地址
-
-  baseUrl: 'http://appserviceserver.haihonghospitalmanagement.com/api/v1/',
-  mediaUrl: 'http://appmediaservice.haihonghospitalmanagement.com/',
-  socketServer: 'ws://appserviceserver.haihonghospitalmanagement.com/',
-  imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
-  imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
+  // baseUrl: 'http://appserviceserver.haihonghospitalmanagement.com/api/v1/',
+  // mediaUrl: 'http://appmediaservice.haihonghospitalmanagement.com/',
+  // socketServer: 'ws://appserviceserver.haihonghospitalmanagement.com/',
+  // imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
+  // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
+  // 测试服务器地址
+  baseUrl: 'http://121.43.107.106:4060/api/v1/',
+  mediaUrl: 'http://121.43.107.106:8054/',
+  socketServer: 'ws://121.43.107.106:4060/',
+  imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
+  imgLargeUrl: 'http://121.43.107.106:8054/uploads/photos/',
+  //
   NiaodaifuUrl: 'https://open.niaodaifu.cn/wap/login',
 
   cameraOptions: {

@@ -7,7 +7,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
 .run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   $ionicPlatform.ready(function () {
-    version.checkUpdate($rootScope)
+    // version.checkUpdate($rootScope)
 
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
