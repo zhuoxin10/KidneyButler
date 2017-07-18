@@ -1,5 +1,5 @@
 <div class="msgbox {{'msgbox-'+msg.direct}}">
-    <div ng-if="msg.diff" class="msg-time"><span>{{msg.createTimeInMillis | msgdate}}</span></div>
+    <div ng-if="msg.diff" class="msg-time"><span>{{msg.time | msgdate}}</span></div>
     <img class="avatar" ng-src="{{photourls[msg.fromID] || 'img/DefaultAvatar.jpg'}}" ng-click="emitEvent('profile',msg)" />
     <div class="msg-body" on-hold="emitEvent('holdmsg',msg.createTimeInMillis,$event,'text')">
         <div class="media-text">{{msg.content.text}}</div>

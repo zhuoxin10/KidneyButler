@@ -9,46 +9,39 @@
   
 
 
-  <ion-content  class="padding">
-    <ion-list>
-      <div class="card" ng-repeat="item in items " ng-click="gotoHealthDetail($event,item)">
-        <div class="row">
-            <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
-            <p class="col" style="text-align:center;">{{item.time|dateFormat:"YYYY-MM-DD"}}</p>
-            <span class="col" style="text-align:right;"><i class="icon ion-trash-a" style="font-size: 20px;"></i></span>
-        </div>
-        
-        <div class="row">
-            <p style="margin-left:2%">{{item.description}}</p>
-        </div>
+    <ion-content  class="padding">
+        <ion-list>
+            <div class="card" ng-repeat="item in items " ng-click="gotoHealthDetail($event,item)">
+            
+                <div class="row">
+                    <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
+                    <p class="col" style="text-align:center;">{{item.time|dateFormat:"YYYY-MM-DD"}}</p>
+                    <span class="col" style="text-align:right;"><i class="icon ion-trash-a" style="font-size: 20px;"></i></span>
+                </div>
 
-        <ion-item class="row row-wrap" style="border:none; text-align:center; height:100%;">
-            <div class="col col-33" ng-repeat = "img in item.url">
-                <img ng-src="{{img}}" style="height:100%; width:100%;max-height: 87px;max-height: 119px">
+                <div class="row">
+                    <p style="margin-left:2%">{{item.description}}</p>
+                </div>
+
+                <ion-item class="row row-wrap" style="border:none; text-align:center; height:100%;">
+                    <div class="col col-33" ng-repeat = "img in item.url">
+                        <img ng-src="{{img}}" style="height:100%; width:100%;max-height: 87px;max-height: 119px">
+                    </div>
+                </ion-item>
+
             </div>
-        </ion-item>
-
-      </div>
-    </ion-list>
+        </ion-list>
 
 
-    <div class="card" ng-if="noHealth">
-        <div class="item item-text-wrap">
-            您还没有健康信息，可通过右上角加号添加！
+        <div class="card" ng-if="noHealth">
+            <div class="item item-text-wrap">
+                您还没有健康信息，可通过右上角加号添加！
+            </div>
         </div>
-      </div>
 
     
-
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher()"></ion-refresher>
     
-
-  
-    <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher()"></ion-refresher>
-    
-
-
-
-
-  </ion-content>
+    </ion-content>
 
 </ion-view>
