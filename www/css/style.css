@@ -1145,6 +1145,7 @@ input.hasTick {
   position:absolute;
   left: 0px;
   top: 75%;
+  padding-top: 0px;
 }
 
 
@@ -1154,11 +1155,17 @@ textarea {
 
 button.doctorBtn{
   width:50%;
+  border-color: #ddd;
+  color: #444;
+  height: 30px;
   font-size:14px;
-  /* font-weight:bold; */
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
   text-align: center;
   background-color: transparent;
   border-width: thin;
+  border-style: solid;
 }
 
 .item-select-custom {
