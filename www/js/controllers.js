@@ -1120,6 +1120,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @return   SortNo:Number                [任务模板的编号]
    */
   var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+    // debugger
     var sortNo = 1
     if (kidneyDetail) {
       var kidneyDetail = kidneyDetail[0]
@@ -1165,12 +1166,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         break
 
       case 'class_6':// 腹透
+        sortNo = 10
         if (kidneyTime != undefined && kidneyTime != null && kidneyTime != '') {
           var month = MonthInterval(kidneyTime)
-          console.log('month' + month)
-          if (month < 6) {
-            sortNo = 10
-          } else {
+          // console.log('month' + month)
+          if (month >= 6) {
             sortNo = 11
           }
         }
@@ -1212,7 +1212,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Patient.editPatientDetail(userInfo).then(function (data) {
       if (data.result == '修改成功') {
         console.log(data.results)
-        var task = distinctTask(data.results.class, data.results.operationTime, data.results.class_info)
+        var task = distinctTask(data.results.class, userInfo.operationTime, userInfo.class_info)
         /**
          * [修改病人的任务模板]
          * @Author   PXY
@@ -8279,13 +8279,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return (Math.floor(interval / (24 * 3600 * 1000 * 30)))
   }
 
-  var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+   var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+    // debugger
     var sortNo = 1
-        // console.log(kidneyType);
-        // console.log(kidneyDetail);
-        // if(kidneyTime){
-        //     kidneyTime = kidneyTime.substr(0,10);
-        // }
     if (kidneyDetail) {
       var kidneyDetail = kidneyDetail[0]
     }
@@ -8330,12 +8326,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         break
 
       case 'class_6':// 腹透
+        sortNo = 10
         if (kidneyTime != undefined && kidneyTime != null && kidneyTime != '') {
           var month = MonthInterval(kidneyTime)
-          console.log('month' + month)
-          if (month < 6) {
-            sortNo = 10
-          } else {
+          // console.log('month' + month)
+          if (month >= 6) {
             sortNo = 11
           }
         }
@@ -8343,6 +8338,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
     return sortNo
   }
+
   $scope.submit = function () {
     $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
     $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
