@@ -1152,6 +1152,15 @@ textarea {
   resize: none;
 }
 
+button.doctorBtn{
+  width:50%;
+  font-size:14px;
+  /* font-weight:bold; */
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+}
+
 .item-select-custom {
   position: relative; }
   .item-select-custom select {
