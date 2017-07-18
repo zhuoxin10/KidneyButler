@@ -15,7 +15,7 @@
             <p>职称:{{doctor.title}}</p>
             <p>性别：{{{1:"男",2:"女",undefined:"未填写"}[doctor.gender]}}</p>
             <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元</span><span style="margin-left: 20px">问诊{{doctor.charge2}}元</span></p>
-            <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;">
+            <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;padding-top: 5px">
                 <span class="col font-c"><i class="icon ion-star"></i>{{doctor.score.toFixed(2)||"无"}}</span>
                 <span class="col font-c">咨询量：{{doctor.count1}}</span>
                 <span class="col font-c">问诊量：{{doctor.count2}}</span>
@@ -23,9 +23,22 @@
             
         </div>
 
-        <div class="row">
+     <!--    <div class="row">
             <button style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-zixun2"></i>咨询</button>
             <button  style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+        </div> -->
+
+        <div class="row">
+            <button ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
+            <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+        </div>
+        <div class="row">
+            <button ng-disabled="DisabledConsult" class="doctorBtn"><i class="icon ion-speakerphone"></i>加急咨询</button>
+            <button ng-disabled="DisabledConsult" class="doctorBtn"><i class="icon ion-person-stalker"></i>面诊</button>
+        </div>
+        <div class="row">
+            <button ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
+            <button ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
         </div>
        
         
