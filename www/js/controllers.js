@@ -1312,7 +1312,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       };
     }
   })
+
   // 判断是否需要修改任务时间
+  //输入：任务对象的开始时间，结束时间，单位，次数
+  //输出：新的任务时间
   function IfTaskOverTime (startTime, frequencyTimes, unit, times) {
     var res = ''
     var days = GetDifDays(startTime, dateNowStr)
@@ -1337,6 +1340,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    // IfTaskOverTime("2017-04-05", 1, "周",1 );
 
   // 当前日期与默认日期比较，自动修改填写状态
+  //输入：任务对象
+  //输出：无
   function CompDateToDefault (task) {
     var res = false
     var freqTimes = task.frequencyTimes
@@ -1373,14 +1378,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    // CompDateToDefault({});
 
   // 获取对应任务模板
-  function GetTasks (TaskCode) {
+  //输入：无
+  //输出：无
+  function GetTasks () {
     var promise = Task.getUserTask({userId: UserId})
     promise.then(function (data) {
       console.log(data)
       if (data.result) {
         $scope.unCompleted = false
         $scope.Tasks = data.result.task
-
         HandleTasks()
       } else {
         $scope.unCompleted = true
@@ -1391,6 +1397,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 获取模板后进行处理
+  //输入：无
+  //输出：无
   function HandleTasks () {
     $scope.Tasks.Other = []
     $scope.Tasks.Hemo = []
@@ -1404,8 +1412,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         InitialOtherTask(task)
       }
     }
-    console.log($scope.Tasks.Measure)
-    console.log($scope.Tasks.Other)
+    //console.log($scope.Tasks.Measure)
+    //console.log($scope.Tasks.Other)
     $scope.Tasks.Other.sort(SortByTime) // 按时间先后排序
     for (var i = 0; i < $scope.Tasks.Other.length; i++) {
       if ($scope.Tasks.Other[i].frequencyTimes == 0)// 只执行一次的任务置顶
@@ -1420,6 +1428,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 初始化每日任务
+  //输入：任务对象
+  //输出：无
   function InitialEveTask (task) {
     $scope.Tasks.Measure = task.details
     for (var i = 0; i < $scope.Tasks.Measure.length; i++) {
@@ -1447,6 +1457,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 初始化血透任务
+  //输入：任务对象
+  //输出：无
   function InitialHemoTask (task) {
     task.type = 'ReturnVisit'
     if (task.content == '') // 未设定排班时间
@@ -1504,6 +1516,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 初始化其他任务
+  //输入：任务对象
+  //输出：无
   function InitialOtherTask (task) {
     for (var i = 0; i < task.details.length; i++) {
       var newTask = task.details[i]
@@ -1520,6 +1534,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 处理其他任务详细
+  //输入：任务对象，任务对象（前者是后者的一个项）
+  //输出：无
   function HandlOtherTask (newTask, task) {
     newTask.Flag = false
     newTask.DoneFlag = false
@@ -1560,6 +1576,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 批量更新任务
+  //输入：无
+  //输出：无
   function ChangeOverTime () {
     var temp = OverTimeTaks[index]
     var task = {
@@ -1588,6 +1606,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 获取今日已执行任务
+  //输入：无
+  //输出：无
   function GetDoneTask () {
     var nowDay = dateNowStr
     var promise = Compliance.getcompliance({userId: UserId, date: nowDay})
@@ -1604,6 +1624,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 获取今日已执行任务后进行处理(falg用于区分获取还是新插入已执行任务)
+  //输入：任务对象，标志位（POST/GET)
+  //输出：无
   function AfterDoneTask (doneTask, flag) {
       // 确定任务是否完成，修改显示标志位，获取已填写的数值并在页面显示
     var Code = doneTask.code
@@ -1619,7 +1641,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         for (var i = 0; i < $scope.Tasks.Other.length; i++) {
           var task = $scope.Tasks.Other[i]
           if (task.code == Code) {
-            console.log(task)
+            //console.log(task)
             OtherTaskDone(task, Description)
             break
           }
@@ -1629,6 +1651,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 每日任务执行后处理
+  //输入：任务对象，标志位（POST/GET）
+  //输出：无
   function EveTaskDone (doneTask, flag) {
         // 或许只是测量任务才会进行处理？
     var Code = doneTask.code
@@ -1693,6 +1717,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 其他任务后处理
+  //输入：任务对象，描述（字符串，任务执行情况，如化验结果）
+  //输出：无
   function OtherTaskDone (task, Description) {
     var NextTime = ''
     var item
@@ -1729,6 +1755,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 血透任务执行后处理
+  //输入：任务对象，标志位（貌似无用）
+  //输出：无
   function HemoTaskDone (task, flag) {
        // console.log(task);
     var dateStr = task.DateStr
@@ -1771,11 +1799,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'frequencyTimes': task.frequencyTimes,
       'frequencyUnits': task.frequencyUnits
     }
-    console.log(item)
+    //console.log(item)
     UpdateUserTask(item)
   }
 
   // 血透字符串组装
+  //输入：开始数组，中间字符串，结尾数组
+  //输出：组装后的字符串
   function GetHemoStr (startArry, mediean, endArry) {
     var res = ''
     res = startArry.join(',') + '+' + mediean
@@ -1812,6 +1842,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 单位匹配
+  //输入：编码
+  //输出：对应单位
   function UnitMatch (code) {
     var Unit = ''
     var Tbl = [
@@ -1832,6 +1864,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 范围匹配
+  //输入：编码
+  //输出：数值范围（对象，包括最大值和最小值）
   function RangeMatch (code) {
     var res = {}
     var Tbl = [
@@ -1852,6 +1886,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 时间比较排序
+  //输入：任务对象，任务对象
+  //输出：整数（可正可负）
   function SortByTime (a, b) {
     var res = 0
     var strA = a.startTime.substr(0, 10).replace(/-/g, '')
@@ -1863,6 +1899,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 比较时间天数
+  //输入：日期字符串，日期字符串
+  //输出：两日期相差天数
   function GetDifDays (date1Str, date2Str) {
     res = 0
     var date1 = new Date(date1Str)
@@ -1875,6 +1913,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 比较下次任务时间与当前时间
+  //输入：任务对象的开始时间，频率次数，单位，次数
+  //输出：对象（包括标志位和字符串日期）
   function CompareTime (startTime, frequencyTimes, unit, times) {
     var res = {'Flag': false, 'Date': ''}
     var date1 = new Date(dateNowStr)
@@ -1895,6 +1935,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    // CompareTime("2017-06-24", 2, "周", 1);
 
   // 插入任务执行情况
+  //输入：任务对象
+  //输出：无
   function Postcompliance (task) {
     console.log(task)
     var promise = Compliance.postcompliance(task)
@@ -1909,6 +1951,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 插入体征数据
+  //输入：任务对象
+  //输出：无
   function InsertVitalSign (task) {
     var promise = VitalSign.insertVitalSign(task)
     promise.then(function (data) {
@@ -1918,7 +1962,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(data.results)
       }
     }, function (err) {
-      console.log(err)
+      //console.log(err)
     })
   }
 
@@ -1931,6 +1975,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 更新用户任务模板
+  //输入：任务对象
+  //输出：无
   function UpdateUserTask (task) {
     var promise = Task.updateUserTask(task)
     promise.then(function (data) {
@@ -1943,6 +1989,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 修改长期任务第一次时间
+  //输入：无
+  //输出：无
   function ChangeLongFir () {
         // 界面
     for (var i = 0; i < $scope.Tasks.Other.length; i++) {
@@ -1986,6 +2034,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 设定长期任务第一次时间
+  //输入：类型（周/月/年），次数
+  //输出：字符串日期
   function SetTaskTime (Type, Times) {
       // 暂时就用本地时间
     var CurrentDate = new Date(dateNowStr)
@@ -2044,6 +2094,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }// Textarea：VascularAccess；
 
   // 测量弹窗
+  //输入：任务对象，类型（fill/edit）
+  //输出：弹窗
   $scope.showMesPop = function (task, type) {
         // 首先swipe-back
 
@@ -2142,6 +2194,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 弹窗标题、输入类型、显示内容
+  //输入：标志位（input），类型（fill/eidt），任务对象
+  //输出：对象（弹窗相关信息）
   function GetPopInfo (flag, type, task) {
     var res = {}
     var Template = PopTemplate.Input // 默认为输入框
@@ -2174,6 +2228,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.data.alertFlag1 = false
       $scope.data.alertFlag2 = false
     } else {
+      if(task.code == 'PeritonealDialysis')
+      {
+         Template = PopTemplate.Textarea;              
+      }
       if (instruction == '') {
         type = 'fill'
       }
@@ -2196,6 +2254,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 血透弹窗
+  //输入：任务对象，类型（fill/edit)
+  //输出：弹窗
   $scope.showHemoPop = function (task, type) {
     $scope.data = {}
     $scope.data.alertFlag = false
@@ -2260,6 +2320,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 其他任务弹窗
+  //输入：任务对象，类型（fill/edit）
+  //输出：弹窗
   $scope.showOtherPop = function (task, type) {
     if (!task.Flag) {
       type = 'fill'
@@ -2329,6 +2391,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 获取某项任务执行情况
+  //输入：任务对象
+  //输出：字符串
   function GetTaskInfo (task) {
     var res = ''
     var promise = Compliance.getcompliance(task)
@@ -2344,6 +2408,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 测量输入格式与范围判定
+  //输入：测量值，编码
+  //输出：对象（包括警告语，数字，字符串）
   function AboutRange (value, code) {
     var word = ''
     var num = -1
@@ -2367,6 +2433,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 提示框
+  //输入：无
+  //输出：弹框
   $scope.showAlert = function () {
     var alertPopup = $ionicPopup.alert({
       title: '提示',
@@ -2377,6 +2445,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 任务完成后设定下次任务执行时间
+  //输入：字符串时间，频率次数，单位，次数
+  //输出：Date日期
   function SetNextTime (LastDate, FreqTimes, Unit, Times) {
     var NextTime
     if ((Unit == '年') && (Times == 2))// 一年2次
@@ -2401,11 +2471,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 点击按钮开始新任务
+  //输入：任务对象
+  //输出：无
   $scope.StartNewTask = function (task) {
     task.Flag = false
   }
 
   // 日期延后计算
+  //输入：字符串日期，类型（周/月/年)，相加量（整数）
+  //输出：Date日期
   function DateCalc (LastDate, Type, Addition) {
     var Date1 = new Date(LastDate)
     var Date2
@@ -2427,6 +2501,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.TblColor2 = ['gray', 'green', 'green', 'green', 'gray', 'gray', 'gray']
 
   // 弹窗：医生排班表
+  //输入：无
+  //输出：弹窗
   $ionicModal.fromTemplateUrl('templates/modal.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -2446,6 +2522,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
 
   // 修改日期格式Date → yyyy-mm-dd
+  //输入：Date日期
+  //输出：字符串日期
   function ChangeTimeForm (date) {
     var nowDay = ''
     if (date instanceof Date) {
@@ -2457,11 +2535,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 页面刷新
+  //输入：无
+  //输出：无
   $scope.Refresh = function () {
     $window.location.reload()
   }
 
   // 跳转至任务设置页面
+  //输入：无
+  //输出：页面跳转
   $scope.GotoSet = function () {
     $state.go('tab.taskSet')
   }
@@ -2485,6 +2567,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   ]
 
   // 获取医生排班
+  //输入：无
+  //输出：无
   function GetMyDoctors () {
     var promise = Patient.getMyDoctors({userId: UserId})
     promise.then(function (data) {
@@ -2552,14 +2636,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
 
   // 获取对应任务模板
-  function GetTasks (TaskCode) {
+  //输入：无
+  //输出：无
+  function GetTasks () {
     var promise = Task.getUserTask({userId: UserId})
     promise.then(function (data) {
       console.log(data)
       if (data.result) {
         $scope.noTasks = true
         $scope.Tasks = data.result.task
-        console.log($scope.Tasks)
+        //console.log($scope.Tasks)
         HandleTasks()
       } else {
         $ionicLoading.show({template: '请您先在个人信息中完善用户信息', duration: 1000})
@@ -2568,6 +2654,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 获取模板后进行处理
+  //输入：无
+  //输出：无
   function HandleTasks () {
     $scope.Tasks.Other = []
     $scope.Tasks.Hemo = [] // 血透排班
@@ -2631,6 +2719,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 名称转换
+  //输入：编码
+  //输出：中文名称
   function NameMatch (name) {
     var Tbl = [
                  {Name: '体温', Code: 'Temperature'},
@@ -2657,6 +2747,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 时间下拉框绑定
+  //输入：任务对象
+  //输出：修改后的任务对象
   function TimeSelectBind (item) {
     var flag = false
     var day
@@ -2702,7 +2794,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.Days = ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日', '11日', '12日', '13日', '14日', '15日', '16日', '17日', '18日', '19日', '20日', '21日', '22日', '23日', '24日', '25日', '26日', '27日', '28日']
   $scope.Month = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
 
-  // 页面跳转
+  // 任务时间插入数据库
+  //输入：无
+  //输出：无
   $scope.SetDate = function () {
     if ($scope.Tasks.Hemo.Flag) {
       SetHemoDate($scope.Tasks.Hemo)
@@ -2730,26 +2824,33 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // $state.go('tab.tasklist');
     }
   }
-
+  
+  //页面返回
+  //输入：无
+  //输出：无
   $scope.Goback = function () {
-    console.log('goBack')
-    console.log($ionicHistory.backView())
+    //console.log('goBack')
+    //console.log($ionicHistory.backView())
     $ionicHistory.goBack()
   }
 
   // 更新用户任务模板
+  //输入：任务对象
+  //输出：无
   function UpdateUserTask (task) {
     var promise = Task.updateUserTask(task)
     promise.then(function (data) {
          // console.log(data);
       if (data.results) {
-        console.log(data.results)
+        //console.log(data.results)
       };
     }, function () {
     })
   }
 
   // 选定星期或号数后，默认为离当前日期最近的日期
+  //输入：下拉框选定的时间，时间类型（周、月、年）
+  //输出：任务时间（格式：xxxx-xx-xx）
   function SetTaskTime (SelectedDay, Type) {
       // 暂时就用本地时间
     var CurrentDate = new Date(dateNowStr)
@@ -2788,13 +2889,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return ChangeTimeForm(NewDate)
   }
 
-  // 编辑按钮
+  // 按下按钮后使页面可编辑
+  //输入：无
+  //输出：无
   $scope.EnableEdit = function () {
     $('select').attr('disabled', false)
     $scope.EditFlag = true
   }
 
   // 修改日期格式Date → yyyy-mm-dd
+  //输入：Date格式的日期
+  //输出：字符串格式的日期（yyyy-mm-dd）
   function ChangeTimeForm (date) {
     var nowDay = ''
     if (date instanceof Date) // 判断是否为日期格式
@@ -2824,7 +2929,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                      {No: 13, style: {'background-color': 'white'}, Day: '星期日'}
   ]
 
-  // 点击进行血透排班选择
+  // 点击进行血透排班选择（颜色改变或弹出警告）
+  //输入：选定的数字编号
+  //输出：无
   $scope.HemoSelect = function (num) {
     if ($scope.EditFlag) {
       var num1
@@ -2847,6 +2954,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   // 血透排班写入数据库
+  //输入：任务对象
+  //输出：无
   function SetHemoDate (task) {
     var times = task.times
     var dateStr = ''
@@ -2898,6 +3007,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    } */
 
   // 提示对话框
+  //输入：提示语（字符串）
+  //输出：提示弹框
   $scope.showAlert = function (words) {
     var alertPopup = $ionicPopup.alert({
       title: '提示',
