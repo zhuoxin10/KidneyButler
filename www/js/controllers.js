@@ -7470,6 +7470,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
       })
   }
+
+  $scope.followDoctor = function(DoctorId) {
+    
+  }
 }])
 
 // 关于--PXY
