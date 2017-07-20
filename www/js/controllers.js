@@ -7470,10 +7470,151 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
       })
   }
-
-  $scope.followDoctor = function(DoctorId) {
+  
+  /**
+   * [申请主管医生，先判断是否已提出申请，如果是则弹窗提示不能申请，如果否再判断是否已存在主管医生，如果是则弹窗提示，确定后跳转申请页面]
+   * @Author   PXY
+   * @DateTime 2017-07-19
+   * @param     DoctorId：String
+   */
+  $scope.applyMyDoctor = function(Doctor) {
+    $state.go('tab.applyDoctor',{applyDoc:Doctor})
     
   }
+
+
+}])
+
+
+
+.controller('applyDocCtrl', ['SecondVersion', '$q', 'Wechat', 'Mywechat','$ionicLoading', '$stateParams', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', function (SecondVersion, $q, Wechat, Mywechat, $ionicLoading, $stateParams, $scope, $timeout, $state, Storage, $ionicHistory) {
+  // 拿前一个页面传参doctor对象绑定页面数据
+  $scope.doctor = $stateParams.applyDoc
+  // 购买时长选择范围
+  $scope.Durations = [
+    {Name:'一个月',Value:1},
+    {Name:'两个月',Value:2},
+    {Name:'三个月',Value:3},
+    {Name:'四个月',Value:4}
+  ]
+  // 默认选中的购买时长
+  $scope.ChargeDuration = {Name:'一个月',Value:1}
+  // 临时写的
+  $scope.doctor.charge3 = 0.01
+  $scope.ChargeTotal = $scope.doctor.charge3
+  /**
+   * [根据选中购买时长改变总金额]
+   * @Author   PXY
+   * @DateTime 2017-07-20
+   * @param    duration:Object eg.{Name:'一个月',Value:1}  [选中的购买时长对象]
+   * @param    charge:Number     [主管医生每月收费]
+   */
+  $scope.changeTotal = function(duration,charge){
+    $scope.ChargeTotal = duration.Value * charge
+  }
+  /**
+   * [加载蒙层，阻止用户交互，防止提交多次]
+   * @Author   PXY
+   * @DateTime 2017-07-20
+   */
+  var ionicLoadingshow = function () {
+    $ionicLoading.show({
+      template: '加载中，请稍候...',
+      hideOnStateChange:true
+
+    })
+  }
+  /**
+   * [隐藏蒙层，允许用户交互行为]
+   * @Author   PXY
+   * @DateTime 2017-07-20
+   */
+  var ionicLoadinghide = function () {
+    $ionicLoading.hide()
+  }
+
+  $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
+    ionicLoadingshow()
+    var neworder = {
+      'userId': Storage.get('UID'),
+      'role': 'appPatient',
+      // 微信支付以分为单位
+      'money': totalAmount * 100,
+      'class': '04',
+      'name': '主管医生购买',
+      'notes': doctorId,
+      'paystatus': 0,
+      'paytime': new Date(),
+      'trade_type': 'APP',
+      'body_description': '申请主管医生服务'
+    }
+    /**
+     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信]
+     * @Author   PXY
+     * @DateTime 2017-07-20
+     * @param    neworder：Object
+     * @return   orderdata:Object
+     */
+    Mywechat.addOrder(neworder).then(function (orderdata) {
+      debugger
+      if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
+        var params = {
+          'partnerid': '1480817392', // merchant id
+          'prepayid': orderdata.results.prepay_id[0], // prepay id
+          'noncestr': orderdata.results.nonceStr, // nonce
+          'timestamp': orderdata.results.timestamp, // timestamp
+          'sign': orderdata.results.paySign // signed string
+        }
+      /**
+       * *[微信jssdk方法，拉起微信支付]
+       * @Author   PXY
+       * @DateTime 2017-07-20
+       */
+        ionicLoadinghide()
+        Wechat.sendPaymentRequest(params, function (data) {
+          alert(JSON.stringify(data))
+          $q.all([
+          /**
+           * *给医生账户‘转账’
+           * @Author   PXY
+           * @DateTime 2017-07-20
+           * @param {patientId:String,doctorId:String,type:String,money:Number}
+           */
+            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
+              console.log(data)
+            }, function (err) {
+              console.log(err)
+            }),
+            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:'',token:Storage.get('TOKEN')}).then(function(data){
+              console.log(data)
+            },function(err){
+              console.log(err)
+            })
+          ]).then(function(response){
+
+          })
+
+
+        },function(reason){
+          if (reason == '发送请求失败') {
+            $ionicLoading.show({
+              template: '请正确安装微信后使用此功能',
+              duration: 1000
+            })
+          } else {
+            $ionicLoading.show({
+              template: reason,
+              duration: 1000
+            })
+          }
+        })
+      }
+    })
+    console.log(123)
+    console.log(arguments)
+  }
+ 
+
 }])
 
 // 关于--PXY

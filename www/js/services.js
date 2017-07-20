@@ -32,6 +32,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
+  version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://121.43.107.106:4060/api/v1/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
@@ -277,7 +278,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 .factory('Data', ['$resource', '$q', '$interval', 'CONFIG', function ($resource, $q, $interval, CONFIG) {
   var serve = {}
   var abort = $q.defer()
+  var SecondVersion = function () {
+    return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
+      ApplyDocInCharge: {method: 'POST', params: {route: 'doctorInCharge'}, timeout: 100000},
+      FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000}
 
+    })
+  }
   var Dict = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'dict'}, {
       getDiseaseType: {method: 'GET', params: {route: 'typeTWO'}, timeout: 100000},
@@ -471,6 +478,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     abort.resolve()
     $interval(function () {
       abort = $q.defer()
+      serve.SecondVersion = SecondVersion()
       serve.Dict = Dict()
       serve.Task = Task()
             // serve.Task2 = Task2();
@@ -494,6 +502,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.devicedata = Devicedata()
     }, 0, 1)
   }
+  serve.SecondVersion = SecondVersion()
   serve.Dict = Dict()
   serve.Task = Task()
     // serve.Task2 = Task2();
@@ -516,6 +525,41 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
   return serve
+}])
+
+.factory('SecondVersion', ['$q', 'Data', function ($q, Data) {
+  var self = this
+
+    // params->{doctorId:'U201701040018',chargeDuration:'2592000',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}  chargeDuration是以秒为单位
+  self.ApplyDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.ApplyDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.FollowDoc = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.FollowDoc(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+
+  return self
 }])
 
 .factory('Devicedata', ['$q', 'Data', function ($q, Data) {
