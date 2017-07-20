@@ -3549,7 +3549,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }, function (err) {
                       console.log(err)
                     })
-      }, 5000)
+      }, 1500)
     }
   })
   $scope.$on('im:messageRes', function (event, data) {
