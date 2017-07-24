@@ -13,10 +13,10 @@
     <div class="list card" ng-repeat="message in messages" ng-click="MoreMessageDetail($event,message.sendBy,message.type)">
 
         <div class="item item-avatar">
-            <img ng-src="img\{{varyMes.avatar}}" ng-if="notInsurance">
-            <img ng-src="{{message.docPhoto || 'img/DefaultAvatar.jpg'}}" ng-if="!notInsurance">
-            <h2 ng-if="notInsurance">{{message.title}}</h2>
-            <h2 ng-if="!notInsurance">{{message.docName}}</h2>
+            <img ng-src="img\{{varyMes.avatar}}" ng-if="(notInsurance&&notInfo)">
+            <img ng-src="{{message.docPhoto || 'img/DefaultAvatar.jpg'}}" ng-if="(!notInsurance||!notInfo)">
+            <h2 ng-if="(notInsurance&&notInfo)">{{message.title}}</h2>
+            <h2 ng-if="(!notInsurance||!notInfo)">{{message.docName}}</h2>
 
             <p>{{message.time|dateFormat:"YYYY-MM-DD h:m"}}</p>
         </div>
