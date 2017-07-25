@@ -228,7 +228,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         'tab-consult': {
           cache: false,
           templateUrl: 'partials/tabs/consult/allDoctors.html',
-          controller: 'DoctorCtrl'
+          controller: 'AllDoctorsCtrl'
         }
       }
     })

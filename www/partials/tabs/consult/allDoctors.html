@@ -21,7 +21,7 @@
     </div>
   </div>      
       
-  <div class="bar bar-header"  ng-style="{'position':'absolute','top':'{{alldoctortype}}'}">
+  <div class="bar bar-header"  style="margin-top: -19px"  ng-style="{'position':'absolute','top':'{{alldoctortype}}'}">
     <label class="item-input" style="width:100%">        
       <span class="item-input-wrapper" style="margin-right:16px">  
         <i class="icon ion-ios-search placeholder-icon"></i>  
@@ -40,7 +40,7 @@
 
       
     
-    <ion-list style="position: absolute;top:89px;width: 95%">
+    <ion-list style="position: absolute;top:89px;width: 95%; margin-top: -20px">
       <div  class="card" ng-repeat="doctor in doctors">
 
         <div class="item item-thumbnail-left" ng-click="getDoctorDetail(doctor.userId)"> 
@@ -48,7 +48,7 @@
             <span>{{doctor.name}}</span>
             <span style="float: right">{{doctor.department}}</span>
             <p>{{doctor.workUnit}}</p>
-            <p style="font-size: 12px">职称:{{doctor.title}}</p>
+            <p style="font-size: 12px">职称:{{doctor.title}}</p>  
             <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元</span><span style="margin-left: 20px">问诊{{doctor.charge2}}元</span></p>
             <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;">
                 <span class="col font-c"><i class="icon ion-star"></i>{{doctor.score.toFixed(2)||"无"}}</span>
@@ -57,30 +57,34 @@
             </div>
         </div>
 
-        <div class="row" >
+        <!-- <div class="row" >
           <button style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name,doctor.charge1)" class="col no-line"><i class="icon iconfont icon-zixun2"></i>咨询</button>
           <button  style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name,doctor.charge1,doctor.charge2)" class="col no-line"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+        </div> -->
+
+
+        <div class="row">
+            <button ng-disabled="DisabledConsult"   ng-click="question(doctor.userId,doctor.name,doctor.charge1)" class="doctorBtn3"><i class="icon iconfont icon-zixun2"></i>咨询</button>
+            <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId, doctor.name, doctor.charge1, doctor.charge2)" class="doctorBtn3"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+            <button class="doctorBtn4" ng-click="trigger(doctor)"><i class="icon ion-chevron-up" ng-if="doctor.open"></i> <i class="icon ion-chevron-down" ng-if="!doctor.open"></i></button>
+
         </div>
+        <div ng-if="doctor.open" class="row">
+            <button ng-disabled="DisabledConsult" class="doctorBtn3"><i class="icon ion-speakerphone"></i>加急咨询</button>
+            <button ng-disabled="DisabledConsult" class="doctorBtn3"><i class="icon ion-person-stalker"></i>面诊</button>
+        </div>
+        <div ng-if="doctor.open" class="row">
+             <button ng-if="!doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn3"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
+              <button ng-if="doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn5"><i class="icon ion-ios-heart"></i>已关注医生</button>  
+              <button ng-if="!doctor.IsMyDoctor" ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn3"><i class="icon ion-person-add"></i>申请为主管医生</button>
+              <button ng-if="doctor.IsMyDoctor" ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn5"><i class="icon ion-person-add"></i>已为主管医生</button> 
+        </div>
+
+
       </div>
 
 
-      <!-- <ion-item ng-repeat="doctor in doctors" class="item-thumbnail-left" ng-click="getDoctorDetail($event,doctor.userId)">
-        <img ng-src="{{doctor.photoUrl  || 'img/doctor3.PNG'}}">
-        <span>{{doctor.name}}</span>
-        <span style="float: right">{{doctor.department}}</span>
-        <p>{{doctor.workUnit}}  {{doctor.title}}</p>
-        <p style="font-size: 12px">擅长：{{doctor.major}}</p>
-        <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元一答</span><span style="margin-left: 10px">问诊{{doctor.charge2}}元一次</span></p>
-        <div class="row" style="font-size: 12px">
-            <div class="col" style="color:#2B67F5"><i class="icon ion-star"></i><span>{{doctor.score||"无"}}</span></div>
-            <div class="col" style="color:#2B67F5"><span style="margin-left: 10px">咨询量：{{doctor.count1}}</span></div>
-            <div class="col" style="color:#2B67F5"> <span style="margin-left: 10px">问诊量：{{doctor.count2}}</span></div>
-            <div class="col" style="color:#181544;font-size:14px;font-weight:bold;"><span><i class="icon ion-help-circled"></i>咨询</span></div>
-            <div class="col" style="color:#181544;font-size:14px;font-weight:bold;"><span><i class="icon ion-person-stalker"></i>问诊</span></div>
-        </div>
-        
-
-      </ion-item> -->
+    
     </ion-list>
     
     
