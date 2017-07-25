@@ -50,9 +50,9 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     }
     function onResume () {
       appState.background = false
-      var id = Storage.get('UID'),
-        name = thisDoctor === null ? '' : thisDoctor.name
-      mySocket.newUserOnce(id, name)
+      var id = Storage.get('UID')
+       // name = thisDoctor === null ? '' : thisDoctor.name
+      mySocket.newUserOnce(id)
     }
     socket.on('error', function (data) {
       console.error('socket error')

@@ -3,5 +3,7 @@
         <div>{{msg.content.info}}</div>
         <div>{{msg.time | msgdate}}</div>
         <div ng-click="emitEvent('gopingjia',msg)">点此评价医生</div>
+        <div><p></p></div>
+        <div ng-click="emitEvent('nextPay',msg)">点此继续付费咨询或问诊</div>
     </div>
 </div>
