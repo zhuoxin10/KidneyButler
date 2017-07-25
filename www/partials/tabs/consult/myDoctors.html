@@ -52,6 +52,7 @@
             <button  ng-if="!doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
             <button  ng-if="doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn2"><i class="icon ion-ios-heart"></i>已关注医生</button>
             <button disabled="true" class="doctorBtn2"><i class="icon ion-person-add"></i>已成为主管医生</button>
+
         </div>
  <div class="card"  ng-if="hasDoctor">
 

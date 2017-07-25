@@ -1120,6 +1120,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @return   SortNo:Number                [任务模板的编号]
    */
   var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+    // debugger
     var sortNo = 1
     if (kidneyDetail) {
       var kidneyDetail = kidneyDetail[0]
@@ -1165,12 +1166,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         break
 
       case 'class_6':// 腹透
+        sortNo = 10
         if (kidneyTime != undefined && kidneyTime != null && kidneyTime != '') {
           var month = MonthInterval(kidneyTime)
-          console.log('month' + month)
-          if (month < 6) {
-            sortNo = 10
-          } else {
+          // console.log('month' + month)
+          if (month >= 6) {
             sortNo = 11
           }
         }
@@ -1212,7 +1212,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Patient.editPatientDetail(userInfo).then(function (data) {
       if (data.result == '修改成功') {
         console.log(data.results)
-        var task = distinctTask(data.results.class, data.results.operationTime, data.results.class_info)
+        var task = distinctTask(data.results.class, userInfo.operationTime, userInfo.class_info)
         /**
          * [修改病人的任务模板]
          * @Author   PXY
@@ -3549,7 +3549,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }, function (err) {
                       console.log(err)
                     })
-      }, 5000)
+      }, 1500)
     }
   })
   $scope.$on('im:messageRes', function (event, data) {
@@ -3594,8 +3594,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
   // 监听点击评价的事件
   $scope.$on('gopingjia', function (event, args) {
-    event.stopPropagation()
-    $state.go('tab.consult-comment', {counselId: $scope.params.counsel.counselId, doctorId: $scope.params.chatId, patientId: $scope.params.counsel.patientId.userId})
+    event.stopPropagation();
+    var content = arg[1].content;
+    if(content.counselId){
+        $state.go('tab.consult-comment',{counselId:content.counselId,doctorId:content.docId,patientId:$scope.params.UID});
+    }
   })
   function sendNotice (type, status, cnt) {
         // var t = setTimeout(function(){
@@ -4025,6 +4028,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     Health.getAllHealths({userId: patientId}).then(
         function (data) {
+          // console.log(data.results)
           if (data.results != '' && data.results != null) {
             $scope.items = data.results
           } else {
@@ -5371,6 +5375,10 @@ var IsDoctor =function (Doctor) {
   $scope.consult = function(DoctorId, docname, charge1, charge2){
     QandC.consult(DoctorId, docname, charge1, charge2)
   }
+
+  $scope.followDoctor = function(DoctorId) {
+    
+  }
 }])
 
 // 关于--PXY
@@ -6180,13 +6188,9 @@ var IsDoctor =function (Doctor) {
     return (Math.floor(interval / (24 * 3600 * 1000 * 30)))
   }
 
-  var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+   var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+    // debugger
     var sortNo = 1
-        // console.log(kidneyType);
-        // console.log(kidneyDetail);
-        // if(kidneyTime){
-        //     kidneyTime = kidneyTime.substr(0,10);
-        // }
     if (kidneyDetail) {
       var kidneyDetail = kidneyDetail[0]
     }
@@ -6231,12 +6235,11 @@ var IsDoctor =function (Doctor) {
         break
 
       case 'class_6':// 腹透
+        sortNo = 10
         if (kidneyTime != undefined && kidneyTime != null && kidneyTime != '') {
           var month = MonthInterval(kidneyTime)
-          console.log('month' + month)
-          if (month < 6) {
-            sortNo = 10
-          } else {
+          // console.log('month' + month)
+          if (month >= 6) {
             sortNo = 11
           }
         }
@@ -6244,6 +6247,7 @@ var IsDoctor =function (Doctor) {
     }
     return sortNo
   }
+
   $scope.submit = function () {
     $scope.BasicInfo.gender = $scope.BasicInfo.gender.Type
     $scope.BasicInfo.bloodType = $scope.BasicInfo.bloodType.Type
