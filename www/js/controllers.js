@@ -6317,7 +6317,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
-.controller('DoctorDetailCtrl', ['$ionicLoading', 'Mywechat', '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams', 'Doctor', 'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function ($ionicLoading, Mywechat, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams, Doctor, Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
+.controller('DoctorDetailCtrl', ['DoctorService','$ionicLoading', 'Mywechat', '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams', 'Doctor', 'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (DoctorService, $ionicLoading, Mywechat, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams, Doctor, Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
   $scope.GoBack = function () {
     // console.log('111');
     // console.log($ionicHistory.backView());
@@ -7481,7 +7481,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @param     DoctorId：String
    */
   $scope.applyMyDoctor = function(Doctor) {
-    $state.go('tab.applyDoctor',{applyDoc:Doctor})
+    DoctorService.ifIHaveDoc(Doctor)
+    // $state.go('tab.applyDoctor',{applyDoc:Doctor})
     
   }
 
@@ -7490,16 +7491,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 
-.controller('applyDocCtrl', ['SecondVersion', '$q', 'Wechat', 'Mywechat','$ionicLoading', '$stateParams', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', function (SecondVersion, $q, Wechat, Mywechat, $ionicLoading, $stateParams, $scope, $timeout, $state, Storage, $ionicHistory) {
+.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', '$q', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, $q, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
   // 购买时长选择范围
-  $scope.Durations = [
-    {Name:'一个月',Value:1},
-    {Name:'两个月',Value:2},
-    {Name:'三个月',Value:3},
-    {Name:'四个月',Value:4}
-  ]
+  for(var i = 1,items = new Array();i<=12;i++){
+    items.push({Name:i+'个月',Value:i})
+  }
+  items.push( {Name:'24个月',Value:24})
+  $scope.Durations = items
+
   // 默认选中的购买时长
   $scope.ChargeDuration = {Name:'一个月',Value:1}
   // 临时写的
@@ -7538,18 +7539,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
     ionicLoadingshow()
+
     var neworder = {
       'userId': Storage.get('UID'),
+      'month':duration,
       'role': 'appPatient',
       // 微信支付以分为单位
       'money': totalAmount * 100,
-      'class': '04',
-      'name': '主管医生购买',
+      'class': '05',
+      'name': '主管医生',
       'notes': doctorId,
       'paystatus': 0,
       'paytime': new Date(),
       'trade_type': 'APP',
-      'body_description': '申请主管医生服务'
+      'body_description': '主管医生服务'
     }
     /**
      * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信]
@@ -7559,7 +7562,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      * @return   orderdata:Object
      */
     Mywechat.addOrder(neworder).then(function (orderdata) {
-      debugger
+      // alert('orderdata:'+JSON.stringify(orderdata))
       if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
         var params = {
           'partnerid': '1480817392', // merchant id
@@ -7568,17 +7571,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           'timestamp': orderdata.results.timestamp, // timestamp
           'sign': orderdata.results.paySign // signed string
         }
-      /**
-       * *[微信jssdk方法，拉起微信支付]
-       * @Author   PXY
-       * @DateTime 2017-07-20
-       */
+        /**
+         * *[微信jssdk方法，拉起微信支付]
+         * @Author   PXY
+         * @DateTime 2017-07-20
+         */
         ionicLoadinghide()
         Wechat.sendPaymentRequest(params, function (data) {
-          alert(JSON.stringify(data))
+          // alert('wechat:'+JSON.stringify(data))
           $q.all([
           /**
-           * *给医生账户‘转账’
+           * [给医生账户‘转账’]
            * @Author   PXY
            * @DateTime 2017-07-20
            * @param {patientId:String,doctorId:String,type:String,money:Number}
@@ -7588,17 +7591,30 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             }, function (err) {
               console.log(err)
             }),
-            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:'',token:Storage.get('TOKEN')}).then(function(data){
+            /**
+             * 发送主管医生服务请求]
+             * @Author   PXY
+             * @DateTime 2017-07-25
+             * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
+             */
+            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
               console.log(data)
             },function(err){
               console.log(err)
             })
           ]).then(function(response){
-
+            // alert('$q response:'+JSON.stringify(response))
+            $ionicPopup.alert({
+              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+              okText: '好的'
+            }).then(function (e) {
+              $ionicHistory.goBack()
+            })
           })
 
 
         },function(reason){
+          // alert(JSON.stringify(reason))
           if (reason == '发送请求失败') {
             $ionicLoading.show({
               template: '请正确安装微信后使用此功能',
@@ -7611,17 +7627,53 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
           }
         })
+      }else{
+        ionicLoadinghide()
+        if(orderdata.results.status === 0) {
+          $ionicLoading.show({
+            template:orderdata.results.mesg,
+            duration:1000,
+            hideOnStateChange:true
+          })
+        }
+        $q.all([
+          /**
+           * *给医生账户‘转账’
+           * @Author   PXY
+           * @DateTime 2017-07-20
+           * @param {patientId:String,doctorId:String,type:String,money:Number}
+           */
+            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
+              console.log(data)
+            }, function (err) {
+              console.log(err)
+            }),
+            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration,token:Storage.get('TOKEN')}).then(function(data){
+              console.log(data)
+            },function(err){
+              console.log(err)
+            })
+          ]).then(function(response){
+            // alert('$q response:'+JSON.stringify(response))
+            $ionicPopup.alert({
+              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+              okText: '好的'
+            }).then(function (e) {
+              $ionicHistory.goBack()
+            })
+
+          })
       }
+    },function(error){
+      // alert(JSON.stringify(error))
     })
-    console.log(123)
-    console.log(arguments)
   }
  
 
 }])
 
 // 关于--PXY
-.controller('aboutCtrl', ['$scope', '$timeout', '$state', 'Storage', '$ionicHistory', function ($scope, $timeout, $state, Storage, $ionicHistory) {
+.controller('aboutCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', function ($scope, $state, Storage, $ionicHistory) {
   $scope.Goback = function () {
     // console.log(123);
     $state.go('tab.mine')

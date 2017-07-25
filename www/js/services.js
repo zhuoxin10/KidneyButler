@@ -281,7 +281,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var SecondVersion = function () {
     return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
       ApplyDocInCharge: {method: 'POST', params: {route: 'doctorInCharge'}, timeout: 100000},
-      FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000}
+      FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000},
+      UnFollowDoc: {method: 'POST', params: {route: 'unfollowFavoriteDoctor'}, timeout: 100000},
+      MyDocInCharge: {method: 'GET', params: {route: 'myDoctorsInCharge'}, timeout: 100000},
+      CancelDocInCharge: {method: 'POST', params: {route: 'cancelDoctorInCharge'}, timeout: 100000}
 
     })
   }
@@ -344,7 +347,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Patient = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'patient'}, {
+    return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
       getPatientDetail: {method: 'GET', params: {route: 'detail'}, timeout: 100000},
       getMyDoctors: {method: 'GET', params: {route: 'myDoctors'}, timeout: 10000},
       getDoctorLists: {method: 'GET', params: {route: 'doctors'}, timeout: 10000},
@@ -369,17 +372,17 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var User = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'user'}, {
-      register: {method: 'POST', params: {route: 'register', phoneNo: '@phoneNo', password: '@password', role: '@role'}, timeout: 100000},
-      changePassword: {method: 'POST', params: {route: 'reset', phoneNo: '@phoneNo', password: '@password'}, timeout: 100000},
-      logIn: {method: 'POST', params: {route: 'login'}, timeout: 100000},
+      register: {method: 'POST', skipAuthorization: true, params: {route: 'register', phoneNo: '@phoneNo', password: '@password', role: '@role'}, timeout: 100000},
+      changePassword: {method: 'POST', skipAuthorization: true, params: {route: 'reset', phoneNo: '@phoneNo', password: '@password'}, timeout: 100000},
+      logIn: {method: 'POST', skipAuthorization: true, params: {route: 'login'}, timeout: 100000},
       logOut: {method: 'POST', params: {route: 'logout', userId: '@userId'}, timeout: 100000},
       getUserID: {method: 'GET', params: {route: 'userID', username: '@username'}, timeout: 100000},
-      sendSMS: {method: 'POST', params: {route: 'sms', mobile: '@mobile', smsType: '@smsType'}, timeout: 100000}, // 第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
-      verifySMS: {method: 'GET', params: {route: 'sms', mobile: '@mobile', smsType: '@smsType', smsCode: '@smsCode'}, timeout: 100000},
+      sendSMS: {method: 'POST', skipAuthorization: true, params: {route: 'sms', mobile: '@mobile', smsType: '@smsType'}, timeout: 100000}, // 第一次验证码发送成功返回结果为”User doesn't exist“，如果再次发送才返回”验证码成功发送“
+      verifySMS: {method: 'GET', skipAuthorization: true, params: {route: 'sms', mobile: '@mobile', smsType: '@smsType', smsCode: '@smsCode'}, timeout: 100000},
       getAgree: {method: 'GET', params: {route: 'agreement', userId: '@userId'}, timeout: 100000},
-      updateAgree: {method: 'POST', params: {route: 'agreement'}, timeout: 100000},
-      getUserIDbyOpenId: {method: 'GET', params: {route: 'getUserIDbyOpenId'}, timeout: 100000},
-      setOpenId: {method: 'POST', params: {route: 'unionid'}, timeout: 100000}
+      updateAgree: {method: 'POST', skipAuthorization: true, params: {route: 'agreement'}, timeout: 100000},
+      getUserIDbyOpenId: {method: 'GET', skipAuthorization: true, params: {route: 'getUserIDbyOpenId'}, timeout: 100000},
+      setOpenId: {method: 'POST', skipAuthorization: true, params: {route: 'unionid'}, timeout: 100000}
 
     })
   }
@@ -457,11 +460,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Mywechat = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'wechat'}, {
+    return $resource(CONFIG.version2Url + ':path/:route', {path: 'wechat'}, {
       messageTemplate: {method: 'POST', params: {route: 'messageTemplate'}, timeout: 100000},
       gettokenbycode: {method: 'GET', params: {route: 'gettokenbycode'}, timeout: 100000},
       addOrder: {method: 'POST', params: {route: 'addOrder'}, timeout: 100000},
-      getUserInfo: {method: 'GET', params: {route: 'getUserInfo'}, timeout: 100000}
+      getUserInfo: {method: 'GET', skipAuthorization: true, params: {route: 'getUserInfo'}, timeout: 100000}
     })
   }
 
@@ -548,6 +551,49 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.FollowDoc = function (params) {
     var deferred = $q.defer()
     Data.SecondVersion.FollowDoc(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.UnFollowDoc = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.UnFollowDoc(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.MyDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.MyDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+
+  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.CancelDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.CancelDocInCharge(
             params,
             function (data, headers) {
               deferred.resolve(data)
@@ -915,6 +961,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 
 .factory('otherTask', ['Task', 'Compliance', 'Storage', function (Task, Compliance, Storage) {
+  // 封装了其他任务完成之后的要处理的一些服务
   var self = this
     // 其他任务后处理
     // 日期延后计算
@@ -1109,6 +1156,134 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               // OtherTaskDone(data.results, data.results.description);
       }
     }, function () {
+    })
+  }
+  return self
+}])
+
+.factory('DoctorService', ['SecondVersion', 'Storage', '$ionicPopup', '$state', '$ionicLoading', function (SecondVersion, Storage, $ionicPopup, $state, $ionicLoading) {
+  var self = this
+  /**
+   * [申请医生为主管医生时，先查看主管医生服务状态：1、有主管医生；2、无主管医生但有申请；3、既无主管医生也无申请
+   * 情况1删除主管医生后跳转；2等待已有申请审核后才可申请；3直接跳转]
+   * @Author   PXY
+   * @DateTime 2017-07-21
+   * @param    Doctor：Object [前端医生卡片绑定的数据对象]
+   */
+  self.ifIHaveDoc = function (Doctor) {
+    /**
+     * [查看患者主管医生服务状态]
+     * @Author   PXY
+     * @DateTime 2017-07-24
+     * @return   data:{message:String}
+     */
+    SecondVersion.MyDocInCharge().then(function (data) {
+      // debugger
+      if (data.message === '已申请主管医生，请等待审核!') {
+        $ionicPopup.alert({
+          title: '请等待审核',
+          template: '你已经申请了主管医生，在审核期间请耐心等待！在申请未被处理期间没有权限再次申请主管医生，敬请谅解！'
+        })
+      } else if (data.message === '当前已有主管医生!') {
+        $ionicPopup.confirm({
+          title: '删除主管医生',
+          template: '你当前已有主管医生，是否需要删除当前的主管医生？后果将造成其剩余服务时间作废且款项不会返还，点击确认后将删除当前主管医生并进入申请其他医生页面。请谨慎！',
+          buttons: [
+            {text: '取消'},
+            {text: '确认',
+              onTap: function (e) {
+              /**
+              * [删除主管医生]
+              * @Author   PXY
+              * @DateTime 2017-07-24
+              * @return   data:Object
+              */
+                SecondVersion.CancelDocInCharge().then(function (data) {
+                  $state.go('tab.applyDoctor', {applyDoc: Doctor})
+                })
+              }
+            }
+          ]
+        })
+      } else if (data.message === '当前无主管医生且无申请!') {
+        $state.go('tab.applyDoctor', {applyDoc: Doctor})
+      }
+    }, function (err) {
+    })
+  }
+  /**
+   * [点击关注医生，关注成功后把医生设为已关注并提示]
+   * @Author   PXY
+   * @DateTime 2017-07-21
+   * @param    Doctor：Object [前端医生卡片绑定的数据对象]
+   */
+  self.LikeDoctor = function (Doctor) {
+    /**
+     * [关注医生]
+     * @Author   PXY
+     * @DateTime 2017-07-24
+     * @param    {doctorId：String,token:String}
+     * @return   data:Object
+     */
+    SecondVersion.FollowDoc({doctorId: Doctor.userId, token: Storage.get('TOKEN')}).then(function (data) {
+      Doctor.IsMyFollowDoctor = true  // 字段待协商
+      $ionicLoading.show({
+        template: '关注成功！',
+        duration: 1000,
+        hideOnStateChange: true
+      })
+    }, function (err) {
+
+    })
+  }
+  /**
+   * [点击取关医生，取关成功后把医生设为未关注并提示]
+   * @Author   PXY
+   * @DateTime 2017-07-24
+   * @param   Doctor：Object [前端医生卡片绑定的数据对象]
+   */
+  self.DislikeDoctor = function (Doctor) {
+    /**
+     * [关注医生]
+     * @Author   PXY
+     * @DateTime 2017-07-24
+     * @param    {doctorId：String,token:String}
+     * @return   data:Object
+     */
+    SecondVersion.UnFollowDoc({doctorId: Doctor.userId, token: Storage.get('TOKEN')}).then(function (data) {
+      Doctor.IsMyFollowDoctor = false
+      $ionicLoading.show({
+        template: '取关成功！',
+        duration: 1000,
+        hideOnStateChange: true
+      })
+    }, function (err) {
+
+    })
+  }
+  /**
+   * [点击删除主管医生，先弹窗提示确认后再删除]
+   * @Author   PXY
+   * @DateTime 2017-07-24
+   */
+  self.DeleteMyDoc = function () {
+    $ionicPopup.confirm({
+      title: '删除主管医生',
+      template: '你当前已有主管医生，是否需要删除当前的主管医生？后果将造成其剩余服务时间作废且款项不会返还，是否继续？'
+    }).then(function (res) {
+      if (res) {
+        /**
+         * [删除主管医生后台方法]
+         * @Author   PXY
+         * @DateTime 2017-07-24
+         * @param    {token:String}
+         * @return   data:Object
+         */
+        SecondVersion.CancelDocInCharge({token: Storage.get('TOKEN')}).then(function (data) {
+        }, function (err) {
+
+        })
+      }
     })
   }
   return self
