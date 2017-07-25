@@ -4645,6 +4645,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
         )
 
+        News.getNews({userId: receiver, type: 7}).then(
+            function (data) {
+              if (data.results.length) {
+                console.log(data.results)
+                $scope.Info = data.results[0]
+              }
+            }, function (err) {
+      console.log(err)
+    }
+        )
+
     News.getNewsByReadOrNot({userId: receiver, type: 11, readOrNot: 0, userRole: 'patient'}).then(
             function (data) {
               console.log(data)
@@ -4803,6 +4814,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       case '6':
         $scope.varyMes = {name: '退款', avatar: 'payment.png'}
         break
+      case '7':
+        $scope.varyMes = {name: '审核'}
+        break
 
     }
 
@@ -4810,7 +4824,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             function (data) {
               if (data.results.length) {
                 console.log(data.results)
-                if (Storage.get('getMessageType') == 5) {
+                if (Storage.get('getMessageType') == 5||Storage.get('getMessageType') == 7) {
                   for (var x in data.results) {
                     getDocNamePhoto(data.results[x].sendBy, data.results[x])
                   }
