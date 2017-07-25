@@ -1168,6 +1168,83 @@ button.doctorBtn{
   border-style: solid;
 }
 
+
+button.doctorBtn2{
+  width:50%;
+  border-color: #ddd;
+  color: #6ac4f8;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
+button.doctorBtn3{
+  width:44%;
+  border-color: #ddd;
+  color: #444;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
+
+button.doctorBtn4{
+  width:10%;
+  border-color: #ddd;
+  color: #444;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
+button.doctorBtn5{
+  width:44%;
+  border-color: #ddd;
+  color: #6ac4f8;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
+button.doctorBtn6{
+  width:50%;
+  border-color: #ddd;
+  color: #6ac4f8;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
 .item-select-custom {
   position: relative; }
   .item-select-custom select {

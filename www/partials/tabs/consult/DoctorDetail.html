@@ -29,16 +29,23 @@
         </div> -->
 
         <div class="row">
-            <button ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
-            <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+
+            <button ng-disabled="DisabledConsult" ng-click="question(doctor.userId,doctor.name,doctor.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
+            <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name,doctor.charge1,doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+
+
         </div>
         <div class="row">
             <button ng-disabled="DisabledConsult" class="doctorBtn"><i class="icon ion-speakerphone"></i>加急咨询</button>
             <button ng-disabled="DisabledConsult" class="doctorBtn"><i class="icon ion-person-stalker"></i>面诊</button>
         </div>
         <div class="row">
-            <button ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
-            <button ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
+            <button  ng-if="!doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
+            <button  ng-if="doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn6"><i class="icon ion-ios-heart"></i>已关注医生</button>
+            <button  ng-if="!doctor.IsMyDoctor" ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
+            <button  ng-if="doctor.IsMyDoctor" ng-disabled="DisabledConsult" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn6"><i class="icon ion-person-add"></i>已成为管理医生</button>
+
+
         </div>
        
         
