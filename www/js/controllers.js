@@ -4894,7 +4894,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 更多医生
-.controller('AllDoctorsCtrl', ['QandC', 'Temp', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function (QandC, Temp, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
+.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Temp', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function (DoctorService,QandC, Temp, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
   //$scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
     //console.log('destroy')
@@ -5088,7 +5088,7 @@ var IsDoctor =function (Doctor) {
 
 // 医生列表--PXY
 
-.controller('DoctorCtrl', ['QandC', 'Temp', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function (QandC, Temp, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
+.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient',  'Doctor',  'CONFIG', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient, Doctor, CONFIG) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -5240,16 +5240,22 @@ var IsDoctor =function (Doctor) {
   }
 
   var allfollowdoctors = new Array()
-  var FollowPageControl = {skip: 0, limit: 3}
+  var FollowPageControl = {skip: 0, limit: 2}
+
+  var initialPageControl = function(){
+    FollowPageControl = {skip: 0, limit: 2}
+    allfollowdoctors = new Array()
+  }
+
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
     Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit, token: Storage.get('TOKEN')}).then(
         function (data) {
-          console.log(data)
+          // console.log(data)
           $scope.$broadcast('scroll.infiniteScrollComplete')
           allfollowdoctors = allfollowdoctors.concat(data.results)
           $scope.followdoctors = allfollowdoctors
-          console.log($scope.followdoctors)
+          // console.log($scope.followdoctors)
           if (allfollowdoctors.length == 0) {
               console.log('aaa')
               $ionicLoading.show({
@@ -5261,7 +5267,7 @@ var IsDoctor =function (Doctor) {
           }
           var skiploc = data.nexturl.indexOf('skip')
           FollowPageControl.skip = data.nexturl.substring(skiploc + 5)
-          console.log(FollowPageControl.skip)
+          // console.log(FollowPageControl.skip)
           if (data.results.length < FollowPageControl.limit) 
             $scope.followmoredata = false
           else $scope.followmoredata = true
@@ -5293,6 +5299,76 @@ var IsDoctor =function (Doctor) {
     $state.go('tab.myConsultRecord')
     // $scope.loadMore()
   }
+  /**
+   * [点击取消主管医生服务，取消成功后页面显示变为没有主管医生]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   */
+  $scope.cancelMyDoc = function(){
+    DoctorService.DeleteMyDoc().then(function(data){
+      $scope.hasDoctor = false
+    },function(err){
+    })
+  }
+  /**
+   * [关注医生列表点击取关医生，取关成功后刷新关注医生列表并提示取关成功]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param    doctorId:String
+   */
+  $scope.unfollowDoctor = function(doctorId){
+    /**
+     * [关注医生]
+     * @Author   PXY
+     * @DateTime 2017-07-24
+     * @param    {doctorId：String}
+     * @return   data:Object
+     */
+    SecondVersion.UnFollowDoc({doctorId: doctorId}).then(function (data) {
+      if(doctorId === $scope.doctor.userId){
+        $scope.doctor.IsMyFollowDoctor = false
+      }
+      
+      initialPageControl()
+      $scope.myFollowdoc()
+      $ionicLoading.show({
+        template: '取关成功！',
+        duration: 1000,
+        hideOnStateChange: true
+      })
+    }, function (err) {
+
+    })
+  }
+  /**
+   * [关注医生列表点击关注医生，关注成功后刷新关注医生列表并提示关注成功]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param    doctorId:String
+   */
+  $scope.followDoctor = function(doctorId){
+     /**
+     * [关注医生]
+     * @Author   PXY
+     * @DateTime 2017-07-24
+     * @param    {doctorId：String}
+     * @return   data:Object
+     */
+    SecondVersion.FollowDoc({doctorId: doctorId}).then(function (data) {
+      if(doctorId === $scope.doctor.userId){
+        $scope.doctor.IsMyFollowDoctor = true
+      }
+      initialPageControl()
+      $scope.myFollowdoc()
+      $ionicLoading.show({
+        template: '关注成功！',
+        duration: 1000,
+        hideOnStateChange: true
+      })
+    }, function (err) {
+
+    })
+  }
 
   $scope.question = function(DoctorId, docname, charge1){
     QandC.question(DoctorId, docname, charge1)
@@ -5316,11 +5392,10 @@ var IsDoctor =function (Doctor) {
   }
 
   var DoctorId = $stateParams.DoctorId
-  console.log(DoctorId)
   // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      console.log(data)
+      // console.log(data)
       if (data.results) {
         $scope.DisabledConsult = false
       } else {
@@ -5332,7 +5407,7 @@ var IsDoctor =function (Doctor) {
             {
               text: '取消',
               onTap: function (e) {
-                            // e.preventDefault();
+                // e.preventDefault();
               }
             },
             {
@@ -5352,7 +5427,7 @@ var IsDoctor =function (Doctor) {
   })
 
   var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId, token: Storage.get('TOKEN')}). then(
+    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           if (data.DIC==1)
           Doctor.IsMyDoctor = true
@@ -5365,16 +5440,17 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.doctor = ''
+
   Doctor.getDoctorInfo({userId: DoctorId}).then(
-      function (data) {
-        $scope.doctor = data.results
-        IsDoctor($scope.doctor)
-        console.log($scope.doctor)
-      },
-      function (err) {
-        console.log(err)
-      }
-    )
+    function (data) {
+      $scope.doctor = data.results
+      IsDoctor($scope.doctor)
+      console.log($scope.doctor)
+    },
+    function (err) {
+      console.log(err)
+    }
+  )
 
   var ionicLoadingshow = function () {
     $ionicLoading.show({
@@ -6396,7 +6472,7 @@ var IsDoctor =function (Doctor) {
     return (Math.floor(interval / (24 * 3600 * 1000 * 30)))
   }
 
-   var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
+  var distinctTask = function (kidneyType, kidneyTime, kidneyDetail) {
     // debugger
     var sortNo = 1
     if (kidneyDetail) {

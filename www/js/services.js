@@ -346,10 +346,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  var Temp = function(){
+  var Temp = function () {
     return $resource('http://121.43.107.106:4060/api/v2/' + ':path/:route', {path: 'patient'}, {
       getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000},
-      isMyDoctors: {method: 'GET', params: {path:'services',route: 'relation'}, timeout: 10000}
+      isMyDoctors: {method: 'GET', params: {path: 'services', route: 'relation'}, timeout: 10000}
     })
   }
 
@@ -1170,7 +1170,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   return self
 }])
 
-.factory('DoctorService', ['SecondVersion', 'Storage', '$ionicPopup', '$state', '$ionicLoading', function (SecondVersion, Storage, $ionicPopup, $state, $ionicLoading) {
+.factory('DoctorService', ['$q', 'SecondVersion', 'Storage', '$ionicPopup', '$state', '$ionicLoading', function ($q, SecondVersion, Storage, $ionicPopup, $state, $ionicLoading) {
   var self = this
   /**
    * [申请医生为主管医生时，先查看主管医生服务状态：1、有主管医生；2、无主管医生但有申请；3、既无主管医生也无申请
@@ -1234,7 +1234,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
      * @param    {doctorId：String,token:String}
      * @return   data:Object
      */
-    SecondVersion.FollowDoc({doctorId: Doctor.userId, token: Storage.get('TOKEN')}).then(function (data) {
+    SecondVersion.FollowDoc({doctorId: Doctor.userId}).then(function (data) {
       Doctor.IsMyFollowDoctor = true  // 字段待协商
       $ionicLoading.show({
         template: '关注成功！',
@@ -1259,7 +1259,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
      * @param    {doctorId：String,token:String}
      * @return   data:Object
      */
-    SecondVersion.UnFollowDoc({doctorId: Doctor.userId, token: Storage.get('TOKEN')}).then(function (data) {
+    SecondVersion.UnFollowDoc({doctorId: Doctor.userId}).then(function (data) {
       Doctor.IsMyFollowDoctor = false
       $ionicLoading.show({
         template: '取关成功！',
@@ -1276,24 +1276,34 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    * @DateTime 2017-07-24
    */
   self.DeleteMyDoc = function () {
+    var deferred = $q.defer()
     $ionicPopup.confirm({
       title: '删除主管医生',
-      template: '你当前已有主管医生，是否需要删除当前的主管医生？后果将造成其剩余服务时间作废且款项不会返还，是否继续？'
-    }).then(function (res) {
-      if (res) {
-        /**
-         * [删除主管医生后台方法]
-         * @Author   PXY
-         * @DateTime 2017-07-24
-         * @param    {token:String}
-         * @return   data:Object
-         */
-        SecondVersion.CancelDocInCharge({token: Storage.get('TOKEN')}).then(function (data) {
-        }, function (err) {
-
-        })
-      }
+      template: '你当前已有主管医生，是否需要删除当前的主管医生？后果将造成其剩余服务时间作废且款项不会返还，是否继续？',
+      buttons: [
+        {text: '取消',
+          onTap: function (e) {
+            deferred.reject('取消')
+          }
+        },
+        {text: '继续',
+          onTap: function (e) {
+              /**
+              * [删除主管医生]
+              * @Author   PXY
+              * @DateTime 2017-07-24
+              * @return   data:Object
+              */
+            SecondVersion.CancelDocInCharge().then(function (data) {
+              deferred.resolve(data)
+            }, function (err) {
+              deferred.reject(err)
+            })
+          }
+        }
+      ]
     })
+    return deferred.promise
   }
   return self
 }])
@@ -1575,12 +1585,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   return self
 }])
 
-.factory('Temp',['$q', 'Data', function ($q, Data) {
-  var self=this
+.factory('Temp', ['$q', 'Data', function ($q, Data) {
+  var self = this
 
   self.getFollowDoctors = function (params) {
-      var deferred = $q.defer()
-       Data.Temp.getFollowDoctors(
+    var deferred = $q.defer()
+    Data.Temp.getFollowDoctors(
                params,
                function (data, headers) {
                  deferred.resolve(data)
@@ -1588,11 +1598,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                function (err) {
                  deferred.reject(err)
                })
-       return deferred.promise
-     }
+    return deferred.promise
+  }
   self.isMyDoctors = function (params) {
-      var deferred = $q.defer()
-       Data.Temp.isMyDoctors(
+    var deferred = $q.defer()
+    Data.Temp.isMyDoctors(
                params,
                function (data, headers) {
                  deferred.resolve(data)
@@ -1600,9 +1610,9 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                function (err) {
                  deferred.reject(err)
                })
-       return deferred.promise
-     }
-   return self
+    return deferred.promise
+  }
+  return self
 }])
 
 .factory('Patient', ['$q', 'Data', function ($q, Data) {
@@ -2558,7 +2568,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     }
   }
 }])
-.factory('QandC', ['Temp', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function(Temp, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading,  $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat){
+.factory('QandC', ['Temp', '$q', '$http', 'Storage', '$ionicLoading', '$state', '$ionicPopup', '$ionicHistory', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function (Temp, $q, $http, Storage, $ionicLoading, $state, $ionicPopup, $ionicHistory, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
   self = this
   var ionicLoadingshow = function () {
     $ionicLoading.show({
@@ -2569,7 +2579,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     $ionicLoading.hide()
   }
   self.consultable = 1
-  self.question = function(DoctorId, docname, charge1, charge2){
+  self.question = function (DoctorId, docname, charge1, charge2) {
     console.log(docname)
 
     /**
@@ -2941,7 +2951,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             console.log(err)
           })
   }
-  self.consult = function(DoctorId, docname, charge1, charge2){
+  self.consult = function (DoctorId, docname, charge1, charge2) {
    /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
