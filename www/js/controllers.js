@@ -3595,10 +3595,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 监听点击评价的事件
   $scope.$on('gopingjia', function (event, args) {
     event.stopPropagation();
-    var content = arg[1].content;
+    var content = args[1].content;
     if(content.counselId){
         $state.go('tab.consult-comment',{counselId:content.counselId,doctorId:content.docId,patientId:$scope.params.UID});
     }
+  })
+  //监听点击继续付费的事件
+  $scope.$on('nextPay', function (event, args) {
+    event.stopPropagation();
+    var content = args[1].content;
+    $state.go('tab.DoctorDetail', {DoctorId: content.docId})
   })
   function sendNotice (type, status, cnt) {
         // var t = setTimeout(function(){
