@@ -412,7 +412,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log($stateParams.phonevalidType);
 
   $scope.patientofimport = 0
-
   /**
    * [点击获取验证码，如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码]
    * @Author   PXY
@@ -444,9 +443,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        * @return   data:{results:Number，roles:Array} 注：1为未注册；0为已注册
        */
       User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 0) {
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           $scope.logStatus = '该手机号码已经注册！'
-        } else if (data.results == 1) {
+        } else{
           sendSMS(Verify.Phone)
         }
       }, function () {
@@ -457,10 +456,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 如果为重置密码，没注册过的用户不能获取验证码
     else if ($stateParams.phonevalidType == 'reset') {
       User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 1) {
-          $scope.logStatus = '该账户不存在！'
-        } else if (data.results == 0) {
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           sendSMS(Verify.Phone)
+        }else{
+          $scope.logStatus = '该账户不存在！'
         }
       }, function () {
         $scope.logStatus = '连接超时！'
@@ -5576,6 +5575,7 @@ var IsDoctor =function (Doctor) {
 .controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', '$q', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, $q, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
+  console.log($scope.doctor)
   // 购买时长选择范围
   for(var i = 1,items = new Array();i<=12;i++){
     items.push({Name:i+'个月',Value:i})
@@ -5620,6 +5620,8 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
+    console.log(doctorId)
+    debugger
     ionicLoadingshow()
 
     var neworder = {
