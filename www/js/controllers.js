@@ -1270,7 +1270,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 主页面--PXY
 .controller('TabsCtrl', ['$ionicHistory', '$interval', 'News', 'Storage', '$scope', '$timeout', '$state', function ($ionicHistory, $interval, News, Storage, $scope, $timeout, $state) {
-    // $scope.HasUnreadMessages = false;
+  // $scope.HasUnreadMessages = false;
   $scope.GoToMessage = function () {
     Storage.set('messageBackState', $ionicHistory.currentView().stateId)
     $state.go('messages')
@@ -4584,6 +4584,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
+// 测量记录
+.controller('reportsCtrl', ['$scope', function($scope){
+  $scope.toWeekReports = function(){
+
+  }
+}])
+
 // 消息中心--PXY
 .controller('messageCtrl', ['$ionicPopup', 'Counsels', '$q', '$scope', '$state', '$ionicHistory', 'News', 'Storage', 'Doctor', function ($ionicPopup, Counsels, $q, $scope, $state, $ionicHistory, News, Storage, Doctor) {
   var getDocNamePhoto = function (sender, doctor) {
@@ -5178,7 +5185,7 @@ var IsDoctor =function (Doctor) {
   var mydoc = function () {
     Patient.getMyDoctors({userId: Storage.get('UID')}).then(
         function (data) {
-            // console.log(data.results);
+          console.log(data.results);
           if (data.results.doctorId) {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId

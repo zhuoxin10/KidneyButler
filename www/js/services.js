@@ -33,6 +33,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
   baseUrl: 'http://121.43.107.106:4060/api/v1/',
+  baseUrl2: 'http://121.43.107.106:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
@@ -336,8 +337,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
+  var VitalSign = function(){
+    return $resource(CONFIG.baseUrl2 + ':path/:route', {patient},{
+      getPatientSign: {method: 'GET', params: {route: ''}, timeout: 10000}
+    })
+  }
   var Temp = function(){
-    return $resource('http://121.43.107.106:4060/api/v2/' + ':path/:route', {path: 'patient'}, {
+    return $resource(CONFIG.baseUrl2 + ':path/:route', {path: 'patient'}, {
       getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000},
       isMyDoctors: {method: 'GET', params: {path:'services',route: 'relation'}, timeout: 10000}
     })
