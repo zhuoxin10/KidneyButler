@@ -1245,6 +1245,20 @@ button.doctorBtn6{
   border-style: solid;
 }
 
+button.seasonBtn{
+  width:25%;
+  border-color: #ddd;
+  color: #444;
+  height: 30px;
+  font-size:14px;
+  margin: 1px;
+  border-radius: 2px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+
 .item-select-custom {
   position: relative; }
   .item-select-custom select {

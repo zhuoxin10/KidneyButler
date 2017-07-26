@@ -346,8 +346,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  var Temp = function () {
-    return $resource('http://121.43.107.106:4060/api/v2/' + ':path/:route', {path: 'patient'}, {
+
+  //var VitalSign = function(){
+   // return $resource(CONFIG.baseUrl2 + ':path/:route', {patient},{
+  //     getPatientSign: {method: 'GET', params: {route: ''}, timeout: 10000}
+  //   })
+  // }
+  var Temp = function(){
+    return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
       getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000},
       isMyDoctors: {method: 'GET', params: {path: 'services', route: 'relation'}, timeout: 10000}
     })

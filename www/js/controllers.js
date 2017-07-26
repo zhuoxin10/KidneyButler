@@ -1270,7 +1270,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 主页面--PXY
 .controller('TabsCtrl', ['$ionicHistory', '$interval', 'News', 'Storage', '$scope', '$timeout', '$state', function ($ionicHistory, $interval, News, Storage, $scope, $timeout, $state) {
-    // $scope.HasUnreadMessages = false;
+  // $scope.HasUnreadMessages = false;
   $scope.GoToMessage = function () {
     Storage.set('messageBackState', $ionicHistory.currentView().stateId)
     $state.go('messages')
@@ -4590,6 +4590,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
+// 测量记录
+.controller('reportsCtrl', ['$scope', function($scope){
+  $scope.toWeekReports = function(){
+
+  }
+}])
+
 // 消息中心--PXY
 .controller('messageCtrl', ['$ionicPopup', 'Counsels', '$q', '$scope', '$state', '$ionicHistory', 'News', 'Storage', 'Doctor', function ($ionicPopup, Counsels, $q, $scope, $state, $ionicHistory, News, Storage, Doctor) {
   var getDocNamePhoto = function (sender, doctor) {
@@ -5240,7 +5247,7 @@ var IsDoctor =function (Doctor) {
   var mydoc = function () {
     Patient.getMyDoctors({userId: Storage.get('UID')}).then(
         function (data) {
-            // console.log(data.results);
+          console.log(data.results);
           if (data.results.doctorId) {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
@@ -5295,26 +5302,28 @@ var IsDoctor =function (Doctor) {
     allfollowdoctors = new Array()
   }
 
+  //$scope.hasfollowdoctors = true
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
     Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
         function (data) {
-          // console.log(data)
+           console.log(data)
           $scope.$broadcast('scroll.infiniteScrollComplete')
           allfollowdoctors = allfollowdoctors.concat(data.results)
           $scope.followdoctors = allfollowdoctors
           // console.log($scope.followdoctors)
-          if (allfollowdoctors.length == 0) {
-              console.log('aaa')
-              $ionicLoading.show({
+          if (data.results == "未关注任何医生！") {
+              //console.log('aaa')
+              if (!$scope.hasDoctor){
+                $ionicLoading.show({
                   template: '没有医生', duration: 1000
-                })
+                })}
               $scope.hasfollowdoctors=false
           }else{
             $scope.hasfollowdoctors=true
+            var skiploc = data.nexturl.indexOf('skip')  
+            FollowPageControl.skip = data.nexturl.substring(skiploc + 5)
           }
-          var skiploc = data.nexturl.indexOf('skip')
-          FollowPageControl.skip = data.nexturl.substring(skiploc + 5)
           // console.log(FollowPageControl.skip)
           if (data.results.length < FollowPageControl.limit) 
             $scope.followmoredata = false
@@ -5323,7 +5332,7 @@ var IsDoctor =function (Doctor) {
       console.log(err)
     })
   }
-    
+  $scope.myFollowdoc()  
   /**
    * *[android在拉起微信支付时耗时很长，添加loading画面]
    * @Author   ZXF
