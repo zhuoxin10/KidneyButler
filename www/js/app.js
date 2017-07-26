@@ -367,7 +367,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       }
 
     })
-     .state('tab.myMoney', {
+    .state('tab.myMoney', {
        url: '/mine/Account/',
        views: {
          'tab-mine': {
@@ -426,6 +426,43 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         'tab-mine': {
           templateUrl: 'partials/tabs/mine/devices.html',
           controller: 'devicesCtrl'
+        }
+      }
+    })
+
+    .state('tab.weekReports',{
+      url: '/mine/weekReports/',
+      views: {
+        'tab-mine':{
+          templateUrl: 'partials/tabs/mine/weekReports.html',
+          controller: 'weekReportsCtrl'
+        }
+      }
+    })
+    .state('tab.monthReports',{
+      url: '/mine/monthReports/',
+      views: {
+        'tab-mine':{
+          templateUrl: 'partials/tabs/mine/monthReports.html',
+          controller: 'monthReportsCtrl'
+        }
+      }
+    })
+    .state('tab.seasonReports',{
+      url: '/mine/seasonReports/',
+      views: {
+        'tab-mine':{
+          templateUrl: 'partials/tabs/mine/seasonReports.html',
+          controller: 'seasonReportsCtrl'
+        }
+      }
+    })
+    .state('tab.yearReports',{
+      url: '/mine/yearReports/',
+      views: {
+        'tab-mine':{
+          templateUrl: 'partials/tabs/mine/yearReports.html',
+          controller: 'yearReportsCtrl'
         }
       }
     })
