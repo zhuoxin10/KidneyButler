@@ -4922,7 +4922,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId, token: Storage.get('TOKEN')}). then(
+    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           // debugger
           if (data.DIC==1)
@@ -5084,6 +5084,50 @@ var IsDoctor =function (Doctor) {
   $scope.getDoctorDetail = function (id) {
     $state.go('tab.DoctorDetail', {DoctorId: id})
   }
+
+  /**
+   * [申请主管医生，先判断是否已提出申请，如果是则弹窗提示不能申请，如果否再判断是否已存在主管医生，如果是则弹窗提示，确定后跳转申请页面]
+   * @Author   PXY
+   * @DateTime 2017-07-19
+   * @param     Doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.applyMyDoctor = function(doctor) {
+    DoctorService.ifIHaveDoc(doctor)
+    // $state.go('tab.applyDoctor',{applyDoc:Doctor})
+    
+  }
+  /**
+   * [取消主管医生，删除后改变该医生的主管医生状态]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param    doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.cancelMyDoc = function(doctor){
+    DoctorService.DeleteMyDoc().then(function(data){
+      doctor.IsMyDoctor = false
+    })
+  }
+
+  /**
+   * [关注医生]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param     doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.followDoctor = function(doctor){
+    DoctorService.LikeDoctor(doctor)
+  }
+  /**
+   * [取关医生]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param     doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.unfollowDoctor = function(doctor){
+    DoctorService.DislikeDoctor(doctor)
+  }
+
+
 }])
 
 // 医生列表--PXY
@@ -5106,18 +5150,16 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.$on('$ionicView.enter', function () {
-    //if ($ionicHistory.currentView().stateId === 'tab.myDoctors') {
-    //  console.log('enter')
+    
       RefreshUnread = $interval(GetUnread, 2000)
-    //}
+
   })
 
   $scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
-    if ($ionicHistory.currentView().stateId !== 'tab.myDoctors') {
+    
       console.log('destroy')
       $interval.cancel(RefreshUnread)
-    }
   })
     // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
@@ -5172,7 +5214,7 @@ var IsDoctor =function (Doctor) {
   }
 
   var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId, token: Storage.get('TOKEN')}). then(
+    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           // debugger
           if (data.DIC==1)
@@ -5249,7 +5291,7 @@ var IsDoctor =function (Doctor) {
 
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
-    Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit, token: Storage.get('TOKEN')}).then(
+    Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
         function (data) {
           // console.log(data)
           $scope.$broadcast('scroll.infiniteScrollComplete')
@@ -5300,13 +5342,13 @@ var IsDoctor =function (Doctor) {
     // $scope.loadMore()
   }
   /**
-   * [点击取消主管医生服务，取消成功后页面显示变为没有主管医生]
+   * [点击取消主管医生服务，取消成功后刷新主管医生]
    * @Author   PXY
    * @DateTime 2017-07-26
    */
   $scope.cancelMyDoc = function(){
     DoctorService.DeleteMyDoc().then(function(data){
-      $scope.hasDoctor = false
+      mydoc()
     },function(err){
     })
   }
@@ -5340,6 +5382,17 @@ var IsDoctor =function (Doctor) {
 
     })
   }
+
+  /**
+   * [申请主管医生，先判断是否已提出申请，如果是则弹窗提示不能申请，如果否再判断是否已存在主管医生，如果是则弹窗提示，确定后跳转申请页面]
+   * @Author   PXY
+   * @DateTime 2017-07-19
+   * @param     Doctor：页面绑定的doctor对象
+   */
+  $scope.applyMyDoctor = function(Doctor) {
+    DoctorService.ifIHaveDoc(Doctor)
+    
+  }
   /**
    * [关注医生列表点击关注医生，关注成功后刷新关注医生列表并提示关注成功]
    * @Author   PXY
@@ -5347,7 +5400,7 @@ var IsDoctor =function (Doctor) {
    * @param    doctorId:String
    */
   $scope.followDoctor = function(doctorId){
-     /**
+    /**
      * [关注医生]
      * @Author   PXY
      * @DateTime 2017-07-24
@@ -5471,12 +5524,42 @@ var IsDoctor =function (Doctor) {
    * [申请主管医生，先判断是否已提出申请，如果是则弹窗提示不能申请，如果否再判断是否已存在主管医生，如果是则弹窗提示，确定后跳转申请页面]
    * @Author   PXY
    * @DateTime 2017-07-19
-   * @param     DoctorId：String
+   * @param     Doctor：Object 注：页面绑定的doctor对象
    */
-  $scope.applyMyDoctor = function(Doctor) {
-    DoctorService.ifIHaveDoc(Doctor)
+  $scope.applyMyDoctor = function(doctor) {
+    DoctorService.ifIHaveDoc(doctor)
     // $state.go('tab.applyDoctor',{applyDoc:Doctor})
     
+  }
+  /**
+   * [取消主管医生，删除后改变该医生的主管医生状态]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param    doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.cancelMyDoc = function(doctor){
+    DoctorService.DeleteMyDoc().then(function(data){
+      doctor.IsMyDoctor = false
+    })
+  }
+
+  /**
+   * [关注医生]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param     doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.followDoctor = function(doctor){
+    DoctorService.LikeDoctor(doctor)
+  }
+  /**
+   * [取关医生]
+   * @Author   PXY
+   * @DateTime 2017-07-26
+   * @param     doctor：Object 注：页面绑定的doctor对象
+   */
+  $scope.unfollowDoctor = function(doctor){
+    DoctorService.DislikeDoctor(doctor)
   }
 
 
@@ -5641,7 +5724,7 @@ var IsDoctor =function (Doctor) {
             }, function (err) {
               console.log(err)
             }),
-            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration,token:Storage.get('TOKEN')}).then(function(data){
+            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
               console.log(data)
             },function(err){
               console.log(err)

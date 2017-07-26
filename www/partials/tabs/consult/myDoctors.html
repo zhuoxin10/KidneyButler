@@ -112,7 +112,7 @@
             </button>
 
             <!-- 判断该关注医生是否同时为主管医生 -->
-            <button ng-disabled="DisabledConsult" ng-if="doctor.userId!=followdoctor.doctorId.userId" ng-click="applyMyDoctor(doctor.userId)" class="doctorBtn">
+            <button ng-disabled="DisabledConsult" ng-if="doctor.userId!=followdoctor.doctorId.userId" ng-click="applyMyDoctor(followdoctor.doctorId)" class="doctorBtn">
                 <i class="icon ion-person-add"></i>申请为主管医生
             </button>
 
