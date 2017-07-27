@@ -4953,7 +4953,7 @@ var IsDoctor =function (Doctor) {
     Doctor.open = !Doctor.open
     if (Doctor.open){
       IsDoctor(Doctor)
-      console.log("testme")
+      // console.log("testme")
     }
   }
 
@@ -5265,33 +5265,7 @@ var IsDoctor =function (Doctor) {
   }
   mydoc()
 
-  $scope.scanbarcode = function () {
-      // console.log(Storage.get("UID"))
-    $cordovaBarcodeScanner.scan().then(function (imageData) {
-          // alert(imageData.text);
-      if (imageData.cancelled) { return }
-      Patient.bindingMyDoctor({'patientId': Storage.get('UID'), 'doctorId': imageData.text}).then(function (res) {
-        console.log(res)
-            // alert(JSON.stringify(res))
-        if (res.results == '修改成功' || res.results.errcode != '' || res.results.errcode != null) {
-          $ionicPopup.alert({
-            title: '绑定成功！'
-          }).then(function (res) {
-            mydoc()
-            $scope.hasDoctor = true
-                // $state.go('tab.myDoctors');
-          })
-        } else if (res.result == '不存在的医生ID！') {
-          $ionicPopup.alert({
-            title: '不存在的医生ID！'
-          })
-        }
-      }, function () {
-      })
-    }, function (error) {
-      console.log('An error happened -> ' + error)
-    })
-  }
+  
 
   var allfollowdoctors = new Array()
   var FollowPageControl = {skip: 0, limit: 2}
@@ -5301,7 +5275,6 @@ var IsDoctor =function (Doctor) {
     allfollowdoctors = new Array()
   }
 
-  //$scope.hasfollowdoctors = true
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
     Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
@@ -5313,10 +5286,6 @@ var IsDoctor =function (Doctor) {
           // console.log($scope.followdoctors)
           if (data.results == "未关注任何医生！") {
               //console.log('aaa')
-              if (!$scope.hasDoctor){
-                $ionicLoading.show({
-                  template: '没有医生', duration: 1000
-                })}
               $scope.hasfollowdoctors=false
           }else{
             $scope.hasfollowdoctors=true
@@ -5331,6 +5300,7 @@ var IsDoctor =function (Doctor) {
       console.log(err)
     })
   }
+
   $scope.myFollowdoc()  
   /**
    * *[android在拉起微信支付时耗时很长，添加loading画面]
@@ -5436,6 +5406,44 @@ var IsDoctor =function (Doctor) {
 
     })
   }
+
+  $scope.scanbarcode = function () {
+    
+    $cordovaBarcodeScanner.scan().then(function (imageData) {
+          // alert(imageData.text);
+      if (imageData.cancelled){ 
+        return 
+      }
+
+      $scope.followDoctor(imageData.text)
+
+      // Patient.bindingMyDoctor({'patientId': Storage.get('UID'), 'doctorId': imageData.text}).then(function (res) {
+      //   console.log(res)
+      //       // alert(JSON.stringify(res))
+      //   if (res.results == '修改成功' || res.results.errcode != '' || res.results.errcode != null) {
+      //     $ionicPopup.alert({
+      //       title: '绑定成功！'
+      //     }).then(function (res) {
+      //       mydoc()
+      //       $scope.hasDoctor = true
+      //           // $state.go('tab.myDoctors');
+      //     })
+      //   } else if (res.result == '不存在的医生ID！') {
+      //     $ionicPopup.alert({
+      //       title: '不存在的医生ID！'
+      //     })
+      //   }
+      // }, function () {
+      // })
+
+
+
+    }, function (error) {
+      console.log('An error happened -> ' + error)
+    })
+  }
+
+
 
   $scope.question = function(DoctorId, docname, charge1){
     QandC.question(DoctorId, docname, charge1)
@@ -5581,10 +5589,10 @@ var IsDoctor =function (Doctor) {
 
 
 
-.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', '$q', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, $q, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
+.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
-  console.log($scope.doctor)
+  // console.log($scope.doctor)
   // 购买时长选择范围
   for(var i = 1,items = new Array();i<=12;i++){
     items.push({Name:i+'个月',Value:i})
@@ -5629,11 +5637,12 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
-    console.log(doctorId)
-    debugger
+    // console.log(doctorId)
     ionicLoadingshow()
 
     var neworder = {
+      'doctorId':doctorId,
+      'freeFlag':0,
       'userId': Storage.get('UID'),
       'month':duration,
       'role': 'appPatient',
@@ -5642,20 +5651,20 @@ var IsDoctor =function (Doctor) {
       'class': '05',
       'name': '主管医生',
       'notes': doctorId,
-      'paystatus': 0,
-      'paytime': new Date(),
+      // 'paystatus': 0,
+      // 'paytime': new Date(),
       'trade_type': 'APP',
       'body_description': '主管医生服务'
     }
     /**
-     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信]
+     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
      * @Author   PXY
      * @DateTime 2017-07-20
      * @param    neworder：Object
      * @return   orderdata:Object
      */
     Mywechat.addOrder(neworder).then(function (orderdata) {
-      // alert('orderdata:'+JSON.stringify(orderdata))
+      alert('orderdata:'+JSON.stringify(orderdata))
       if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
         var params = {
           'partnerid': '1480817392', // merchant id
@@ -5671,19 +5680,7 @@ var IsDoctor =function (Doctor) {
          */
         ionicLoadinghide()
         Wechat.sendPaymentRequest(params, function (data) {
-          // alert('wechat:'+JSON.stringify(data))
-          $q.all([
-          /**
-           * [给医生账户‘转账’]
-           * @Author   PXY
-           * @DateTime 2017-07-20
-           * @param {patientId:String,doctorId:String,type:String,money:Number}
-           */
-            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
-              console.log(data)
-            }, function (err) {
-              console.log(err)
-            }),
+          alert('wechat:'+JSON.stringify(data))
             /**
              * 发送主管医生服务请求]
              * @Author   PXY
@@ -5691,19 +5688,18 @@ var IsDoctor =function (Doctor) {
              * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
              */
             SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              console.log(data)
+              alert('apply:'+JSON.stringify(data))
+              $ionicPopup.alert({
+                template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+                okText: '好的'
+              }).then(function (e) {
+                $ionicHistory.goBack()
+              })
             },function(err){
-              console.log(err)
+               alert('err:'+JSON.stringify(err))
+              //已支付可是提交主管医生请求失败  这一步很危险
             })
-          ]).then(function(response){
-            // alert('$q response:'+JSON.stringify(response))
-            $ionicPopup.alert({
-              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
-              okText: '好的'
-            }).then(function (e) {
-              $ionicHistory.goBack()
-            })
-          })
+         
 
 
         },function(reason){
@@ -5729,33 +5725,16 @@ var IsDoctor =function (Doctor) {
             hideOnStateChange:true
           })
         }
-        $q.all([
-          /**
-           * *给医生账户‘转账’
-           * @Author   PXY
-           * @DateTime 2017-07-20
-           * @param {patientId:String,doctorId:String,type:String,money:Number}
-           */
-            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
-              console.log(data)
-            }, function (err) {
-              console.log(err)
-            }),
-            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              console.log(data)
-            },function(err){
-              console.log(err)
-            })
-          ]).then(function(response){
-            // alert('$q response:'+JSON.stringify(response))
-            $ionicPopup.alert({
-              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
-              okText: '好的'
-            }).then(function (e) {
-              $ionicHistory.goBack()
-            })
-
+        SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
+          $ionicPopup.alert({
+            template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+            okText: '好的'
+          }).then(function (e) {
+            $ionicHistory.goBack()
           })
+        },function(err){
+          console.log(err)
+        })
       }
     },function(error){
       // alert(JSON.stringify(error))
@@ -7136,7 +7115,7 @@ var IsDoctor =function (Doctor) {
   })
 
   
-  $scope.selectOrdeselect = function (itemId, selected) {
+  $scope.selectOrDeselect = function (itemId, selected) {
     $scope.hasChanged = true
     if (selected) {
       healthCache.push({time: itemId})
@@ -7188,3 +7167,23 @@ var IsDoctor =function (Doctor) {
   }
 }])
 
+
+
+.controller('OrderCtrl', ['SecondVersion','$scope', '$state', '$ionicLoading', function (SecondVersion, $scope, $state, $ionicLoading) {
+  var RefreshOrders = function(){
+    SecondVersion.GetOrders().then(function(data){
+      $scope.myOrders = data.results
+      console.log(data.results)
+    },function(err){
+
+    })
+  }
+  $scope.$on('$ionicView.enter', function () {
+    RefreshOrders()
+  })
+
+  $scope.do_refresher = function () {
+    RefreshOrders()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+}])

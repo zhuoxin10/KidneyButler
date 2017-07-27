@@ -88,3 +88,108 @@ angular.module('kidney.filters', [])
     return name
   }
 }])
+
+.filter('filterOrderType', [function () {
+  return function (type) {
+    var name = '未定义'
+    switch (type) {
+      case 1:
+        name = '咨询'
+        break
+      case 2:
+        name = '问诊'
+        break
+      case 3:
+        name = '加急咨询'
+        break
+      case 4:
+        name = '主管医生'
+        break
+      case 5:
+        name = '面诊'
+        break
+      case 6:
+        name = '咨询升级问诊'
+        break
+    }
+    return name
+  }
+}])
+
+.filter('filterPayStatus', [function () {
+  return function (type) {
+    var name = '未定义'
+    switch (type) {
+      case 0:
+        name = '等待付款'
+        break
+      case 1:
+        name = '预付单'
+        break
+      case 2:
+        name = '支付成功'
+        break
+      case 3:
+        name = '支付失败'
+        break
+      case 4:
+        name = '取消订单'
+        break
+      case 5:
+        name = '订单超时'
+        break
+      case 6:
+        name = '退款成功'
+        break
+    }
+    return name
+  }
+}])
+
+// 微信以分计算，所以需要除以100再转为两位小数
+.filter('filterMoney', [function () {
+  return function (num) {
+    if (isNaN(num)) return
+    return num === 0 ? num.toFixed(2) : (num / 100).toFixed(2)
+  }
+}])
+
+.filter('orderStatus', [function () {
+  return function (orderStatus, order) {
+    console.log(order)
+  }
+}])
+
+.filter('filterOrderStatus', [function () {
+  return function (containObject, type) {
+    switch (type) {
+      case 'consult':
+        name = containObject ? (containObject.status === 0 ? '已结束' : '进行中') : '尚未新建'
+        break
+      case 'incharge':
+        if (containObject) {
+          switch (containObject.invalidFlag) {
+            case 0:
+              name = '待审核'
+              break
+            case 1:
+              name = '已通过'
+              break
+            case 2:
+              name = '已删除'
+              break
+            case 3:
+              name = '未通过'
+              break
+          }
+        } else {
+          name = '提交失败'
+        }
+      case 'appointment':
+        // 这个字段等面诊做好之后可能需要修改
+        name = containObject ? (containObject.status === 0 ? '预约成功' : '预约取消') : '预约失败'
+        break
+    }
+    return name
+  }
+}])
