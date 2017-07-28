@@ -185,6 +185,7 @@ angular.module('kidney.filters', [])
         } else {
           name = '提交失败'
         }
+        break
       case 'appointment':
         // 这个字段等面诊做好之后可能需要修改
         name = containObject ? (containObject.status === 0 ? '预约成功' : '预约取消') : '预约失败'

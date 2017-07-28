@@ -5144,7 +5144,7 @@ var IsDoctor =function (Doctor) {
 
 // 医生列表--PXY
 
-.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient',  'Doctor',  'CONFIG', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient, Doctor, CONFIG) {
+.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient',  function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -5643,16 +5643,17 @@ var IsDoctor =function (Doctor) {
     var neworder = {
       'doctorId':doctorId,
       'freeFlag':0,
+      'type':4,
+      //主管医生类型为4
       'userId': Storage.get('UID'),
       'month':duration,
       'role': 'appPatient',
       // 微信支付以分为单位
       'money': totalAmount * 100,
+      //主管医生的class是05!!!!
       'class': '05',
       'name': '主管医生',
       'notes': doctorId,
-      // 'paystatus': 0,
-      // 'paytime': new Date(),
       'trade_type': 'APP',
       'body_description': '主管医生服务'
     }
