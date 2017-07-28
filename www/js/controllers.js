@@ -2939,7 +2939,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var patientId = Storage.get('UID')
   var GetUnread = function () {
       // console.log(new Date());
-    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
           function (data) {
               // console.log(data);
             if (data.results.length) {
@@ -2970,6 +2970,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
   $scope.GoConsultRecord = function () {
     $state.go('tab.myConsultRecord')
+  }
+  $scope.GoReports = function(){
+    $state.go('tab.Reports')
   }
   $scope.GoHealthInfo = function () {
     $state.go('tab.myHealthInfo')
@@ -4591,10 +4594,33 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 测量记录
-.controller('reportsCtrl', ['$scope', function($scope){
+.controller('ReportsCtrl', ['$scope', 'Measurement', function($scope, Measurement){
+  var date = new Date()
   $scope.toWeekReports = function(){
-
+    $scope.type = "week"
+    document.getElementById('week').style.backgroundColor = "#6ac4f8"
+    document.getElementById('week').style.color = "#FFFFFF"
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "week"}).then(
+      function(data){
+        console.log(data.results)
+      },function(err){
+      })
   }
+  $scope.toMonthReports = function(){
+    $scope.type = "month"
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "week"}).then(
+      function(data){
+        console.log(data.results)
+      },function(err){
+      })
+  }
+  $scope.toSeasonReports = function(){
+    $scope.type = "season"
+  }
+  $scope.toYearReports = function(){
+    $scope.type = 'year'
+  }
+  $scope.toWeekReports()
 }])
 
 // 消息中心--PXY
@@ -5220,11 +5246,6 @@ var IsDoctor =function (Doctor) {
     $scope.alldoctortype = '108px'
   }
 
-  $scope.clearSearch = function () {
-    $scope.searchCont = {}
-        // 清空之后获取所有医生
-    ChangeSearch()
-  }
 
   var IsDoctor =function (Doctor) {
     Temp.isMyDoctors({doctorId:Doctor.userId}). then(
@@ -5245,10 +5266,10 @@ var IsDoctor =function (Doctor) {
   $scope.followmoredata = true
     // 获取我的主管医生信息
   var mydoc = function () {
-    Patient.getMyDoctors({userId: Storage.get('UID')}).then(
+    SecondVersion.MyDocInCharge().then(
         function (data) {
-          console.log(data.results);
-          if (data.results.doctorId) {
+          console.log(data.results)
+          if (data.message == "当前已有主管医生!") {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
             IsDoctor($scope.doctor)
@@ -5259,6 +5280,9 @@ var IsDoctor =function (Doctor) {
               // }
           } else {
             $scope.hasDoctor = false
+            x = document.getElementById("message")
+            console.log(x)
+            x.innerHTML = data.message
           }
         }, function (err) {
       console.log(err)
@@ -5313,11 +5337,6 @@ var IsDoctor =function (Doctor) {
           $scope.followdoctors = allfollowdoctors
           // console.log($scope.followdoctors)
           if (data.results == "未关注任何医生！") {
-              //console.log('aaa')
-              if (!$scope.hasDoctor){
-                $ionicLoading.show({
-                  template: '没有医生', duration: 1000
-                })}
               $scope.hasfollowdoctors=false
           }else{
             $scope.hasfollowdoctors=true
