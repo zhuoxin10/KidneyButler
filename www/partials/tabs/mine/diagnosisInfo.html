@@ -1,14 +1,14 @@
 <ion-view cache-view="false" title="诊断记录" hide-tabs>
 
-        <ion-nav-buttons side="left" >
-            <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
-      </ion-nav-buttons>
+  <ion-nav-buttons side="left" >
+      <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
+  </ion-nav-buttons>
 
 
   <ion-content padding="true">
 
     <ion-list>
-      <ion-item ng-repeat="diagnosis in Diags" class="item-text-wrap" ng-click="">
+      <ion-item ng-repeat="diagnosis in Diags" class="item-text-wrap">
         <div class="row">
             <h2 class="col" style="color: #181544;font-weight: bold">{{diagnosis.doctor.name}}</h2>
             <p class="col" style="color: #181544;font-size:12px;text-align:right">{{diagnosis.time|dateFormat:"YYYY-MM-DD"}}</p>

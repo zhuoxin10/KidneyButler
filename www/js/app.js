@@ -95,6 +95,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     }
     if (window.StatusBar) {
       StatusBar.backgroundColorByHexString('#33bbff')
+      StatusBar.overlaysWebView(false)
+      // 尝试解决ios状态栏问题
       // StatusBar.styleDefault();
     }
     $rootScope.$on('$cordovaLocalNotification:click', function (event, note, state) {
@@ -332,10 +334,10 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
     })
     .state('tab.myHealthInfo', {
-      url: '/mine/HealthInfo',
+      url: '/mine/health/HealthInfo',
       views: {
         'tab-mine': {
-          templateUrl: 'partials/tabs/mine/HealthInfo.html',
+          templateUrl: 'partials/tabs/mine/health/HealthInfo.html',
           controller: 'HealthInfoCtrl'
         }
 
@@ -344,11 +346,11 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     })
     .state('tab.myHealthInfoDetail', {
       cache: false,
-      url: '/mine/HealthInfoDetail/',
+      url: '/mine/health/HealthInfoDetail',
       params: {id: null, caneidt: null},
       views: {
         'tab-mine': {
-          templateUrl: 'partials/tabs/mine/editHealthInfo.html',
+          templateUrl: 'partials/tabs/mine/health/editHealthInfo.html',
           controller: 'HealthDetailCtrl'
         }
 
@@ -368,16 +370,22 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
     })
     .state('tab.myMoney', {
-       url: '/mine/Account/',
-       views: {
-         'tab-mine': {
-           templateUrl: 'partials/tabs/mine/money.html',
-           controller: 'MoneyCtrl'
-         }
+      url: '/mine/Account',
+      views: {
+        'tab-mine': {
+          templateUrl: 'partials/tabs/mine/account/money.html',
+          controller: 'MoneyCtrl'
+        }
+      }
+    })
 
-       }
+    .state('orderRecord', {
+      cache: false,
+      url: '/order',
+      templateUrl: 'partials/tabs/mine/account/orderRecord.html',
+      controller: 'OrderCtrl'
+    })
 
-     })
     .state('tab.about', {
       url: '/mine/about',
       views: {
@@ -430,37 +438,37 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       }
     })
 
-    .state('tab.weekReports',{
+    .state('tab.weekReports', {
       url: '/mine/weekReports/',
       views: {
-        'tab-mine':{
+        'tab-mine': {
           templateUrl: 'partials/tabs/mine/weekReports.html',
           controller: 'weekReportsCtrl'
         }
       }
     })
-    .state('tab.monthReports',{
+    .state('tab.monthReports', {
       url: '/mine/monthReports/',
       views: {
-        'tab-mine':{
+        'tab-mine': {
           templateUrl: 'partials/tabs/mine/monthReports.html',
           controller: 'monthReportsCtrl'
         }
       }
     })
-    .state('tab.seasonReports',{
+    .state('tab.seasonReports', {
       url: '/mine/seasonReports/',
       views: {
-        'tab-mine':{
+        'tab-mine': {
           templateUrl: 'partials/tabs/mine/seasonReports.html',
           controller: 'seasonReportsCtrl'
         }
       }
     })
-    .state('tab.yearReports',{
+    .state('tab.yearReports', {
       url: '/mine/yearReports/',
       views: {
-        'tab-mine':{
+        'tab-mine': {
           templateUrl: 'partials/tabs/mine/yearReports.html',
           controller: 'yearReportsCtrl'
         }

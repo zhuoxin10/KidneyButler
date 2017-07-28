@@ -1168,6 +1168,12 @@ button.doctorBtn{
   border-style: solid;
 }
 
+p.tag{
+  color: #fff;
+  text-align: center;
+  border-radius: 5px
+}
+
 
 button.doctorBtn2{
   width:50%;
