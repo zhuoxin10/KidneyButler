@@ -10,7 +10,7 @@
 
     <script type="text/javascript"></script>
     <ion-content  class="padding">
-        <ion-checkbox id="healthCheck" ng-repeat="item in items " ng-disabled = "!item.selected && overflow" ng-checked="item.selected" on-hold="gotoHealthDetail(item)" ng-model="item.selected" ng-change="selectOrdeselect(item.insertTime,item.selected)" on-tap="popAlert(selectNumber)" >
+        <ion-checkbox id="healthCheck" ng-repeat="item in items " ng-disabled = "!item.selected && overflow" ng-checked="item.selected" on-hold="gotoHealthDetail(item)" ng-model="item.selected" ng-change="selectOrDeselect(item.insertTime,item.selected)" on-tap="popAlert(selectNumber)" >
             
                 <div class="row">
                     <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>

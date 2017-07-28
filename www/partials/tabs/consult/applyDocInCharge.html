@@ -21,17 +21,17 @@
 
     <label  class="item item-input item-select-custom blue-round-input">
         <span class="input-label">购买时长</span>
-        <select ng-model="ChargeDuration" name="chargeDuration" ng-change="changeTotal(ChargeDuration,doctor.charge3)" ng-options="Duration.Name for Duration in Durations track by Duration.Value">
+        <select ng-model="ChargeDuration" name="chargeDuration" ng-change="changeTotal(ChargeDuration,doctor.charge4)" ng-options="Duration.Name for Duration in Durations track by Duration.Value">
         </select>
     </label>
 
     <div class="row">
       <span class="col">医生收费</span>
-      <span class="col" style="text-align: right;">{{doctor.charge3}}(元/月)</span>
+      <span class="col" style="text-align: right;">{{doctor.charge4}}(元/月)</span>
     </div>
     <div class="row">
       <span class="col">付款金额</span>
-      <span class="col" style="text-align: right;font-weight: bold;color:#6ac4f8">{{ChargeTotal}}元</span>
+      <span class="col" style="text-align: right;font-weight: bold;color:#6ac4f8">{{ChargeTotal||doctor.charge4}}元</span>
     </div>
 
 

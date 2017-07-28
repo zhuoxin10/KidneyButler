@@ -278,13 +278,16 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 .factory('Data', ['$resource', '$q', '$interval', 'CONFIG', function ($resource, $q, $interval, CONFIG) {
   var serve = {}
   var abort = $q.defer()
+
   var SecondVersion = function () {
     return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
       ApplyDocInCharge: {method: 'POST', params: {route: 'doctorInCharge'}, timeout: 100000},
       FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000},
       UnFollowDoc: {method: 'POST', params: {route: 'unfollowFavoriteDoctor'}, timeout: 100000},
       MyDocInCharge: {method: 'GET', params: {route: 'myDoctorsInCharge'}, timeout: 100000},
-      CancelDocInCharge: {method: 'POST', params: {route: 'cancelDoctorInCharge'}, timeout: 100000}
+      CancelDocInCharge: {method: 'POST', params: {route: 'cancelDoctorInCharge'}, timeout: 100000},
+
+      GetOrders: {method: 'GET', params: {path: 'order', route: 'order'}, timeout: 100000}
 
     })
   }
@@ -347,13 +350,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
 
-  var Measurement = function(){
+
+  var Measurement = function() {
     return $resource(CONFIG.version2Url + ':path/:route', {path: 'report'},{
        getPatientSign: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 10000}
      })
    }
 
-  var Temp = function(){
+  var Temp = function() {
     return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
       getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000},
       isMyDoctors: {method: 'GET', params: {path: 'services', route: 'relation'}, timeout: 10000}
@@ -612,6 +616,21 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.CancelDocInCharge = function (params) {
     var deferred = $q.defer()
     Data.SecondVersion.CancelDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+
+  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.GetOrders = function (params) {
+    var deferred = $q.defer()
+    Data.SecondVersion.GetOrders(
             params,
             function (data, headers) {
               deferred.resolve(data)
