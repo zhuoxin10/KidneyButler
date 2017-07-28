@@ -5592,7 +5592,7 @@ var IsDoctor =function (Doctor) {
 .controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
-  // console.log($scope.doctor)
+  console.log($scope.doctor)
   // 购买时长选择范围
   for(var i = 1,items = new Array();i<=12;i++){
     items.push({Name:i+'个月',Value:i})
@@ -5602,9 +5602,6 @@ var IsDoctor =function (Doctor) {
 
   // 默认选中的购买时长
   $scope.ChargeDuration = {Name:'一个月',Value:1}
-  // 临时写的
-  $scope.doctor.charge3 = 0.01
-  $scope.ChargeTotal = $scope.doctor.charge3
   /**
    * [根据选中购买时长改变总金额]
    * @Author   PXY
@@ -5642,6 +5639,7 @@ var IsDoctor =function (Doctor) {
 
     var neworder = {
       'doctorId':doctorId,
+      //freeFlag为1表示免费
       'freeFlag':0,
       'type':4,
       //主管医生类型为4
