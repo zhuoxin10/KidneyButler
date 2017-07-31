@@ -4606,7 +4606,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     document.getElementById('week').style.color = "#FFFFFF"
     var date = new Date()
     // var date = "2017-05-27T00:00:00.000Z"
-    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "week"}).then(
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "week", modify:0}).then(
       function(data){
         console.log(data.results)
         var vitalsign = new Array()
@@ -4705,7 +4705,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //体重
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "week"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "week", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -4803,7 +4803,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
 
 //血压
- Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "week"}).then(
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "week", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -4907,7 +4907,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //尿量
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "week"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "week", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5005,7 +5005,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //心率
-  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "week"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "week", modify:0}).then(
       function(data){
         console.log(data.results)
         var vitalsign = new Array()
@@ -5111,7 +5111,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     document.getElementById('month').style.color = "#FFFFFF"
     var date = new Date()
       var date = "2017-05-27T00:00:00.000Z"
-      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "month"}).then(
+      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "month", modify:0}).then(
       function(data){
         console.log(data.results)
         var vitalsign = new Array()
@@ -5210,7 +5210,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //体重
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "month"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "month", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5308,7 +5308,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
 
 //血压
- Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "month"}).then(
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "month", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5412,7 +5412,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //尿量
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "month"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "month", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5510,7 +5510,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //心率
-  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "month"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "month", modify:"0"}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5617,7 +5617,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     document.getElementById('season').style.color = "#FFFFFF"
     var date = new Date()
       var date = "2017-05-27T00:00:00.000Z"
-      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "season"}).then(
+      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "season", modify:"0"}).then(
       function(data){
         console.log(data.results)
         var vitalsign = new Array()
@@ -5716,7 +5716,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //体重
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "season"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "season", modify:"0"}).then(
       function(data){
         var vitalsign = new Array()
         var ChartData = new Array()
@@ -5812,7 +5812,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
 
 //血压
- Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "season"}).then(
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "season", modify:"0"}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -5916,7 +5916,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //尿量
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "season"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "season", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -6014,7 +6014,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //心率
-  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "season"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "season", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -6123,7 +6123,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var date = "2017-12-27T00:00:00.000Z"
     console.log(date)
 //体温    
-    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "year"}).then(
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "year", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -6220,7 +6220,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
 
 //体重
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "year"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "year", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -6317,7 +6317,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
 
 //血压
- Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "year"}).then(
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "year", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
@@ -6421,7 +6421,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 //尿量
-  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "year"}).then(
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "year", modify:0}).then(
       function(data){
         console.log(data.results)
         //年图 
