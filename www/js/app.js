@@ -95,8 +95,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     }
     if (window.StatusBar) {
       StatusBar.backgroundColorByHexString('#33bbff')
-      StatusBar.overlaysWebView(false)
-      // 尝试解决ios状态栏问题
+
       // StatusBar.styleDefault();
     }
     $rootScope.$on('$cordovaLocalNotification:click', function (event, note, state) {
