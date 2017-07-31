@@ -13,7 +13,8 @@
     <div style="text-align:center; height:44px;" class="row">
       <button ng-click="last()" class="seasonBtn2"><i class="icon ion-ios-arrow-left"></i></button>
       <button class="seasonBtn2"></button> <!-- 不要删掉这一行 -->
-      <button ng-click="next()" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
+      <button ng-if="modify" ng-click="next()" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
+      <button ng-if="!modify" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
     </div> 
 
     <div ng-if="type=='week'">

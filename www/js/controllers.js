@@ -444,9 +444,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        * @return   data:{results:Number，roles:Array} 注：1为未注册；0为已注册
        */
       User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 0) {
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           $scope.logStatus = '该手机号码已经注册！'
-        } else if (data.results == 1) {
+        } else {
           sendSMS(Verify.Phone)
         }
       }, function () {
@@ -457,10 +457,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 如果为重置密码，没注册过的用户不能获取验证码
     else if ($stateParams.phonevalidType == 'reset') {
       User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 1) {
-          $scope.logStatus = '该账户不存在！'
-        } else if (data.results == 0) {
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           sendSMS(Verify.Phone)
+        }else{
+          $scope.logStatus = '该账户不存在！'
         }
       }, function () {
         $scope.logStatus = '连接超时！'
@@ -6522,7 +6522,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 //  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "year"}).then(  
   }
   $scope.last = function(){
+    console.log($scope.modify)
     $scope.modify -= 1
+  }
+  $scope.next = function(){
+    console.log($scope.modify)
+    $scope.modify +=1
   }
   $scope.toWeekReports()
 }])
@@ -7612,19 +7617,17 @@ var IsDoctor =function (Doctor) {
              * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
              */
             SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              console.log(data)
+              alert('apply:'+JSON.stringify(data))
+              $ionicPopup.alert({
+                template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+                okText: '好的'
+              }).then(function (e) {
+                $ionicHistory.goBack()
+              })
             },function(err){
-              console.log(err)
+              alert('err:'+JSON.stringify(err))
+              //已支付可是提交主管医生请求失败  这一步很危险
             })
-          ]).then(function(response){
-            // alert('$q response:'+JSON.stringify(response))
-            $ionicPopup.alert({
-              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
-              okText: '好的'
-            }).then(function (e) {
-              $ionicHistory.goBack()
-            })
-          })
 
 
         },function(reason){
