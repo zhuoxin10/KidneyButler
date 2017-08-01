@@ -7,7 +7,7 @@
     </ion-nav-buttons>
     
      <div class="bar bar-header" style="position:absolute;top:32px; border: none;">  
-        <button style="margin-top:10px" class="doctorBtn" ng-click ="allDoctors()" >
+        <button style="margin-top:10px" class="doctorBtn" ng-click ="allDoctors()">
             更多医生
         </button>
 
@@ -58,9 +58,9 @@
             </div>
         </div>
 
-        <div ng-if="!hasDoctor" style="line-height: 30px;text-align: center;">
+        <div id="message" ng-if="!hasDoctor" style="line-height: 30px;text-align: center;">
             <!-- <div class="item item-text-wrap"> -->
-                你目前还没有主管医生！
+               <!-- 你目前还没有主管医生！-->
             <!-- </div> -->
         </div>
     </div>

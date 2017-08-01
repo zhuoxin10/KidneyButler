@@ -412,6 +412,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log($stateParams.phonevalidType);
 
   $scope.patientofimport = 0
+
   /**
    * [点击获取验证码，如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码]
    * @Author   PXY
@@ -445,7 +446,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       User.getUserID({username: Verify.Phone}).then(function (data) {
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           $scope.logStatus = '该手机号码已经注册！'
-        } else{
+        } else {
           sendSMS(Verify.Phone)
         }
       }, function () {
@@ -2938,7 +2939,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var patientId = Storage.get('UID')
   var GetUnread = function () {
       // console.log(new Date());
-    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
           function (data) {
               // console.log(data);
             if (data.results.length) {
@@ -2969,6 +2970,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
   $scope.GoConsultRecord = function () {
     $state.go('tab.myConsultRecord')
+  }
+  $scope.GoReports = function(){
+    $state.go('tab.Reports')
   }
   $scope.GoHealthInfo = function () {
     $state.go('tab.myHealthInfo')
@@ -4590,10 +4594,1942 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 测量记录
-.controller('reportsCtrl', ['$scope', function($scope){
+.controller('ReportsCtrl', ['$scope', 'Measurement', function($scope, Measurement){
   $scope.toWeekReports = function(){
+    $scope.modify = 0
+    if ($scope.type){
+      document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
+      document.getElementById($scope.type).style.color = "#000000"
+    }
+    $scope.type = "week"
+    document.getElementById('week').style.backgroundColor = "#6ac4f8"
+    document.getElementById('week').style.color = "#FFFFFF"
+    var date = new Date()
+    // var date = "2017-05-27T00:00:00.000Z"
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "week", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        console.log(vitalsign.results.dataTemp.length==0)
+        if(vitalsign.results.dataTemp.length==0){
+          console.log('no data')
+              var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体温的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体温',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '温度(°C)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '°C'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体温℃',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+
+//体重
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "week", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.dataTemp.length==0){
+            var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体重的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }
+          else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体重',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '质量(Kg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'Kg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体重Kg',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+//血压
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "week", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData1 = new Array()
+        var ChartData2 = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+        var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有血压的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData1 = vitalsign.results.dataSBP
+        ChartData2 = vitalsign.results.dataDBP
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '血压',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '压强(mmHg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mmHg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '高压mmHg',
+        data: ChartData1
+    },{
+        name: '低压mmHg',
+        data: ChartData2
+    }
+    ]
+})
+     } },function(err){
+      })
+
+
+//尿量
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "week", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有尿量的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '尿量',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '体积(mL)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mL'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '尿量mL',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+
+//心率
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "week", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有心率的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '心率',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '频率(次/分钟)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '次/分钟'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '心率（次/分钟）',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
 
   }
+
+  $scope.toMonthReports = function(){
+    $scope.modify = 0
+    document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
+    document.getElementById($scope.type).style.color = "#000000"
+    $scope.type = "month"
+    document.getElementById('month').style.backgroundColor = "#6ac4f8"
+    document.getElementById('month').style.color = "#FFFFFF"
+    var date = new Date()
+      var date = "2017-05-27T00:00:00.000Z"
+      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "month", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        console.log(vitalsign.results.dataTemp.length==0)
+        if(vitalsign.results.dataTemp.length==0){
+          console.log('no data')
+              var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体温的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体温',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '温度(°C)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '°C'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体温℃',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+
+//体重
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "month", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.dataTemp.length==0){
+            var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体重的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }
+          else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体重',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '质量(Kg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'Kg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体重Kg',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+//血压
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "month", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData1 = new Array()
+        var ChartData2 = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+        var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有血压的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData1 = vitalsign.results.dataSBP
+        ChartData2 = vitalsign.results.dataDBP
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '血压',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '压强(mmHg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mmHg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '高压mmHg',
+        data: ChartData1
+    },{
+        name: '低压mmHg',
+        data: ChartData2
+    }
+    ]
+})
+     } },function(err){
+      })
+
+
+//尿量
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "month", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有尿量的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '尿量',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '体积(mL)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mL'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '尿量mL',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+
+//心率
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "month", modify:"0"}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有心率的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '心率',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '频率(次/分钟)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '次/分钟'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '心率（次/分钟）',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+  }
+
+  $scope.toSeasonReports = function(){
+    $scope.modify = 0
+    document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
+    document.getElementById($scope.type).style.color = "#000000"
+    $scope.type = "season"
+    document.getElementById('season').style.backgroundColor = "#6ac4f8"
+    document.getElementById('season').style.color = "#FFFFFF"
+    var date = new Date()
+      var date = "2017-05-27T00:00:00.000Z"
+      Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "season", modify:"0"}).then(
+      function(data){
+        console.log(data.results)
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        console.log(vitalsign.results.dataTemp.length==0)
+        if(vitalsign.results.dataTemp.length==0){
+          console.log('no data')
+              var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体温的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体温',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '温度(°C)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '°C'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体温℃',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+
+//体重
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "season", modify:"0"}).then(
+      function(data){
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.dataTemp.length==0){
+            var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体重的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }
+          else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体重',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '质量(Kg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'Kg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体重Kg',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+//血压
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "season", modify:"0"}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData1 = new Array()
+        var ChartData2 = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+        var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有血压的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData1 = vitalsign.results.dataSBP
+        ChartData2 = vitalsign.results.dataDBP
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '血压',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '压强(mmHg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mmHg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '高压mmHg',
+        data: ChartData1
+    },{
+        name: '低压mmHg',
+        data: ChartData2
+    }
+    ]
+})
+     } },function(err){
+      })
+
+
+//尿量
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "season", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有尿量的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '尿量',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '体积(mL)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mL'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '尿量mL',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+
+//心率
+  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "season", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有心率的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container5', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '心率',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '频率(次/分钟)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '次/分钟'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '心率（次/分钟）',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+  }
+
+  $scope.toYearReports = function(){
+    $scope.modify = 0
+    document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
+    document.getElementById($scope.type).style.color = "#000000"
+    $scope.type = "year"
+    document.getElementById('year').style.backgroundColor = "#6ac4f8"
+    document.getElementById('year').style.color = "#FFFFFF"
+    var date = new Date()
+    var date = "2017-12-27T00:00:00.000Z"
+    console.log(date)
+//体温    
+    Measurement.getPatientSign({time: date, type: "Measure", code: "Temperature", showType: "year", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体温的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container1', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体温',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '温度(°C)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: '°C'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体温℃',
+        data: ChartData
+    }]
+})
+     }},function(err){
+      })
+
+//体重
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Weight", showType: "year", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+         if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有体重的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container2', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '体重',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '质量(Kg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'Kg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '体重Kg',
+        data: ChartData
+    }]
+})
+      }},function(err){
+      })
+
+//血压
+ Measurement.getPatientSign({time: date, type: "Measure", code: "BloodPressure", showType: "year", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData1 = new Array()
+        var ChartData2 = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有血压的测量数据！',
+        x: 0,
+        y: 20,
+    }
+})
+        }else{
+        ChartData1 = vitalsign.results.dataSBP
+        ChartData2 = vitalsign.results.dataDBP
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container3', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '血压',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '压强(mmHg)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mmHg'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '高压mmHg',
+        data: ChartData1
+    },{
+        name: '低压mmHg',
+        data: ChartData2
+    }
+    ]
+})
+     } },function(err){
+      })
+
+
+//尿量
+  Measurement.getPatientSign({time: date, type: "Measure", code: "Vol", showType: "year", modify:0}).then(
+      function(data){
+        console.log(data.results)
+        //年图 
+        var vitalsign = new Array()
+        var ChartData = new Array()
+        var ChartTime = new Array()
+        var ChartTimeTemp = new Array()
+        vitalsign = data
+        if(vitalsign.results.recordTimeTemp.length==0){
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+     }, 
+    title: {
+        text: '您没有尿量的测量数据！',
+        x: 0,
+        y: 20,
+    }
+    })
+        }else{
+        ChartData = vitalsign.results.dataTemp
+        ChartTimeTemp = vitalsign.results.recordTimeTemp
+        for(i=0; i<ChartTimeTemp.length; i++){
+           ChartTime[i]=ChartTimeTemp[i].substring(0,10)
+        }
+        // console.log(ChartTime)
+        // console.log(ChartData)
+    var chart = new Highcharts.Chart('container4', {
+    credits:{enabled:false},
+    chart: {
+      // backgroundColor:"#ECFFFF",//图表背景色  
+                    // borderWidth:5,//图表边框宽度  
+                    borderRadius:5,//图表边框圆角角度  
+                    // plotBackgroundColor:"#46A3FF",//主图表区背景颜色  
+                    // plotBorderColor:'blue',//主图表边框颜色  
+                    // plotBorderWidth:2,//主图表边框宽度  
+                    shadow:true,//是否设置阴影  
+      
+      zoomType:'xy'
+    }, 
+     colors:[       
+                    '#FF8040',
+                    '#66B3FF',
+                    '#0080FF',
+                    '#00FF00',//绿  
+                    '#0000FF',//蓝  
+                    '#FFFF00',//黄  
+                    '#FF00FF',//紫  
+                    '#FFFFFF',//紫 
+                    '#000000',//黑  
+                    '#FF0000',//红  
+                  ],  
+    title: {
+        text: '尿量',
+        x: 0,
+        y: 33,
+    },
+    xAxis: {
+        categories: ChartTime
+    },
+    yAxis: {
+        title: {
+            text: '体积(mL)',
+            x:0,
+            y:-10
+        },
+        plotLines: [{
+          //控制x轴线型
+            value: 0,
+            width: 0.1,
+            color: '#808080'
+        }]
+    },
+    tooltip: {
+        valueSuffix: 'mL'
+    },
+    legend: {
+        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+        borderWidth: 0,
+        x:0,
+        y:+50
+    },
+    series: [{
+        name: '尿量mL',
+        data: ChartData
+    }]
+})
+     } },function(err){
+      })
+
+
+//心率
+//  Measurement.getPatientSign({time: date, type: "Measure", code: "HeartRate", showType: "year"}).then(  
+  }
+  $scope.last = function(){
+    console.log($scope.modify)
+    $scope.modify -= 1
+  }
+  $scope.next = function(){
+    console.log($scope.modify)
+    $scope.modify +=1
+  }
+  $scope.toWeekReports()
 }])
 
 // 消息中心--PXY
@@ -4953,7 +6889,7 @@ var IsDoctor =function (Doctor) {
     Doctor.open = !Doctor.open
     if (Doctor.open){
       IsDoctor(Doctor)
-      // console.log("testme")
+      console.log("testme")
     }
   }
 
@@ -5144,7 +7080,7 @@ var IsDoctor =function (Doctor) {
 
 // 医生列表--PXY
 
-.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient',  function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
+.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -5219,11 +7155,6 @@ var IsDoctor =function (Doctor) {
     $scope.alldoctortype = '108px'
   }
 
-  $scope.clearSearch = function () {
-    $scope.searchCont = {}
-        // 清空之后获取所有医生
-    ChangeSearch()
-  }
 
   var IsDoctor =function (Doctor) {
     Temp.isMyDoctors({doctorId:Doctor.userId}). then(
@@ -5244,10 +7175,10 @@ var IsDoctor =function (Doctor) {
   $scope.followmoredata = true
     // 获取我的主管医生信息
   var mydoc = function () {
-    Patient.getMyDoctors({userId: Storage.get('UID')}).then(
+    SecondVersion.MyDocInCharge().then(
         function (data) {
-          console.log(data.results);
-          if (data.results.doctorId) {
+          console.log(data.results)
+          if (data.message == "当前已有主管医生!") {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
             IsDoctor($scope.doctor)
@@ -5258,6 +7189,9 @@ var IsDoctor =function (Doctor) {
               // }
           } else {
             $scope.hasDoctor = false
+            x = document.getElementById("message")
+            console.log(x)
+            x.innerHTML = data.message
           }
         }, function (err) {
       console.log(err)
@@ -5265,7 +7199,33 @@ var IsDoctor =function (Doctor) {
   }
   mydoc()
 
-  
+/*  $scope.scanbarcode = function () {
+      // console.log(Storage.get("UID"))
+    $cordovaBarcodeScanner.scan().then(function (imageData) {
+          // alert(imageData.text);
+      if (imageData.cancelled) { return }
+      Patient.bindingMyDoctor({'patientId': Storage.get('UID'), 'doctorId': imageData.text}).then(function (res) {
+        console.log(res)
+            // alert(JSON.stringify(res))
+        if (res.results == '修改成功' || res.results.errcode != '' || res.results.errcode != null) {
+          $ionicPopup.alert({
+            title: '绑定成功！'
+          }).then(function (res) {
+            mydoc()
+            $scope.hasDoctor = true
+                // $state.go('tab.myDoctors');
+          })
+        } else if (res.result == '不存在的医生ID！') {
+          $ionicPopup.alert({
+            title: '不存在的医生ID！'
+          })
+        }
+      }, function () {
+      })
+    }, function (error) {
+      console.log('An error happened -> ' + error)
+    })
+  }*/
 
   var allfollowdoctors = new Array()
   var FollowPageControl = {skip: 0, limit: 2}
@@ -5275,6 +7235,7 @@ var IsDoctor =function (Doctor) {
     allfollowdoctors = new Array()
   }
 
+  //$scope.hasfollowdoctors = true
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
     Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
@@ -5285,7 +7246,6 @@ var IsDoctor =function (Doctor) {
           $scope.followdoctors = allfollowdoctors
           // console.log($scope.followdoctors)
           if (data.results == "未关注任何医生！") {
-              //console.log('aaa')
               $scope.hasfollowdoctors=false
           }else{
             $scope.hasfollowdoctors=true
@@ -5300,7 +7260,6 @@ var IsDoctor =function (Doctor) {
       console.log(err)
     })
   }
-
   $scope.myFollowdoc()  
   /**
    * *[android在拉起微信支付时耗时很长，添加loading画面]
@@ -5406,8 +7365,7 @@ var IsDoctor =function (Doctor) {
 
     })
   }
-
-  $scope.scanbarcode = function () {
+$scope.scanbarcode = function () {
     
     $cordovaBarcodeScanner.scan().then(function (imageData) {
           // alert(imageData.text);
@@ -5442,8 +7400,6 @@ var IsDoctor =function (Doctor) {
       console.log('An error happened -> ' + error)
     })
   }
-
-
 
   $scope.question = function(DoctorId, docname, charge1){
     QandC.question(DoctorId, docname, charge1)
@@ -5592,7 +7548,6 @@ var IsDoctor =function (Doctor) {
 .controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
-  console.log($scope.doctor)
   // 购买时长选择范围
   for(var i = 1,items = new Array();i<=12;i++){
     items.push({Name:i+'个月',Value:i})
@@ -5602,6 +7557,9 @@ var IsDoctor =function (Doctor) {
 
   // 默认选中的购买时长
   $scope.ChargeDuration = {Name:'一个月',Value:1}
+  // 临时写的
+  //$scope.doctor.charge3 = 0.01
+  //$scope.ChargeTotal = $scope.doctor.charge3
   /**
    * [根据选中购买时长改变总金额]
    * @Author   PXY
@@ -5634,7 +7592,6 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
-    // console.log(doctorId)
     ionicLoadingshow()
 
     var neworder = {
@@ -5648,10 +7605,11 @@ var IsDoctor =function (Doctor) {
       'role': 'appPatient',
       // 微信支付以分为单位
       'money': totalAmount * 100,
-      //主管医生的class是05!!!!
       'class': '05',
       'name': '主管医生',
       'notes': doctorId,
+//      'paystatus': 0,
+//      'paytime': new Date(),
       'trade_type': 'APP',
       'body_description': '主管医生服务'
     }
@@ -5680,6 +7638,18 @@ var IsDoctor =function (Doctor) {
         ionicLoadinghide()
         Wechat.sendPaymentRequest(params, function (data) {
           alert('wechat:'+JSON.stringify(data))
+          // $q.all([
+          // /**
+          //  * [给医生账户‘转账’]
+          //  * @Author   PXY
+          //  * @DateTime 2017-07-20
+          //  * @param {patientId:String,doctorId:String,type:String,money:Number}
+          //  */
+          //   Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
+          //     console.log(data)
+          //   }, function (err) {
+          //     console.log(err)
+          //   }),
             /**
              * 发送主管医生服务请求]
              * @Author   PXY
@@ -5695,10 +7665,9 @@ var IsDoctor =function (Doctor) {
                 $ionicHistory.goBack()
               })
             },function(err){
-               alert('err:'+JSON.stringify(err))
+              alert('err:'+JSON.stringify(err))
               //已支付可是提交主管医生请求失败  这一步很危险
             })
-         
 
 
         },function(reason){
@@ -7165,8 +9134,6 @@ var IsDoctor =function (Doctor) {
     $state.go('tab.myHealthInfoDetail', {id: editId, caneidt: false})
   }
 }])
-
-
 
 .controller('OrderCtrl', ['SecondVersion','$scope', '$state', '$ionicLoading', function (SecondVersion, $scope, $state, $ionicLoading) {
   var RefreshOrders = function(){

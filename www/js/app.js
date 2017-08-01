@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io', 'angular-jwt'])
+angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io', 'angular-jwt','highcharts-ng'])
 
 .run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   // 主页面显示退出提示框
@@ -438,12 +438,14 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       }
     })
 
-    .state('tab.weekReports', {
-      url: '/mine/weekReports/',
+
+    .state('tab.Reports',{
+      url: '/mine/Reports/',
       views: {
-        'tab-mine': {
-          templateUrl: 'partials/tabs/mine/weekReports.html',
-          controller: 'weekReportsCtrl'
+        'tab-mine':{
+          templateUrl: 'partials/tabs/mine/Reports.html',
+          controller: 'ReportsCtrl'
+
         }
       }
     })

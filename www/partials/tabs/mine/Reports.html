@@ -1,0 +1,55 @@
+<ion-view cache-view="true" title="患者端测量记录">
+   
+  <ion-content>
+
+<!-- <div class="bar bar-header" style="position:absolute; top:-58px; border: none;"> -->
+    <div style="text-align:center;height:44px" class="row">
+      <button id="week" ng-click="toWeekReports()" class="seasonBtn">周</button>
+      <button id="month" ng-click="toMonthReports()" class="seasonBtn">月</button>
+      <button id="season" ng-click="toSeasonReports()" class="seasonBtn">季</button>
+      <button id="year" ng-click="toYearReports()" class="seasonBtn">年</button>
+    </div>   
+
+    <div style="text-align:center; height:44px;" class="row">
+      <button ng-click="last()" class="seasonBtn2"><i class="icon ion-ios-arrow-left"></i></button>
+      <button class="seasonBtn2"></button> <!-- 不要删掉这一行 -->
+      <button ng-if="modify" ng-click="next()" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
+      <button ng-if="!modify" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
+    </div> 
+
+    <div ng-if="type=='week'">
+      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+    </div>
+
+    <div ng-if="type=='month'">
+      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+    </div>
+
+    <div ng-if="type=='season'">
+      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+    </div>
+
+    <div ng-if="type=='year'">
+      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+    </div>
+  <!-- <div style="margin-top: 50px; min-width: 300px; height: 450px;" id="container"></div> -->
+
+  </ion-content>
+
+</ion-view>
