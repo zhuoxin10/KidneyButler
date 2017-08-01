@@ -7080,7 +7080,7 @@ var IsDoctor =function (Doctor) {
 
 // 医生列表--PXY
 
-.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient',  'Doctor',  'CONFIG', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient, Doctor, CONFIG) {
+.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -7199,7 +7199,7 @@ var IsDoctor =function (Doctor) {
   }
   mydoc()
 
-  $scope.scanbarcode = function () {
+/*  $scope.scanbarcode = function () {
       // console.log(Storage.get("UID"))
     $cordovaBarcodeScanner.scan().then(function (imageData) {
           // alert(imageData.text);
@@ -7225,7 +7225,7 @@ var IsDoctor =function (Doctor) {
     }, function (error) {
       console.log('An error happened -> ' + error)
     })
-  }
+  }*/
 
   var allfollowdoctors = new Array()
   var FollowPageControl = {skip: 0, limit: 2}
@@ -7363,6 +7363,41 @@ var IsDoctor =function (Doctor) {
       })
     }, function (err) {
 
+    })
+  }
+$scope.scanbarcode = function () {
+    
+    $cordovaBarcodeScanner.scan().then(function (imageData) {
+          // alert(imageData.text);
+      if (imageData.cancelled){ 
+        return 
+      }
+
+      $scope.followDoctor(imageData.text)
+
+      // Patient.bindingMyDoctor({'patientId': Storage.get('UID'), 'doctorId': imageData.text}).then(function (res) {
+      //   console.log(res)
+      //       // alert(JSON.stringify(res))
+      //   if (res.results == '修改成功' || res.results.errcode != '' || res.results.errcode != null) {
+      //     $ionicPopup.alert({
+      //       title: '绑定成功！'
+      //     }).then(function (res) {
+      //       mydoc()
+      //       $scope.hasDoctor = true
+      //           // $state.go('tab.myDoctors');
+      //     })
+      //   } else if (res.result == '不存在的医生ID！') {
+      //     $ionicPopup.alert({
+      //       title: '不存在的医生ID！'
+      //     })
+      //   }
+      // }, function () {
+      // })
+
+
+
+    }, function (error) {
+      console.log('An error happened -> ' + error)
     })
   }
 
