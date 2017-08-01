@@ -7545,7 +7545,7 @@ $scope.scanbarcode = function () {
 
 
 
-.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', '$q', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, $q, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
+.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
   // 购买时长选择范围
@@ -7558,8 +7558,8 @@ $scope.scanbarcode = function () {
   // 默认选中的购买时长
   $scope.ChargeDuration = {Name:'一个月',Value:1}
   // 临时写的
-  $scope.doctor.charge3 = 0.01
-  $scope.ChargeTotal = $scope.doctor.charge3
+  //$scope.doctor.charge3 = 0.01
+  //$scope.ChargeTotal = $scope.doctor.charge3
   /**
    * [根据选中购买时长改变总金额]
    * @Author   PXY
@@ -7595,6 +7595,11 @@ $scope.scanbarcode = function () {
     ionicLoadingshow()
 
     var neworder = {
+      'doctorId':doctorId,
+      //freeFlag为1表示免费
+      'freeFlag':0,
+      'type':4,
+      //主管医生类型为4
       'userId': Storage.get('UID'),
       'month':duration,
       'role': 'appPatient',
@@ -7603,20 +7608,20 @@ $scope.scanbarcode = function () {
       'class': '05',
       'name': '主管医生',
       'notes': doctorId,
-      'paystatus': 0,
-      'paytime': new Date(),
+//      'paystatus': 0,
+//      'paytime': new Date(),
       'trade_type': 'APP',
       'body_description': '主管医生服务'
     }
     /**
-     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信]
+     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
      * @Author   PXY
      * @DateTime 2017-07-20
      * @param    neworder：Object
      * @return   orderdata:Object
      */
     Mywechat.addOrder(neworder).then(function (orderdata) {
-      // alert('orderdata:'+JSON.stringify(orderdata))
+      alert('orderdata:'+JSON.stringify(orderdata))
       if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
         var params = {
           'partnerid': '1480817392', // merchant id
@@ -7632,19 +7637,19 @@ $scope.scanbarcode = function () {
          */
         ionicLoadinghide()
         Wechat.sendPaymentRequest(params, function (data) {
-          // alert('wechat:'+JSON.stringify(data))
-          $q.all([
-          /**
-           * [给医生账户‘转账’]
-           * @Author   PXY
-           * @DateTime 2017-07-20
-           * @param {patientId:String,doctorId:String,type:String,money:Number}
-           */
-            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
-              console.log(data)
-            }, function (err) {
-              console.log(err)
-            }),
+          alert('wechat:'+JSON.stringify(data))
+          // $q.all([
+          // /**
+          //  * [给医生账户‘转账’]
+          //  * @Author   PXY
+          //  * @DateTime 2017-07-20
+          //  * @param {patientId:String,doctorId:String,type:String,money:Number}
+          //  */
+          //   Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
+          //     console.log(data)
+          //   }, function (err) {
+          //     console.log(err)
+          //   }),
             /**
              * 发送主管医生服务请求]
              * @Author   PXY
@@ -7688,33 +7693,16 @@ $scope.scanbarcode = function () {
             hideOnStateChange:true
           })
         }
-        $q.all([
-          /**
-           * *给医生账户‘转账’
-           * @Author   PXY
-           * @DateTime 2017-07-20
-           * @param {patientId:String,doctorId:String,type:String,money:Number}
-           */
-            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
-              console.log(data)
-            }, function (err) {
-              console.log(err)
-            }),
-            SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              console.log(data)
-            },function(err){
-              console.log(err)
-            })
-          ]).then(function(response){
-            // alert('$q response:'+JSON.stringify(response))
-            $ionicPopup.alert({
-              template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
-              okText: '好的'
-            }).then(function (e) {
-              $ionicHistory.goBack()
-            })
-
+        SecondVersion.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
+          $ionicPopup.alert({
+            template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+            okText: '好的'
+          }).then(function (e) {
+            $ionicHistory.goBack()
           })
+        },function(err){
+          console.log(err)
+        })
       }
     },function(error){
       // alert(JSON.stringify(error))
@@ -9095,7 +9083,7 @@ $scope.scanbarcode = function () {
   })
 
   
-  $scope.selectOrdeselect = function (itemId, selected) {
+  $scope.selectOrDeselect = function (itemId, selected) {
     $scope.hasChanged = true
     if (selected) {
       healthCache.push({time: itemId})
@@ -9147,3 +9135,21 @@ $scope.scanbarcode = function () {
   }
 }])
 
+.controller('OrderCtrl', ['SecondVersion','$scope', '$state', '$ionicLoading', function (SecondVersion, $scope, $state, $ionicLoading) {
+  var RefreshOrders = function(){
+    SecondVersion.GetOrders().then(function(data){
+      $scope.myOrders = data.results
+      console.log(data.results)
+    },function(err){
+
+    })
+  }
+  $scope.$on('$ionicView.enter', function () {
+    RefreshOrders()
+  })
+
+  $scope.do_refresher = function () {
+    RefreshOrders()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+}])
