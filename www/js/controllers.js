@@ -76,7 +76,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *          err
          */
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
-          console.log(data)
+          // console.log(data)
           if (data.results == 1) {
             $scope.logStatus = '账号密码错误！'
           } else if (data.results.mesg == 'login success!') {
@@ -1287,7 +1287,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.cancelGetMessage = function () {
         // console.log(RefreshUnread);
-    console.log('cancel')
+    // console.log('cancel')
     if (RefreshUnread) {
       $interval.cancel(RefreshUnread)
     };
@@ -1401,7 +1401,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   function GetTasks (TaskCode) {
     var promise = Task.getUserTask({userId: UserId})
     promise.then(function (data) {
-      console.log(data)
+      // console.log(data)
       if (data.result) {
         $scope.unCompleted = false
         $scope.Tasks = data.result.task
@@ -1429,8 +1429,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         InitialOtherTask(task)
       }
     }
-    console.log($scope.Tasks.Measure)
-    console.log($scope.Tasks.Other)
+    // console.log($scope.Tasks.Measure)
+    // console.log($scope.Tasks.Other)
     $scope.Tasks.Other.sort(SortByTime) // 按时间先后排序
     for (var i = 0; i < $scope.Tasks.Other.length; i++) {
       if ($scope.Tasks.Other[i].frequencyTimes == 0)// 只执行一次的任务置顶
@@ -4175,6 +4175,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.canEdit = $stateParams.caneidt
   console.log($stateParams.caneidt)
 
+
   $scope.Goback = function () {
         // if($scope.canEdit==true){
         //     $scope.canEdit = false;
@@ -6842,7 +6843,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 更多医生
-.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Temp', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', 'Mywechat', function (DoctorService,QandC, Temp, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket, Mywechat) {
+.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Service', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', function (DoctorService,QandC,Service, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket) {
   //$scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
     //console.log('destroy')
@@ -6870,7 +6871,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
+    Service.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           // debugger
           if (data.DIC==1)
@@ -7078,9 +7079,8 @@ var IsDoctor =function (Doctor) {
 
 }])
 
-// 医生列表--PXY
 
-.controller('DoctorCtrl', ['SecondVersion','DoctorService','QandC', 'Temp', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (SecondVersion,DoctorService,QandC, Temp, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
+.controller('DoctorCtrl', ['Service','SecondVersion','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (Service,SecondVersion,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -7098,8 +7098,11 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.$on('$ionicView.enter', function () {
-    
-      RefreshUnread = $interval(GetUnread, 2000)
+    $scope.mydocStyle = {'top': '70px'}
+    if (ionic.Platform.isIOS()) {
+      $scope.mydocStyle = {'top': '90px'}
+    }
+    RefreshUnread = $interval(GetUnread, 2000)
 
   })
 
@@ -7112,7 +7115,7 @@ var IsDoctor =function (Doctor) {
     // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      console.log(data)
+      // console.log(data)
       if (data.results == '没有填写个人信息') {
         console.log('123')
         $scope.DisabledConsult = true
@@ -7150,14 +7153,11 @@ var IsDoctor =function (Doctor) {
     // console.log(123);
     // $ionicHistory.goBack();
   }
-  $scope.alldoctortype = '88px'
-  if (ionic.Platform.isIOS()) {
-    $scope.alldoctortype = '108px'
-  }
+  
 
 
   var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
+    Service.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           // debugger
           if (data.DIC==1)
@@ -7177,7 +7177,7 @@ var IsDoctor =function (Doctor) {
   var mydoc = function () {
     SecondVersion.MyDocInCharge().then(
         function (data) {
-          console.log(data.results)
+          // console.log(data.results)
           if (data.message == "当前已有主管医生!") {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
@@ -7190,7 +7190,7 @@ var IsDoctor =function (Doctor) {
           } else {
             $scope.hasDoctor = false
             x = document.getElementById("message")
-            console.log(x)
+            // console.log(x)
             x.innerHTML = data.message
           }
         }, function (err) {
@@ -7238,9 +7238,9 @@ var IsDoctor =function (Doctor) {
   //$scope.hasfollowdoctors = true
   // 获取我的关注的医生信息
   $scope.myFollowdoc = function () {
-    Temp.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
+    SecondVersion.getFollowDoctors({skip: FollowPageControl.skip, limit: FollowPageControl.limit}).then(
         function (data) {
-           console.log(data)
+           // console.log(data)
           $scope.$broadcast('scroll.infiniteScrollComplete')
           allfollowdoctors = allfollowdoctors.concat(data.results)
           $scope.followdoctors = allfollowdoctors
@@ -7365,7 +7365,18 @@ var IsDoctor =function (Doctor) {
 
     })
   }
-$scope.scanbarcode = function () {
+  /**
+   * [预约面诊]
+   * @Author   PXY
+   * @DateTime 2017-08-02
+   * @param    doctor:Object 页面上绑定的医生对象
+   */
+  $scope.docAppointment = function(doctor){
+    console.log(doctor)
+    $state.go('tab.appointDoctor',{appointDoc:doctor})
+  }
+
+  $scope.scanbarcode = function () {
     
     $cordovaBarcodeScanner.scan().then(function (imageData) {
           // alert(imageData.text);
@@ -7415,7 +7426,7 @@ $scope.scanbarcode = function () {
 }])
 
 
-.controller('DoctorDetailCtrl', ['DoctorService','QandC', 'Temp', '$ionicLoading', 'Mywechat', '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams', 'Doctor', 'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (DoctorService, QandC, Temp, $ionicLoading, Mywechat, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams, Doctor, Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
+.controller('DoctorDetailCtrl', ['Service','DoctorService','QandC', '$ionicLoading',  '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams', 'Doctor', 'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (Service,DoctorService, QandC, $ionicLoading, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams, Doctor, Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
   $scope.GoBack = function () {
     // console.log('111');
     // console.log($ionicHistory.backView());
@@ -7458,7 +7469,7 @@ $scope.scanbarcode = function () {
   })
 
   var IsDoctor =function (Doctor) {
-    Temp.isMyDoctors({doctorId:Doctor.userId}). then(
+    Service.isMyDoctors({doctorId:Doctor.userId}). then(
         function (data) {
           if (data.DIC==1)
           Doctor.IsMyDoctor = true
@@ -7539,13 +7550,76 @@ $scope.scanbarcode = function () {
   $scope.unfollowDoctor = function(doctor){
     DoctorService.DislikeDoctor(doctor)
   }
+  
+
 
 
 }])
 
+.controller('appointmentCtrl', ['$ionicPopup','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
+  // 拿前一个页面传参doctor对象绑定页面数据
+  $scope.doctor = $stateParams.appointDoc
+  // 默认显示7天内的面诊
+  $scope.nextSchedual = false
+  /**
+   * [切换七天内和七天到十四天的面诊显示]
+   * @Author   PXY
+   * @DateTime 2017-08-02
+   */
+  $scope.switchNext = function(){
+    $scope.nextSchedual = !$scope.nextSchedual
+  }
+  // 暂时绑定数据
+  $scope.periods = [
+    {
+            "availableDay": "20170807",
+            "availableTime": "Morning",
+            "margin": 0
+        },
+    {
+            "availableDay": "20170807",
+            "availableTime": "Afternoon",
+            "margin": 2
+        },
+    {
+        "availableDay": "20170807",
+        "availableTime": "Morning",
+        "margin": 0
+    },
+    {
+            "availableDay": "20170807",
+            "availableTime": "Afternoon",
+            "margin": 2
+        }
 
+  ]
 
-.controller('applyDocCtrl', ['$ionicPopup','Expense','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, Expense, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
+  $scope.nextDays = [
+    {
+            "availableDay": "20170807",
+            "availableTime": "Morning",
+            "margin": 1
+        },
+    {
+            "availableDay": "20170807",
+            "availableTime": "Afternoon",
+            "margin": 2
+        },
+    {
+        "availableDay": "20170807",
+        "availableTime": "Morning",
+        "margin": 3
+    },
+    {
+            "availableDay": "20170807",
+            "availableTime": "Afternoon",
+            "margin": 0
+        }
+
+  ]
+
+}])
+.controller('applyDocCtrl', ['$ionicPopup','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.applyDoc
   // 购买时长选择范围
@@ -7608,8 +7682,8 @@ $scope.scanbarcode = function () {
       'class': '05',
       'name': '主管医生',
       'notes': doctorId,
-//      'paystatus': 0,
-//      'paytime': new Date(),
+      // 'paystatus': 0,
+      // 'paytime': new Date(),
       'trade_type': 'APP',
       'body_description': '主管医生服务'
     }
@@ -8958,7 +9032,7 @@ $scope.scanbarcode = function () {
   }
 }])
 .controller('devicesCtrl', ['$http','$scope', '$ionicPopup', '$cordovaBarcodeScanner', 'Devicedata', 'Storage', function ($http,$scope, $ionicPopup, $cordovaBarcodeScanner, Devicedata, Storage) {
-  console.log('deviceCtrl')
+  // console.log('deviceCtrl')
   $scope.deviceList = [{name: 'n1'}]
   var refresh = function () {
     Devicedata.devices({userId: Storage.get('UID')})
@@ -9135,10 +9209,15 @@ $scope.scanbarcode = function () {
   }
 }])
 
-.controller('OrderCtrl', ['SecondVersion','$scope', '$state', '$ionicLoading', function (SecondVersion, $scope, $state, $ionicLoading) {
+.controller('OrderCtrl', ['Order','$scope', '$state', '$ionicLoading', function (Order, $scope, $state, $ionicLoading) {
   var RefreshOrders = function(){
-    SecondVersion.GetOrders().then(function(data){
-      $scope.myOrders = data.results
+    Order.GetOrders().then(function(data){
+      if(data.results!==null){
+        $scope.myOrders = data.results
+      }else{
+        $scope.noOrder = true
+      }
+      
       console.log(data.results)
     },function(err){
 
