@@ -154,9 +154,16 @@ angular.module('kidney.filters', [])
   }
 }])
 
-.filter('orderStatus', [function () {
-  return function (orderStatus, order) {
-    console.log(order)
+.filter('periodFilter', [function () {
+  return function (periodTime, index) {
+    // console.log(index)
+  }
+}])
+
+.filter('canAppointFilter', [function () {
+  return function (amount) {
+    var name = '(' + amount + ') '
+    return name + (amount === 0 ? '不可预约' : '可预约')
   }
 }])
 
