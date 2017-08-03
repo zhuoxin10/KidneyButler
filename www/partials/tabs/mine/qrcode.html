@@ -1,0 +1,21 @@
+<ion-view view-title="我的二维码">
+<ion-nav-bar class="bar-positive " align-title="center">
+    <ion-nav-buttons side="left">
+        <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="$ionicGoBack()"></button>
+    </ion-nav-buttons>
+</ion-nav-bar>
+    <ion-content has-bouncing="true" overflow-scroll="false">
+        <div class="myinfo-avatar">
+          <div class="img-cen ">
+            <div>
+                <img ng-src="{{patient.photoUrl}}">
+            </div>
+          </div>
+          <span class="f16">{{patient.name}}</span>
+        </div>
+
+         <div style="text-align:center">
+         <img style="width:250px;height:250px;" ng-src="{{patient.TDCticket}}">
+         </div>
+    </ion-content>
+</ion-view>

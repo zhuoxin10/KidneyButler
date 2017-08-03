@@ -34,6 +34,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // 测试服务器地址
   version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://121.43.107.106:4060/api/v1/',
+  photoUrl: 'http://121.196.221.44:4060/api/v1/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
@@ -491,6 +492,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
+  var Mywechatphoto = function () {
+    return $resource(CONFIG.photoUrl + ':path/:route', {path: 'wechat'}, {
+      createTDCticket: {method: 'POST', params: {route: 'createTDCticket'}, timeout: 100000}
+    })
+  }
+
   var Devicedata = function () {
     return $resource(CONFIG.baseUrl + ':path/:route/:op', {path: 'devicedata'}, {
       devices: {method: 'GET', params: {route: 'devices'}, timeout: 10000},
@@ -519,6 +526,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Health = Health()
       serve.User = User()
       serve.Comment = Comment()
+      serve.Mywechatphoto = Mywechatphoto()
       serve.VitalSign = VitalSign()
       serve.Account = Account()
       serve.Message = Message()
@@ -547,6 +555,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Health = Health()
   serve.User = User()
   serve.Comment = Comment()
+  serve.Mywechatphoto = Mywechatphoto()
   serve.VitalSign = VitalSign()
   serve.Account = Account()
   serve.Message = Message()
@@ -1886,6 +1895,23 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   return self
 }])
 
+.factory('Mywechatphoto', ['$q', 'Data', function ($q, Data) {
+  var self = this
+  self.createTDCticket = function (params) {
+    params.role = 'doctor'
+    var deferred = $q.defer()
+    Data.Mywechatphoto.createTDCticket(
+              params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  return self
+}])
 .factory('Doctor', ['$q', 'Data', function ($q, Data) {
   var self = this
     // params->0:{
