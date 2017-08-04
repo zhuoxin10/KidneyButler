@@ -416,6 +416,17 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         }
       }
     })
+     // 我的二维码
+    .state('tab.QRcode', {
+      url: '/mine/qrcode/',
+      views: {
+        'tab-mine': {
+          // cache: false,
+          controller: 'QRcodeCtrl',
+          templateUrl: 'partials/tabs/mine/qrcode.html'
+        }
+      }
+    })
     .state('tab.changePassword', {
       cache: false,
       url: '/mine/changePassword',
