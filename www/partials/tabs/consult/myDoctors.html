@@ -43,8 +43,8 @@
             </div>
 
             <div class="row">
-                <button ng-disabled="DisabledConsult"  ng-click="question(doctor.userId,doctor.name,doctor.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
-                <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name,doctor.charge1,doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+                <button ng-disabled="DisabledConsult"  ng-click="question(doctor.userId,doctor.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
+                <button ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
             </div>
             <div class="row">
                 <button ng-disabled="DisabledConsult" class="doctorBtn"><i class="icon ion-speakerphone"></i>加急咨询</button>
@@ -95,8 +95,8 @@
         </div>
 
         <div class="row">
-            <button ng-disabled="DisabledConsult"   ng-click="question(followdoctor.doctorId.userId, followdoctor.doctorId.name, followdoctor.doctorId.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
-            <button ng-disabled="DisabledConsult" ng-click="consult(followdoctor.doctorId.userId, followdoctor.doctorId.name, followdoctor.doctorId.charge1, followdoctor.doctorId.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+            <button ng-disabled="DisabledConsult"   ng-click="question(followdoctor.doctorId.userId, followdoctor.doctorId.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
+            <button ng-disabled="DisabledConsult" ng-click="consult(followdoctor.doctorId.userId, followdoctor.doctorId.charge1, followdoctor.doctorId.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
         </div>
         <div class="row">
             <button ng-disabled="DisabledConsult" class="doctorBtn">

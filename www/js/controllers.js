@@ -28,6 +28,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         Storage.set('UID', data.results.userId)// 后续页面必要uid
 
         Storage.set('bindingsucc', 'yes')
+        Storage.set('TOKEN', data.results.token)
         var name = data.results.userName ? data.results.userName : data.results.userId
         mySocket.newUser(data.results.userId, name)
         $timeout(function () { $state.go('tab.tasklist') }, 500)
@@ -40,6 +41,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (data.results.mesg == 'login success!') {
           Storage.set('isSignIN', 'Yes')
           Storage.set('UID', data.results.userId)// 后续页面必要uid
+          Storage.set('TOKEN', data.results.token)
                     // Storage.set('bindingsucc','yes')
           var name = data.results.userName ? data.results.userName : data.results.userId
           mySocket.newUser(data.results.userId, name)
@@ -3366,7 +3368,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: 1, status: 1}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -3378,7 +3380,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: 1, status: 0}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -3392,7 +3394,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: data.result.type, status: 1}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -3404,7 +3406,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: data.result.type, status: 0}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6653,7 +6655,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.getConsultRecordDetail = function (chat) {
     var template = ''
-    var counseltype = 0
+    // var counseltype = 0
     var counselstatus = ''
     var doctorId = chat.sendBy
 
@@ -6672,8 +6674,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: 1, status: 1}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -6684,8 +6685,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: 1, status: 0}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6698,8 +6698,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: data.result.type, status: 1}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -6710,8 +6709,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId, type: data.result.type, status: 0}) // 虽然传了type和status但不打算使用 byZYH
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6921,27 +6919,26 @@ var IsDoctor =function (Doctor) {
          params = {province: '', city: '', workUnit: '', name: ''}
       }
         
-    Patient.getDoctorLists({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name})
-            .then(function (data) {
-              console.log(data)
-              $scope.$broadcast('scroll.infiniteScrollComplete')
-              alldoctors = alldoctors.concat(data.results)
-              $scope.doctors = alldoctors
-              
-              if (alldoctors.length == 0) {
-                console.log('aaa')
-                $ionicLoading.show({
-                  template: '没有医生', duration: 1000
-                })
-              }
-                // $scope.nexturl=data.nexturl;
-              var skiploc = data.nexturl.indexOf('skip')
-              pagecontrol.skip = data.nexturl.substring(skiploc + 5)
-              console.log(pagecontrol.skip)
-              if (data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
-            }, function (err) {
-              console.log(err)
-            })
+    Patient.getDoctorLists({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name}).then(function (data) {
+      console.log(data)
+      $scope.$broadcast('scroll.infiniteScrollComplete')
+      alldoctors = alldoctors.concat(data.results)
+      $scope.doctors = alldoctors
+      
+      if (alldoctors.length == 0) {
+        console.log('aaa')
+        $ionicLoading.show({
+          template: '没有医生', duration: 1000
+        })
+      }
+        // $scope.nexturl=data.nexturl;
+      var skiploc = data.nexturl.indexOf('skip')
+      pagecontrol.skip = data.nexturl.substring(skiploc + 5)
+      console.log(pagecontrol.skip)
+      if (data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
+    }, function (err) {
+      console.log(err)
+    })
   }
 
     // $scope.loadMore();
@@ -7024,11 +7021,11 @@ var IsDoctor =function (Doctor) {
   $scope.getDoctorByHospital = function (hospital) {
     ChangeSearch()
   }
-  $scope.question = function(DoctorId, docname, charge1){
-    QandC.question(DoctorId, docname, charge1)
+  $scope.question = function(DoctorId, charge1){
+    QandC.question(DoctorId, charge1)
   }
-  $scope.consult = function(DoctorId, docname, charge1, charge2){
-    QandC.consult(DoctorId, docname, charge1, charge2)
+  $scope.consult = function(DoctorId,  charge1, charge2){
+    QandC.consult(DoctorId, charge1, charge2)
   }
   $scope.getDoctorDetail = function (id) {
     $state.go('tab.DoctorDetail', {DoctorId: id})
@@ -7412,12 +7409,12 @@ var IsDoctor =function (Doctor) {
     })
   }
 
-  $scope.question = function(DoctorId, docname, charge1){
-    QandC.question(DoctorId, docname, charge1)
+  $scope.question = function(DoctorId, charge1){
+    QandC.question(DoctorId, charge1)
   }
-  $scope.consult = function(DoctorId, docname, charge1, charge2){
+  $scope.consult = function(DoctorId, charge1, charge2){
     console.log(DoctorId)
-    QandC.consult(DoctorId, docname, charge1, charge2)
+    QandC.consult(DoctorId, charge1, charge2)
   }
 
   $scope.getDoctorDetail = function (id) {
@@ -7502,11 +7499,11 @@ var IsDoctor =function (Doctor) {
   var ionicLoadinghide = function () {
     $ionicLoading.hide()
   }
-  $scope.question = function(DoctorId, docname, charge1){
-    QandC.question(DoctorId, docname, charge1)
+  $scope.question = function(DoctorId, charge1){
+    QandC.question(DoctorId, charge1)
   }
-  $scope.consult = function(DoctorId, docname, charge1, charge2){
-    QandC.consult(DoctorId, docname, charge1, charge2)
+  $scope.consult = function(DoctorId, charge1, charge2){
+    QandC.consult(DoctorId, charge1, charge2)
   }
   
   /**

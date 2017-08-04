@@ -100,7 +100,7 @@ angular.module('kidney.filters', [])
         name = '问诊'
         break
       case 3:
-        name = '加急咨询'
+        name = '咨询升级问诊'
         break
       case 4:
         name = '主管医生'
@@ -109,7 +109,10 @@ angular.module('kidney.filters', [])
         name = '面诊'
         break
       case 6:
-        name = '咨询升级问诊'
+        name = '加急咨询'
+        break
+      case 7:
+        name = '咨询升级加急咨询'
         break
     }
     return name
