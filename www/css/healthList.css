@@ -88,8 +88,17 @@ div.odd{
 div.even{
   border-top-style:none;
 }
+div.first{
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+div.others{
+  margin-top: 20px;
+  margin-bottom: 0px;
+}
 /*#tbl.col:first-child{
   padding: 0px;
   border:1px solid #ddd;
   border-top-style: none;
 }*/
+
