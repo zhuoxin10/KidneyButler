@@ -487,7 +487,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     return $resource(CONFIG.version2Url + ':path/:route', {path: 'wechat'}, {
       messageTemplate: {method: 'POST', params: {route: 'messageTemplate'}, timeout: 100000},
       // gettokenbycode: {method: 'GET', params: {route: 'gettokenbycode'}, timeout: 100000},
-      // addOrder: {method: 'POST', params: {route: 'addOrder'}, timeout: 100000},  下订单方法改了
+      addOrder: {method: 'POST', params: {route: 'addOrder'}, timeout: 100000},
       getUserInfo: {method: 'GET', skipAuthorization: true, params: {route: 'getUserInfo'}, timeout: 100000}
     })
   }
@@ -2486,18 +2486,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   //   return deferred.promise
   // }
 
-  // self.addOrder = function (params) {
-  //   var deferred = $q.defer()
-  //   Data.Mywechat.addOrder(
-  //           params,
-  //           function (data, headers) {
-  //             deferred.resolve(data)
-  //           },
-  //           function (err) {
-  //             deferred.reject(err)
-  //           })
-  //   return deferred.promise
-  // }
+  self.addOrder = function (params) {
+    var deferred = $q.defer()
+    Data.Mywechat.addOrder(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
 
   self.getUserInfo = function (params) {
     var deferred = $q.defer()
@@ -2709,10 +2709,46 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var ionicLoadinghide = function () {
     $ionicLoading.hide()
   }
-  self.consultable = 1
-  self.question = function (DoctorId, docname, charge1, charge2) {
-    console.log(docname)
+  /**
+   * [根据咨询的类型值返回中文]
+   * @Author   PXY
+   * @DateTime 2017-08-02
+   * @param    consultType:number 只接受1,2,3,6,7
+   * @return   String
+   */
+  var whichconsultType = function (consultType) {
+    var name = ''
+    switch (consultType) {
+      case 1:
+        name = '咨询'
+        break
+      case 2: case 3:
+        name = '问诊'
+        break
+      case 6: case 7:
+        name = '加急咨询'
+        break
+    }
+    return name
+  }
 
+  self.consultable = 1
+  var whichTemplate = {
+    '999': {
+      counselType: 2,
+      counselTemplate: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。'
+    },
+    '3': {
+      counselType: 1,
+      counselTemplate: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。'
+    },
+    '1001': {
+      counselType: 6,
+      counselTemplate: '您上次付费的加急咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，2小时后本次咨询关闭。医生会在2小时内回答，如超过2小时医生未作答，本次咨询关闭，且不收取费用。'
+    }
+  }
+
+  self.question = function (DoctorId, charge1) {
     /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
@@ -2721,286 +2757,187 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    * @patientId    {[string]}
    * @return   {[type]}status==1 有正在进行的咨询或者问诊 直接进咨询界面
    */
-    Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')})
-          .then(function (data) {
-            // zxf 判断条件重写
-            if (data.result != '请填写咨询问卷!' && data.result.status == 1) { // 有尚未完成的咨询或者问诊
-              if (data.result.type == 1) {
-                if (self.consultable == 1) {
-                  self.consultable = 0
-                  $ionicPopup.confirm({
-                    title: '咨询确认',
-                    template: '您有尚未结束的咨询，点击确认继续上一次咨询！',
-                    okText: '确认',
-                    cancelText: '取消'
-                  }).then(function (res) {
-                    if (res) {
-                      self.consultable = 1
-                      $state.go('tab.consult-chat', {chatId: DoctorId, type: 1, status: 1})
-                    } else {
-                      self.consultable = 1
-                    }
-                  })
-                }
-              } else {
-                if (self.consultable == 1) {
-                  self.consultable = 0
-                  $ionicPopup.confirm({
-                    title: '咨询确认',
-                    template: '您有尚未结束的问诊，点击确认继续上一次问诊！',
-                    okText: '确认',
-                    cancelText: '取消'
-                  }).then(function (res) {
-                    if (res) {
-                      self.consultable = 1
-                      $state.go('tab.consult-chat', {chatId: DoctorId, type: data.result.type, status: 1})
-                    } else {
-                      self.consultable = 1
-                    }
-                  })
-                }
+    Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')}).then(function (data) {
+      // zxf 判断条件重写
+      if (data.result != '请填写咨询问卷!' && data.result.status == 1) {
+        // 有尚未完成的咨询或者问诊
+        if (self.consultable == 1 && data.result.type) {
+          self.consultable = 0
+          var consultName = whichconsultType(data.result.type)
+          $ionicPopup.confirm({
+            title: '咨询确认',
+            template: '您有尚未结束的' + consultName + '，点击确认继续上一次' + consultName + '！',
+            okText: '确认',
+            cancelText: '取消'
+          }).then(function (res) {
+            if (res) {
+              $state.go('tab.consult-chat', {chatId: DoctorId})
+            }
+            self.consultable = 1
+          })
+        }
+      } else {
+        // 没有进行中的问诊咨询 查看是否已经付过费
+        // console.log("fj;akfmasdfzjl")
+        /**
+         * *[没有正在进行的咨询，判断用户剩余count]count==999：有已付钱但尚未新建的问诊，进入咨询问卷
+         * count==3 有已付钱但尚未新建的咨询，进入咨询问卷
+         * else 判断freetime是否为零，有免费咨询次数使用免费咨询次数进入咨询问卷
+         * else 拉起微信支付
+         * @Author   ZXF
+         * @DateTime 2017-07-05
+         * @param    {[type]}
+         * @return   {[type]}
+         */
+        Account.getCounts({patientId: Storage.get('UID'), doctorId: DoctorId}).then(function (data) {
+          // console.log(data.result.freeTimes)
+          if (self.consultable == 1 && (data.result.count === 3 || data.result.count === 999 || data.result.count === 1001)) {
+            self.consultable = 0
+
+            $ionicPopup.confirm({
+              title: '咨询确认',
+              template: whichTemplate[data.result.count].counselTemplate,
+              okText: '确认',
+              cancelText: '取消'
+            }).then(function (res) {
+              if (res) {
+                // console.log(whichTemplate[data.result.count].counselType)
+                $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[data.result.count].counselType})
               }
-            } else { // 没有进行中的问诊咨询 查看是否已经付过费
-              // console.log("fj;akfmasdfzjl")
-              /**
-               * *[没有正在进行的咨询，判断用户剩余count]count==999：有已付钱但尚未新建的问诊，进入咨询问卷
-               * count==3 有已付钱但尚未新建的咨询，进入咨询问卷
-               * else 判断freetime是否为零，有免费咨询次数使用免费咨询次数进入咨询问卷
-               * else 拉起微信支付
-               * @Author   ZXF
-               * @DateTime 2017-07-05
-               * @param    {[type]}
-               * @return   {[type]}
-               */
-              Account.getCounts({patientId: Storage.get('UID'), doctorId: DoctorId}).then(function (data) {
-                console.log(data.result.freeTimes)
-                if (data.result.count == 999) { // 上次有购买问诊 但是没有新建问诊
-                  if (self.consultable == 1) {
-                    self.consultable = 0
-                    $ionicPopup.confirm({
-                      title: '咨询确认',
-                      template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
-                      okText: '确认',
-                      cancelText: '取消'
-                    }).then(function (res) {
-                      if (res) {
-                        self.consultable = 1
-                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                      } else {
-                        self.consultable = 1
-                      }
-                    })
-                  }
-                } else if (data.result.count == 3) {
-                  if (self.consultable == 1) {
-                    self.consultable = 0
-                    $ionicPopup.confirm({
-                      title: '咨询确认',
-                      template: '您上次付费的咨询尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
-                      okText: '确认',
-                      cancelText: '取消'
-                    }).then(function (res) {
-                      if (res) {
-                        self.consultable = 1
-                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
-                      } else {
-                        self.consultable = 1
-                      }
-                    })
-                  }
-                } else if (data.result.freeTimes > 0) { // 判断是否已经花过钱了，花过但是还没有新建咨询成功 那么跳转问卷
-                  if (self.consultable == 1) {
-                    console.log(DoctorId)
-                    self.consultable = 0
-                    $ionicPopup.confirm({
-                      title: '咨询确认',
-                      template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不耗费免费咨询次数。点击确认进入免费咨询',
-                      okText: '确认',
-                      cancelText: '取消'
-                    }).then(function (res) {
-                      if (res) {
-                        self.consultable = 1
-                          // var allresult=[]
-                        $q.all([
-                          /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                          Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '咨询', doctorName: docname, money: 0}).then(function (data) {
-                            console.log(data)
-                            return data
-                                // allresult.push(data)
-                          }, function (err) {
-                            console.log(err)
-                          }),
-                              // 免费咨询次数减一 count+3
-                              /**
-                               * *[免费咨询次数减一]
-                               * @Author   ZXF
-                               * @DateTime 2017-07-05
-                               * @patientId    {[string]}
-                               * @return   {[type]}
-                               */
-                          Account.updateFreeTime({patientId: Storage.get('UID')}).then(function (data) {
-                            /**
-                             * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                             * @Author   ZXF
-                             * @DateTime 2017-07-05
-                             * @patientId    {[string]}
-                             * @doctorId    {[string]}
-                             * @modify    {[int]}
-                             * @return   {[type]}
-                             */
-                            Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data1) {
-                              console.log(data1)
-                                  // allresult.push(data1)
-                            }, function (err) {
-                              console.log(err)
-                            })
-                          }, function (err) {
-                            console.log(err)
-                          })
-                        ]).then(function (allresult) {
-                          console.log(allresult)
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
-                        })
-                      } else {
-                        self.consultable = 1
-                      }
-                    })
-                  }
-                } else {
-                  if (self.consultable == 1) {
-                    self.consultable = 0
-                    $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
-                      title: '咨询确认',
-                      template: '进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
-                      okText: '确认',
-                      cancelText: '取消'
-                    }).then(function (res) {
-                      if (res) {
-                        self.consultable = 1
-                        ionicLoadingshow()
-                        var neworder = {
-                          'userId': Storage.get('UID'),
-                          'role': 'appPatient',
-                          'money': charge1 * 100,
-                          // "money":10,
-                          'class': '01',
-                          'name': '咨询',
-                          'notes': DoctorId,
-                          'paystatus': 0,
-                          'paytime': new Date(),
-                          // "ip":result.data.ip,
-                          'trade_type': 'APP',
-                          'body_description': '咨询服务'
-                        }
+              self.consultable = 1
+            })
+          } else if (data.result.freeTimes > 0 && self.consultable == 1) { // 判断是否已经花过钱了，花过但是还没有新建咨询成功 那么跳转问卷
+            self.consultable = 0
+            $ionicPopup.confirm({
+              title: '咨询确认',
+              template: '您还有剩余免费咨询次数，进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不耗费免费咨询次数。点击确认进入免费咨询。',
+              okText: '确认',
+              cancelText: '取消'
+            }).then(function (res) {
+              self.consultable = 1
+              if (res) {
+                var neworder = {
+                  'doctorId': DoctorId,
+                    // freeFlag为1表示免费
+                  'freeFlag': 1,
+                  'type': 1,
+                    // 咨询类型为1
+                  'userId': Storage.get('UID'),
+                  'role': 'appPatient',
+                    // 微信支付以分为单位
+                  'money': charge1 * 100,
+                  'class': '01',
+                  'name': '咨询',
+                  'notes': DoctorId,
+                  'trade_type': 'APP',
+                  'body_description': '咨询服务'
+                }
+                  /**
+                   * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
+                   * @Author   PXY
+                   * @DateTime 2017-07-20
+                   * @param    neworder：Object
+                   * @return   orderdata:Object
+                   */
+                Mywechat.addOrder(neworder).then(function (orderdata) {
+                      // 免费咨询次数减一 count+3
+                      /**
+                       * *[免费咨询次数减一]
+                       * @Author   ZXF
+                       * @DateTime 2017-07-05
+                       * @patientId    {[string]}
+                       * @return   {[type]}
+                       */
+                  Account.updateFreeTime({patientId: Storage.get('UID')}).then(function (data) {
                         /**
-                         * *[后台根据order下订单，生成拉起微信支付所需的参数]
+                         * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                          * @Author   ZXF
                          * @DateTime 2017-07-05
-                         * @param    {[type]}
-                         * @param    {[type]}
-                         * @param    {[type]}
-                         * @param    {[type]}
-                         * @param    {[type]}
-                         * @param    {[type]}
-                         * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
+                         * @patientId    {[string]}
+                         * @doctorId    {[string]}
+                         * @modify    {[int]}
+                         * @return   {[type]}
                          */
-                        Mywechat.addOrder(neworder).then(function (orderdata) {
-                          if (orderdata.results.status === 1) {
-                            ionicLoadinghide()
-                            $q.all([
-                              /**
-                             * *患者咨询医生 给医生账户‘转账’
-                             * @Author   ZXF
-                             * @DateTime 2017-07-05
-                             * @patientId    {[string]}
-                             * @doctorId    {[string]}
-                             * @doctorName    {[string]}暂时未使用
-                             * @money    {[int]}
-                             * @return   {[type]}
-                             */
-                              Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '咨询', doctorName: docname, money: charge1}).then(function (data) {
-                                console.log(data)
-                                return data
-                              }, function (err) {
-                                console.log(err)
-                              }),
-                            // plus doc answer count  patientId:doctorId:modify
-                            /**
-                             * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                             * @Author   ZXF
-                             * @DateTime 2017-07-05
-                             * @patientId    {[string]}
-                             * @doctorId    {[string]}
-                             * @modify    {[int]}
-                             * @return   {[type]}
-                             */
-                              Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data) {
-                                console.log(data)
-                              }, function (err) {
-                                console.log(err)
-                              })
-                            ]).then(function (allres) {
-                              $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
-                            })
-                          } else if (orderdata.results.status === 0) {
-                            ionicLoadinghide()
-                            $ionicLoading.show({
-                              template: orderdata.results.msg,
-                              duration: 1000
-                            })
-                            $q.all([
-                               /**
-                             * *患者咨询医生 给医生账户‘转账’
-                             * @Author   ZXF
-                             * @DateTime 2017-07-05
-                             * @patientId    {[string]}
-                             * @doctorId    {[string]}
-                             * @doctorName    {[string]}暂时未使用
-                             * @money    {[int]}
-                             * @return   {[type]}
-                             */
-                              Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '咨询', doctorName: docname, money: charge1}).then(function (data) {
-                                console.log(data)
-                                return data
-                              }, function (err) {
-                                console.log(err)
-                              }),
-                            // plus doc answer count  patientId:doctorId:modify
-                            /**
-                             * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                             * @Author   ZXF
-                             * @DateTime 2017-07-05
-                             * @patientId    {[string]}
-                             * @doctorId    {[string]}
-                             * @modify    {[int]}
-                             * @return   {[type]}
-                             */
-                              Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data) {
-                                console.log(data)
-                              }, function (err) {
-                                console.log(err)
-                              })
-                            ]).then(function (allres) {
-                              $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
-                            })
-                          } else {
-                            ionicLoadinghide()
-                            var params = {
-                              'partnerid': '1480817392', // merchant id
-                              'prepayid': orderdata.results.prepay_id[0], // prepay id
-                              'noncestr': orderdata.results.nonceStr, // nonce
-                              'timestamp': orderdata.results.timestamp, // timestamp
-                              'sign': orderdata.results.paySign // signed string
-                            }
+                    Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data1) {
+                      $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
+                    }, function (err) {
+                      console.log(err)
+                    })
+                  }, function (err) {
+                    console.log(err)
+                  })
+                }, function (err) {
+                  console.log(err)
+                })
+              }
+            })
+          } else if (self.consultable == 1) {
+            self.consultable = 0
+            $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
+              title: '咨询确认',
+              template: '进入咨询后，根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，24小时后本次咨询关闭。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
+              okText: '确认',
+              cancelText: '取消'
+            }).then(function (res) {
+              self.consultable = 1
+              if (res) {
+                ionicLoadingshow()
+                var neworder = {
+                  'doctorId': DoctorId,
+                    // freeFlag为1表示免费
+                  'freeFlag': 0,
+                  'type': 1,
+                    // 咨询类型为1
+                  'userId': Storage.get('UID'),
+                  'role': 'appPatient',
+                    // 微信支付以分为单位
+                  'money': charge1 * 100,
+                  'class': '01',
+                  'name': '咨询',
+                  'notes': DoctorId,
+                  'trade_type': 'APP',
+                  'body_description': '咨询服务'
+                }
+                  /**
+                   * *[后台根据order下订单，生成拉起微信支付所需的参数]
+                   * @Author   ZXF
+                   * @DateTime 2017-07-05
+                   * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
+                   */
+                Mywechat.addOrder(neworder).then(function (orderdata) {
+                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    ionicLoadinghide()
+                    if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                    }
+                      /**
+                       * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
+                       * @Author   ZXF
+                       * @DateTime 2017-07-05
+                       * @patientId    {[string]}
+                       * @doctorId    {[string]}
+                       * @modify    {[int]}
+                       * @return   {[type]}
+                       */
+                    Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data) {
+                        // console.log(data)
+                      $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
+                    }, function (err) {
+                      console.log(err)
+                    })
+                  } else {
+                    ionicLoadinghide()
+                    var params = {
+                      'partnerid': '1480817392', // merchant id
+                      'prepayid': orderdata.results.prepay_id[0], // prepay id
+                      'noncestr': orderdata.results.nonceStr, // nonce
+                      'timestamp': orderdata.results.timestamp, // timestamp
+                      'sign': orderdata.results.paySign // signed string
+                    }
                           // alert(JSON.stringify(params));
                           /**
                            * *[微信jssdk方法，拉起微信支付]
@@ -3013,76 +2950,53 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                            * @sign       {[type]}
                            * @return   {[type]}
                            */
-                            Wechat.sendPaymentRequest(params, function () {
-                              // alert("Success");
-                              $q.all([
-                                 /**
-                               * *患者咨询医生 给医生账户‘转账’
-                               * @Author   ZXF
-                               * @DateTime 2017-07-05
-                               * @patientId    {[string]}
-                               * @doctorId    {[string]}
-                               * @doctorName    {[string]}暂时未使用
-                               * @money    {[int]}
-                               * @return   {[type]}
-                               */
-                                Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '咨询', doctorName: docname, money: charge1}).then(function (data) {
-                                  console.log(data)
-                                  return data
-                                }, function (err) {
-                                  console.log(err)
-                                }),
-                                  // plus doc answer count  patientId:doctorId:modify
-                                  /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                                Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data) {
-                                  console.log(data)
-                                }, function (err) {
-                                  console.log(err)
-                                })
-                              ]).then(function (allres) {
-                                $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
-                              })
-                            }, function (reason) {
-                              if (reason == '发送请求失败') {
-                                $ionicLoading.show({
-                                  template: '请正确安装微信后使用此功能',
-                                  duration: 1000
-                                })
-                              } else {
-                                $ionicLoading.show({
-                                  template: reason,
-                                  duration: 1000
-                                })
-                              }
-                            })
-                          }
-                        }, function (err) {
-                          ionicLoadinghide()
-                          console.log(err)
+                    Wechat.sendPaymentRequest(params, function () {
+                          // alert("Success");
+                      /**
+                       * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
+                       * @Author   ZXF
+                       * @DateTime 2017-07-05
+                       * @patientId    {[string]}
+                       * @doctorId    {[string]}
+                       * @modify    {[int]}
+                       * @return   {[type]}
+                       */
+                      Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function (data) {
+                            // console.log(data)
+                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
+                      }, function (err) {
+                        console.log(err)
+                      })
+                    }, function (reason) {
+                      if (reason == '发送请求失败') {
+                        $ionicLoading.show({
+                          template: '请正确安装微信后使用此功能',
+                          duration: 1000
                         })
                       } else {
-                        self.consultable = 1
+                        $ionicLoading.show({
+                          template: reason,
+                          duration: 1000
+                        })
                       }
                     })
                   }
-                }
-              }, function (err) {
-                console.log(err)
-              })
-            }
-          }, function (err) {
-            console.log(err)
-          })
+                }, function (err) {
+                  ionicLoadinghide()
+                  console.log(err)
+                })
+              }
+            })
+          }
+        }, function (err) {
+          console.log(err)
+        })
+      }
+    }, function (err) {
+      console.log(err)
+    })
   }
-  self.consult = function (DoctorId, docname, charge1, charge2) {
+  self.consult = function (DoctorId, charge1, charge2) {
    /**
    * *[获取用户当前咨询相关的信息，是否正在进行]
    * @Author   ZXF
@@ -3091,200 +3005,265 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    * @patientId    {[string]}
    * @return   {[type]}status==1 有正在进行的咨询或者问诊 直接进咨询界面
    */
-    Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')})
-      .then(function (data) {
+    Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')}).then(function (data) {
         // zxf 判断条件重写
+      console.log(data)
+      if (self.consultable == 1) {
+        self.consultable = 0
         if (data.result != '请填写咨询问卷!' && data.result.status == 1) { // 有尚未完成的咨询或者问诊
           if (data.result.type == 1) { // 咨询转问诊
-            if (self.consultable == 1) {
-              self.consultable = 0
+            $ionicPopup.confirm({
+              title: '问诊确认',
+              template: '您有尚未结束的咨询，补齐差价可升级为问诊，问诊将在升级后24小时自动结束或者由医生结束，问诊中询问医生的次数不限。确认付费升级为问诊？',
+              okText: '确认',
+              cancelText: '取消'
+            }).then(function (res) {
+              self.consultable = 1
+              if (res) {
+                ionicLoadingshow()
+                var neworder = {
+                  'doctorId': DoctorId,
+                    // freeFlag为1表示免费
+                  'freeFlag': 0,
+                  'type': 3,
+                    // 咨询类型为1
+                  'userId': Storage.get('UID'),
+                  'role': 'appPatient',
+                    // 微信支付以分为单位
+                  'money': charge2 * 100 - charge1 * 100,
+                  'class': '03',
+                  'name': '咨询升级问诊',
+                  'notes': DoctorId,
+                  'trade_type': 'APP',
+                  'body_description': '咨询升级问诊服务'
+                }
+                /**
+                 * *[后台根据order下订单，生成拉起微信支付所需的参数]
+                 * @Author   ZXF
+                 * @DateTime 2017-07-05
+                 * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
+                 */
+                Mywechat.addOrder(neworder).then(function (orderdata) {
+                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    ionicLoadinghide()
+                    if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                    }
+                    /**
+                     * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
+                     * @Author   ZXF
+                     * @DateTime 2017-07-05
+                     * @doctorId    {[string]}
+                     * @patientId    {[string]}
+                     * @type    {[int]}只能是1
+                     * @changeType    {[bool]}
+                     * @return   {[type]}
+                     */
+                    Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type3'}).then(function (data) {
+                      if (data.result == '修改成功') {
+                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
+                          // console.log(data)
+                          var msgJson = {
+                            clientType: 'app',
+                            contentType: 'custom',
+                            fromName: '',
+                            fromID: Storage.get('UID'),
+                            fromUser: {
+                              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
+                            },
+                            targetID: DoctorId,
+                            targetName: '',
+                            targetType: 'single',
+                            status: 'send_going',
+                            createTimeInMillis: Date.now(),
+                            newsType: '11',
+                            targetRole: 'doctor',
+                            content: {
+                              type: 'counsel-upgrade',
+                              flag: 'consult'
+                            }
+                          }
+                          socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                          socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
+                          setTimeout(function () {
+                            $state.go('tab.consult-chat', {chatId: DoctorId})
+                          }, 500)
+                        }, function (err) {
+                          console.log(err)
+                        })
+                      }
+                    }, function (err) {
+
+                    })
+                  } else {
+                    ionicLoadinghide()
+                    var params = {
+                      'partnerid': '1480817392', // merchant id
+                      'prepayid': orderdata.results.prepay_id[0], // prepay id
+                      'noncestr': orderdata.results.nonceStr, // nonce
+                      'timestamp': orderdata.results.timestamp, // timestamp
+                      'sign': orderdata.results.paySign // signed string
+                    }
+                    Wechat.sendPaymentRequest(params, function () {
+                      /**
+                     * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
+                     * @Author   ZXF
+                     * @DateTime 2017-07-05
+                     * @doctorId    {[string]}
+                     * @patientId    {[string]}
+                     * @type    {[int]}只能是1
+                     * @changeType    {[bool]}
+                     * @return   {[type]}
+                     */
+                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type3'}).then(function (data) {
+                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
+                          // console.log(data)
+                          var msgJson = {
+                            clientType: 'app',
+                            contentType: 'custom',
+                            fromName: '',
+                            fromID: Storage.get('UID'),
+                            fromUser: {
+                              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
+                            },
+                            targetID: DoctorId,
+                            targetName: '',
+                            targetType: 'single',
+                            status: 'send_going',
+                            createTimeInMillis: Date.now(),
+                            newsType: '11',
+                            targetRole: 'doctor',
+                            content: {
+                              type: 'counsel-upgrade',
+                              flag: 'consult'
+                            }
+                          }
+                          socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                          socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
+                          setTimeout(function () {
+                            $state.go('tab.consult-chat', {chatId: DoctorId})
+                          }, 500)
+                        }, function (err) {
+                          console.log(err)
+                        })
+                      }, function (err) {
+                        console.log(err)
+                      })
+                    }, function (reason) {
+                      if (reason == '发送请求失败') {
+                        $ionicLoading.show({
+                          template: '请正确安装微信后使用此功能',
+                          duration: 1000
+                        })
+                      } else {
+                        $ionicLoading.show({
+                          template: reason,
+                          duration: 1000
+                        })
+                      }
+                    })
+                  }
+                })
+              }
+            })
+          } else {
+            var consultName = whichconsultType(data.result.type)
+            $ionicPopup.confirm({
+              title: '咨询确认',
+              template: '您有尚未结束的' + consultName + '，点击确认继续上一次' + consultName + '！',
+              okText: '确认',
+              cancelText: '取消'
+            }).then(function (res) {
+              if (res) {
+                $state.go('tab.consult-chat', {chatId: DoctorId})
+              }
+              self.consultable = 1
+            })
+          }
+        } else {
+          /**
+         * *[没有正在进行的咨询，判断用户剩余count]count==999：有已付钱但尚未新建的问诊，进入咨询问卷
+         * count==3 有已付钱但尚未新建的咨询，进入咨询问卷
+         * else 判断freetime是否为零，有免费咨询次数使用免费咨询次数进入咨询问卷
+         * else 拉起微信支付
+         * @Author   ZXF
+         * @DateTime 2017-07-05
+         * @param    {[type]}
+         * @return   {[type]}
+         */
+          Account.getCounts({patientId: Storage.get('UID'), doctorId: DoctorId}).then(function (data) {
+            if (data.result.count === 3 || data.result.count === 999 || data.result.count === 1001) {
               $ionicPopup.confirm({
-                title: '问诊确认',
-                template: '您有尚未结束的咨询，补齐差价可升级为问诊，问诊将在升级后24小时自动结束或者由医生结束，问诊中询问医生的次数不限。确认付费升级为问诊？',
+                title: '咨询确认',
+                template: whichTemplate[data.result.count].counselTemplate,
                 okText: '确认',
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  self.consultable = 1
+                  // console.log(whichTemplate[data.result.count].counselType)
+                  $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[data.result.count].counselType})
+                }
+                self.consultable = 1
+              })
+            } else {
+            // self.consultable = 0
+              $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
+                title: '咨询确认',
+                template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费',
+                okText: '确认',
+                cancelText: '取消'
+              }).then(function (res) {
+                self.consultable = 1
+                if (res) {
                   ionicLoadingshow()
                   var neworder = {
+                    'doctorId': DoctorId,
+                    // freeFlag为1表示免费
+                    'freeFlag': 0,
+                    'type': 2,
+                    // 问诊类型为2
                     'userId': Storage.get('UID'),
                     'role': 'appPatient',
-                    'money': charge2 * 100 - charge1 * 100,
-                    'class': '03',
-                    'name': '升级',
+                    // 微信支付以分为单位
+                    'money': charge2 * 100,
+                    'class': '02',
+                    'name': '问诊',
                     'notes': DoctorId,
-                    'paystatus': 0,
-                    'paytime': new Date(),
                     'trade_type': 'APP',
-                    'body_description': '咨询升级服务'
+                    'body_description': '问诊服务'
                   }
                   /**
                    * *[后台根据order下订单，生成拉起微信支付所需的参数]
                    * @Author   ZXF
                    * @DateTime 2017-07-05
-                   * @param    {[type]}
-                   * @param    {[type]}
-                   * @param    {[type]}
-                   * @param    {[type]}
-                   * @param    {[type]}
-                   * @param    {[type]}
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
                   Mywechat.addOrder(neworder).then(function (orderdata) {
-                    if (orderdata.results.status === 1) {
+                    if (orderdata.results.status === 1 || orderdata.results.status === 0) {
                       ionicLoadinghide()
+                      if (orderdata.results.status === 0) {
+                        $ionicLoading.show({
+                          template: orderdata.results.msg,
+                          duration: 1000,
+                          hideOnStateChange: true
+                        })
+                      }
                       /**
-                       * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
+                       * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
                        * @DateTime 2017-07-05
-                       * @doctorId    {[string]}
                        * @patientId    {[string]}
-                       * @type    {[int]}只能是1
-                       * @changeType    {[bool]}
+                       * @doctorId    {[string]}
+                       * @modify    {[int]}
                        * @return   {[type]}
                        */
-                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'true'}).then(function (data) {
-                        if (data.result == '修改成功') {
-                          // 确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                          $q.all([
-                            /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            }),
-                            // plus doc answer count  patientId:doctorId:modify
-                             /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                            Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            })
-                          ]).then(function (allres) {
-                            var msgJson = {
-                              clientType: 'app',
-                              contentType: 'custom',
-                              fromName: '',
-                              fromID: Storage.get('UID'),
-                              fromUser: {
-                                avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                              },
-                              targetID: DoctorId,
-                              targetName: '',
-                              targetType: 'single',
-                              status: 'send_going',
-                              createTimeInMillis: Date.now(),
-                              newsType: '11',
-                              targetRole: 'doctor',
-                              content: {
-                                type: 'counsel-upgrade'
-                              }
-                            }
-                            socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                            socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                            setTimeout(function () {
-                              $state.go('tab.consult-chat', {chatId: DoctorId, type: 3, status: 1})
-                            }, 500)
-                          })
-                        }
-                      }, function (err) {
-                        console.log(err)
-                      })
-                    } else if (orderdata.results.status === 0) {
-                      ionicLoadinghide()
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000
-                      })
-                      /**
-                       * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @doctorId    {[string]}
-                       * @patientId    {[string]}
-                       * @type    {[int]}只能是1
-                       * @changeType    {[bool]}
-                       * @return   {[type]}
-                       */
-                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'true'}).then(function (data) {
-                        if (data.result == '修改成功') {
-                          // 确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                          $q.all([
-                            /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            }),
-                              // plus doc answer count  patientId:doctorId:modify
-                               /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                            Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            })
-                          ]).then(function (allres) {
-                            var msgJson = {
-                              clientType: 'app',
-                              contentType: 'custom',
-                              fromName: '',
-                              fromID: Storage.get('UID'),
-                              fromUser: {
-                                avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                              },
-                              targetID: DoctorId,
-                              targetName: '',
-                              targetType: 'single',
-                              status: 'send_going',
-                              createTimeInMillis: Date.now(),
-                              newsType: '11',
-                              targetRole: 'doctor',
-                              content: {
-                                type: 'counsel-upgrade'
-                              }
-                            }
-                            socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                            socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                            setTimeout(function () {
-                              $state.go('tab.consult-chat', {chatId: DoctorId, type: 3, status: 1})
-                            }, 500)
-                          })
-                        }
+                      Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
+                        // console.log(data)
+                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
                       }, function (err) {
                         console.log(err)
                       })
@@ -3297,89 +3276,32 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         'timestamp': orderdata.results.timestamp, // timestamp
                         'sign': orderdata.results.paySign // signed string
                       }
-                      /**
-                       * *[微信jssdk方法，拉起微信支付]
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @partnerid    {[type]}
-                       * @prepayid    {[type]}
-                       * @noncestr    {[type]}
-                       * @timestamp    {[type]}
-                       * @sign       {[type]}
-                       * @return   {[type]}
-                       */
-                      Wechat.sendPaymentRequest(params, function () {
-                        /**
-                       * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @doctorId    {[string]}
-                       * @patientId    {[string]}
-                       * @type    {[int]}只能是1
-                       * @changeType    {[bool]}
-                       * @return   {[type]}
-                       */
-                        Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'true'}).then(function (data) {
-                          if (data.result == '修改成功') {
-                            // 确认新建咨询之后 给医生账户转积分 其他新建都在最后提交的时候转账 但是升级是在这里完成转账
-                            $q.all([
-                              /**
-                           * *患者咨询医生 给医生账户‘转账’
+                          // alert(JSON.stringify(params));
+                          /**
+                           * *[微信jssdk方法，拉起微信支付]
                            * @Author   ZXF
                            * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
+                           * @partnerid    {[type]}
+                           * @prepayid    {[type]}
+                           * @noncestr    {[type]}
+                           * @timestamp    {[type]}
+                           * @sign       {[type]}
                            * @return   {[type]}
                            */
-                              Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                                console.log(data)
-                              }, function (err) {
-                                console.log(err)
-                              }),
-                              // plus doc answer count  patientId:doctorId:modify
-                               /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                              Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                                console.log(data)
-                              }, function (err) {
-                                console.log(err)
-                              })
-                            ]).then(function (allres) {
-                              var msgJson = {
-                                clientType: 'app',
-                                contentType: 'custom',
-                                fromName: '',
-                                fromID: Storage.get('UID'),
-                                fromUser: {
-                                  avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                                },
-                                targetID: DoctorId,
-                                targetName: '',
-                                targetType: 'single',
-                                status: 'send_going',
-                                createTimeInMillis: Date.now(),
-                                newsType: '11',
-                                targetRole: 'doctor',
-                                content: {
-                                  type: 'counsel-upgrade'
-                                }
-                              }
-                              socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                              socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                              setTimeout(function () {
-                                $state.go('tab.consult-chat', {chatId: DoctorId, type: 3, status: 1})
-                              }, 500)
-                            })
-                          }
+                      Wechat.sendPaymentRequest(params, function () {
+                          // alert("Success");
+                      /**
+                       * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
+                       * @Author   ZXF
+                       * @DateTime 2017-07-05
+                       * @patientId    {[string]}
+                       * @doctorId    {[string]}
+                       * @modify    {[int]}
+                       * @return   {[type]}
+                       */
+                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
+                            // console.log(data)
+                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
                         }, function (err) {
                           console.log(err)
                         })
@@ -3401,448 +3323,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                     ionicLoadinghide()
                     console.log(err)
                   })
-                } else {
-                  self.consultable = 1
                 }
               })
             }
-          } else {
-            if (self.consultable == 1) {
-              self.consultable = 0
-              $ionicPopup.confirm({
-                title: '问诊确认',
-                template: '您有尚未结束的问诊，点击确认继续上一次问诊！',
-                okText: '确认',
-                cancelText: '取消'
-              }).then(function (res) {
-                if (res) {
-                  self.consultable = 1
-                  $state.go('tab.consult-chat', {chatId: DoctorId, type: data.result.type, status: 1})
-                } else {
-                  self.consultable = 1
-                }
-              })
-            }
-          }
-        } else { // 没有进行中的问诊咨询 查看是否已经付过费
-          Account.getCounts({patientId: Storage.get('UID'), doctorId: DoctorId}).then(function (data) {
-            // debugger
-            console.log(data.result.count)
-            if (data.result.count == 999) { // 上次有购买问诊 但是没有新建问诊
-              if (self.consultable == 1) {
-                self.consultable = 0
-                $ionicPopup.confirm({
-                  title: '问诊确认',
-                  template: '您上次付费的问诊尚未新建成功，点击确认继续填写完善上次的咨询问卷，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。',
-                  okText: '确认',
-                  cancelText: '取消'
-                }).then(function (res) {
-                  if (res) {
-                    self.consultable = 1
-                    $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                  } else {
-                    self.consultable = 1
-                  }
-                })
-              }
-            } else if (data.result.count == 3) { // 已经付费的咨询 但是没有开始
-              if (self.consultable == 1) {
-                self.consultable = 0
-                $ionicPopup.confirm({
-                  title: '问诊确认',
-                  template: '您上次付费的咨询尚未新建成功，补齐差价可升级为问诊，进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。确认付费升级为问诊？',
-                  okText: '确认',
-                  cancelText: '取消'
-                }).then(function (res) {
-                  if (res) {
-                    self.consultable = 1
-                    ionicLoadingshow()
-                    var neworder = {
-                      'userId': Storage.get('UID'),
-                      'role': 'appPatient',
-                        // "money":$scope.doctor.charge1*100,
-                      'money': charge2 * 100 - charge1 * 100,
-                      'class': '03',
-                      'name': '升级',
-                      'notes': DoctorId,
-                      'paystatus': 0,
-                      'paytime': new Date(),
-                        // "ip":result.data.ip,
-                      'trade_type': 'APP',
-                      'body_description': '咨询升级服务'
-                    }
-                    /**
-                     * *[后台根据order下订单，生成拉起微信支付所需的参数]
-                     * @Author   ZXF
-                     * @DateTime 2017-07-05
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
-                     */
-                    Mywechat.addOrder(neworder).then(function (orderdata) {
-                      if (orderdata.results.status === 1) {
-                        ionicLoadinghide()
-                        q.all([
-                          /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                          Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          }),
-                          // plus doc answer count  patientId:doctorId:modify
-                           /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                          Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                            console.log(DoctorId + Storage.get('UID'))
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          })
-                        ]).then(function (allres) {
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})// 这里的type是2不是3 因为还没有新建成功，
-                        })
-                      } else if (orderdata.results.status === 0) {
-                        ionicLoadinghide()
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000
-                        })
-                        $q.all([
-                          /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                          Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          }),
-                          // plus doc answer count  patientId:doctorId:modify
-                           /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                          Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                            console.log(DoctorId + Storage.get('UID'))
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          })
-                        ]).then(function (allres) {
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})// 这里的type是2不是3 因为还没有新建成功，
-                        })
-                      } else {
-                        ionicLoadinghide()
-                        var params = {
-                          'partnerid': '1480817392', // merchant id
-                          'prepayid': orderdata.results.prepay_id[0], // prepay id
-                          'noncestr': orderdata.results.nonceStr, // nonce
-                          'timestamp': orderdata.results.timestamp, // timestamp
-                          'sign': orderdata.results.paySign // signed string
-                        }
-                        /**
-                       * *[微信jssdk方法，拉起微信支付]
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @partnerid    {[type]}
-                       * @prepayid    {[type]}
-                       * @noncestr    {[type]}
-                       * @timestamp    {[type]}
-                       * @sign       {[type]}
-                       * @return   {[type]}
-                       */
-                        Wechat.sendPaymentRequest(params, function () {
-                          $q.all([
-                            /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '升级', doctorName: docname, money: charge2 - charge1}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            }),
-                                // plus doc answer count  patientId:doctorId:modify
-                                 /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                            Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                              console.log(DoctorId + Storage.get('UID'))
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            })
-                          ]).then(function (allres) {
-                                // ionicLoadinghide();
-                            $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})// 这里的type是2不是3 因为还没有新建成功，
-                          })
-                        }, function (reason) {
-                          if (reason == '发送请求失败') {
-                            $ionicLoading.show({
-                              template: '请正确安装微信后使用此功能',
-                              duration: 1000
-                            })
-                          } else {
-                            $ionicLoading.show({
-                              template: reason,
-                              duration: 1000
-                            })
-                          }
-                        })
-                      }
-                    }, function (err) {
-                      ionicLoadinghide()
-                    })
-                  } else {
-                    self.consultable = 1
-                  }
-                })
-              }
-            } else {
-              if (self.consultable == 1) {
-                self.consultable = 0
-                $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
-                  title: '问诊确认',
-                  template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费？',
-                  okText: '确认',
-                  cancelText: '取消'
-                }).then(function (res) {
-                  if (res) {
-                    self.consultable = 1
-                    ionicLoadingshow()
-                    var neworder = {
-                      'userId': Storage.get('UID'),
-                      'role': 'appPatient',
-                      'money': charge2 * 100,
-                      'class': '02',
-                      'name': '问诊',
-                      'notes': DoctorId,
-                      'paystatus': 0,
-                      'paytime': new Date(),
-                      // "ip":result.data.ip,
-                      'trade_type': 'APP',
-                      'body_description': '问诊服务'
-                    }
-                    /**
-                     * *[后台根据order下订单，生成拉起微信支付所需的参数]
-                     * @Author   ZXF
-                     * @DateTime 2017-07-05
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @param    {[type]}
-                     * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
-                     */
-                    Mywechat.addOrder(neworder).then(function (orderdata) {
-                      if (orderdata.results.status === 1) {
-                        ionicLoadinghide()
-                        $q.all([
-                          /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                          Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '问诊', doctorName: docname, money: charge2}).then(function (data) {
-                            console.log(data)
-                            // alert(data)
-                          }, function (err) {
-                            console.log(err)
-                          }),
-                          // plus doc answer count  patientId:doctorId:modify
-                           /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                          Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          })
-                        ]).then(function (allres) {
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                        })
-                      } else if (orderdata.results.status === 0) {
-                        ionicLoadinghide()
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000
-                        })
-                        $q.all([
-                          /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                          Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '问诊', doctorName: docname, money: charge2}).then(function (data) {
-                            console.log(data)
-                            // alert(data)
-                          }, function (err) {
-                            console.log(err)
-                          }),
-                          // plus doc answer count  patientId:doctorId:modify
-                           /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                          Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                            console.log(data)
-                          }, function (err) {
-                            console.log(err)
-                          })
-                        ]).then(function (allres) {
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                        })
-                      } else {
-                        ionicLoadinghide()
-                        var params = {
-                          'partnerid': '1480817392', // merchant id
-                          'prepayid': orderdata.results.prepay_id[0], // prepay id
-                          'noncestr': orderdata.results.nonceStr, // nonce
-                          'timestamp': orderdata.results.timestamp, // timestamp
-                          'sign': orderdata.results.paySign // signed string
-                        }
-                        /**
-                       * *[微信jssdk方法，拉起微信支付]
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @partnerid    {[type]}
-                       * @prepayid    {[type]}
-                       * @noncestr    {[type]}
-                       * @timestamp    {[type]}
-                       * @sign       {[type]}
-                       * @return   {[type]}
-                       */
-                        Wechat.sendPaymentRequest(params, function () {
-                          $q.all([
-                            /**
-                           * *患者咨询医生 给医生账户‘转账’
-                           * @Author   ZXF
-                           * @DateTime 2017-07-05
-                           * @patientId    {[string]}
-                           * @doctorId    {[string]}
-                           * @doctorName    {[string]}暂时未使用
-                           * @money    {[int]}
-                           * @return   {[type]}
-                           */
-                            Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: DoctorId, type: '问诊', doctorName: docname, money: charge2}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            }),
-                            // plus doc answer count  patientId:doctorId:modify
-                             /**
-                                 * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                                 * @Author   ZXF
-                                 * @DateTime 2017-07-05
-                                 * @patientId    {[string]}
-                                 * @doctorId    {[string]}
-                                 * @modify    {[int]}
-                                 * @return   {[type]}
-                                 */
-                            Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                              console.log(data)
-                            }, function (err) {
-                              console.log(err)
-                            })
-                          ]).then(function (allres) {
-                            $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                          })
-                        }, function (reason) {
-                          if (reason == '发送请求失败') {
-                            $ionicLoading.show({
-                              template: '请正确安装微信后使用此功能',
-                              duration: 1000
-                            })
-                          } else {
-                            $ionicLoading.show({
-                              template: reason,
-                              duration: 1000
-                            })
-                          }
-                        })
-                      }
-                    }, function (err) {
-                      ionicLoadinghide()
-                      console.log(err)
-                    })
-                  } else {
-                    self.consultable = 1
-                  }
-                })
-              }
-            }
-          }, function (err) {
-            console.log(err)
           })
         }
-      }, function (err) {
-        console.log(err)
-      })
+      }
+    }, function (err) {
+      console.log(err)
+    })
   }
   return self
 }])

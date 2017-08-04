@@ -19,8 +19,8 @@
           </div>
 
           <div class="col col-25">
-            <p ng-if="order.money!==0" class="tag" style="background-color: #95E1D3">{{order.paystatus|filterPayStatus}}</p>
-            <p ng-if="order.money===0" class="tag" style="background-color: #95E1D3">免费</p>
+            <p ng-if="order.money!==0 && order.freeFlag!==1" class="tag" style="background-color: #95E1D3">{{order.paystatus|filterPayStatus}}</p>
+            <p ng-if="order.money===0||order.freeFlag===1" class="tag" style="background-color: #95E1D3">免费</p>
             <p ng-if="order.type==1||order.type==2||order.type==3||order.type==6" class="tag" style="background-color: #FCE38A">{{order.conselObject|filterOrderStatus:'consult'}}</p>
             <p ng-if="order.type==4" class="tag" style="background-color: #FCE38A">{{order.DocInChaObject|filterOrderStatus:'incharge'}}</p>
             <p ng-if="order.type==5" class="tag" style="background-color: #FCE38A">{{order.preDiaObject|filterOrderStatus:'appointment'}}</p>
