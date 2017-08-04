@@ -13,16 +13,16 @@
           <div class="col col-75">
             <p>交易对象：{{order.doctorName}}</p>
             <p>服务类型：{{order.type|filterOrderType}}</p>
-            <p>订单时间：{{order.ordertime|date:'yyyy-MM-dd hh:mm:ss'}}</p>
+            <p>订单时间：{{order.ordertime|dateFormat:'YYYY-MM-DD h:m'}}</p>
             <p>支付金额：{{order.money|filterMoney|currency : '￥'}}</p>
-            <p ng-if="order.paytime">支付时间：{{order.paytime|date:'yyyy-MM-dd hh:mm:ss'}}</p>
+            <p ng-if="order.paytime">支付时间：{{order.paytime|dateFormat:'YYYY-MM-DD h:m'}}</p>
           </div>
 
           <div class="col col-25">
             <p ng-if="order.money!==0 && order.freeFlag!==1" class="tag" style="background-color: #95E1D3">{{order.paystatus|filterPayStatus}}</p>
             <p ng-if="order.money===0||order.freeFlag===1" class="tag" style="background-color: #95E1D3">免费</p>
             <p ng-if="order.type==1||order.type==2||order.type==3||order.type==6" class="tag" style="background-color: #FCE38A">{{order.conselObject|filterOrderStatus:'consult'}}</p>
-            <p ng-if="order.type==4" class="tag" style="background-color: #FCE38A">{{order.DocInChaObject|filterOrderStatus:'incharge'}}</p>
+            <p ng-if="order.type==4" class="tag" style="background-color: #FCE38A">{{order.docInChaObject|filterOrderStatus:'incharge'}}</p>
             <p ng-if="order.type==5" class="tag" style="background-color: #FCE38A">{{order.preDiaObject|filterOrderStatus:'appointment'}}</p>
             <p ng-if="order.preDiaObject" class="tag" style="background-color: #F38181">验证码：{{order.preDiaObject.code}}</p>
             
