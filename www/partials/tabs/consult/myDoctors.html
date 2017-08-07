@@ -47,7 +47,7 @@
                 <button ng-disabled="DisabledConsult||!doctor.counselStatus2" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
             </div>
             <div class="row">
-                <button ng-disabled="DisabledConsult||!doctor.counselStatus3" class="doctorBtn"><i class="icon ion-speakerphone"></i>加急咨询</button>
+                <button ng-disabled="DisabledConsult||!doctor.counselStatus3" ng-click="urgentquestion(doctor.userId,doctor.charge1,doctor.charge3)" class="doctorBtn"><i class="icon ion-speakerphone"></i>加急咨询</button>
                 <button ng-disabled="DisabledConsult||!doctor.counselStatus5" class="doctorBtn" ng-click="docAppointment(doctor)"><i class="icon ion-person-stalker"></i>面诊</button>
             </div>
             <div class="row">
@@ -99,7 +99,7 @@
             <button ng-disabled="DisabledConsult||!followdoctor.doctorId.counselStatus2" ng-click="consult(followdoctor.doctorId.userId, followdoctor.doctorId.charge1, followdoctor.doctorId.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
         </div>
         <div class="row">
-            <button ng-disabled="DisabledConsult||!followdoctor.doctorId.counselStatus3" class="doctorBtn">
+            <button ng-disabled="DisabledConsult||!followdoctor.doctorId.counselStatus3" ng-click="urgentquestion(followdoctor.doctorId.userId, followdoctor.doctorId.charge1,followdoctor.doctorId.charge3)" class="doctorBtn">
                 <i class="icon ion-speakerphone"></i>加急咨询
             </button>
             <button ng-disabled="DisabledConsult||!followdoctor.doctorId.counselStatus5" class="doctorBtn" ng-click="docAppointment(followdoctor.doctorId)">

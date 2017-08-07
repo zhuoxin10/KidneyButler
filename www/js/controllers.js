@@ -5777,6 +5777,7 @@ var IsDoctor =function (Doctor) {
           if (data.message == "当前已有主管医生!") {
             $scope.hasDoctor = true
             $scope.doctor = data.results.doctorId
+            console.log($scope.doctor)
             IsDoctor($scope.doctor)
               // if($ionicHistory.currentView().stateName=='tab.myDoctors'){
               //   $ionicLoading.show({
@@ -6014,6 +6015,10 @@ var IsDoctor =function (Doctor) {
   $scope.consult = function(DoctorId, charge1, charge2){
     console.log(DoctorId)
     QandC.consult(DoctorId, charge1, charge2)
+  }
+  $scope.urgentquestion = function(DoctorId, charge1, charge3){
+    console.log(DoctorId+" "+charge1+" "+charge3)
+    QandC.urgentquestion(DoctorId, charge1, charge3)
   }
 
   $scope.getDoctorDetail = function (id) {
