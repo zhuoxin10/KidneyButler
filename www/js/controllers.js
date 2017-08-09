@@ -7553,7 +7553,7 @@ var IsDoctor =function (Doctor) {
 
 }])
 
-.controller('appointmentCtrl', ['$ionicPopup','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
+.controller('appointmentCtrl', ['Service','$ionicPopup','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function (Service,$ionicPopup, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
   // 拿前一个页面传参doctor对象绑定页面数据
   $scope.doctor = $stateParams.appointDoc
   // 默认显示7天内的面诊
@@ -7567,53 +7567,191 @@ var IsDoctor =function (Doctor) {
     $scope.nextSchedual = !$scope.nextSchedual
   }
   // 暂时绑定数据
-  $scope.periods = [
-    {
-            "availableDay": "20170807",
-            "availableTime": "Morning",
-            "margin": 0
-        },
-    {
-            "availableDay": "20170807",
-            "availableTime": "Afternoon",
-            "margin": 2
-        },
-    {
-        "availableDay": "20170807",
-        "availableTime": "Morning",
-        "margin": 0
-    },
-    {
-            "availableDay": "20170807",
-            "availableTime": "Afternoon",
-            "margin": 2
+  // 
+  /**
+   * [加载蒙层，阻止用户交互，防止提交多次]
+   * @Author   PXY
+   * @DateTime 2017-07-20
+   */
+  var ionicLoadingshow = function () {
+    $ionicLoading.show({
+      template: '加载中，请稍候...',
+      hideOnStateChange:true
+
+    })
+  }
+  /**
+   * [隐藏蒙层，允许用户交互行为]
+   * @Author   PXY
+   * @DateTime 2017-07-20
+   */
+  var ionicLoadinghide = function () {
+    $ionicLoading.hide()
+  }
+
+  var doctorSchedual = function(){
+    Service.docSchedual({doctorId:$scope.doctor.userId}).then(function(data){
+      // console.log(data.results)
+      var schedules = data.results.concat()
+       // console.log(schedules)
+      $scope.periods = schedules.splice(0,14)
+      $scope.nextDays = schedules
+    })
+  }
+  $scope.$on('$ionicView.beforeEnter',function(){
+    doctorSchedual()
+  })
+  
+
+  $scope.AppointDoc = function(period){
+    // console.log(period)
+    var morning = period.availableTime === 'Morning'? '上午':'下午'
+    $ionicPopup.confirm({
+        title: '面诊预约提示',
+        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay  +'日' + morning +'，'+'</br>' + '出诊医院：' + period.place +'，'+'</br>' + '确认预约？',
+        cancelText: '取消',
+        okText: '确认'
+    }).then(function(res){
+      if(res){
+        ionicLoadingshow()
+        var neworder = {
+          'doctorId':$scope.doctor.userId,
+          //freeFlag为1表示免费
+          'freeFlag':0,
+          'type':5,
+          //面诊类型为5
+          'userId': Storage.get('UID'),
+          'role': 'appPatient',
+          // 微信支付以分为单位
+          'money': $scope.doctor.charge5 * 100,
+          'class': '05',
+          'name': '预约面诊',
+          'notes': $scope.doctor.userId,
+          // 'paystatus': 0,
+          // 'paytime': new Date(),
+          'trade_type': 'APP',
+          'body_description': '预约面诊服务'
         }
+        /**
+         * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
+         * @Author   PXY
+         * @DateTime 2017-07-20
+         * @param    neworder：Object
+         * @return   orderdata:Object
+         */
+        Mywechat.addOrder(neworder).then(function (orderdata) {
+          alert('orderdata:'+JSON.stringify(orderdata))
+          if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
+            var params = {
+              'partnerid': '1480817392', // merchant id
+              'prepayid': orderdata.results.prepay_id[0], // prepay id
+              'noncestr': orderdata.results.nonceStr, // nonce
+              'timestamp': orderdata.results.timestamp, // timestamp
+              'sign': orderdata.results.paySign // signed string
+            }
+            /**
+             * *[微信jssdk方法，拉起微信支付]
+             * @Author   PXY
+             * @DateTime 2017-07-20
+             */
+            ionicLoadinghide()
+            Wechat.sendPaymentRequest(params, function (data) {
+              alert('wechat:'+JSON.stringify(data))
+             
+                /**
+                 * [发送预约面诊请求]
+                 * @Author   PXY
+                 * @DateTime 2017-07-25
+                 * @param {doctorId:String,day:String,time:String}
+                 */
+                Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
+                  alert('apply:'+JSON.stringify(data))
+                  $ionicPopup.alert({
+                    template: '面诊预约成功！请注意查收验证码。',
+                    okText: '好的'
+                  }).then(function (e) {
+                    doctorSchedual()
+                  })
+                },function(err){
+                  alert('err:'+JSON.stringify(err))
+                  //已支付可是面诊预约失败  这一步很危险
+                })
 
-  ]
 
-  $scope.nextDays = [
-    {
-            "availableDay": "20170807",
-            "availableTime": "Morning",
-            "margin": 1
-        },
-    {
-            "availableDay": "20170807",
-            "availableTime": "Afternoon",
-            "margin": 2
-        },
-    {
-        "availableDay": "20170807",
-        "availableTime": "Morning",
-        "margin": 3
-    },
-    {
-            "availableDay": "20170807",
-            "availableTime": "Afternoon",
-            "margin": 0
-        }
+            },function(reason){
+              // alert(JSON.stringify(reason))
+              if (reason == '发送请求失败') {
+                $ionicLoading.show({
+                  template: '请正确安装微信后使用此功能',
+                  duration: 1000
+                })
+              } else {
+                $ionicLoading.show({
+                  template: reason,
+                  duration: 1000
+                })
+              }
+            })
+          }else{
+            ionicLoadinghide()
+            if(orderdata.results.status === 0) {
+              $ionicLoading.show({
+                template:orderdata.results.mesg,
+                duration:1000,
+                hideOnStateChange:true
+              })
+            }
+           /**
+             * [发送预约面诊请求]
+             * @Author   PXY
+             * @DateTime 2017-07-25
+             * @param {doctorId:String,day:String,time:String}
+             */
+            Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
+              alert('apply:'+JSON.stringify(data))
+              $ionicPopup.alert({
+                template: '面诊预约成功！请注意查收验证码。',
+                okText: '好的'
+              }).then(function (e) {
+                doctorSchedual()
+              })
+            },function(err){
+              alert('err:'+JSON.stringify(err))
+              //已支付可是面诊预约失败  这一步很危险
+            })
+          }
+        },function(error){
+          // alert(JSON.stringify(error))
+        })
+      }
+    })
+    
+  }
 
-  ]
+
+  $scope.cancelAppoint = function(period){
+    var morning = period.availableTime === 'Morning'? '上午':'下午'
+    $ionicPopup.confirm({
+        title: '面诊取消提示',
+        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay +'日' + morning +'，'+'</br>' + '出诊医院：' + period.place +'，'+'</br>' + '确认取消预约？',
+        cancelText: '算了',
+        okText: '确认取消'
+    }).then(function(res){
+      if(res){
+        Service.cancelAppointment({diagId: period.diagId}).then(function(data){
+          $ionicLoading.show({
+            template:'预约已取消',
+            duration:1500,
+            hideOnStateChange:true
+          })
+          doctorSchedual()
+        },function(err){
+
+        })
+      }
+    })
+  }
+ 
 
 }])
 .controller('applyDocCtrl', ['$ionicPopup','SecondVersion', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function ($ionicPopup, SecondVersion, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
@@ -7630,7 +7768,7 @@ var IsDoctor =function (Doctor) {
   $scope.ChargeDuration = {Name:'一个月',Value:1}
   // 临时写的
   //$scope.doctor.charge3 = 0.01
-  //$scope.ChargeTotal = $scope.doctor.charge3
+  $scope.ChargeTotal = $scope.doctor.charge4
   /**
    * [根据选中购买时长改变总金额]
    * @Author   PXY
@@ -7664,7 +7802,7 @@ var IsDoctor =function (Doctor) {
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
     ionicLoadingshow()
-
+    console.log(totalAmount)
     var neworder = {
       'doctorId':doctorId,
       //freeFlag为1表示免费
@@ -7676,7 +7814,7 @@ var IsDoctor =function (Doctor) {
       'role': 'appPatient',
       // 微信支付以分为单位
       'money': totalAmount * 100,
-      'class': '05',
+      'class': '04',
       'name': '主管医生',
       'notes': doctorId,
       // 'paystatus': 0,
@@ -7776,7 +7914,7 @@ var IsDoctor =function (Doctor) {
         })
       }
     },function(error){
-      // alert(JSON.stringify(error))
+      alert('order:'+JSON.stringify(error))
     })
   }
  

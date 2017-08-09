@@ -32,9 +32,10 @@
       
       <div class="row" style="text-align: center;" ng-repeat="period in periods">
         <div  class="col col-30 appointTable" ng-class="{true:'odd',false:'even'}[$index%2==0]">{{period.availableDay|periodFilter:$index}}</div>
-        <div class="col col-30 appointTable">{{period.availableTime}}</div>
+        <div class="col col-30 appointTable">{{{Morning:"上午",Afternoon:"下午"}[period.availableTime]}}</div>
         <!-- 如果患者没预约的话才用以下的按钮，如果是已预约的话 -->
-        <button ng-disabled="period.margin==0" class="col col-40 appoint">{{period.margin|canAppointFilter}}</button> 
+        <button ng-if="period.diagId" class="col col-40 appointed" ng-click="cancelAppoint(period)">已预约</button>
+        <button ng-if="!period.diagId" ng-disabled="period.margin==0" class="col col-40 appoint" ng-click="AppointDoc(period)">{{period.margin|canAppointFilter}}</button> 
       </div>
     </div>
     
@@ -42,7 +43,7 @@
       
       <div class="row" style="text-align: center;" ng-repeat="nextday in nextDays">
         <div  class="col col-30 appointTable" ng-class="{true:'odd',false:'even'}[$index%2==0]">{{nextday.availableDay|periodFilter:$index}}</div>
-        <div class="col col-30 appointTable">{{nextday.availableTime}}</div>
+        <div class="col col-30 appointTable">{{{Morning:"上午",Afternoon:"下午"}[nextday.availableTime]}}</div>
         <button ng-disabled="nextday.margin==0" class="col col-40 appoint">{{nextday.margin|canAppointFilter}}</button> 
       </div>
     </div>

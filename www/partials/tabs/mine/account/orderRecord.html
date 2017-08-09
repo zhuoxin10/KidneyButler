@@ -1,4 +1,4 @@
-<ion-view cache-view="false" title="消费记录" hide-tabs>
+<ion-view cache-view="false" title="我的订单" hide-tabs>
 
   <ion-nav-buttons side="left" >
     <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
@@ -25,7 +25,6 @@
             <p ng-if="order.type==4" class="tag" style="background-color: #FCE38A">{{order.docInChaObject|filterOrderStatus:'incharge'}}</p>
             <p ng-if="order.type==5" class="tag" style="background-color: #FCE38A">{{order.preDiaObject|filterOrderStatus:'appointment'}}</p>
             <p ng-if="order.preDiaObject" class="tag" style="background-color: #F38181">验证码：{{order.preDiaObject.code}}</p>
-            
 
             <!-- <p style="background-color: #6ac4f8;color: #fff">{{order.orderstatus|orderStatus:'order'}}</p> -->
           </div>

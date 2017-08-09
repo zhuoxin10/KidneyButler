@@ -60,23 +60,32 @@
   border-color:  #ddd;
   border-width: thin;
   border-style:solid;
-  line-height: 30px;
+  /*line-height: 30px;*/
   background-color: transparent;
   
 }
 
 button.appoint{
-  background-color: #6ac4f8;
+  background-color: #95E1D3;
+  color: #fff;
+  
+  /*font-weight: bold;*/
+  border-top-right-radius: 15px 20px;
+  border-bottom-right-radius: 15px 20px;
+  border: 1px none #fff;
+  /*outline: none;*/
+}
+button.appointed{
+  background-color: #FCE38A;
   color: #fff;
   
   font-weight: bold;
   border-top-right-radius: 15px 20px;
   border-bottom-right-radius: 15px 20px;
-  border: 1px solid #6ac4f8;
-  /*outline: none;*/
+  border: 1px none #fff;
 }
 button.appoint:disabled{
-  background-color: transparent;
+  background-color: #ECF0F1;
   color: #000;
   font-weight:normal;
   border-color:  #ddd;
