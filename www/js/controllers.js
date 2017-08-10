@@ -6212,7 +6212,7 @@ var IsDoctor =function (Doctor) {
     var morning = period.availableTime === 'Morning'? '上午':'下午'
     $ionicPopup.confirm({
         title: '面诊预约提示',
-        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay  +'日' + morning +'，'+'</br>' + '出诊医院：' + period.place +'，'+'</br>' + '确认预约？',
+        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay  +'日' + morning +'，'+'</br>' + '预约地点：' + period.place +'，'+'</br>' + '确认预约？',
         cancelText: '取消',
         okText: '确认'
     }).then(function(res){
@@ -6270,11 +6270,10 @@ var IsDoctor =function (Doctor) {
                  */
                 Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
                   alert('apply:'+JSON.stringify(data))
+                  doctorSchedual()
                   $ionicPopup.alert({
                     template: '面诊预约成功！请注意查收验证码。',
                     okText: '好的'
-                  }).then(function (e) {
-                    doctorSchedual()
                   })
                 },function(err){
                   alert('err:'+JSON.stringify(err))
@@ -6313,11 +6312,10 @@ var IsDoctor =function (Doctor) {
              */
             Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
               alert('apply:'+JSON.stringify(data))
+              doctorSchedual()
               $ionicPopup.alert({
                 template: '面诊预约成功！请注意查收验证码。',
                 okText: '好的'
-              }).then(function (e) {
-                doctorSchedual()
               })
             },function(err){
               alert('err:'+JSON.stringify(err))
@@ -6337,9 +6335,9 @@ var IsDoctor =function (Doctor) {
     var morning = period.availableTime === 'Morning'? '上午':'下午'
     $ionicPopup.confirm({
         title: '面诊取消提示',
-        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay +'日' + morning +'，'+'</br>' + '出诊医院：' + period.place +'，'+'</br>' + '确认取消预约？',
+        template: '预约医生：'+ $scope.doctor.name+ '，'+'</br>'+ '预约时间：' + period.availableDay +'日' + morning +'，'+'</br>' + '预约地点：' + period.place +'，'+'</br>' + '确认取消预约？',
         cancelText: '算了',
-        okText: '确认取消'
+        okText: '确认'
     }).then(function(res){
       if(res){
         Service.cancelAppointment({diagId: period.diagId}).then(function(data){
@@ -7991,7 +7989,7 @@ var IsDoctor =function (Doctor) {
   }
 }])
 
-.controller('OrderCtrl', ['Order','$scope', '$state', '$ionicLoading', function (Order, $scope, $state, $ionicLoading) {
+.controller('OrderCtrl', ['Service','$ionicPopup','Order','$scope', '$state', '$ionicLoading','$filter', function (Service,$ionicPopup,Order, $scope, $state, $ionicLoading,$filter) {
   var RefreshOrders = function(){
     Order.GetOrders().then(function(data){
       if(data.results!==null){
@@ -8012,5 +8010,27 @@ var IsDoctor =function (Doctor) {
   $scope.do_refresher = function () {
     RefreshOrders()
     $scope.$broadcast('scroll.refreshComplete')
+  }
+  $scope.cancelAppointment = function(DiagAppoint,doctorName){
+    var morning = DiagAppoint.bookingTime === 'Morning'? '上午':'下午'
+    $ionicPopup.confirm({
+        title: '面诊取消提示',
+        template: '预约医生：'+ doctorName + '，'+'</br>'+ '预约时间：' + $filter('date')(DiagAppoint.bookingDay, 'yyyy-MM-dd') +'日' + morning +'，'+'</br>' + '预约地点：' + DiagAppoint.place +'，'+'</br>' + '确认取消预约？',
+        cancelText: '算了',
+        okText: '确认'
+    }).then(function(res){
+      if(res){
+        Service.cancelAppointment({diagId: DiagAppoint.diagId}).then(function(data){
+          $ionicLoading.show({
+            template:'预约已取消',
+            duration:1500,
+            hideOnStateChange:true
+          })
+          RefreshOrders()
+        },function(err){
+
+        })
+      }
+    })
   }
 }])
