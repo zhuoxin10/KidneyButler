@@ -159,7 +159,17 @@ angular.module('kidney.filters', [])
 
 .filter('periodFilter', [function () {
   return function (periodTime, index) {
-    // console.log(index)
+    var dayName = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+    if (index % 2 == 0) {
+      return periodTime
+    } else {
+      var day = new Date()
+      day.setTime(Date.parse(periodTime))
+      // console.log(day.getDay())
+      return dayName[day.getDay()]
+    }
+
+    // console.log(day)
   }
 }])
 
@@ -197,8 +207,30 @@ angular.module('kidney.filters', [])
         }
         break
       case 'appointment':
-        // 这个字段等面诊做好之后可能需要修改
-        name = containObject ? (containObject.status === 0 ? '预约成功' : '预约取消') : '预约失败'
+        if (containObject) {
+          switch (containObject.status) {
+            case 0:
+              name = '等待核销'
+              break
+            case 1:
+              name = '医生核销'
+              break
+            case 2:
+              name = '已过期'
+              break
+            case 3:
+              name = '预约取消'
+              break
+            case 4:
+              name = '医生停诊'
+              break
+            case 5:case 6:
+              name = '等待退款处理'
+              break
+          }
+        } else {
+          name = '预约失败'
+        }
         break
     }
     return name
