@@ -90,7 +90,6 @@ display: inline-block;
   margin-top: 10px;
 }*/
 .bar-header {
-
 border: 0px !important;
 border-bottom-color: transparent !important;
 
@@ -98,6 +97,7 @@ background-image: none !important;
 
 border-bottom: none !important;
 }
+
 /*筛选*/
 .checkbox input, .checkbox-icon{
   width: 18px;

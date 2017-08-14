@@ -5455,10 +5455,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $ionicHistory.goBack();
   }
 
-  $scope.alldoctortype = '88px'
-  if (ionic.Platform.isIOS()) {
-    $scope.alldoctortype = '108px'
-  }
+  // $scope.alldoctortype = '88px'
+  // if (ionic.Platform.isIOS()) {
+  //   $scope.alldoctortype = '108px'
+  // }
   $scope.searchCont = {}
   $scope.clearSearch = function () {
     $scope.searchCont = {}
@@ -5695,10 +5695,10 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.$on('$ionicView.enter', function () {
-    $scope.mydocStyle = {'top': '75px'}
-    if (ionic.Platform.isIOS()) {
-      $scope.mydocStyle = {'top': '95px'}
-    }
+    // $scope.mydocStyle = {'top': '75px'}
+    // if (ionic.Platform.isIOS()) {
+    //   $scope.mydocStyle = {'top': '95px'}
+    // }
     RefreshUnread = $interval(GetUnread, 2000)
 
   })

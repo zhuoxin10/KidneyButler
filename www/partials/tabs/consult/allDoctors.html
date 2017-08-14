@@ -4,7 +4,7 @@
     <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
   </ion-nav-buttons>
 
-  <div class="bar bar-header" style="position:absolute;top:44px;border: none;">
+  <div id="allDoc" class="bar bar-header" style="position:absolute;top:44px;border: none;">
     <div style="text-align:center;height:44px" class="row">
       <select class="col" ng-model="Province.province" ng-options="Province.name for Province in Provinces track by Province.province" style="width:40%" ng-change="getCity(Province.province)"> 
         <option selected value="">省份</option>    
@@ -21,7 +21,7 @@
     </div>
   </div>      
       
-  <div class="bar bar-header"  style="margin-top:0px"  ng-style="{'position':'absolute','top':'{{alldoctortype}}'}">
+  <div id="allDocSearch" class="bar bar-header"  style="position:absolute;top:88px">
     <label class="item-input" style="width:100%">        
       <span class="item-input-wrapper" style="margin-right:16px">  
         <i class="icon ion-ios-search placeholder-icon"></i>  
