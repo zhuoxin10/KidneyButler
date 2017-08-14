@@ -32,9 +32,9 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgThumbUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/resize',
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
-  version2Url: 'http://121.43.107.106:4060/api/v2/',
-  baseUrl: 'http://121.43.107.106:4060/api/v1/',
-  photoUrl: 'http://121.196.221.44:4060/api/v1/',
+  // version2Url: 'http://121.43.107.106:4060/api/v2/',
+  baseUrl: 'http://121.43.107.106:4060/api/v2/',
+  photoUrl: 'http://121.196.221.44:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
@@ -280,19 +280,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var serve = {}
   var abort = $q.defer()
 
-  var SecondVersion = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
-      ApplyDocInCharge: {method: 'POST', params: {route: 'doctorInCharge'}, timeout: 100000},
-      FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000},
-      UnFollowDoc: {method: 'POST', params: {route: 'unfollowFavoriteDoctor'}, timeout: 100000},
-      MyDocInCharge: {method: 'GET', params: {route: 'myDoctorsInCharge'}, timeout: 100000},
-      CancelDocInCharge: {method: 'POST', params: {route: 'cancelDoctorInCharge'}, timeout: 100000},
-      getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000}
-    })
-  }
-
   var Service = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'services'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'services'}, {
       appointDoc: {method: 'POST', params: {route: 'personalDiagnosis'}, timeout: 100000},
       docSchedual: {method: 'GET', params: {route: 'availablePD'}, timeout: 100000},
       cancelAppointment: {method: 'POST', params: {route: 'cancelMyPD'}, timeout: 100000},
@@ -300,7 +289,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
   var Order = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'order'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'order'}, {
       GetOrders: {method: 'GET', params: {route: 'order'}, timeout: 100000}
     })
   }
@@ -359,7 +348,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Measurement = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'report'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'report'}, {
       getPatientSign: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 10000}
     })
   }
@@ -371,7 +360,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // }
 
   var Patient = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'patient'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'patient'}, {
       getPatientDetail: {method: 'GET', params: {route: 'detail'}, timeout: 100000},
       // getMyDoctors: {method: 'GET', params: {route: 'myDoctors'}, timeout: 10000},
       getDoctorLists: {method: 'GET', params: {route: 'doctors'}, timeout: 10000},
@@ -380,7 +369,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             // newPatientDetail:{method:'POST',params:{route:'detail'},timeout:10000},
       editPatientDetail: {method: 'POST', params: {route: 'editDetail'}, timeout: 10000},
       // bindingMyDoctor: {method: 'POST', params: {route: 'bindingMyDoctor'}, timeout: 10000},
-      replacePhoto: {method: 'POST', params: {route: 'wechatPhotoUrl', patientId: '@patientId', wechatPhotoUrl: '@wechatPhotoUrl'}, timeout: 10000}
+      replacePhoto: {method: 'POST', params: {route: 'wechatPhotoUrl', patientId: '@patientId', wechatPhotoUrl: '@wechatPhotoUrl'}, timeout: 10000},
+      ApplyDocInCharge: {method: 'POST', params: {route: 'doctorInCharge'}, timeout: 100000},
+      FollowDoc: {method: 'POST', params: {route: 'favoriteDoctor'}, timeout: 100000},
+      UnFollowDoc: {method: 'POST', params: {route: 'unfollowFavoriteDoctor'}, timeout: 100000},
+      MyDocInCharge: {method: 'GET', params: {route: 'myDoctorsInCharge'}, timeout: 100000},
+      CancelDocInCharge: {method: 'POST', params: {route: 'cancelDoctorInCharge'}, timeout: 100000},
+      getFollowDoctors: {method: 'GET', params: {route: 'myFavoriteDoctors'}, timeout: 10000}
     })
   }
 
@@ -395,7 +390,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var User = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'user'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'alluser'}, {
       register: {method: 'POST', skipAuthorization: true, params: {route: 'register', phoneNo: '@phoneNo', password: '@password', role: '@role'}, timeout: 100000},
       changePassword: {method: 'POST', skipAuthorization: true, params: {route: 'reset', phoneNo: '@phoneNo', password: '@password'}, timeout: 100000},
       logIn: {method: 'POST', skipAuthorization: true, params: {route: 'login'}, timeout: 100000},
@@ -443,7 +438,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       modifyCounts: {method: 'POST', params: {route: 'counts'}, timeout: 100000},
       // rechargeDoctor: {method: 'POST', params: {route: 'rechargeDoctor'}, timeout: 100000},
       updateFreeTime: {method: 'POST', params: {route: 'updateFreeTime'}, timeout: 100000},
-      getCountsRespective: {method: 'GET', params: {route: 'getCountsRespective'}, timeout: 100000}
+      getCountsRespective: {method: 'GET', params: {route: 'countsRespective'}, timeout: 100000}
     })
   }
 
@@ -455,7 +450,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Advice = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'advice'}, {
-      postAdvice: {method: 'POST', params: {route: 'postAdvice'}, timeout: 100000}
+      postAdvice: {method: 'POST', params: {route: 'advice'}, timeout: 100000}
     })
   }
 
@@ -484,7 +479,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Mywechat = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'wechat'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'wechat'}, {
       messageTemplate: {method: 'POST', params: {route: 'messageTemplate'}, timeout: 100000},
       // gettokenbycode: {method: 'GET', params: {route: 'gettokenbycode'}, timeout: 100000},
       addOrder: {method: 'POST', params: {route: 'addOrder'}, timeout: 100000},
@@ -511,7 +506,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     abort.resolve()
     $interval(function () {
       abort = $q.defer()
-      serve.SecondVersion = SecondVersion()
+      // serve.SecondVersion = SecondVersion()
       serve.Order = Order()
       serve.Service = Service()
       serve.Dict = Dict()
@@ -540,7 +535,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.devicedata = Devicedata()
     }, 0, 1)
   }
-  serve.SecondVersion = SecondVersion()
+  // serve.SecondVersion = SecondVersion()
   serve.Order = Order()
   serve.Service = Service()
   serve.Dict = Dict()
@@ -568,97 +563,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
   return serve
-}])
-
-.factory('SecondVersion', ['$q', 'Data', function ($q, Data) {
-  var self = this
-
-    // params->{doctorId:'U201701040018',chargeDuration:'2592000',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}  chargeDuration是以秒为单位
-  self.ApplyDocInCharge = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.ApplyDocInCharge(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
-  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
-  self.FollowDoc = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.FollowDoc(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
-  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
-  self.UnFollowDoc = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.UnFollowDoc(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
-  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
-  self.MyDocInCharge = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.MyDocInCharge(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
-
-  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
-  self.CancelDocInCharge = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.CancelDocInCharge(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            }
-        )
-    return deferred.promise
-  }
-
-  self.getFollowDoctors = function (params) {
-    var deferred = $q.defer()
-    Data.SecondVersion.getFollowDoctors(
-               params,
-               function (data, headers) {
-                 deferred.resolve(data)
-               },
-               function (err) {
-                 deferred.reject(err)
-               })
-    return deferred.promise
-  }
-
-  return self
 }])
 
 .factory('Order', ['$q', 'Data', function ($q, Data) {
@@ -1290,7 +1194,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   return self
 }])
 
-.factory('DoctorService', ['$q', 'SecondVersion', 'Storage', '$ionicPopup', '$state', '$ionicLoading', function ($q, SecondVersion, Storage, $ionicPopup, $state, $ionicLoading) {
+.factory('DoctorService', ['$q', 'Patient', 'Storage', '$ionicPopup', '$state', '$ionicLoading', function ($q, Patient, Storage, $ionicPopup, $state, $ionicLoading) {
   var self = this
   /**
    * [申请医生为主管医生时，先查看主管医生服务状态：1、有主管医生；2、无主管医生但有申请；3、既无主管医生也无申请
@@ -1306,7 +1210,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
      * @DateTime 2017-07-24
      * @return   data:{message:String}
      */
-    SecondVersion.MyDocInCharge().then(function (data) {
+    Patient.MyDocInCharge().then(function (data) {
       // debugger
       if (data.message === '已申请主管医生，请等待审核!') {
         $ionicPopup.alert({
@@ -1327,7 +1231,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               * @DateTime 2017-07-24
               * @return   data:Object
               */
-                SecondVersion.CancelDocInCharge().then(function (data) {
+                Patient.CancelDocInCharge().then(function (data) {
                   $state.go('tab.applyDoctor', {applyDoc: Doctor})
                 })
               }
@@ -1354,7 +1258,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
      * @param    {doctorId：String,token:String}
      * @return   data:Object
      */
-    SecondVersion.FollowDoc({doctorId: Doctor.userId}).then(function (data) {
+    Patient.FollowDoc({doctorId: Doctor.userId}).then(function (data) {
       Doctor.IsMyFollowDoctor = true  // 字段待协商
       $ionicLoading.show({
         template: '关注成功！',
@@ -1379,7 +1283,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
      * @param    {doctorId：String,token:String}
      * @return   data:Object
      */
-    SecondVersion.UnFollowDoc({doctorId: Doctor.userId}).then(function (data) {
+    Patient.UnFollowDoc({doctorId: Doctor.userId}).then(function (data) {
       Doctor.IsMyFollowDoctor = false
       $ionicLoading.show({
         template: '取关成功！',
@@ -1414,7 +1318,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               * @DateTime 2017-07-24
               * @return   data:Object
               */
-            SecondVersion.CancelDocInCharge().then(function (data) {
+            Patient.CancelDocInCharge().then(function (data) {
               deferred.resolve(data)
             }, function (err) {
               deferred.reject(err)
@@ -1889,6 +1793,90 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             function (err) {
               deferred.reject(err)
             })
+    return deferred.promise
+  }
+
+  self.ApplyDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.ApplyDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.FollowDoc = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.FollowDoc(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{doctorId:'U201701040018',token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.UnFollowDoc = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.UnFollowDoc(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.MyDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.MyDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+
+  // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
+  self.CancelDocInCharge = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.CancelDocInCharge(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+
+  self.getFollowDoctors = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.getFollowDoctors(
+               params,
+               function (data, headers) {
+                 deferred.resolve(data)
+               },
+               function (err) {
+                 deferred.reject(err)
+               })
     return deferred.promise
   }
 
@@ -3581,7 +3569,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    * @DateTime 2017-07-05
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
-                  console.log("加急咨询付费")
+                  console.log('加急咨询付费')
                   Mywechat.addOrder(neworder).then(function (orderdata) {
                     if (orderdata.results.status === 1 || orderdata.results.status === 0) {
                       ionicLoadinghide()
