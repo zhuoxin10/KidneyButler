@@ -30,7 +30,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
   }, 101)
   $ionicPlatform.ready(function () {
     // version.checkUpdate($rootScope)
-
+    ionic.Platform.fullScreen(true, true)
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
     $rootScope.conversation = {
