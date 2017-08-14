@@ -5695,9 +5695,9 @@ var IsDoctor =function (Doctor) {
   }
 
   $scope.$on('$ionicView.enter', function () {
-    $scope.mydocStyle = {'top': '70px'}
+    $scope.mydocStyle = {'top': '75px'}
     if (ionic.Platform.isIOS()) {
-      $scope.mydocStyle = {'top': '90px'}
+      $scope.mydocStyle = {'top': '95px'}
     }
     RefreshUnread = $interval(GetUnread, 2000)
 
