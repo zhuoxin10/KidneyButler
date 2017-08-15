@@ -326,4 +326,8 @@
   margin-bottom: 5px;
 }
 
+.high-light {
+  color: #6ac4f8 !important;
+  border-color: #6ac4f8;
+}
 

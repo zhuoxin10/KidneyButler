@@ -502,6 +502,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
+  var Forum = function () {
+    return $resource(CONFIG.version2Url + ':path/:route', {path: 'forum'}, {
+      allposts: {method: 'GET', params: {route: 'allposts'}, timeout: 10000},
+      myposts: {method: 'GET', params: {route: 'myposts'}, timeout: 10000},
+      mycollection: {method: 'GET', params: {route: 'mycollection'}, timeout: 10000},
+      newpost: {method: 'POST', params: {route: 'posting'}, timeout: 100000},
+      favorite: {method: 'POST', params: {route: 'favorite'}, timeout: 100000},
+      deletefavorite: {method: 'POST', params: {route: 'deletefavorite'}, timeout: 100000},
+      deletepost: {method: 'POST', params: {route: 'deletepost'}, timeout: 100000},
+      postcontent: {method: 'GET', params: {route: 'postcontent'}, timeout: 100000}
+    })
+  }
+
   serve.abort = function ($scope) {
     abort.resolve()
     $interval(function () {
@@ -533,6 +546,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Mywechat = Mywechat()
       serve.Communication = Communication()
       serve.devicedata = Devicedata()
+      serve.Forum = Forum()
     }, 0, 1)
   }
   // serve.SecondVersion = SecondVersion()
@@ -562,6 +576,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Mywechat = Mywechat()
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
+  serve.Forum = Forum()
   return serve
 }])
 
@@ -3660,6 +3675,110 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     }, function (err) {
       console.log(err)
     })
+  }
+  return self
+}])
+
+.factory('Forum', ['$q', 'Data', function ($q, Data) {
+  var self = this
+  self.allposts = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.allposts(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.myposts = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.myposts(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.mycollection = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.mycollection(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.newpost = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.newpost(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.favorite = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.favorite(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletefavorite = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletefavorite(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletepost = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletepost(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.postcontent = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.postcontent(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
   }
   return self
 }])

@@ -1,0 +1,62 @@
+<ion-view cache-view="false" title="帖子内容" show-tabs>
+
+    <ion-nav-buttons side="left">
+        <my-nav-back-button ng-click="GoBack()"></my-nav-back-button>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right" >
+        <button class="button button-clear" ng-click="GoToShare() "><i class="icon ion-share"></i></button>
+  </ion-nav-buttons>
+
+  <ion-content>
+
+    <div class="list" style="margin-bottom: 0px;">
+
+           <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
+                <img style="margin-top: -6px" ng-src="{{avatar}}">
+                <span style="font-size: 14px">{{name}}</span><br/>
+                <span style="font-size: 12px">{{time|dateFormat:"YYYY-MM-DD"}}</span>
+           </div>
+           <div class="item item-body" style="border: none; padding-top: 0px;padding-bottom: 10px">
+                <h style="margin-top: 0px; margin-bottom: 0px;font-size: 14px">{{title}}</h>
+                <p style="margin-top: 8px;margin-bottom: 8px;">{{text}}</p>
+                <img class="full-image" style="height:20%; width:40%" ng-src="{{image}}">
+                <p style="margin-top: 0px;">
+                   <a class="subdued" style="float: right; font-size: 12px">{{favoritesNum}} 收藏</a>
+                   <a class="subdued" style="float: right; font-size: 12px; padding-right: 8px">{{replyCount}} 评论</a>
+                </p>
+           </div>
+
+    </div>
+
+    <div class="item item-divider">
+        <i class="icon ion-ios-people"></i>
+        全部评论:()
+    </div>
+
+    <div ng-repeat="item in comments" class="list" style="margin-bottom: 0px">
+            <div class="item item-avatar" style="border-bottom-width: 0px;padding-top: 8px;padding-bottom: 8px;" ng-click="GoToReplytext()">
+                <img style="margin-top: -6px" ng-src="{{item.avatar}}">
+                <span style="font-size: 14px">{{item.userName}}</span><br/>
+                <span style="font-size: 12px">{{item.time|dateFormat:"YYYY-MM-DD"}}</span>
+                <p style="padding-top: 5px">{{item.content}}</p>
+            </div> 
+            <div ng-repeat="item in replies" class="list">
+                     <p>{{item.content}}</p>
+                </div>
+    </div>
+  
+  </ion-content>
+
+  <!-- <div class="tabs item-input-inset text-center bar-footer {{$root.hideTabs}}" style="padding:0;position:absolute;margin-bottom: 0px;height:46px;">
+
+            <a class="item col-50 " style="padding: 0px;margin-top: 0px;margin-right: 0px;margin-left: 0px;margin-bottom: 0px;height: 45px;border: none;" ng-click="GoToReplytext()">
+                <i class="icon ion-chatbox-working"></i>
+                <span>评论</span>
+            </a>
+            <a class="item col-50 " style="padding: 0px;margin-top: 0px;margin-right: 0px;margin-left: 0px;margin-bottom: 0px;height: 45px;border-right-width: 0px;border-bottom-width: 0px;border-top-width: 0px;" ng-click="changefavoritestatus(item)" ng-style="myStyle[item.favoritesstatus]">
+                <i class="icon ion-heart"></i>
+                <span>收藏</span>
+            </a>
+    </div> -->
+
+</ion-view>
