@@ -4637,10 +4637,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 测量记录
-.controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading', function($scope, Measurement, Storage, $ionicHistory, $ionicLoading){
+.controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading','$window', '$state',function($scope, Measurement, Storage, $ionicHistory, $ionicLoading, $window,$state){
   $scope.Goback = function () {
-      $ionicHistory.goBack();
+    $state.go('tab.mine')
     }
+  $scope.Refresh = function () {
+    $window.location.reload()
+  }
   var Painting = function(date,modify,timeType){
         //体温
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
