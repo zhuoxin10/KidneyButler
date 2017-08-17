@@ -4155,7 +4155,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.navigation = $sce.trustAsResourceUrl(urineUrl)
     alert(JSON.stringify(data))
   },function(err){
-    alert(err)
+    alert(JSON.stringify(err))
   })
 
 }])
