@@ -33,7 +33,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
-  baseUrl: 'http://121.43.107.106:4060/api/v2/',
+  baseUrl: 'http://106.15.185.172:4060/api/v2/',
   photoUrl: 'http://121.196.221.44:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
@@ -264,8 +264,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               }, function (error) {
                 console.log(error)
                 alert('An error has occurred: Code = ' + error.code)
-                console.log('upload error source ' + error.source)
-                console.log('upload error target ' + error.target)
+                alert('upload error source ' + error.source)
+                alert('upload error target ' + error.target)
                 reject(error)
               }, function (progress) {
                 console.log(progress)
@@ -296,7 +296,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Dict = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'dict'}, {
-      getDiseaseType: {method: 'GET', params: {route: 'typeTWO'}, timeout: 100000},
+      getDiseaseType: {method: 'GET', params: {route: 'typeTwo'}, timeout: 100000},
       getDistrict: {method: 'GET', params: {route: 'district'}, timeout: 100000},
       getHospital: {method: 'GET', params: {route: 'hospital'}, timeout: 100000},
       getHeathLabelInfo: {method: 'GET', params: {route: 'typeOne'}, timeout: 100000}
@@ -306,8 +306,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Task = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'tasks'}, {
-      changeTaskstatus: {method: 'GET', params: {route: 'status'}, timeout: 100000},
-      changeTasktime: {method: 'GET', params: {route: 'time'}, timeout: 100000},
+      changeTaskstatus: {method: 'POST', params: {route: 'status'}, timeout: 100000},
+      changeTasktime: {method: 'POST', params: {route: 'time'}, timeout: 100000},
       insertTask: {method: 'POST', params: {route: 'taskModel'}, timeout: 100000},
       getUserTask: {method: 'GET', params: {route: 'task'}, timeout: 100000},
       updateUserTask: {method: 'POST', params: {route: 'task'}, timeout: 100000}
@@ -315,16 +315,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Compliance = function () {
-    return $resource(CONFIG.baseUrl + ':path', {path: 'compliance'}, {
-      getcompliance: {method: 'GET', params: {}, timeout: 100000},
-      postcompliance: {method: 'POST', params: {}, timeout: 100000}
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'compliance'}, {
+      getcompliance: {method: 'GET', params: {route: 'compliances'}, timeout: 100000},
+      postcompliance: {method: 'POST', params: {route: 'compliance'}, timeout: 100000}
     })
   }
 
   var insurance = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'insurance'}, {
-      // 发送保险意向居然是get也是奇怪
-      setPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
+      setPrefer: {method: 'POST', params: {route: 'prefer'}, timeout: 100000}
       // getPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
 
     })
@@ -343,7 +342,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getStatus: {method: 'GET', params: {route: 'status'}, timeout: 100000},
       // changeStatus: {method: 'POST', params: {route: 'status'}, timeout: 100000},
       changeType: {method: 'POST', params: {route: 'type'}, timeout: 100000},
-      insertCommentScore: {method: 'POST', params: {route: 'score'}, timeout: 100000}
+      insertCommentScore: {method: 'POST', params: {route: 'commentScore'}, timeout: 100000}
     })
   }
 
@@ -420,14 +419,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var Comment = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'comment'}, {
       // getComments: {method: 'GET', params: {route: 'getComments'}, timeout: 100000},
-      getCommentsByC: {method: 'GET', params: {route: 'getCommentsByC'}, timeout: 100000}
+      getCommentsByC: {method: 'GET', params: {route: 'commentsByCounsel'}, timeout: 100000}
     })
   }
 
   var VitalSign = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'vitalSign'}, {
       getVitalSigns: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 100000},
-      insertVitalSign: {method: 'POST', params: {route: 'vitalSigns'}, timeout: 100000}
+      insertVitalSign: {method: 'POST', params: {route: 'vitalSign'}, timeout: 100000}
     })
   }
 
@@ -437,7 +436,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getCounts: {method: 'GET', params: {route: 'counts'}, timeout: 100000},
       modifyCounts: {method: 'POST', params: {route: 'counts'}, timeout: 100000},
       // rechargeDoctor: {method: 'POST', params: {route: 'rechargeDoctor'}, timeout: 100000},
-      updateFreeTime: {method: 'POST', params: {route: 'updateFreeTime'}, timeout: 100000},
+      updateFreeTime: {method: 'POST', params: {route: 'freeTime'}, timeout: 100000},
       getCountsRespective: {method: 'GET', params: {route: 'countsRespective'}, timeout: 100000}
     })
   }
