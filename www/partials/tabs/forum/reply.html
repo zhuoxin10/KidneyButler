@@ -6,7 +6,7 @@
     	</ion-nav-buttons>
 
   		<ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="right" >
-        	<button class="button button-positive defa-bg defa-font" >确定</button>
+        	<button class="button button-positive defa-bg defa-font" ng-click="Reply()">发表</button>
     	</ion-nav-buttons>
 	</ion-nav-bar>
   
@@ -15,7 +15,7 @@
         <form>
             
             <label class="item item-input" style="border:1px solid #6ac4f8;border-radius: 5px;margin-top: 10px ">
-              <textarea placeholder="说点什么吧......" rows="8" style="line-height: 25px" ng-model="advice.content"></textarea>
+              <textarea placeholder="说点什么吧......" rows="8" style="line-height: 25px" ng-model="reply.content"></textarea>
             </label>
   
         </form>

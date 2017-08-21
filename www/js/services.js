@@ -33,10 +33,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
-  baseUrl: 'http://121.43.107.106:4060/api/v2/',
+  baseUrl: 'http://106.15.185.172:4060/api/v2/',
   photoUrl: 'http://121.196.221.44:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
-  socketServer: 'ws://121.43.107.106:4060/',
+  socketServer: 'ws://106.15.185.172:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
   imgLargeUrl: 'http://121.43.107.106:8054/uploads/photos/',
   //
@@ -503,7 +503,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Forum = function () {
-    return $resource(CONFIG.version2Url + ':path/:route', {path: 'forum'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'forum'}, {
       allposts: {method: 'GET', params: {route: 'allposts'}, timeout: 10000},
       myposts: {method: 'GET', params: {route: 'myposts'}, timeout: 10000},
       mycollection: {method: 'GET', params: {route: 'mycollection'}, timeout: 10000},
@@ -511,7 +511,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       favorite: {method: 'POST', params: {route: 'favorite'}, timeout: 100000},
       deletefavorite: {method: 'POST', params: {route: 'deletefavorite'}, timeout: 100000},
       deletepost: {method: 'POST', params: {route: 'deletepost'}, timeout: 100000},
-      postcontent: {method: 'GET', params: {route: 'postcontent'}, timeout: 100000}
+      postcontent: {method: 'GET', params: {route: 'postcontent'}, timeout: 100000},
+      deletecomment: {method: 'POST', params: {route: 'deletecomment'}, timeout: 100000},
+      comment: {method: 'POST', params: {route: 'comment'}, timeout: 100000},
+      reply: {method: 'POST', params: {route: 'reply'}, timeout: 100000}
     })
   }
 
@@ -3771,6 +3774,42 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.postcontent = function (params) {
     var deferred = $q.defer()
     Data.Forum.postcontent(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletecomment = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletecomment(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.comment = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.comment(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.reply = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.reply(
             params,
             function (data, headers) {
               deferred.resolve(data)

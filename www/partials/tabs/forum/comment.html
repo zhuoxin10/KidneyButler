@@ -1,28 +1,24 @@
-<ion-view view-title="发帖">
-  <ion-nav-bar class="bar-positive" align-title="center">
+<ion-view view-title="评论">
+	<ion-nav-bar class="bar-positive" align-title="center">
 
-      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
-          <button class="button button-positive defa-bg defa-font" ng-click="GoBack()">取消</button>
-      </ion-nav-buttons>
+  		<ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="left" >
+        	<button class="button button-positive defa-bg defa-font" ng-click="GoBack()">取消</button>
+    	</ion-nav-buttons>
 
-      <ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="right" >
-          <button class="button button-positive defa-bg defa-font" type="submit" ng-click="Post()">发表</button>
-      </ion-nav-buttons>
-  </ion-nav-bar>
+  		<ion-nav-buttons class="bar-dark nav-title-slide-ios7" side="right" >
+        	<button class="button button-positive defa-bg defa-font" ng-click="Post()">发表</button>
+    	</ion-nav-buttons>
+	</ion-nav-bar>
+  
+	<ion-content class="padding">
 
-  <ion-content class="padding">    
         <form>
-            <label class="item item-input" style="border:1px solid #6ac4f8;border-radius: 5px;margin-top: 10px; ">
-              <textarea placeholder="标题" rows="1" style="left:5px;top:10px;line-height: 30px; font-size:15px" ng-model="post.title"></textarea>
+            
+            <label class="item item-input" style="border:1px solid #6ac4f8;border-radius: 5px;margin-top: 10px ">
+              <textarea placeholder="说点什么吧......" rows="8" style="line-height: 25px" ng-model="post.content"></textarea>
             </label>
-
-            <div id="posttext" contentEditable="true" style ="border:1px solid #6ac4f8; border-radius: 5px; margin-top: 10px; height: 400px; line-height: 25px; font-size:15px; overflow: auto" >
-            </div>
-
-            <div class="row">
-              <button class="button icon ion-camera" style="height: 40px;" ng-click="onClickCamera($event)" >上传图片</button>
-              <ion-checkbox ng-model="post.anonymous" style="border: none;">匿名发帖</ion-checkbox>
-            </div>
+  
         </form>
-  </ion-content>
+
+    </ion-content>
 </ion-view>

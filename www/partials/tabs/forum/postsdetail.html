@@ -3,17 +3,16 @@
     <ion-nav-buttons side="left">
         <my-nav-back-button ng-click="GoBack()"></my-nav-back-button>
     </ion-nav-buttons>
-    <ion-nav-buttons side="right" >
-        <button class="button button-clear" ng-click="GoToShare() "><i class="icon ion-share"></i></button>
-  </ion-nav-buttons>
 
-  <ion-content>
+  <ion-content style="bottom: 44px;">
 
     <div class="list" style="margin-bottom: 0px;">
 
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
-                <img style="margin-top: -6px" ng-src="{{avatar}}">
-                <span style="font-size: 14px">{{name}}</span><br/>
+                <img style="margin-top: -6px" ng-if = "!(anonymous)" ng-src="{{avatar || 'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -6px" ng-if = "(anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
+                <span style="font-size: 14px" ng-if = "!(anonymous)">{{name || sponsorId}}</span>
+                <span style="font-size: 14px" ng-if = "(anonymous)">匿名用户</span><br/>
                 <span style="font-size: 12px">{{time|dateFormat:"YYYY-MM-DD"}}</span>
            </div>
            <div class="item item-body" style="border: none; padding-top: 0px;padding-bottom: 10px">
@@ -30,33 +29,41 @@
 
     <div class="item item-divider">
         <i class="icon ion-ios-people"></i>
-        全部评论:()
+        全部评论:({{replyCount}})
     </div>
-
-    <div ng-repeat="item in comments" class="list" style="margin-bottom: 0px">
-            <div class="item item-avatar" style="border-bottom-width: 0px;padding-top: 8px;padding-bottom: 8px;" ng-click="GoToReplytext()">
-                <img style="margin-top: -6px" ng-src="{{item.avatar}}">
-                <span style="font-size: 14px">{{item.userName}}</span><br/>
+    <div ng-repeat="item in comments" class="list" style="margin-bottom: 0px;padding-bottom: 10px;">
+            <div class="item item-avatar" style="border-bottom-width: 0px;padding-top: 8px;padding-bottom: 5px;" ng-click="ReplyOrDelete1(item)">
+                <img style="margin-top: -13px" ng-src="{{item.avatar}}">
+                <span style="font-size: 14px">{{item.userName || item.userId}}</span><br/>
                 <span style="font-size: 12px">{{item.time|dateFormat:"YYYY-MM-DD"}}</span>
-                <p style="padding-top: 5px">{{item.content}}</p>
+                <p style="padding-top: 5px;white-space: normal;">{{item.content}}</p>
             </div> 
-            <div ng-repeat="item in replies" class="list">
-                     <p>{{item.content}}</p>
-                </div>
+            <div ng-if="(item.replies.length)" style="margin-left: 70px;margin-bottom: 0px;background-color: #F0F0F0;margin-right: 10px;padding: 8px">
+            <div ng-repeat="rep in item.replies" class="list" style="margin-bottom: 0px;" ng-click="ReplyOrDelete2(rep,item)">
+                     <p style="margin-bottom: 0px;">{{rep.userName || rep.userId}} : @{{item.userName}} {{rep.content}}</p>
+            </div>
+            </div>
     </div>
-  
   </ion-content>
 
-  <!-- <div class="tabs item-input-inset text-center bar-footer {{$root.hideTabs}}" style="padding:0;position:absolute;margin-bottom: 0px;height:46px;">
+  <div class="bar item-input-inset text-center bar-footer" style="padding:0;position:absolute;margin-bottom: 0px;height:44px;">
 
-            <a class="item col-50 " style="padding: 0px;margin-top: 0px;margin-right: 0px;margin-left: 0px;margin-bottom: 0px;height: 45px;border: none;" ng-click="GoToReplytext()">
+            <a class="item col-50 " style="height: 43px;border: none;" ng-click="GoToCommentf(postId)">
                 <i class="icon ion-chatbox-working"></i>
                 <span>评论</span>
             </a>
-            <a class="item col-50 " style="padding: 0px;margin-top: 0px;margin-right: 0px;margin-left: 0px;margin-bottom: 0px;height: 45px;border-right-width: 0px;border-bottom-width: 0px;border-top-width: 0px;" ng-click="changefavoritestatus(item)" ng-style="myStyle[item.favoritesstatus]">
-                <i class="icon ion-heart"></i>
-                <span>收藏</span>
+            <a class="item col-50 " style="height: 43px;border-right-width: 0px;border-bottom-width: 0px;border-top-width: 0px;" ng-click="GoToShare() ">
+                <i class="icon ion-share"></i>
+                <span>分享</span>
             </a>
-    </div> -->
+    </div>
+     <!-- <ion-footer-bar class="chat-bar" keyboard-attach>
+      <div class="chat-top">
+          <div class="chat-input" style="position: absolute;bottom: 4px;width: 100%;padding-left:3vw;padding-right:13vw;">
+              <textarea style="resize:none;width:100%;min-height:1.4em;height:1.6em;font-size:1.2em;line-height:20px;border-bottom:1px #AAA solid" ng-model="input.text" ng-focus="showMore=false;showVoice=false;scrollBottom()" minlength="1" maxlength="500" dynamic-height></textarea>
+          </div>
+          <button style="width:2.6em;position:absolute;bottom:8px;right:9px;padding:0;font-size: 12px;min-height: 30px;height: 30px" class="button button-positive" type="submit" ng-click="submitMsg()">发送</button>
+      </div>
+    </ion-footer-bar> -->
 
 </ion-view>
