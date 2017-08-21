@@ -4191,9 +4191,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   Devicedata.urineConnect({client:client,userbind:Storage.get('UID')}).then(function(data){
     var urineUrl = CONFIG.NiaodaifuUrl + "?appkey=" + data.results.appkey + "&sign=" + data.results.sign + "&atime=" + data.results.atime + "&userbind=" + Storage.get('UID') + "&mode=1"
     $scope.navigation = $sce.trustAsResourceUrl(urineUrl)
-    alert(JSON.stringify(data))
+    // alert(JSON.stringify(data))
   },function(err){
-    alert(err)
+    // alert(JSON.stringify(err))
   })
 
 }])
@@ -6569,45 +6569,37 @@ var IsDoctor =function (Doctor) {
 
 // "我”二维码页
 .controller('QRcodeCtrl', ['Patient', '$scope', '$state', '$interval', '$rootScope', 'Storage','Mywechat','Mywechatphoto', function (Patient, $scope, $state, $interval, $rootScope, Storage, Mywechat, Mywechatphoto) {
-  $scope.Goback = function () {
-    // console.log(123);
-    $state.go('tab.mine')
-    // $ionicHistory.goBack();
-  } 
+  
   $scope.patient = ''
-  Patient.getPatientDetail({
-    userId: Storage.get('UID')
-  })
-    .then(
-        function (data) {
-            console.log(data)
-          $scope.patient = data.results
-          if (angular.isDefined($scope.patient.TDCticket) != true) {
-            var params = {
-              'userId': Storage.get('UID'),
-              'postdata': {
-                'action_name': 'QR_LIMIT_STR_SCENE',
-                'action_info': {
-                  'scene': {
-                    'scene_str': Storage.get('UID')
-                  }
-                }
+  Patient.getPatientDetail({userId: Storage.get('UID')}).then(
+    function (data) {
+      $scope.patient = data.results
+      if (angular.isDefined($scope.patient.TDCticket) != true) {
+        var params = {
+          'userId': Storage.get('UID'),
+          'postdata': {
+            'action_name': 'QR_LIMIT_STR_SCENE',
+            'action_info': {
+              'scene': {
+                'scene_str': Storage.get('UID')
               }
             }
-            Mywechatphoto.createTDCticket(params).then(function (data) {
-              $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.TDCticket
-            },
-                function (err) {
-                  console.log(err)
-                })
-          } else {
-            $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.TDCticket
           }
-        },
-        function (err) {
-          console.log(err)
         }
-    )
+        Mywechatphoto.createTDCticket(params).then(function (data) {
+          $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.TDCticket
+        },
+            function (err) {
+              console.log(err)
+            })
+      } else {
+        $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.TDCticket
+      }
+    },
+    function (err) {
+      console.log(err)
+    }
+)
 }])
 
 // 关于--PXY
