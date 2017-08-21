@@ -35,7 +35,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://106.15.185.172:4060/api/v2/',
   urineConnectUrl: 'http://106.15.185.172:4060/',
-  photoUrl: 'http://121.196.221.44:4060/api/v2/',
+  // photoUrl: 'http://121.196.221.44:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://121.43.107.106:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
@@ -488,7 +488,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Mywechatphoto = function () {
-    return $resource(CONFIG.photoUrl + ':path/:route', {path: 'wechat'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'wechat'}, {
       createTDCticket: {method: 'POST', params: {route: 'createTDCticket'}, timeout: 100000}
     })
   }
