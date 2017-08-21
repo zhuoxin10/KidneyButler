@@ -3409,6 +3409,32 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 }
               })
             }
+          } else if (data.result.type == 6 || data.result.type == 7) {
+            if (data.result.status == 1) { // 尚未结束的加急咨询
+              $ionicPopup.confirm({
+                title: '加急咨询确认',
+                template: '您有尚未结束的加急咨询，点击确认可以查看历史消息，在医生结束之前您还可以对您的问题作进一步的描述。',
+                okText: '确认',
+                cancelText: '取消'
+              }).then(function (res) {
+                if (res) {
+                  counseltype
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                }
+              })
+            } else {
+              $ionicPopup.confirm({
+                title: '加急咨询确认',
+                template: '您的加急咨询已结束，点击确认可以查看历史消息，但是无法继续发送消息。',
+                okText: '确认',
+                cancelText: '取消'
+              }).then(function (res) {
+                if (res) {
+                  counseltype
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                }
+              })
+            }
           }
         })
     }
@@ -3477,7 +3503,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
-              $scope.params.counseltype = data.result.type == '3' ? '2' : data.result.type
+              $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
               $scope.counselstatus = data.result.status
 
@@ -3620,13 +3646,25 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var len = $scope.msgs.length
     if (len == 0 || !($scope.msgs[len - 1].content.type == 'count-notice' && $scope.msgs[len - 1].content.count == cnt)) {
       var bodyDoc = ''
-      if (type != '1') {
+      if (type == '2') {
         if (status == '0') {
           bodyDoc = '您仍可以向患者追加回答，该消息不计费'
           bodyPat = '您没有提问次数了。如需提问，请新建咨询或问诊'
         } else {
           bodyDoc = '患者对您进行问诊，询问次数不限，如您认为回答结束，请点击右上角结束。请在24小时内回复患者。'
           bodyPat = '您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。'
+        }
+      }else if (type == '6') { //加急咨询
+        if (cnt <= 0 || status == '0') {
+          bodyDoc = '您仍可以向患者追加回答，该消息不计费'
+          bodyPat = '您没有提问次数了。如需提问，请新建咨询或问诊'
+        } else {
+          bodyDoc = '您还需要回答' + cnt + '个问题'
+          bodyPat = '您还有' + cnt + '次提问机会'
+          if (cnt == 3) {
+            bodyDoc = '患者对您进行加急咨询，请在2小时内回复患者，您最多需做三次回答，答满三次后，本次咨询结束；如不满三个问题，2小时后本次咨询关闭。您还需要回答' + cnt + '个问题。'
+            bodyPat = '根据您提供的问题及描述，医生最多做三次回答，答满三次后，本次咨询结束，请尽量详细描述病情和需求；如不满三个问题，2小时后本次咨询关闭。医生会在2小时内回答，如超过2小时医生未作答，本次咨询关闭，且不收取费用。您还有' + cnt + '次提问机会。'
+          }
         }
       } else {
         if (cnt <= 0 || status == '0') {
@@ -3920,7 +3958,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         'template_id': 'DWrM__2UuaLxYf5da6sKOQA_hlmYhlsazsaxYX59DtE',
         'data': {
           'first': {
-            'value': '您有一个新的' + ($scope.params.counseltype == 1 ? '咨询' : '问诊') + '消息，请及时处理',
+            'value': '您有一个新的' + ($scope.params.counseltype == 1 ? '咨询' : ($scope.params.counseltype == 6 ? '加急咨询' : '问诊') ) + '消息，请及时处理',
             'color': '#173177'
           },
           'keyword1': {

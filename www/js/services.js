@@ -2577,13 +2577,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     } else {
       var subT = msg.content.type
       if (subT == 'card') {
-        if (msg.newsType == '11') note += msg.content.counsel.type == '1' ? '[新咨询]' : '[新问诊]'
+        if (msg.content.counsel.type == '1') tag1 = '[新咨询]'
+        if (msg.content.counsel.type == '2' || msg.content.counsel.type == '3') tag1 = '[新问诊]'
+        if (msg.content.counsel.type == '6' || msg.content.counsel.type == '7') tag1 = '[新加急咨询]'
+        if (msg.newsType == '11') note += tag1
         else if (msg.newsType == '12') note += '[病历转发]'
         else note += '[团队病历]'
       } else if (subT == 'contact') {
         note += '[联系人名片]'
       } else if (subT == 'endl') {
-        note += msg.content.counseltype == 1 ? '[咨询结束]' : '[问诊结束]'
+        if (msg.content.counseltype == 1) tag2 = '[咨询结束]'
+        if (msg.content.counseltype == 2 || msg.content.counseltype == 3) tag2 = '[问诊结束]'
+        if (msg.content.counseltype == 6 || msg.content.counseltype == 7) tag2 = '[加急咨询结束]'
+        note += tag2
       } else {
         note += '[新消息]'
       }
