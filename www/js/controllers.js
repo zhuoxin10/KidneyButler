@@ -5483,7 +5483,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 更多医生
-.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Service', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location', 'Doctor', 'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', function (DoctorService,QandC,Service, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Doctor, Counsels, Account, CONFIG, Expense, socket) {
+.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Service', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location',  'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', function (DoctorService,QandC,Service, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Counsels, Account, CONFIG, Expense, socket) {
   //$scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
     //console.log('destroy')
@@ -5510,19 +5510,19 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 
-var IsDoctor =function (Doctor) {
-    Service.isMyDoctors({doctorId:Doctor.userId}). then(
-        function (data) {
-          // debugger
-          if (data.DIC==1)
-          Doctor.IsMyDoctor = true
-        else Doctor.IsMyDoctor = false
-          if (data.FD==1)
-            Doctor.IsMyFollowDoctor=true
-          else Doctor.IsMyFollowDoctor=false
-        }
-      )
-}
+  var IsDoctor =function (Doctor) {
+      Service.isMyDoctors({doctorId:Doctor.userId}). then(
+          function (data) {
+            // debugger
+            if (data.DIC==1)
+            Doctor.IsMyDoctor = true
+          else Doctor.IsMyDoctor = false
+            if (data.FD==1)
+              Doctor.IsMyFollowDoctor=true
+            else Doctor.IsMyFollowDoctor=false
+          }
+        )
+  }
 
 
   $scope.open =false
@@ -5669,6 +5669,10 @@ var IsDoctor =function (Doctor) {
   $scope.consult = function(DoctorId,  charge1, charge2){
     QandC.consult(DoctorId, charge1, charge2)
   }
+  $scope.urgentquestion = function(DoctorId, charge1, charge3){
+    console.log(DoctorId+" "+charge1+" "+charge3)
+    QandC.urgentquestion(DoctorId, charge1, charge3)
+  }
   $scope.getDoctorDetail = function (id) {
     $state.go('tab.DoctorDetail', {DoctorId: id})
   }
@@ -5713,6 +5717,17 @@ var IsDoctor =function (Doctor) {
    */
   $scope.unfollowDoctor = function(doctor){
     DoctorService.DislikeDoctor(doctor)
+  }
+
+  /**
+   * [预约面诊]
+   * @Author   PXY
+   * @DateTime 2017-08-02
+   * @param    doctor:Object 页面上绑定的医生对象
+   */
+  $scope.docAppointment = function(doctor){
+    console.log(doctor)
+    $state.go('tab.appointDoctor',{appointDoc:doctor})
   }
 
 
@@ -5839,7 +5854,7 @@ var IsDoctor =function (Doctor) {
   }
   mydoc()
 
-/*  $scope.scanbarcode = function () {
+  /*  $scope.scanbarcode = function () {
       // console.log(Storage.get("UID"))
     $cordovaBarcodeScanner.scan().then(function (imageData) {
           // alert(imageData.text);
@@ -6127,10 +6142,9 @@ var IsDoctor =function (Doctor) {
 
   $scope.doctor = ''
 
-  Patient.getDoctorLists({doctorId
-    : DoctorId}).then(
+  Patient.getDoctorLists({doctorId: DoctorId}).then(
     function (data) {
-      $scope.doctor = data.results
+      $scope.doctor = data.results[0]
       IsDoctor($scope.doctor)
       console.log($scope.doctor)
     },
@@ -6152,6 +6166,10 @@ var IsDoctor =function (Doctor) {
   }
   $scope.consult = function(DoctorId, charge1, charge2){
     QandC.consult(DoctorId, charge1, charge2)
+  }
+  $scope.urgentquestion = function(DoctorId, charge1, charge3){
+    console.log(DoctorId+" "+charge1+" "+charge3)
+    QandC.urgentquestion(DoctorId, charge1, charge3)
   }
   
   /**
@@ -6195,6 +6213,19 @@ var IsDoctor =function (Doctor) {
   $scope.unfollowDoctor = function(doctor){
     DoctorService.DislikeDoctor(doctor)
   }
+
+  /**
+   * [预约面诊]
+   * @Author   PXY
+   * @DateTime 2017-08-02
+   * @param    doctor:Object 页面上绑定的医生对象
+   */
+  $scope.docAppointment = function(doctor){
+    console.log(doctor)
+    $state.go('tab.appointDoctor',{appointDoc:doctor})
+  }
+
+
   
 
 
