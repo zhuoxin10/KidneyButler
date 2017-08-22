@@ -379,15 +379,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  var Doctor = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
+  // var Doctor = function () {
+    // return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
             // createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
             // getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
-      getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
+      // getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
             // getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
             // getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
-    })
-  }
+    // })
+  // }
 
   var User = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'alluser'}, {
@@ -517,7 +517,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Measurement = Measurement()
       // serve.Temp = Temp()
       serve.Patient = Patient()
-      serve.Doctor = Doctor()
+      // serve.Doctor = Doctor()
       serve.Health = Health()
       serve.User = User()
       serve.Comment = Comment()
@@ -546,7 +546,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Measurement = Measurement()
   // serve.Temp = Temp()
   serve.Patient = Patient()
-  serve.Doctor = Doctor()
+  // serve.Doctor = Doctor()
   serve.Health = Health()
   serve.User = User()
   serve.Comment = Comment()
@@ -584,6 +584,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   return self
 }])
+
 .factory('Service', ['$q', 'Data', function ($q, Data) {
   var self = this
   // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
@@ -1900,8 +1901,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
   return self
 }])
-.factory('Doctor', ['$q', 'Data', function ($q, Data) {
-  var self = this
+// .factory('Doctor', ['$q', 'Data', function ($q, Data) {
+  // var self = this
     // params->0:{
            //   userId:'docpostTest',//unique
            //   name:'姓名',
@@ -1946,18 +1947,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     // params->0:{
            //   userId:'doc01'
            // }
-  self.getDoctorInfo = function (params) {
-    var deferred = $q.defer()
-    Data.Doctor.getDoctorInfo(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            })
-    return deferred.promise
-  }
+  // self.getDoctorInfo = function (params) {
+  //   var deferred = $q.defer()
+  //   Data.Doctor.getDoctorInfo(
+  //           params,
+  //           function (data, headers) {
+  //             deferred.resolve(data)
+  //           },
+  //           function (err) {
+  //             deferred.reject(err)
+  //           })
+  //   return deferred.promise
+  // }
     // params->0:{
            //   userId:'doc01'
            // }
@@ -1989,8 +1990,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     //     });
     //     return deferred.promise;
     // };
-  return self
-}])
+  // return self
+// }])
 
 .factory('Counsels', ['$q', 'Data', function ($q, Data) {
   var self = this

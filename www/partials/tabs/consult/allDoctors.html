@@ -73,8 +73,8 @@
 
 
         <div ng-if="doctor.open" class="row">
-            <button ng-disabled="DisabledConsult||!doctor.counselStatus3" class="doctorBtn3"><i class="icon ion-speakerphone"></i>加急咨询</button>
-            <button ng-disabled="DisabledConsult||!doctor.counselStatus5" class="doctorBtn3"><i class="icon ion-person-stalker"></i>面诊</button>
+            <button ng-disabled="DisabledConsult||!doctor.counselStatus3" class="doctorBtn3" ng-click="urgentquestion(doctor.userId, doctor.charge1,doctor.charge3)"><i class="icon ion-speakerphone"></i>加急咨询</button>
+            <button ng-disabled="DisabledConsult||!doctor.counselStatus5" class="doctorBtn3"  ng-click="docAppointment(doctor)"><i class="icon ion-person-stalker"></i>面诊</button>
         </div>
 
         <div ng-if="doctor.open" class="row">
