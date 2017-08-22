@@ -34,7 +34,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://106.15.185.172:4060/api/v2/',
-  photoUrl: 'http://121.196.221.44:4060/api/v2/',
+  urineConnectUrl: 'http://106.15.185.172:4060/',
   mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://106.15.185.172:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
@@ -264,8 +264,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               }, function (error) {
                 console.log(error)
                 alert('An error has occurred: Code = ' + error.code)
-                console.log('upload error source ' + error.source)
-                console.log('upload error target ' + error.target)
+                alert('upload error source ' + error.source)
+                alert('upload error target ' + error.target)
                 reject(error)
               }, function (progress) {
                 console.log(progress)
@@ -296,7 +296,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Dict = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'dict'}, {
-      getDiseaseType: {method: 'GET', params: {route: 'typeTWO'}, timeout: 100000},
+      getDiseaseType: {method: 'GET', params: {route: 'typeTwo'}, timeout: 100000},
       getDistrict: {method: 'GET', params: {route: 'district'}, timeout: 100000},
       getHospital: {method: 'GET', params: {route: 'hospital'}, timeout: 100000},
       getHeathLabelInfo: {method: 'GET', params: {route: 'typeOne'}, timeout: 100000}
@@ -306,8 +306,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Task = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'tasks'}, {
-      changeTaskstatus: {method: 'GET', params: {route: 'status'}, timeout: 100000},
-      changeTasktime: {method: 'GET', params: {route: 'time'}, timeout: 100000},
+      changeTaskstatus: {method: 'POST', params: {route: 'status'}, timeout: 100000},
+      changeTasktime: {method: 'POST', params: {route: 'time'}, timeout: 100000},
       insertTask: {method: 'POST', params: {route: 'taskModel'}, timeout: 100000},
       getUserTask: {method: 'GET', params: {route: 'task'}, timeout: 100000},
       updateUserTask: {method: 'POST', params: {route: 'task'}, timeout: 100000}
@@ -315,16 +315,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Compliance = function () {
-    return $resource(CONFIG.baseUrl + ':path', {path: 'compliance'}, {
-      getcompliance: {method: 'GET', params: {}, timeout: 100000},
-      postcompliance: {method: 'POST', params: {}, timeout: 100000}
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'compliance'}, {
+      getcompliance: {method: 'GET', params: {route: 'compliances'}, timeout: 100000},
+      postcompliance: {method: 'POST', params: {route: 'compliance'}, timeout: 100000}
     })
   }
 
   var insurance = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'insurance'}, {
-      // 发送保险意向居然是get也是奇怪
-      setPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
+      setPrefer: {method: 'POST', params: {route: 'prefer'}, timeout: 100000}
       // getPrefer: {method: 'GET', params: {route: 'prefer'}, timeout: 100000}
 
     })
@@ -343,7 +342,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getStatus: {method: 'GET', params: {route: 'status'}, timeout: 100000},
       // changeStatus: {method: 'POST', params: {route: 'status'}, timeout: 100000},
       changeType: {method: 'POST', params: {route: 'type'}, timeout: 100000},
-      insertCommentScore: {method: 'POST', params: {route: 'score'}, timeout: 100000}
+      insertCommentScore: {method: 'POST', params: {route: 'commentScore'}, timeout: 100000}
     })
   }
 
@@ -379,15 +378,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  var Doctor = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
+  // var Doctor = function () {
+    // return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
             // createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
             // getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
-      getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
+      // getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
             // getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
             // getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
-    })
-  }
+    // })
+  // }
 
   var User = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'alluser'}, {
@@ -420,14 +419,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var Comment = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'comment'}, {
       // getComments: {method: 'GET', params: {route: 'getComments'}, timeout: 100000},
-      getCommentsByC: {method: 'GET', params: {route: 'getCommentsByC'}, timeout: 100000}
+      getCommentsByC: {method: 'GET', params: {route: 'commentsByCounsel'}, timeout: 100000}
     })
   }
 
   var VitalSign = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'vitalSign'}, {
       getVitalSigns: {method: 'GET', params: {route: 'vitalSigns'}, timeout: 100000},
-      insertVitalSign: {method: 'POST', params: {route: 'vitalSigns'}, timeout: 100000}
+      insertVitalSign: {method: 'POST', params: {route: 'vitalSign'}, timeout: 100000}
     })
   }
 
@@ -437,7 +436,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getCounts: {method: 'GET', params: {route: 'counts'}, timeout: 100000},
       modifyCounts: {method: 'POST', params: {route: 'counts'}, timeout: 100000},
       // rechargeDoctor: {method: 'POST', params: {route: 'rechargeDoctor'}, timeout: 100000},
-      updateFreeTime: {method: 'POST', params: {route: 'updateFreeTime'}, timeout: 100000},
+      updateFreeTime: {method: 'POST', params: {route: 'freeTime'}, timeout: 100000},
       getCountsRespective: {method: 'GET', params: {route: 'countsRespective'}, timeout: 100000}
     })
   }
@@ -488,7 +487,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Mywechatphoto = function () {
-    return $resource(CONFIG.photoUrl + ':path/:route', {path: 'wechat'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'wechat'}, {
       createTDCticket: {method: 'POST', params: {route: 'createTDCticket'}, timeout: 100000}
     })
   }
@@ -498,7 +497,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       devices: {method: 'GET', params: {route: 'devices'}, timeout: 10000},
       BPDeviceBinding: {method: 'POST', params: {route: 'BPDevice', op: 'binding'}, timeout: 10000},
       BPDeviceDeBinding: {method: 'POST', params: {route: 'BPDevice', op: 'debinding'}, timeout: 10000},
-      urineConnect: {method: 'GET', url: 'http://121.43.107.106:4060/' + ':path/:route/:op', params: {route: 'niaodaifu', op: 'loginparam'}, timeout: 10000}
+      urineConnect: {method: 'GET', url: CONFIG.urineConnectUrl + ':path/:route/:op', params: {route: 'niaodaifu', op: 'loginparam'}, timeout: 10000}
     })
   }
 
@@ -533,7 +532,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Measurement = Measurement()
       // serve.Temp = Temp()
       serve.Patient = Patient()
-      serve.Doctor = Doctor()
+      // serve.Doctor = Doctor()
       serve.Health = Health()
       serve.User = User()
       serve.Comment = Comment()
@@ -563,7 +562,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Measurement = Measurement()
   // serve.Temp = Temp()
   serve.Patient = Patient()
-  serve.Doctor = Doctor()
+  // serve.Doctor = Doctor()
   serve.Health = Health()
   serve.User = User()
   serve.Comment = Comment()
@@ -602,6 +601,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   return self
 }])
+
 .factory('Service', ['$q', 'Data', function ($q, Data) {
   var self = this
   // params->{token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ'}
@@ -1918,8 +1918,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
   return self
 }])
-.factory('Doctor', ['$q', 'Data', function ($q, Data) {
-  var self = this
+// .factory('Doctor', ['$q', 'Data', function ($q, Data) {
+  // var self = this
     // params->0:{
            //   userId:'docpostTest',//unique
            //   name:'姓名',
@@ -1964,18 +1964,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     // params->0:{
            //   userId:'doc01'
            // }
-  self.getDoctorInfo = function (params) {
-    var deferred = $q.defer()
-    Data.Doctor.getDoctorInfo(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            })
-    return deferred.promise
-  }
+  // self.getDoctorInfo = function (params) {
+  //   var deferred = $q.defer()
+  //   Data.Doctor.getDoctorInfo(
+  //           params,
+  //           function (data, headers) {
+  //             deferred.resolve(data)
+  //           },
+  //           function (err) {
+  //             deferred.reject(err)
+  //           })
+  //   return deferred.promise
+  // }
     // params->0:{
            //   userId:'doc01'
            // }
@@ -2007,8 +2007,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     //     });
     //     return deferred.promise;
     // };
-  return self
-}])
+  // return self
+// }])
 
 .factory('Counsels', ['$q', 'Data', function ($q, Data) {
   var self = this
@@ -2595,13 +2595,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     } else {
       var subT = msg.content.type
       if (subT == 'card') {
-        if (msg.newsType == '11') note += msg.content.counsel.type == '1' ? '[新咨询]' : '[新问诊]'
+        if (msg.content.counsel.type == '1') tag1 = '[新咨询]'
+        if (msg.content.counsel.type == '2' || msg.content.counsel.type == '3') tag1 = '[新问诊]'
+        if (msg.content.counsel.type == '6' || msg.content.counsel.type == '7') tag1 = '[新加急咨询]'
+        if (msg.newsType == '11') note += tag1
         else if (msg.newsType == '12') note += '[病历转发]'
         else note += '[团队病历]'
       } else if (subT == 'contact') {
         note += '[联系人名片]'
       } else if (subT == 'endl') {
-        note += msg.content.counseltype == 1 ? '[咨询结束]' : '[问诊结束]'
+        if (msg.content.counseltype == 1) tag2 = '[咨询结束]'
+        if (msg.content.counseltype == 2 || msg.content.counseltype == 3) tag2 = '[问诊结束]'
+        if (msg.content.counseltype == 6 || msg.content.counseltype == 7) tag2 = '[加急咨询结束]'
+        note += tag2
       } else {
         note += '[新消息]'
       }

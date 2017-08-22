@@ -111,6 +111,7 @@ angular.module('kidney.directives', ['kidney.services'])
     }
   }
 }])
+
 // 加载数据的loading spin
     // xjz
     .directive('mySpin', [function () {

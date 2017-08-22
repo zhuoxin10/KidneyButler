@@ -99,7 +99,7 @@
 
             <ionic-datepicker  ng-if="canEdit" input-obj="datepickerObject3" class="item item-input">
                 <i class="icon ion-asterisk" style="color:red;font-size:6px"></i><span class="input-label">出生日期</span>
-                <input  ng-model="User.birthday" dateformat name="UserBirthday" class="hasTick" required type="text">
+                <input disabled ng-model="User.birthday" dateformat name="UserBirthday" class="hasTick" required type="text">
                 <span class="tick" ng-if="canEdit">
                     <i style="color:#6ac4f8;" ng-if="userForm.UserBirthday.$valid" class="icon ion-checkmark-circled placeholder-icon"></i>
                     <i style="color:#FB6753;" ng-if="userForm.UserBirthday.$invalid" class="icon ion-alert-circled placeholder-icon"></i>

@@ -5,7 +5,8 @@
         </ion-nav-buttons>
     </ion-nav-bar>
   <ion-content>
-
+      <ion-refresher pulling-text="下拉刷新" spinner='ripple' refreshing-text="刷新一下" on-refresh="Refresh()">
+      </ion-refresher>
 <!-- <div class="bar bar-header" style="position:absolute; top:-58px; border: none;"> -->
     <div style="text-align:center;height:44px" class="row">
       <button id="week" ng-click="toWeekReports()" class="seasonBtn">周</button>
