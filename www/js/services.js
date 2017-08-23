@@ -35,7 +35,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://106.15.185.172:4060/api/v2/',
   urineConnectUrl: 'http://106.15.185.172:4060/',
-  mediaUrl: 'http://121.43.107.106:8054/',
+  mediaUrl: 'http://106.15.185.172:4060/',
+  // mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://106.15.185.172:4060/',
   imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
   imgLargeUrl: 'http://121.43.107.106:8054/uploads/photos/',
@@ -3687,7 +3688,48 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
   return self
 }])
+.factory('autoLogin', ['User', 'Storage', 'mySocket', '$state', function (User, Storage, mySocket, $state) {
+  /**
+   * [判断能否直接登录（先判断微信是否能直接登录；再判断手机号码密码是否能直接登录;能直接登录就登录然后跳转到主页（任务））注：登录过的手机号码或者微信会记录在本地]
+   * @Author   PXY
+   * @DateTime 2017-07-04
+   */
+  return {
+    AutoLoginOrNot: function () {
+      if (Storage.get('patientunionid') != undefined && Storage.get('bindingsucc') == 'yes') {
+        User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
+          if (data.results.mesg == 'login success!') {
+            Storage.set('isSignIN', 'Yes')
+            Storage.set('UID', data.results.userId)// 后续页面必要uid
 
+            Storage.set('bindingsucc', 'yes')
+            Storage.set('TOKEN', data.results.token)
+            var name = data.results.userName ? data.results.userName : data.results.userId
+            mySocket.newUser(data.results.userId, name)
+            $state.go('tab.tasklist')
+              // $state.go('tab.tasklist')
+          }
+        })
+      } else if (Storage.get('isSignIN') == 'Yes') {
+        if (Storage.get('USERNAME') != null && Storage.get('USERNAME') != undefined && Storage.get('PASSWORD') != null && Storage.get('PASSWORD') != undefined) {
+          User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
+            if (data.results.mesg == 'login success!') {
+              Storage.set('isSignIN', 'Yes')
+              Storage.set('UID', data.results.userId)// 后续页面必要uid
+              Storage.set('TOKEN', data.results.token)
+                      // Storage.set('bindingsucc','yes')
+              var name = data.results.userName ? data.results.userName : data.results.userId
+              mySocket.newUser(data.results.userId, name)
+              $state.go('tab.tasklist')
+
+                      // $state.go('tab.tasklist')
+            }
+          })
+        }
+      }
+    }
+  }
+}])
 .factory('Forum', ['$q', 'Data', function ($q, Data) {
   var self = this
   self.allposts = function (params) {

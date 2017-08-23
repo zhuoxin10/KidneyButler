@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io', 'angular-jwt', 'highcharts-ng'])
 
-.run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
+.run(['autoLogin', 'version', '$ionicPlatform', '$state', 'Storage', '$location', '$ionicHistory', '$ionicPopup', '$rootScope', 'CONFIG', 'notify', '$interval', 'socket', 'mySocket', 'session', function (autoLogin, version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   // 主页面显示退出提示框
   $ionicPlatform.registerBackButtonAction(function (e) {
     e.preventDefault()
@@ -30,6 +30,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
   }, 101)
   $ionicPlatform.ready(function () {
     // version.checkUpdate($rootScope)
+    $rootScope.$on('ionicView.beforeEnter', autoLogin.AutoLoginOrNot())
     ionic.Platform.fullScreen(true, true)
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
@@ -113,7 +114,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       $rootScope.$broadcast('keyboardhide')
     })
   })
-})
+}])
 
 // --------路由, url模式设置----------------
 
