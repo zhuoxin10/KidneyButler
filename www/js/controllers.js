@@ -171,8 +171,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        // alert(JSON.stringify(response));
-        // alert(response.code);
+        alert(JSON.stringify(response));
+        alert(response.code);
         /**
          * *[根据unionid获取用户基本信息]
          * @Author   ZXF
@@ -182,11 +182,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   results:{headimgurl：微信头像路径，unionid：string，}
          */
       Mywechat.getUserInfo({role: 'appPatient', code: response.code, state: ''}).then(function (persondata) {
-          // alert(JSON.stringify(persondata));
+          alert('getUserInfo:'+JSON.stringify(persondata));
         Storage.set('wechatheadimgurl', persondata.results.headimgurl)
 
         $scope.unionid = persondata.results.unionid
-          // alert($scope.unionid)
+          alert('unionid:'+$scope.unionid)
           // 判断这个unionid是否已经绑定用户了 有直接登录
           /**
            * *[根据unionid获取用户userid]
@@ -196,7 +196,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
            * @return   {results：[0:用户有与微信unionid绑定userid]，UserId：string，roles:['patient','doctor'...]用户所用的角色}
            */
         User.getUserID({'username': $scope.unionid}).then(function (ret) {
-            // alert(JSON.stringify(ret))
+            alert('userId:'+JSON.stringify(ret))
             // 用户已经存在id 说明公众号注册过
             // 未测试
             /**
@@ -207,7 +207,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @return   {[type]}
              */
           if (Storage.get('wechatheadimgurl') && ret.results === 0) {
-                // alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+                alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
             Patient.replacePhoto({'patientId': ret.UserId, 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (data) {
                         // alert(JSON.stringify(data));
               Storage.rm('wechatheadimgurl')
@@ -227,7 +227,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @param    logOn:{username:String, password:String，role：string}  注：username：unionid
              */
             User.logIn({username: $scope.unionid, password: '112233', role: 'patient'}).then(function (data) {
-                // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
+                alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
               if (data.results.mesg == 'login success!') {
                 Storage.set('isSignIN', 'Yes')
                 Storage.set('UID', ret.UserId)// 后续页面必要uid
@@ -268,7 +268,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               ionicLoadinghide()
             })
           } else {
-                // alert('else');
+                alert('else');
             Storage.set('patientunionid', $scope.unionid)// 自动登录使用
             $state.go('phonevalid', {phonevalidType: 'wechatsignin'})
           }
@@ -4281,7 +4281,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 // 修改
                 // $scope.canEdit = false;
             var info = $stateParams.id
-            // console.log(info)
+            console.log(info)
             Health.getHealthDetail({userId: patientId, insertTime: info.insertTime}).then(function (data) {
               if (data.results != '' && data.results != null) {
                 $scope.health.label = data.results.label
