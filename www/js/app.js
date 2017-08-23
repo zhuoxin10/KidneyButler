@@ -207,10 +207,34 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       views: {
         'tab-forum': {
           cache: false,
-          templateUrl: 'partials/tabs/forum.html',
+          templateUrl: 'partials/tabs/forum/forum.html',
           controller: 'forumCtrl'
         }
       }
+    })
+    .state('post', {
+      url: '/post',
+      cache: false,
+      templateUrl: 'partials/tabs/forum/post.html',
+      controller: 'postCtrl'
+    })
+    .state('comment', {
+      url: '/comment',
+      cache: false,
+      templateUrl: 'partials/tabs/forum/comment.html',
+      controller: 'commentCtrl'
+    })
+    .state('postsdetail', {
+      url: '/postsdetail',
+      cache: false,
+      templateUrl: 'partials/tabs/forum/postsdetail.html',
+      controller: 'postsdetailCtrl'
+    })
+    .state('reply', {
+      url: '/reply',
+      cache: false,
+      templateUrl: 'partials/tabs/forum/reply.html',
+      controller: 'replyCtrl'
     })
     .state('tab.myDoctors', {
       url: '/myDoctors',
