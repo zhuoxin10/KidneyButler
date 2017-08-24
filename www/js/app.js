@@ -29,8 +29,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     return false
   }, 101)
   $ionicPlatform.ready(function () {
-    // version.checkUpdate($rootScope)
-    $rootScope.$on('ionicView.beforeEnter', autoLogin.AutoLoginOrNot())
+    version.checkUpdate($rootScope)
+    autoLogin.AutoLoginOrNot()
     ionic.Platform.fullScreen(true, true)
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null

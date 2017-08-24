@@ -7106,14 +7106,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (res) {
           Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
                     function (data) {
-                      if (data.results == 0) {
                         for (var i = 0; i < $scope.items.length; i++) {
                           if (editId.insertTime == $scope.items[i].insertTime) {
                             $scope.items.splice(i, 1)
                             break
                           }
                         }
-                      }
 
                     // console.log($scope.items)
                     },
