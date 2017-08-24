@@ -1,8 +1,8 @@
 angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 'ionic-datepicker', 'kidney.directives'])//, 'ngRoute'
 
 .controller('SignInCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', 'Data', 'User', '$sce', 'Mywechat', 'Patient', 'mySocket', function ($ionicLoading, $scope, $timeout, $state, Storage, $ionicHistory, Data, User, $sce, Mywechat, Patient, mySocket) {
-  $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
-  $scope.autologflag = 0
+  // $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
+  // $scope.autologflag = 0
 
   /**
    * [从本地存储中取手机号码USERNAME,如果有则显示在登录页面，无则显示空]
@@ -16,42 +16,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.logOn = {username: '', password: ''}
   }
 
-  /**
-   * [判断能否直接登录（先判断微信是否能直接登录；再判断手机号码密码是否能直接登录;能直接登录就登录然后跳转到主页（任务））注：登录过的手机号码或者微信会记录在本地]
-   * @Author   PXY
-   * @DateTime 2017-07-04
-   */
-  if (Storage.get('patientunionid') != undefined && Storage.get('bindingsucc') == 'yes') {
-    User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
-      if (data.results.mesg == 'login success!') {
-        Storage.set('isSignIN', 'Yes')
-        Storage.set('UID', data.results.userId)// 后续页面必要uid
-
-        Storage.set('bindingsucc', 'yes')
-        Storage.set('TOKEN', data.results.token)
-        var name = data.results.userName ? data.results.userName : data.results.userId
-        mySocket.newUser(data.results.userId, name)
-        $timeout(function () { $state.go('tab.tasklist') }, 500)
-            // $state.go('tab.tasklist')
-      }
-    })
-  } else if (Storage.get('isSignIN') == 'Yes') {
-    if (Storage.get('USERNAME') != null && Storage.get('USERNAME') != undefined && Storage.get('PASSWORD') != null && Storage.get('PASSWORD') != undefined) {
-      User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
-        if (data.results.mesg == 'login success!') {
-          Storage.set('isSignIN', 'Yes')
-          Storage.set('UID', data.results.userId)// 后续页面必要uid
-          Storage.set('TOKEN', data.results.token)
-                    // Storage.set('bindingsucc','yes')
-          var name = data.results.userName ? data.results.userName : data.results.userId
-          mySocket.newUser(data.results.userId, name)
-          $timeout(function () { $state.go('tab.tasklist') }, 500)
-
-                    // $state.go('tab.tasklist')
-        }
-      })
-    }
-  }
+  
 
   /**
    * [手机号码和密码输入后点击登录:1、登录失败（账号密码不对，网络问题）；2、登录成功:2.1签过协议则跳转主页，2.2没签过则跳转协议页面]
@@ -171,8 +136,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        // alert(JSON.stringify(response));
-        // alert(response.code);
+        alert(JSON.stringify(response));
+        alert(response.code);
         /**
          * *[根据unionid获取用户基本信息]
          * @Author   ZXF
@@ -182,11 +147,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   results:{headimgurl：微信头像路径，unionid：string，}
          */
       Mywechat.getUserInfo({role: 'appPatient', code: response.code, state: ''}).then(function (persondata) {
-          // alert(JSON.stringify(persondata));
+          alert('getUserInfo:'+JSON.stringify(persondata));
         Storage.set('wechatheadimgurl', persondata.results.headimgurl)
 
         $scope.unionid = persondata.results.unionid
-          // alert($scope.unionid)
+          alert('unionid:'+$scope.unionid)
           // 判断这个unionid是否已经绑定用户了 有直接登录
           /**
            * *[根据unionid获取用户userid]
@@ -196,7 +161,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
            * @return   {results：[0:用户有与微信unionid绑定userid]，UserId：string，roles:['patient','doctor'...]用户所用的角色}
            */
         User.getUserID({'username': $scope.unionid}).then(function (ret) {
-            // alert(JSON.stringify(ret))
+            alert('userId:'+JSON.stringify(ret))
             // 用户已经存在id 说明公众号注册过
             // 未测试
             /**
@@ -207,7 +172,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @return   {[type]}
              */
           if (Storage.get('wechatheadimgurl') && ret.results === 0) {
-                // alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+                alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
             Patient.replacePhoto({'patientId': ret.UserId, 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (data) {
                         // alert(JSON.stringify(data));
               Storage.rm('wechatheadimgurl')
@@ -227,7 +192,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @param    logOn:{username:String, password:String，role：string}  注：username：unionid
              */
             User.logIn({username: $scope.unionid, password: '112233', role: 'patient'}).then(function (data) {
-                // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
+                alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
               if (data.results.mesg == 'login success!') {
                 Storage.set('isSignIN', 'Yes')
                 Storage.set('UID', ret.UserId)// 后续页面必要uid
@@ -268,7 +233,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               ionicLoadinghide()
             })
           } else {
-                // alert('else');
+                alert('else');
             Storage.set('patientunionid', $scope.unionid)// 自动登录使用
             $state.go('phonevalid', {phonevalidType: 'wechatsignin'})
           }
@@ -2941,7 +2906,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var patientId = Storage.get('UID')
   var GetUnread = function () {
       // console.log(new Date());
-    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: Number(0), userRole: 'patient'}).then(
           function (data) {
               // console.log(data);
             if (data.results.length) {
@@ -3526,7 +3491,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             // 显示头像
     Patient.getDoctorLists({doctorId: $state.params.chatId})
             .then(function (data) {
-              $scope.photoUrls[data.results.userId] = data.results.photoUrl
+              $scope.photoUrls[data.results[0].userId] = data.results[0].photoUrl
             })
     Patient.getPatientDetail({ userId: $scope.params.UID })
         .then(function (response) {
@@ -4281,7 +4246,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 // 修改
                 // $scope.canEdit = false;
             var info = $stateParams.id
-            // console.log(info)
+            console.log(info)
             Health.getHealthDetail({userId: patientId, insertTime: info.insertTime}).then(function (data) {
               if (data.results != '' && data.results != null) {
                 $scope.health.label = data.results.label
@@ -5180,11 +5145,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 消息中心--PXY
 .controller('messageCtrl', ['$ionicPopup', 'Counsels', '$q', '$scope', '$state', '$ionicHistory', 'News', 'Storage', 'Patient', function ($ionicPopup, Counsels, $q, $scope, $state, $ionicHistory, News, Storage, Patient) {
   var getDocNamePhoto = function (sender, doctor) {
-    Patient.doctorId({doctorId: sender}).then(
+    Patient.getDoctorLists({doctorId: sender}).then(
             function (data) {
-              if (data.results) {
-                doctor.docName = data.results.name
-                doctor.docPhoto = data.results.photoUrl
+              if (data.results[0]) {
+                doctor.docName = data.results[0].name
+                doctor.docPhoto = data.results[0].photoUrl
               }
             }, function (err) {
       console.log(err)
@@ -5373,9 +5338,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var getDocNamePhoto = function (sender, doctor) {
     Patient.getDoctorLists({doctorId: sender}).then(
             function (data) {
-              if (data.results) {
-                doctor.docName = data.results.name
-                doctor.docPhoto = data.results.photoUrl
+              if (data.results[0]) {
+                doctor.docName = data.results[0].name
+                doctor.docPhoto = data.results[0].photoUrl
               }
                 // console.log(doctor);
             }, function (err) {
@@ -5483,7 +5448,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 更多医生
-.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Service', '$interval', 'News', '$q', '$http', '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location',  'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', function (DoctorService,QandC,Service, $interval, News, $q, $http, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Counsels, Account, CONFIG, Expense, socket) {
+.controller('AllDoctorsCtrl', ['DoctorService','QandC', 'Service', '$interval', 'News', '$q', '$http', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', '$ionicHistory', 'Dict', 'Patient', '$location',  'Counsels', 'Account', 'CONFIG', 'Expense', 'socket', function (DoctorService,QandC,Service, $interval, News, $q, $http,  Storage, $ionicLoading, $scope, $state, $ionicPopup, $ionicHistory, Dict, Patient, $location, Counsels, Account, CONFIG, Expense, socket) {
   //$scope.$on('$ionicView.leave', function () {
       // console.log($ionicHistory.currentView());
     //console.log('destroy')
@@ -6035,7 +6000,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.scanbarcode = function () {
     
     $cordovaBarcodeScanner.scan().then(function (imageData) {
-          // alert(imageData.text);
+      alert("scan:" +JSON.stringify(imageData))
       if (imageData.cancelled){ 
         return 
       }
@@ -7702,7 +7667,32 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 论坛
 .controller('forumCtrl', ['$interval', 'News', '$scope', '$state', '$sce', '$http', 'Storage', 'Forum', '$stateParams', '$ionicPopup', '$ionicPopover', '$ionicLoading', '$ionicScrollDelegate',function ($interval, News, $scope, $state, $sce, $http, Storage, Forum, $stateParams, $ionicPopup, $ionicPopover, $ionicLoading, $ionicScrollDelegate) {
-$scope.params = {
+  var patientId = Storage.get('UID')
+  var GetUnread = function () {
+      // console.log(new Date());
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
+          function (data) {
+              // console.log(data);
+            if (data.results.length) {
+              $scope.HasUnreadMessages = true
+                  // console.log($scope.HasUnreadMessages);
+            } else {
+              $scope.HasUnreadMessages = false
+            }
+          }, function (err) {
+      console.log(err)
+    })
+  }
+
+  $scope.$on('$ionicView.enter', function () {
+    RefreshUnread = $interval(GetUnread, 2000)
+  })
+
+  $scope.$on('$ionicView.leave', function () {
+    console.log('destroy')
+    $interval.cancel(RefreshUnread)
+  })
+  $scope.params = {
     allposts: true,
     myposts: false,
     mycollection: false,
