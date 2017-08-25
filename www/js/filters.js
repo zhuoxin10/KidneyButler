@@ -142,6 +142,15 @@ angular.module('kidney.filters', [])
         name = '订单超时'
         break
       case 6:
+        name = '正在退款'
+        break
+      case 7:
+        name = '退款关闭'
+        break
+      case 8:
+        name = '退款异常'
+        break
+      case 9:
         name = '退款成功'
         break
     }

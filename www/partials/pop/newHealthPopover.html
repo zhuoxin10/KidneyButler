@@ -1,16 +1,15 @@
-<ion-popover-view class="consult-pop">
-		<ion-list style="background-color: #6ac4f8"> 
-            <div class = "padding">
-                <button class="button button-block button-primary " ng-click="urineUpload()"><i class="icon ion-camera"></i>
-              尿液试纸上传
-                </button>
-        
-                <button class="button button-block button-primary " ng-click="newHealth()"><i class="icon ion-android-list"></i>
-              其他健康信息
-                </button>
-         
-            </div>
-        </ion-list>
+<ion-popover-view>
+		<ion-content >
+      <div style="width: 120px;position:absolute;top:44px;border-radius:5px; background-color: #f8f8f8;right: 0px">
+          <button style="font-size: 12px;padding:0px;" class="button button-small button-block " ng-click="urineUpload()"><i class="icon ion-camera"></i>
+        尿液试纸上传
+          </button>
+
+          <button style="font-size: 12px;padding:0px;" class="button button-small button-block" ng-click="newHealth()"><i class="icon ion-android-list"></i>
+        其他健康信息
+          </button>
+
+      </div>
 		<!-- <ul class="list">
 		    <li class="item">
 		      <button class="button button-clear"><i class="icon iconfont icon-lingdang"></i>尿大夫</button>
@@ -20,9 +19,10 @@
 		    </li>
 
 		</ul> -->
+    </ion-content>
 </ion-popover-view>
 
-<style type="text/css">
+<!-- <style type="text/css">
   .popover{
   }
   .popover .item{
@@ -38,4 +38,4 @@
     float: right;
   }
   .consult-pop{width: 200px}
-</style>
+</style> -->

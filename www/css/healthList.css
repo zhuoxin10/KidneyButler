@@ -112,3 +112,7 @@ div.others{
   border-top-style: none;
 }*/
 
+#autoline{ 
+  white-space: pre-wrap;
+}
+
