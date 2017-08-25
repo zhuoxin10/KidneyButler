@@ -5249,7 +5249,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     console.log(message)
     if (message.readOrNot == 0) {
       message.readOrNot = 1
-      News.setReadOrNot(message).then(
+      News.insertNews(message).then(
                 function (data) {
                   console.log(data)
                   Lastnews()
