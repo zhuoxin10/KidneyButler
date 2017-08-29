@@ -33,7 +33,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
-  baseUrl: 'http://106.15.185.172:4060/api/v2/',
+  baseUrl: 'http://docker2.haihonghospitalmanagement.com/api/v2/',
   urineConnectUrl: 'http://106.15.185.172:4060/',
   // photoUrl: 'http://121.196.221.44:4060/api/v2/',
   mediaUrl: 'http://121.43.107.106:8054/',
