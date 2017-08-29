@@ -35,11 +35,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://106.15.185.172:4060/api/v2/',
   urineConnectUrl: 'http://106.15.185.172:4060/',
-  mediaUrl: 'http://106.15.185.172:4060/',
+  mediaUrl: 'http://106.15.185.172/',
   // mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'ws://106.15.185.172:4060/',
-  imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
-  imgLargeUrl: 'http://121.43.107.106:8054/uploads/photos/',
+  imgThumbUrl: 'http://106.15.185.172/uploads/photos/resize',
+  imgLargeUrl: 'http://106.15.185.172/uploads/photos/',
   //
   NiaodaifuUrl: 'https://open.niaodaifu.cn/wap/login',
 
@@ -188,7 +188,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 
 // 获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
-.factory('Camera', ['$q', '$cordovaCamera', '$cordovaFileTransfer', 'CONFIG', 'fs', function ($q, $cordovaCamera, $cordovaFileTransfer, CONFIG, fs) {
+.factory('Camera', ['$q', '$cordovaCamera', '$cordovaFileTransfer', 'CONFIG', 'fs', 'Storage', function ($q, $cordovaCamera, $cordovaFileTransfer, CONFIG, fs, Storage) {
   return {
     getPicture: function (type, noCrop) {
       return $q(function (resolve, reject) {
@@ -245,7 +245,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     },
     uploadPicture: function (imgURI, temp_photoaddress) {
       return $q(function (resolve, reject) {
-        var uri = encodeURI(CONFIG.baseUrl + 'upload')
+        var uri = encodeURI(CONFIG.baseUrl + 'upload?token=' + Storage.get('TOKEN'))
             // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
         var options = {
           fileKey: 'file',
