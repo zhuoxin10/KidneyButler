@@ -34,12 +34,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://docker2.haihonghospitalmanagement.com/api/v2/',
-  urineConnectUrl: 'http://106.15.185.172:4060/',
-  // photoUrl: 'http://121.196.221.44:4060/api/v2/',
-  mediaUrl: 'http://121.43.107.106:8054/',
-  socketServer: 'ws://121.43.107.106:4060/',
-  imgThumbUrl: 'http://121.43.107.106:8054/uploads/photos/resize',
-  imgLargeUrl: 'http://121.43.107.106:8054/uploads/photos/',
+  urineConnectUrl: 'http://df2.haihonghospitalmanagement.com/',
+  mediaUrl: 'http://df2.haihonghospitalmanagement.com/',
+  // mediaUrl: 'http://121.43.107.106:8054/',
+  socketServer: 'http://docker2.haihonghospitalmanagement.com/chat',
+  imgThumbUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/resize',
+  imgLargeUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/',
   //
   NiaodaifuUrl: 'https://open.niaodaifu.cn/wap/login',
 
@@ -188,7 +188,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 
 // 获取图片，拍照or相册，见CONFIG.cameraOptions。return promise。xjz
-.factory('Camera', ['$q', '$cordovaCamera', '$cordovaFileTransfer', 'CONFIG', 'fs', function ($q, $cordovaCamera, $cordovaFileTransfer, CONFIG, fs) {
+.factory('Camera', ['$q', '$cordovaCamera', '$cordovaFileTransfer', 'CONFIG', 'fs', 'Storage', function ($q, $cordovaCamera, $cordovaFileTransfer, CONFIG, fs, Storage) {
   return {
     getPicture: function (type, noCrop) {
       return $q(function (resolve, reject) {
@@ -245,7 +245,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     },
     uploadPicture: function (imgURI, temp_photoaddress) {
       return $q(function (resolve, reject) {
-        var uri = encodeURI(CONFIG.baseUrl + 'upload')
+        var uri = encodeURI(CONFIG.baseUrl + 'upload?token=' + Storage.get('TOKEN'))
             // var photoname = Storage.get("UID"); // 取出病人的UID作为照片的名字
         var options = {
           fileKey: 'file',
@@ -458,7 +458,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'new'}, {
       getNews: {method: 'GET', params: {route: 'news'}, timeout: 100000},
       insertNews: {method: 'POST', params: {route: 'news'}, timeout: 100000},
-      getNewsByReadOrNot: {method: 'GET', params: {route: 'newsByReadOrNot'}, timeout: 100000}
+      getNewsByReadOrNot: {method: 'GET', params: {route: 'newsByReadOrNot'}, timeout: 100000},
+      setReadOrNot: {method: 'POST', params: {route: 'newsStatus'}, timeout: 100000}
     })
   }
 
@@ -502,6 +503,22 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
+  var Forum = function () {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'forum'}, {
+      allposts: {method: 'GET', params: {route: 'allposts'}, timeout: 10000},
+      myposts: {method: 'GET', params: {route: 'myposts'}, timeout: 10000},
+      mycollection: {method: 'GET', params: {route: 'mycollection'}, timeout: 10000},
+      newpost: {method: 'POST', params: {route: 'posting'}, timeout: 100000},
+      favorite: {method: 'POST', params: {route: 'favorite'}, timeout: 100000},
+      deletefavorite: {method: 'POST', params: {route: 'deletefavorite'}, timeout: 100000},
+      deletepost: {method: 'POST', params: {route: 'deletepost'}, timeout: 100000},
+      postcontent: {method: 'GET', params: {route: 'postcontent'}, timeout: 100000},
+      deletecomment: {method: 'POST', params: {route: 'deletecomment'}, timeout: 100000},
+      comment: {method: 'POST', params: {route: 'comment'}, timeout: 100000},
+      reply: {method: 'POST', params: {route: 'reply'}, timeout: 100000}
+    })
+  }
+
   serve.abort = function ($scope) {
     abort.resolve()
     $interval(function () {
@@ -533,6 +550,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Mywechat = Mywechat()
       serve.Communication = Communication()
       serve.devicedata = Devicedata()
+      serve.Forum = Forum()
     }, 0, 1)
   }
   // serve.SecondVersion = SecondVersion()
@@ -562,6 +580,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Mywechat = Mywechat()
   serve.Communication = Communication()
   serve.Devicedata = Devicedata()
+  serve.Forum = Forum()
   return serve
 }])
 
@@ -2256,6 +2275,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             })
     return deferred.promise
   }
+  self.setReadOrNot = function (params) {
+    var deferred = $q.defer()
+    Data.News.setReadOrNot(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
 
   return self
 }])
@@ -2900,15 +2931,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
@@ -3039,15 +3070,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                  * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                  */
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                     /**
                      * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                      * @Author   ZXF
@@ -3238,15 +3269,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
                   Mywechat.addOrder(neworder).then(function (orderdata) {
-                    if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    if (orderdata.results.status === 1) {
                       ionicLoadinghide()
-                      if (orderdata.results.status === 0) {
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000,
-                          hideOnStateChange: true
-                        })
-                      }
+                      // if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                      // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
@@ -3378,15 +3409,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                  */
                 console.log(charge3 * 100 - charge1 * 100)
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                     /**
                      * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                      * @Author   ZXF
@@ -3578,15 +3609,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    */
                   console.log('加急咨询付费')
                   Mywechat.addOrder(neworder).then(function (orderdata) {
-                    if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    if (orderdata.results.status === 1) {
                       ionicLoadinghide()
-                      if (orderdata.results.status === 0) {
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000,
-                          hideOnStateChange: true
-                        })
-                      }
+                      // if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                      // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
@@ -3667,6 +3698,187 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     }, function (err) {
       console.log(err)
     })
+  }
+  return self
+}])
+.factory('autoLogin', ['User', 'Storage', 'mySocket', '$state', function (User, Storage, mySocket, $state) {
+  /**
+   * [判断能否直接登录（先判断微信是否能直接登录；再判断手机号码密码是否能直接登录;能直接登录就登录然后跳转到主页（任务））注：登录过的手机号码或者微信会记录在本地]
+   * @Author   PXY
+   * @DateTime 2017-07-04
+   */
+  return {
+    AutoLoginOrNot: function () {
+      if (Storage.get('patientunionid') != undefined && Storage.get('bindingsucc') == 'yes') {
+        User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
+          if (data.results.mesg == 'login success!') {
+            Storage.set('isSignIN', 'Yes')
+            Storage.set('UID', data.results.userId)// 后续页面必要uid
+
+            Storage.set('bindingsucc', 'yes')
+            Storage.set('TOKEN', data.results.token)
+            var name = data.results.userName ? data.results.userName : data.results.userId
+            mySocket.newUser(data.results.userId, name)
+            $state.go('tab.tasklist')
+              // $state.go('tab.tasklist')
+          }
+        })
+      } else if (Storage.get('isSignIN') == 'Yes') {
+        if (Storage.get('USERNAME') != null && Storage.get('USERNAME') != undefined && Storage.get('PASSWORD') != null && Storage.get('PASSWORD') != undefined) {
+          User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
+            if (data.results.mesg == 'login success!') {
+              Storage.set('isSignIN', 'Yes')
+              Storage.set('UID', data.results.userId)// 后续页面必要uid
+              Storage.set('TOKEN', data.results.token)
+                      // Storage.set('bindingsucc','yes')
+              var name = data.results.userName ? data.results.userName : data.results.userId
+              mySocket.newUser(data.results.userId, name)
+              $state.go('tab.tasklist')
+
+                      // $state.go('tab.tasklist')
+            }
+          })
+        }
+      }
+    }
+  }
+}])
+.factory('Forum', ['$q', 'Data', function ($q, Data) {
+  var self = this
+  self.allposts = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.allposts(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.myposts = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.myposts(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.mycollection = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.mycollection(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            }
+        )
+    return deferred.promise
+  }
+  self.newpost = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.newpost(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.favorite = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.favorite(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletefavorite = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletefavorite(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletepost = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletepost(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.postcontent = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.postcontent(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.deletecomment = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.deletecomment(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.comment = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.comment(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.reply = function (params) {
+    var deferred = $q.defer()
+    Data.Forum.reply(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
   }
   return self
 }])
