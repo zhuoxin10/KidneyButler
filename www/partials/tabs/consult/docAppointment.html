@@ -16,8 +16,8 @@
     </div>
 
     <div style="position: absolute;right: 0px;top: 120px">
-      <button class="doctorBtn" style="width:100%;border-color: #6ac4f8" ng-if="!nextSchedual" ng-click="switchNext()">下一周 <i class="icon ion-chevron-right"></i></button>
-      <button class="doctorBtn" style="width:100%;border-color: #6ac4f8" ng-if="nextSchedual" ng-click="switchNext()"><i class="icon ion-chevron-left"></i> 上一周</button>
+      <button class="TimeBtn" ng-if="!nextSchedual" ng-click="switchNext()">下一周 <i class="icon ion-chevron-right"></i></button>
+      <button class="TimeBtn" ng-if="nextSchedual" ng-click="switchNext()"><i class="icon ion-chevron-left"></i> 上一周</button>
     </div>
 
     <!-- <div class="list" id="tbl" ng-show="!nextSchedual" style="position: absolute;top: 155px;width: 100%">
@@ -33,8 +33,9 @@
       <div class="row" style="text-align: center;" ng-repeat="period in periods">
         <div  class="col col-30 appointTable" ng-class="{true:'odd',false:'even'}[$index%2==0]">{{period.availableDay|periodFilter:$index}}</div>
         <div class="col col-30 appointTable">{{{Morning:"上午",Afternoon:"下午"}[period.availableTime]}}</div>
-        <!-- 如果患者没预约的话才用以下的按钮，如果是已预约的话 -->
+        <!-- 如果是已预约 -->
         <button ng-if="period.diagId" class="col col-40 appointed" ng-click="cancelAppoint(period)">已预约</button>
+        <!-- 如果患者没预约 -->
         <button ng-if="!period.diagId" ng-disabled="period.margin==0" class="col col-40 appoint" ng-click="AppointDoc(period)">{{period.margin|canAppointFilter}}</button> 
       </div>
     </div>
@@ -44,7 +45,8 @@
       <div class="row" style="text-align: center;" ng-repeat="nextday in nextDays">
         <div  class="col col-30 appointTable" ng-class="{true:'odd',false:'even'}[$index%2==0]">{{nextday.availableDay|periodFilter:$index}}</div>
         <div class="col col-30 appointTable">{{{Morning:"上午",Afternoon:"下午"}[nextday.availableTime]}}</div>
-        <button ng-disabled="nextday.margin==0" class="col col-40 appoint">{{nextday.margin|canAppointFilter}}</button> 
+        <button ng-if="nextday.diagId" class="col col-40 appointed" ng-click="cancelAppoint(nextday)">已预约</button>
+        <button ng-if="!nextday.diagId" ng-disabled="nextday.margin==0" ng-click="AppointDoc(nextday)" class="col col-40 appoint">{{nextday.margin|canAppointFilter}}</button> 
       </div>
     </div>
 

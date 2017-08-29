@@ -33,13 +33,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // imgLargeUrl: 'http://appmediaservice.haihonghospitalmanagement.com/uploads/photos/',
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
-  baseUrl: 'http://106.15.185.172:4060/api/v2/',
-  urineConnectUrl: 'http://106.15.185.172:4060/',
-  mediaUrl: 'http://106.15.185.172/',
+  baseUrl: 'http://docker2.haihonghospitalmanagement.com/api/v2/',
+  urineConnectUrl: 'http://df2.haihonghospitalmanagement.com/',
+  mediaUrl: 'http://df2.haihonghospitalmanagement.com/',
   // mediaUrl: 'http://121.43.107.106:8054/',
-  socketServer: 'ws://106.15.185.172:4060/',
-  imgThumbUrl: 'http://106.15.185.172/uploads/photos/resize',
-  imgLargeUrl: 'http://106.15.185.172/uploads/photos/',
+  socketServer: 'http://docker2.haihonghospitalmanagement.com/chat',
+  imgThumbUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/resize',
+  imgLargeUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/',
   //
   NiaodaifuUrl: 'https://open.niaodaifu.cn/wap/login',
 
@@ -2275,7 +2275,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             })
     return deferred.promise
   }
-    self.setReadOrNot = function (params) {
+  self.setReadOrNot = function (params) {
     var deferred = $q.defer()
     Data.News.setReadOrNot(
             params,
@@ -2931,15 +2931,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
@@ -3070,15 +3070,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                  * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                  */
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                     /**
                      * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                      * @Author   ZXF
@@ -3269,15 +3269,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                    */
                   Mywechat.addOrder(neworder).then(function (orderdata) {
-                    if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    if (orderdata.results.status === 1) {
                       ionicLoadinghide()
-                      if (orderdata.results.status === 0) {
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000,
-                          hideOnStateChange: true
-                        })
-                      }
+                      // if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                      // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
@@ -3409,15 +3409,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                  */
                 console.log(charge3 * 100 - charge1 * 100)
                 Mywechat.addOrder(neworder).then(function (orderdata) {
-                  if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                  if (orderdata.results.status === 1) {
                     ionicLoadinghide()
-                    if (orderdata.results.status === 0) {
-                      $ionicLoading.show({
-                        template: orderdata.results.msg,
-                        duration: 1000,
-                        hideOnStateChange: true
-                      })
-                    }
+                    // if (orderdata.results.status === 0) {
+                    $ionicLoading.show({
+                      template: orderdata.results.msg,
+                      duration: 1000,
+                      hideOnStateChange: true
+                    })
+                    // }
                     /**
                      * *[用户选择将咨询升级成问诊是调用方法，将咨询的type从1（咨询）转为3（问诊）]
                      * @Author   ZXF
@@ -3609,15 +3609,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                    */
                   console.log('加急咨询付费')
                   Mywechat.addOrder(neworder).then(function (orderdata) {
-                    if (orderdata.results.status === 1 || orderdata.results.status === 0) {
+                    if (orderdata.results.status === 1) {
                       ionicLoadinghide()
-                      if (orderdata.results.status === 0) {
-                        $ionicLoading.show({
-                          template: orderdata.results.msg,
-                          duration: 1000,
-                          hideOnStateChange: true
-                        })
-                      }
+                      // if (orderdata.results.status === 0) {
+                      $ionicLoading.show({
+                        template: orderdata.results.msg,
+                        duration: 1000,
+                        hideOnStateChange: true
+                      })
+                      // }
                       /**
                        * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
                        * @Author   ZXF
