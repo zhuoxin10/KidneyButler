@@ -6286,7 +6286,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          */
         Mywechat.addOrder(neworder).then(function (orderdata) {
           alert('orderdata:'+JSON.stringify(orderdata))
-          if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
+          if(orderdata.results.status !== 1){
             var params = {
               'partnerid': '1480817392', // merchant id
               'prepayid': orderdata.results.prepay_id[0], // prepay id
@@ -6338,7 +6338,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
           }else{
             ionicLoadinghide()
-            if(orderdata.results.status === 0) {
+            if(orderdata.results.status === 1) {
               $ionicLoading.show({
                 template:orderdata.results.mesg,
                 duration:1000,
@@ -6381,6 +6381,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         okText: '确认'
     }).then(function(res){
       if(res){
+        debugger
         Service.cancelAppointment({diagId: period.diagId}).then(function(data){
           $ionicLoading.show({
             template:'预约已取消',
@@ -6474,7 +6475,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      */
     Mywechat.addOrder(neworder).then(function (orderdata) {
       alert('orderdata:'+JSON.stringify(orderdata))
-      if(orderdata.results.status !== 0 && orderdata.results.status !== 1){
+      if(orderdata.results.status !== 1){
         var params = {
           'partnerid': '1480817392', // merchant id
           'prepayid': orderdata.results.prepay_id[0], // prepay id
@@ -6538,7 +6539,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         })
       }else{
         ionicLoadinghide()
-        if(orderdata.results.status === 0) {
+        if(orderdata.results.status === 1) {
           $ionicLoading.show({
             template:orderdata.results.mesg,
             duration:1000,

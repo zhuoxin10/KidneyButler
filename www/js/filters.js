@@ -225,7 +225,7 @@ angular.module('kidney.filters', [])
               name = '医生核销'
               break
             case 2:
-              name = '已过期'
+              name = '逾期核销'
               break
             case 3:
               name = '预约取消'
@@ -234,7 +234,7 @@ angular.module('kidney.filters', [])
               name = '医生停诊'
               break
             case 5:case 6:
-              name = '等待退款处理'
+              name = '等待处理'
               break
           }
         } else {

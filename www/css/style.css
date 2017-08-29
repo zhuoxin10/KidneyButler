@@ -1293,7 +1293,20 @@ button.seasonBtn2{
   border-style: solid;
 }
 
-
+button.TimeBtn{
+  width:100%;
+  border-color: #6ac4f8;
+  color: #444;
+  height: 30px;
+  font-size:14px;
+   /*font-weight:bold; */
+  margin: 1px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
 
 
 
