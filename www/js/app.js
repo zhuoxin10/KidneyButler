@@ -29,8 +29,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     return false
   }, 101)
   $ionicPlatform.ready(function () {
-    // version.checkUpdate($rootScope)
-    autoLogin.AutoLoginOrNot()
+    version.checkUpdate($rootScope)
+    // autoLogin.AutoLoginOrNot($rootScope)
     ionic.Platform.fullScreen(true, true)
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
@@ -46,6 +46,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     }
     document.addEventListener('pause', onPause, false)
     document.addEventListener('resume', onResume, false)
+
     function onPause () {
       appState.background = true
     }
@@ -644,7 +645,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
                     type: 'button'
                   },
                   {
-                    text: '確定',
+                    text: '确定',
                     type: 'button-positive',
                     onTap: function (e) {
                       $state.go('signin')

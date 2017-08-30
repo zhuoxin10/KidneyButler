@@ -34,7 +34,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   // 测试服务器地址
   // version2Url: 'http://121.43.107.106:4060/api/v2/',
   baseUrl: 'http://docker2.haihonghospitalmanagement.com/api/v2/',
-  urineConnectUrl: 'http://df2.haihonghospitalmanagement.com/',
+  urineConnectUrl: 'http://docker2.haihonghospitalmanagement.com/',
   mediaUrl: 'http://df2.haihonghospitalmanagement.com/',
   // mediaUrl: 'http://121.43.107.106:8054/',
   socketServer: 'http://docker2.haihonghospitalmanagement.com/chat',
@@ -3707,37 +3707,56 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    * @Author   PXY
    * @DateTime 2017-07-04
    */
+  function signIn (userName, passWord) {
+    // var deferred = $q.defer()
+    User.logIn({username: userName, password: passWord, role: 'patient'}).then(function (data) {
+      if (data.results.mesg == 'login success!') {
+        Storage.set('isSignIN', 'Yes')
+        Storage.set('UID', data.results.userId)// 后续页面必要uid
+
+        Storage.set('bindingsucc', 'yes')
+        Storage.set('TOKEN', data.results.token)
+        Storage.set('refreshToken', data.results.refreshToken)
+        var name = data.results.userName ? data.results.userName : data.results.userId
+        mySocket.newUser(data.results.userId, name)
+        // $state.go('tab.tasklist')
+      }
+    })
+  }
   return {
     AutoLoginOrNot: function () {
       if (Storage.get('patientunionid') != undefined && Storage.get('bindingsucc') == 'yes') {
-        User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
-          if (data.results.mesg == 'login success!') {
-            Storage.set('isSignIN', 'Yes')
-            Storage.set('UID', data.results.userId)// 后续页面必要uid
+        signIn(Storage.get('patientunionid'), '112233')
+        // User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
+        //   if (data.results.mesg == 'login success!') {
+        //     Storage.set('isSignIN', 'Yes')
+        //     Storage.set('UID', data.results.userId)// 后续页面必要uid
 
-            Storage.set('bindingsucc', 'yes')
-            Storage.set('TOKEN', data.results.token)
-            var name = data.results.userName ? data.results.userName : data.results.userId
-            mySocket.newUser(data.results.userId, name)
-            $state.go('tab.tasklist')
-              // $state.go('tab.tasklist')
-          }
-        })
+        //     Storage.set('bindingsucc', 'yes')
+        //     Storage.set('TOKEN', data.results.token)
+        //     Storage.set('refreshToken', data.results.refreshToken)
+        //     var name = data.results.userName ? data.results.userName : data.results.userId
+        //     mySocket.newUser(data.results.userId, name)
+        //     $state.go('tab.tasklist')
+        //       // $state.go('tab.tasklist')
+        //   }
+        // })
       } else if (Storage.get('isSignIN') == 'Yes') {
         if (Storage.get('USERNAME') != null && Storage.get('USERNAME') != undefined && Storage.get('PASSWORD') != null && Storage.get('PASSWORD') != undefined) {
-          User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
-            if (data.results.mesg == 'login success!') {
-              Storage.set('isSignIN', 'Yes')
-              Storage.set('UID', data.results.userId)// 后续页面必要uid
-              Storage.set('TOKEN', data.results.token)
-                      // Storage.set('bindingsucc','yes')
-              var name = data.results.userName ? data.results.userName : data.results.userId
-              mySocket.newUser(data.results.userId, name)
-              $state.go('tab.tasklist')
+          signIn(Storage.get('USERNAME'), Storage.get('PASSWORD'))
+          // User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
+          //   if (data.results.mesg == 'login success!') {
+          //     Storage.set('isSignIN', 'Yes')
+          //     Storage.set('UID', data.results.userId)// 后续页面必要uid
+          //     Storage.set('TOKEN', data.results.token)
+          //             // Storage.set('bindingsucc','yes')
+          //     var name = data.results.userName ? data.results.userName : data.results.userId
+          //     mySocket.newUser(data.results.userId, name)
+          //     $state.go('tab.tasklist')
 
-                      // $state.go('tab.tasklist')
-            }
-          })
+          //             // $state.go('tab.tasklist')
+          //   }
+          // })
         }
       }
     }
