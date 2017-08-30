@@ -18,7 +18,7 @@
            <div class="item item-body" style="border: none; padding-top: 0px;padding-bottom: 10px">
                 <h style="margin-top: 0px; margin-bottom: 0px;font-size: 14px">{{title}}</h>
                 <p style="margin-top: 8px;margin-bottom: 8px;">{{text}}</p>
-                <img class="full-image" style="height:20%; width:40%" ng-src="{{image}}">
+                <img class="full-image" style="height:20%; width:40%" ng-repeat="image in image track by $index" ng-src="{{image}}">
                 <p style="margin-top: 0px;">
                    <a class="subdued" style="float: right; font-size: 12px">{{favoritesNum}} 收藏</a>
                    <a class="subdued" style="float: right; font-size: 12px; padding-right: 8px">{{replyCount}} 评论</a>

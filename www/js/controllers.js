@@ -7881,11 +7881,11 @@ $scope.initial={
                 text: ''
             },
             {
-                image:''
+                image:[]
             }],
     anonymous:''
+    // imgurl:[]
   }
-
   $scope.Post = function () {
     var param = {
       token: Storage.get('TOKEN'),
@@ -7919,9 +7919,7 @@ $scope.initial={
   }
 
    $scope.onClickCamera = function ($event) {
-    var ImagePath = window.prompt('图片URL:', '');
-    $scope.post.content[1].image += ImagePath;
-    // $scope.openPopover($event)
+     $scope.openPopover($event)
   }
   // $scope.reload = function () {
   //   var t = $scope.myAvatar
@@ -7942,8 +7940,9 @@ $scope.initial={
       var data = angular.fromJson(res)
       // res.path_resized
       // 图片路径
-      $scope.post.content[1].image = CONFIG.mediaUrl + String(data.path_resized) + '?' + new Date().getTime()
-      console.log($scope.postphoto)
+      // $scope.post.imgurl.push(CONFIG.mediaUrl + String(data.path_resized) + '?' + new Date().getTime())
+      $scope.post.content[1].image.push(CONFIG.mediaUrl + String(data.path_resized) + '?' + new Date().getTime())
+      // console.log($scope.postphoto)
       // $state.reload("tab.mine")
       // Storage.set('myAvatarpath',$scope.myAvatar);
       // ImagePath = $scope.postphoto;
@@ -8018,6 +8017,27 @@ $scope.initial={
       var imgURI
     })// 照相结束
   } // function结束
+
+  // $scope.showoriginal = function (resizedpath) {
+  //   // $scope.openModal();
+  //   // console.log(resizedpath)
+  //   var originalfilepath = CONFIG.imgLargeUrl + resizedpath.slice(resizedpath.lastIndexOf('/') + 1).substr(7)
+  //   // console.log(originalfilepath)
+  //   // $scope.doctorimgurl=originalfilepath;
+
+  //   $scope.imageHandle.zoomTo(1, true)
+  //   $scope.imageUrl = originalfilepath
+  //   $scope.modal.show()
+  // }
+
+
+  $scope.deleteimg = function (index) {
+    // somearray.removeByValue("tue");
+    // console.log($scope.post.imgurl)
+    // $scope.post.imgurl.splice(index, 1)
+    $scope.post.content[1].image.splice(index, 1)
+    // Storage.set('tempimgrul',angular.toJson($scope.images));
+  }
 }])
 
 .controller('postsdetailCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', 'Forum', '$http', '$ionicPopup', '$timeout', '$ionicPopover', function ($scope, $state, Storage, $ionicHistory, Forum, $http, $ionicPopup, $timeout, $ionicPopover) {
