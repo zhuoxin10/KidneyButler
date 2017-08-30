@@ -10,7 +10,7 @@
             <img style="border-radius: 100%;top: 40%;margin-top: -40px" ng-src="{{doctor.photoUrl  || 'img/DefaultAvatar.jpg'}}">
             <span>{{doctor.name}}</span>
             <span style="float: right">{{doctor.department}}</span>
-            <p>{{doctor.workUnit}}</p>
+            <p>{{doctor.workUnit||"无"}}</p>
             <p>职称:{{doctor.title}}</p>
             <p>性别：{{{1:"男",2:"女",undefined:"未填写"}[doctor.gender]}}</p>
             
