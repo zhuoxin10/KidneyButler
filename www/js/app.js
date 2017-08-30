@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io', 'angular-jwt', 'highcharts-ng'])
 
-.run(function (version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
+.run(['autoLogin', 'version', '$ionicPlatform', '$state', 'Storage', '$location', '$ionicHistory', '$ionicPopup', '$rootScope', 'CONFIG', 'notify', '$interval', 'socket', 'mySocket', 'session', function (autoLogin, version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   // 主页面显示退出提示框
   $ionicPlatform.registerBackButtonAction(function (e) {
     e.preventDefault()
@@ -29,7 +29,8 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     return false
   }, 101)
   $ionicPlatform.ready(function () {
-    // version.checkUpdate($rootScope)
+    version.checkUpdate($rootScope)
+    // autoLogin.AutoLoginOrNot($rootScope)
     ionic.Platform.fullScreen(true, true)
     var isSignIN = Storage.get('isSignIN')
     thisPatient = null
@@ -45,6 +46,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     }
     document.addEventListener('pause', onPause, false)
     document.addEventListener('resume', onResume, false)
+
     function onPause () {
       appState.background = true
     }
@@ -113,7 +115,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       $rootScope.$broadcast('keyboardhide')
     })
   })
-})
+}])
 
 // --------路由, url模式设置----------------
 
@@ -567,7 +569,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 .config(['$httpProvider', 'jwtOptionsProvider', function ($httpProvider, jwtOptionsProvider) {
     // 下面的getter可以注入各种服务, service, factory, value, constant, provider等, constant, provider可以直接在.config中注入, 但是前3者不行
   jwtOptionsProvider.config({
-    whiteListedDomains: ['121.196.221.44', '106.15.185.172', '121.43.107.106', 'testpatient.haihonghospitalmanagement.com', 'testdoctor.haihonghospitalmanagement.com', 'patient.haihonghospitalmanagement.com', 'doctor.haihonghospitalmanagement.com', 'localhost'],
+    whiteListedDomains: ['docker2.haihonghospitalmanagement.com', '121.196.221.44', '121.43.107.106', 'testpatient.haihonghospitalmanagement.com', 'patient.haihonghospitalmanagement.com', 'localhost'],
     tokenGetter: ['options', 'jwtHelper', '$http', 'CONFIG', 'Storage', '$state', '$ionicPopup', function (options, jwtHelper, $http, CONFIG, Storage, $state, $ionicPopup) {
          // console.log(config);
         // console.log(CONFIG.baseUrl);
@@ -643,7 +645,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
                     type: 'button'
                   },
                   {
-                    text: '確定',
+                    text: '确定',
                     type: 'button-positive',
                     onTap: function (e) {
                       $state.go('signin')
