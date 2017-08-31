@@ -1284,7 +1284,20 @@ button.seasonBtn2{
   border-color: #FFF;
   color: #444;
   height: 30px;
-  font-size:20px;
+  font-size:15px;
+  margin: 1px;
+  border-radius: 2px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: solid;
+}
+button.textBtn{
+  width:95%;
+  border-color: #FFF;
+  color: #444;
+  height: 30px;
+  font-size:15px;
   margin: 1px;
   border-radius: 2px;
   text-align: center;

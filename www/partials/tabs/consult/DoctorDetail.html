@@ -7,15 +7,15 @@
     
 
      <div class="card">
-         <div class="item item-thumbnail-left"> 
+         <div class="item item-thumbnail-left" style="padding-bottom: 50px"> 
             <img style="border-radius: 100%;top: 40%;margin-top: -40px" ng-src="{{doctor.photoUrl  || 'img/DefaultAvatar.jpg'}}">
             <span>{{doctor.name}}</span>
             <span style="float: right">{{doctor.department}}</span>
             <p>{{doctor.workUnit||"无"}}</p>
             <p>职称:{{doctor.title}}</p>
-            <p>性别：{{{1:"男",2:"女",undefined:"未填写"}[doctor.gender]}}</p>
-            <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元</span><span style="margin-left: 20px">问诊{{doctor.charge2}}元</span></p>
-            <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;padding-top: 5px">
+            <!-- <p>性别：{{{1:"男",2:"女",undefined:"未填写"}[doctor.gender]}}</p> -->
+            <!-- <p style="font-size: 12px">收费：<span>咨询{{doctor.charge1}}元</span><span style="margin-left: 20px">问诊{{doctor.charge2}}元</span></p> -->
+            <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;padding-top: 2px;">
                 <span class="col font-c"><i class="icon ion-star"></i>{{doctor.score.toFixed(2)||"无"}}</span>
                 <span class="col font-c">咨询量：{{doctor.count1}}</span>
                 <span class="col font-c">问诊量：{{doctor.count2}}</span>
@@ -28,10 +28,16 @@
             <button  style="color:#181544;font-size:14px;font-weight:bold;text-align: center;" ng-disabled="DisabledConsult" ng-click="consult(doctor.userId,doctor.name)" class="col no-line"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
         </div> -->
 
+      <ion-item>
+        <span style="font-size: 18px"><i class="icon ion-ios-lightbulb-outline" style="margin-right: 10px"></i>医生服务</span>
         <div class="row">
 
-            <button ng-disabled="DisabledConsult||!doctor.counselStatus1" ng-click="question(doctor.userId,doctor.charge1)" class="doctorBtn"><i class="icon iconfont icon-zixun2"></i>咨询</button>
-            <button ng-disabled="DisabledConsult||!doctor.counselStatus2" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊</button>
+            <button ng-disabled="DisabledConsult||!doctor.counselStatus1" ng-click="question(doctor.userId,doctor.charge1)" class="doctorBtn">
+            <i class="icon iconfont icon-zixun2"></i>咨询&nbsp;&nbsp;&nbsp;
+                <span style="font-size: 2px; color:#a2a2a2">{{doctor.charge1}}元/次</span></button>
+            <button ng-disabled="DisabledConsult||!doctor.counselStatus2" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="doctorBtn">
+            <i class="icon iconfont icon-baojifuben"></i>问诊&nbsp;&nbsp;&nbsp;
+                <span style="font-size: 2px; color:#a2a2a2">{{doctor.charge2}}元/次</span></button>
 
 
         </div>
@@ -48,6 +54,7 @@
 
 
         </div>
+        </ion-item>
        
         
         
@@ -63,6 +70,10 @@
       <ion-item>
         <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>个人介绍</span>
          <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.description}}</p>
+      </ion-item>
+      <ion-item>
+        <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>医生评价</span>
+         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap"></p>
       </ion-item>
 
     </div>
