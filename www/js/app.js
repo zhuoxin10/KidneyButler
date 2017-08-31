@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kidney.directives', 'kidney.filters', 'ngCordova', 'ngFileUpload', 'btford.socket-io', 'angular-jwt', 'highcharts-ng'])
 
-.run(['autoLogin', 'version', '$ionicPlatform', '$state', 'Storage', '$location', '$ionicHistory', '$ionicPopup', '$rootScope', 'CONFIG', 'notify', '$interval', 'socket', 'mySocket', 'session', function (autoLogin, version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
+.run(['Authentication', 'version', '$ionicPlatform', '$state', 'Storage', '$location', '$ionicHistory', '$ionicPopup', '$rootScope', 'CONFIG', 'notify', '$interval', 'socket', 'mySocket', 'session', function (Authentication, version, $ionicPlatform, $state, Storage, $location, $ionicHistory, $ionicPopup, $rootScope, CONFIG, notify, $interval, socket, mySocket, session) {
   // 主页面显示退出提示框
   $ionicPlatform.registerBackButtonAction(function (e) {
     e.preventDefault()
@@ -28,19 +28,21 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     showConfirm()
     return false
   }, 101)
+  if (Authentication.check()) {
+    $state.go('tab.tasklist')
+  } else {
+    $state.go('signin')
+  }
   $ionicPlatform.ready(function () {
     version.checkUpdate($rootScope)
     // autoLogin.AutoLoginOrNot($rootScope)
     ionic.Platform.fullScreen(true, true)
-    var isSignIN = Storage.get('isSignIN')
     thisPatient = null
     $rootScope.conversation = {
       type: null,
       id: ''
     }
-    if (isSignIN == 'YES') {
-      $state.go('tab.tasklist')
-    }
+
     var appState = {
       background: false
     }
@@ -100,6 +102,9 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
       // StatusBar.styleDefault();
     }
+    $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
+      $state.go('signin')
+    })
     $rootScope.$on('$cordovaLocalNotification:click', function (event, note, state) {
       console.log(arguments)
       var msg = JSON.parse(note.data)
@@ -116,10 +121,17 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     })
   })
 }])
-
+// --------token没过期免登录---------------
+// .config(['Authentication', function (Authentication) {
+//   Authentication.check().then(function (authorized) {
+//     return authorized
+//   }, function (fail) {
+//     $state.go('signin')
+//   })
+// }])
 // --------路由, url模式设置----------------
 
-.config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider', function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
@@ -127,6 +139,16 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
   // ios 白屏可能问题配置
   $ionicConfigProvider.views.swipeBackEnabled(false)
+  // function checkForAuthenticatedUser () {
+  //   return ['$state', 'Authentication', function ($state, Authentication) {
+  //     console.log('i am here')
+  //     Authentication.check().then(function (authorized) {
+  //       return authorized
+  //     }, function (fail) {
+  //       $state.go('signin')
+  //     })
+  //   }]
+  // }
   // 注册与登录
   $stateProvider
     .state('signin', {
@@ -561,13 +583,12 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       templateUrl: 'partials/insurance/insurancestaff.html',
       controller: 'insurancestaffCtrl'
     })
-
-  $urlRouterProvider.otherwise('/signin')
-})
+  // $urlRouterProvider.otherwise('/signin')
+}])
 
 // $httpProvider.interceptors提供http request及response的预处理
 .config(['$httpProvider', 'jwtOptionsProvider', function ($httpProvider, jwtOptionsProvider) {
-    // 下面的getter可以注入各种服务, service, factory, value, constant, provider等, constant, provider可以直接在.config中注入, 但是前3者不行
+  // 下面的getter可以注入各种服务, service, factory, value, constant, provider等, constant, provider可以直接在.config中注入, 但是前3者不行
   jwtOptionsProvider.config({
     whiteListedDomains: ['docker2.haihonghospitalmanagement.com', '121.196.221.44', '121.43.107.106', 'testpatient.haihonghospitalmanagement.com', 'patient.haihonghospitalmanagement.com', 'localhost'],
     tokenGetter: ['options', 'jwtHelper', '$http', 'CONFIG', 'Storage', '$state', '$ionicPopup', function (options, jwtHelper, $http, CONFIG, Storage, $state, $ionicPopup) {

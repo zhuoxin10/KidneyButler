@@ -3701,66 +3701,40 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
   return self
 }])
-.factory('autoLogin', ['User', 'Storage', 'mySocket', '$state', function (User, Storage, mySocket, $state) {
-  /**
-   * [判断能否直接登录（先判断微信是否能直接登录；再判断手机号码密码是否能直接登录;能直接登录就登录然后跳转到主页（任务））注：登录过的手机号码或者微信会记录在本地]
-   * @Author   PXY
-   * @DateTime 2017-07-04
-   */
-  function signIn (userName, passWord) {
-    // var deferred = $q.defer()
-    User.logIn({username: userName, password: passWord, role: 'patient'}).then(function (data) {
-      if (data.results.mesg == 'login success!') {
-        Storage.set('isSignIN', 'Yes')
-        Storage.set('UID', data.results.userId)// 后续页面必要uid
 
-        Storage.set('bindingsucc', 'yes')
-        Storage.set('TOKEN', data.results.token)
-        Storage.set('refreshToken', data.results.refreshToken)
-        var name = data.results.userName ? data.results.userName : data.results.userId
-        mySocket.newUser(data.results.userId, name)
-        // $state.go('tab.tasklist')
-      }
-    })
-  }
-  return {
-    AutoLoginOrNot: function () {
-      if (Storage.get('patientunionid') != undefined && Storage.get('bindingsucc') == 'yes') {
-        signIn(Storage.get('patientunionid'), '112233')
-        // User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (data) {
-        //   if (data.results.mesg == 'login success!') {
-        //     Storage.set('isSignIN', 'Yes')
-        //     Storage.set('UID', data.results.userId)// 后续页面必要uid
+.factory('Authentication', ['jwtHelper', 'CONFIG', 'Storage', '$q', function (jwtHelper, CONFIG, Storage, $q) {
+  var self = this
+  this.check = function () {
+    var token = Storage.get('TOKEN')
+    // var refreshToken = Storage.get('refreshToken')
+    var isExpired = true
 
-        //     Storage.set('bindingsucc', 'yes')
-        //     Storage.set('TOKEN', data.results.token)
-        //     Storage.set('refreshToken', data.results.refreshToken)
-        //     var name = data.results.userName ? data.results.userName : data.results.userId
-        //     mySocket.newUser(data.results.userId, name)
-        //     $state.go('tab.tasklist')
-        //       // $state.go('tab.tasklist')
-        //   }
-        // })
-      } else if (Storage.get('isSignIN') == 'Yes') {
-        if (Storage.get('USERNAME') != null && Storage.get('USERNAME') != undefined && Storage.get('PASSWORD') != null && Storage.get('PASSWORD') != undefined) {
-          signIn(Storage.get('USERNAME'), Storage.get('PASSWORD'))
-          // User.logIn({username: Storage.get('USERNAME'), password: Storage.get('PASSWORD'), role: 'patient'}).then(function (data) {
-          //   if (data.results.mesg == 'login success!') {
-          //     Storage.set('isSignIN', 'Yes')
-          //     Storage.set('UID', data.results.userId)// 后续页面必要uid
-          //     Storage.set('TOKEN', data.results.token)
-          //             // Storage.set('bindingsucc','yes')
-          //     var name = data.results.userName ? data.results.userName : data.results.userId
-          //     mySocket.newUser(data.results.userId, name)
-          //     $state.go('tab.tasklist')
-
-          //             // $state.go('tab.tasklist')
-          //   }
-          // })
+    if (token) {
+      try {
+          /*
+           * 由于jwt自带的过期判断方法与服务器端使用的加密方法不匹配，使用jwthelper解码的方法对token进行解码后自行判断token是否过期
+           */
+            // isExpired = jwtHelper.isTokenExpired(token);
+        var temp = jwtHelper.decodeToken(token)
+        if (temp.exp === 'undefined') {
+          isExpired = false
+        } else {
+              // var d = new Date(0); // The 0 here is the key, which sets the date to the epoch
+              // d.setUTCSeconds(temp.expireAfter);
+          isExpired = !(temp.exp > new Date().valueOf())// (new Date().valueOf() - 8*3600*1000));
+              // console.log(temp)
         }
+
+             // console.log(isExpired);
+      } catch (e) {
+        console.log(e)
+        isExpired = true
       }
     }
+    // console.log(!isExpired)
+    return !isExpired
   }
+  return self
 }])
 .factory('Forum', ['$q', 'Data', function ($q, Data) {
   var self = this
