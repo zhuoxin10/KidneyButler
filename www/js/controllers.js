@@ -3134,10 +3134,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 诊断信息
 .controller('DiagnosisCtrl', ['Dict', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', function (Dict, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload) {
-  $scope.Goback = function () {
-    $state.go('tab.mine')
-  }
-
+  
     // 过滤重复的医生诊断 顺序从后往前，保证最新的一次诊断不会被过滤掉
   var FilterDiagnosis = function (arr) {
     var result = []
@@ -3230,9 +3227,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询记录--PXY
 .controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup) {
-  $scope.Goback = function () {
-    $state.go('tab.mine')
-  }
+  
   $scope.noConsult = false
 
     // 过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
