@@ -50,9 +50,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             $scope.logStatus = '登录成功！'
             $ionicHistory.clearCache()
             $ionicHistory.clearHistory()
-            Storage.set('PASSWORD', logOn.password)
             Storage.set('TOKEN', data.results.token)
-            Storage.set('isSignIN', 'Yes')
             Storage.set('UID', data.results.userId)
             Storage.set('refreshToken', data.results.refreshToken)
                         // Storage.set('UName',data.results.userName);
@@ -201,11 +199,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             User.logIn({username: $scope.unionid, password: '112233', role: 'patient'}).then(function (data) {
                 // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
               if (data.results.mesg == 'login success!') {
-                Storage.set('isSignIN', 'Yes')
                 Storage.set('UID', data.results.userId)// 后续页面必要uid
 
                 Storage.set('patientunionid', $scope.unionid)// 自动登录使用
-                Storage.set('bindingsucc', 'yes')
                 Storage.set('TOKEN', data.results.token)// token作用目前还不明确
 
                 Storage.set('refreshToken', data.results.refreshToken)
@@ -298,10 +294,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
           // 绑定
       User.setOpenId({phoneNo: Storage.get('USERNAME'), openId: Storage.get('patientunionid')}).then(function (response) {
-        Storage.set('bindingsucc', 'yes')
         alert("绑定微信账号"+JSON.stringify(response))
         // Storage.set('TOKEN', data.results.token)
-        // Storage.set('isSignIN', 'Yes')
         // Storage.set('UID', data.results.userId)
         // Storage.set('refreshToken', data.results.refreshToken)
         console.log(response)
@@ -563,7 +557,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           if (setPassState == 'register' || setPassState == 'wechatsignin') {
                       // 结果分为连接超时或者注册成功
             $rootScope.password = setPassword.newPass
-            Storage.set('PASSWORD', setPassword.newPass)
 
             /**
              * [注册]
@@ -580,7 +573,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
                 if (setPassState == 'wechatsignin') {
                   User.setOpenId({phoneNo: Storage.get('USERNAME'), openId: Storage.get('patientunionid')}).then(function (response) {
-                    Storage.set('bindingsucc', 'yes')
                     console.log(response)
                   })
                 }
@@ -672,7 +664,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              */
             User.changePassword({phoneNo: Storage.get('USERNAME'), password: setPassword.newPass}).then(function (data) {
               if (data.results == 0) {
-                Storage.set('PASSWORD', setPassword.newPass)
                 $scope.logStatus = '重置密码成功！'
                 $timeout(function () { $state.go('signin') }, 500)
               } else {
@@ -2991,7 +2982,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             Storage.clear()
                     // Storage.rm('patientunionid');
                     // Storage.rm('PASSWORD');
-            Storage.set('isSignIN', 'No')
             $scope.$emit('isSignIN', 'No')
             Storage.set('USERNAME', USERNAME)
             mySocket.cancelAll()
@@ -7458,7 +7448,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           // var passwords = Storage.get('passwords').split(",");
           // passwords[index] = change.newPassword;
 
-          // Storage.set('passwords',passwords);
           // $scope.logStatus2 ="修改密码成功！";
           // $timeout(function(){$scope.change={originalPassword:"",newPassword:"",confirmPassword:""};
           // $state.go('tab.tasklist');
