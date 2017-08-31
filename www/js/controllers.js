@@ -2982,7 +2982,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             Storage.clear()
                     // Storage.rm('patientunionid');
                     // Storage.rm('PASSWORD');
-            $scope.$emit('isSignIN', 'No')
             Storage.set('USERNAME', USERNAME)
             mySocket.cancelAll()
             socket.emit('disconnect')
