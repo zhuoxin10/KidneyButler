@@ -220,19 +220,9 @@ angular.module('kidney.directives', ['kidney.services'])
     restrict: 'E',
     link: function (scope, element, attrs) {
             // show an image-missing image
-      // elem.bind('keyup', function () {
-      //   this.style.height = '1px'
-      //   var h = 4 + this.scrollHeight
-      //   this.style.height = (h < 70 ? h : 70) + 'px'
-      // })
       element.bind('error', function () {
-        // var w = element.style.width
-        // var h = element.style.height
-                // using 20 here because it seems even a missing image will have ~18px width
-                // after this error function has been called
-        // if (w <= 20) { w = 100 }
-        // if (h <= 20) { h = 100 }
-        if (element[0].style.borderRadius === '100%') {
+        var isAvatar = element[0].parentNode && element[0].parentNode.classList && element[0].parentNode.classList.toString().indexOf('item-avatar') > 0
+        if (element[0].style.borderRadius === '100%' || isAvatar) {
           var url = 'img/DefaultAvatar.jpg'
         } else {
           var url = 'img/broken-image.png'

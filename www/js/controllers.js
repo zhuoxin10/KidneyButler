@@ -1282,7 +1282,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 初始化
   var UserId = Storage.get('UID')
     // UserId = "Test13"; //
-
   $scope.Tasks = {} // 任务
   $scope.HemoBtnFlag = false // 血透排班设置标志
   var OverTimeTaks = []
