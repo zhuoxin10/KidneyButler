@@ -51,10 +51,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             $ionicHistory.clearCache()
             $ionicHistory.clearHistory()
             Storage.set('PASSWORD', logOn.password)
-            Storage.set('TOKEN', data.results.token)
+            Storage.set('TOKEN', data.results.token)// token作用目前还不明确
             Storage.set('isSignIN', 'Yes')
             Storage.set('UID', data.results.userId)
-            Storage.set('refreshToken', data.results.refreshToken)
                         // Storage.set('UName',data.results.userName);
                         // 如果姓名不为空就发送姓名，否则直接发送id
             var name = data.results.userName ? data.results.userName : data.results.userId
@@ -125,9 +124,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
  * @return   {[type]}
  */
   $scope.wxsignIn = function () {
-      $ionicLoading.show({
-        template: '<ion-spinner icon="ios"></ion-spinner>'
-      })
       /**
        * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
        * @Author   ZXF
@@ -136,14 +132,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        * @param    {[type]}
        * @return   code:string
        */
-    debugger
     var wxscope = 'snsapi_userinfo',
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        $ionicLoading.hide()
-        // alert(JSON.stringify(response))
-        // alert(response.code);
+        alert(JSON.stringify(response));
+        alert(response.code);
         /**
          * *[根据unionid获取用户基本信息]
          * @Author   ZXF
@@ -153,11 +147,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   results:{headimgurl：微信头像路径，unionid：string，}
          */
       Mywechat.getUserInfo({role: 'appPatient', code: response.code, state: ''}).then(function (persondata) {
-          // alert('getUserInfo:'+JSON.stringify(persondata));
+          alert('getUserInfo:'+JSON.stringify(persondata));
         Storage.set('wechatheadimgurl', persondata.results.headimgurl)
 
         $scope.unionid = persondata.results.unionid
-          // alert('unionid:'+$scope.unionid)
+          alert('unionid:'+$scope.unionid)
           // 判断这个unionid是否已经绑定用户了 有直接登录
           /**
            * *[根据unionid获取用户userid]
@@ -167,7 +161,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
            * @return   {results：[0:用户有与微信unionid绑定userid]，UserId：string，roles:['patient','doctor'...]用户所用的角色}
            */
         User.getUserID({'username': $scope.unionid}).then(function (ret) {
-            // alert('userId:'+JSON.stringify(ret))
+            alert('userId:'+JSON.stringify(ret))
             // 用户已经存在id 说明公众号注册过
             // 未测试
             /**
@@ -178,12 +172,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @return   {[type]}
              */
           if (Storage.get('wechatheadimgurl') && ret.results === 0) {
-                // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
-            Patient.replacePhoto({'patientId': ret.AlluserId, 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (data) {
-              // alert(JSON.stringify(data))
+                alert("image"+ret.UserId+Storage.get('wechatheadimgurl'));
+            Patient.replacePhoto({'patientId': ret.UserId, 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (data) {
+                        // alert(JSON.stringify(data));
               Storage.rm('wechatheadimgurl')
             }, function (err) {
-              // alert('imageerror'+JSON.stringify(err))
               console.log(err)
             }
                 )
@@ -199,21 +192,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @param    logOn:{username:String, password:String，role：string}  注：username：unionid
              */
             User.logIn({username: $scope.unionid, password: '112233', role: 'patient'}).then(function (data) {
-                // alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
+                alert("sername:$scope.unionid,password:112"+JSON.stringify(data));
               if (data.results.mesg == 'login success!') {
                 Storage.set('isSignIN', 'Yes')
-                Storage.set('UID', data.results.userId)// 后续页面必要uid
+                Storage.set('UID', ret.UserId)// 后续页面必要uid
 
                 Storage.set('patientunionid', $scope.unionid)// 自动登录使用
                 Storage.set('bindingsucc', 'yes')
-                Storage.set('TOKEN', data.results.token)// token作用目前还不明确
 
-                Storage.set('refreshToken', data.results.refreshToken)
+                mySocket.newUser(ret.UserId)
 
-                mySocket.newUser(data.results.userId)
-                ionicLoadinghide()
-                $state.go('tab.tasklist')
-                
+                $timeout(function () {
+                  ionicLoadinghide()
+                  $state.go('tab.tasklist')
+                }, 500)
                   // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
                   //   alert(JSON.stringify(data))
                   //   if(data.results){
@@ -241,7 +233,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               ionicLoadinghide()
             })
           } else {
-                // alert('else');
+                alert('else');
             Storage.set('patientunionid', $scope.unionid)// 自动登录使用
             $state.go('phonevalid', {phonevalidType: 'wechatsignin'})
           }
@@ -299,11 +291,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           // 绑定
       User.setOpenId({phoneNo: Storage.get('USERNAME'), openId: Storage.get('patientunionid')}).then(function (response) {
         Storage.set('bindingsucc', 'yes')
-        alert("绑定微信账号"+JSON.stringify(response))
-        // Storage.set('TOKEN', data.results.token)
-        // Storage.set('isSignIN', 'Yes')
-        // Storage.set('UID', data.results.userId)
-        // Storage.set('refreshToken', data.results.refreshToken)
         console.log(response)
       })
       $ionicPopup.show({
@@ -607,25 +594,25 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 //     password2->密码的确认->同上
                 //     email->这里随便取得，邮箱的域名不一定有效
                 //     regsubmit、formhash两个参数就这样填就行，forhash参数已经在论坛的代码中被注释掉了，随便填什么都行，它的作用是防止恶意注册
-                // $http({
-                //   method: 'POST',
-                //   url: 'http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
-                //   params: {
-                //     'regsubmit': 'yes',
-                //     'formhash': '',
-                //     'username': patientId,
-                //     'password': patientId,
-                //     'password2': patientId,
-                //     'email': patientId + '@bme319.com'
-                //   },  // pass in data as strings
-                //   headers: {
-                //     'Content-Type': 'application/x-www-form-urlencoded',
-                //     'Accept': 'application/xml, text/xml, */*'
-                //   }  // set the headers so angular passing info as form data (not request payload)
-                // }).success(function (data) {
-                //                     // console.log(data);
-                //                     // $state.go('tab.tasklist');
-                // })
+                $http({
+                  method: 'POST',
+                  url: 'http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
+                  params: {
+                    'regsubmit': 'yes',
+                    'formhash': '',
+                    'username': patientId,
+                    'password': patientId,
+                    'password2': patientId,
+                    'email': patientId + '@bme319.com'
+                  },  // pass in data as strings
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/xml, text/xml, */*'
+                  }  // set the headers so angular passing info as form data (not request payload)
+                }).success(function (data) {
+                                    // console.log(data);
+                                    // $state.go('tab.tasklist');
+                })
 
                 /**
                  * [更新协议状态，在注册流程中，虽然之前同意协议但是必须注册后用户才存在，因此在注册后更新协议状态]

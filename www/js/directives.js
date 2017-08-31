@@ -214,35 +214,6 @@ angular.module('kidney.directives', ['kidney.services'])
     }
   }
 })
-// 如果图片加载错误替换图片
-.directive('img', function () {
-  return {
-    restrict: 'E',
-    link: function (scope, element, attrs) {
-            // show an image-missing image
-      // elem.bind('keyup', function () {
-      //   this.style.height = '1px'
-      //   var h = 4 + this.scrollHeight
-      //   this.style.height = (h < 70 ? h : 70) + 'px'
-      // })
-      element.bind('error', function () {
-        // var w = element.style.width
-        // var h = element.style.height
-                // using 20 here because it seems even a missing image will have ~18px width
-                // after this error function has been called
-        // if (w <= 20) { w = 100 }
-        // if (h <= 20) { h = 100 }
-        if (element[0].style.borderRadius === '100%') {
-          var url = 'img/DefaultAvatar.jpg'
-        } else {
-          var url = 'img/broken-image.png'
-        }
-        element.prop('src', url)
-        // element.css('border', 'double 3px #cccccc')
-      })
-    }
-  }
-})
 
 // 未读消息的小红点
 .directive('headRedPoint', function ($compile, $timeout) {
@@ -309,6 +280,38 @@ angular.module('kidney.directives', ['kidney.services'])
     template: "<ion-nav-bar class='bar-positive green-bg' align-title='center'></ion-nav-bar>"
   }
 })
+
+.directive('contenteditable', ['$sce', function ($sce) {
+  return {
+    restrict: 'A', // only activate on element attribute
+    require: '?ngModel', // get a hold of NgModelController
+    link: function (scope, element, attrs, ngModel) {
+      if (!ngModel) return // do nothing if no ng-model
+
+      // Specify how UI should be updated
+      ngModel.$render = function () {
+        element.html($sce.getTrustedHtml(ngModel.$viewValue || ''))
+      }
+
+      // Listen for change events to enable binding
+      element.on('blur keyup change', function () {
+        scope.$evalAsync(read)
+      })
+      read() // initialize
+
+      // Write data to the model
+      function read () {
+        var html = element.html()
+        // When we clear the content editable the browser leaves a <br> behind
+        // If strip-br attribute is provided then we strip this out
+        if (attrs.stripBr && html == '<br>') {
+          html = ''
+        }
+        ngModel.$setViewValue(html)
+      }
+    }
+  }
+}])
 
 .directive('dateformat', ['$filter', function ($filter) {
   var dateFilter = $filter('date')
