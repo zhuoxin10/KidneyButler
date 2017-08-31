@@ -4602,14 +4602,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 测量记录
-.controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading','$window', '$state',function($scope, Measurement, Storage, $ionicHistory, $ionicLoading, $window,$state){
+.controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading', '$ionicPopup', '$state', '$http', function($scope, Measurement, Storage, $ionicHistory, $ionicLoading, $ionicPopup, $state, $http){
   $scope.Goback = function () {
     $state.go('tab.mine')
     }
   $scope.Refresh = function () {
-    $window.location.reload()
+    $http.get('/#/tab/mine/Reports/').success(function() {
+      console.log("refresh")
+     })
+     .finally(function() {
+       $scope.$broadcast('scroll.refreshComplete');
+     });
   }
   var Painting = function(date,modify,timeType){
+        $scope.flagBP = true
+        $scope.flagT = true
+        $scope.flagPD = true
+        $scope.flagWeight = true
+        $scope.flagHR = true
+        $scope.flagVol = true
+        $scope.comments = false
         //体温
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
          function(data){
@@ -4617,7 +4629,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           var ChartTime = new Array()
           var vitalsign = data.results
              if(vitalsign=="不存在该段时间的报告!"){
-              console.log("no data 1")
+              console.log("no data at all")
               var chart = new Highcharts.Chart('container1', {
                credits:{enabled:false},
                chart: {
@@ -4626,25 +4638,38 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     shadow:true,//是否设置阴影  
                    }, 
                 title: {
-                text: '您没有体温的测量数据！',
+                text: '不存在该段时间的报告！',
                  x: 0,
                  y: 20,
                       }})
                }else 
                   if(vitalsign.item.data1.length==0){
+                    $scope.flagT = vitalsign.flag.flagT
+                    console.log("blank array")
                     var chart = new Highcharts.Chart('container1', {
                     credits:{enabled:false},
                     chart: {
                         height:50,
                         borderRadius:5,//图表边框圆角角度  
-                        shadow:true,//是否设置阴影  
+                        shadow:true,//是否设置阴影 
                         }, 
                     title: {
                     text: '您没有体温的测量数据！',
                     x: 0,
                     y: 20,
-                      }})}
+                      }})
+                  }
                         else{
+                        $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                        $scope.flagT = vitalsign.flag.flagT
                         ChartData = vitalsign.item.data1
                         ChartTime = vitalsign.item.recordTime
                             for(i=0; i<ChartTime.length; i++){
@@ -4655,7 +4680,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                               chart: {
                               borderRadius:5,//图表边框圆角角度  
                               shadow:true,//是否设置阴影  
-                              zoomType:'xy'
+                              zoomType:'x',
+                              events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }},
                               }, 
                             colors:[       
                               '#FF8040',
@@ -4708,20 +4742,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           var ChartTime = new Array()
           var vitalsign = data.results
              if(vitalsign=="不存在该段时间的报告!"){
-              console.log("no data 1.2")
               var chart = new Highcharts.Chart('container2', {
                credits:{enabled:false},
-               chart: {
-                    height:50,
-                    borderRadius:5,//图表边框圆角角度  
-                    shadow:true,//是否设置阴影  
+               chart: {                  
                    }, 
                 title: {
-                text: '您没有体重的测量数据！',
-                 x: 0,
-                 y: 20,
-                      }})
+                text: ''
+                  }})
                }else if(vitalsign.item.data1.length==0){
+                $scope.flagWeight = vitalsign.flag.flagWeight
                  var chart = new Highcharts.Chart('container2', {
                credits:{enabled:false},
                chart: {
@@ -4735,6 +4764,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
+                        $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                    $scope.flagWeight = vitalsign.flag.flagWeight
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
                         for(i=0; i<ChartTime.length; i++){
@@ -4745,7 +4784,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'xy'
+                          zoomType:'x',
+                           events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -4801,17 +4849,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              if(vitalsign=="不存在该段时间的报告!"){
               var chart = new Highcharts.Chart('container3', {
                credits:{enabled:false},
-               chart: {
-                    height:50,
-                    borderRadius:5,//图表边框圆角角度  
-                    shadow:true,//是否设置阴影  
+               chart: {                  
                    }, 
                 title: {
-                text: '您没有血压的测量数据！',
-                 x: 0,
-                 y: 20,
-                      }})
+                text: ''
+                  }})
                }else if(vitalsign.item.data1.length==0){
+                $scope.flagBP = vitalsign.flag.flagBP
                  var chart = new Highcharts.Chart('container3', {
                credits:{enabled:false},
                chart: {
@@ -4825,6 +4869,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
+                        $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                    $scope.flagBP = vitalsign.flag.flagBP
                     ChartData = vitalsign.item.data1
                     ChartData2 = vitalsign.item.data2
                     ChartTime = vitalsign.item.recordTime
@@ -4836,7 +4890,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'xy'
+                          zoomType:'x',
+                           events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -4895,17 +4958,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              if(vitalsign=="不存在该段时间的报告!"){
               var chart = new Highcharts.Chart('container4', {
                credits:{enabled:false},
-               chart: {
-                    height:50,
-                    borderRadius:5,//图表边框圆角角度  
-                    shadow:true,//是否设置阴影  
+               chart: {                  
                    }, 
                 title: {
-                text: '您没有尿量的测量数据！',
-                 x: 0,
-                 y: 20,
-                      }})
+                text: ''
+                  }})
                }else if(vitalsign.item.data1.length==0){
+                 $scope.flagVol = vitalsign.flag.flagVol
                  var chart = new Highcharts.Chart('container4', {
                credits:{enabled:false},
                chart: {
@@ -4919,6 +4978,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
+                       $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                   $scope.flagVol = vitalsign.flag.flagVol
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
                         for(i=0; i<ChartTime.length; i++){
@@ -4929,7 +4998,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'xy'
+                          zoomType:'x',
+                           events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -4982,19 +5060,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           var ChartTime = new Array()
           var vitalsign = data.results
              if(vitalsign=="不存在该段时间的报告!"){
-              var chart = new Highcharts.Chart('container5', {
+             var chart = new Highcharts.Chart('container5', {
                credits:{enabled:false},
-               chart: {
-                    height:50,
-                    borderRadius:5,//图表边框圆角角度  
-                    shadow:true,//是否设置阴影  
+               chart: {                  
                    }, 
                 title: {
-                text: '您没有心率的测量数据！',
-                 x: 0,
-                 y: 20,
-                      }})
+                text: ''
+                  }})
                }else if(vitalsign.item.data1.length==0){
+                $scope.flagHR = vitalsign.flag.flagHR
                  var chart = new Highcharts.Chart('container5', {
                  credits:{enabled:false},
                  chart: {
@@ -5008,6 +5082,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
+                       $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                    $scope.flagHR = vitalsign.flag.flagHR
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
                         for(i=0; i<ChartTime.length; i++){
@@ -5018,7 +5102,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'xy'
+                          zoomType:'x',
+                           events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5064,7 +5157,673 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              })
             } },function(err){
         })
+        //腹透
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "PeritonealDialysis", showType: timeType, modify:modify}).then(
+         function(data){
+          var ChartData = new Array()
+          var ChartTime = new Array()
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+             var chart = new Highcharts.Chart('container6', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+               }else if(vitalsign.item.data1.length==0){
+                $scope.flagPD = vitalsign.flag.flagPD
+                 var chart = new Highcharts.Chart('container6', {
+                 credits:{enabled:false},
+                 chart: {
+                    height:50,
+                    borderRadius:5,//图表边框圆角角度  
+                    shadow:true,//是否设置阴影  
+                   }, 
+                title: {
+                text: '您没有腹透的测量数据！',
+                 x: 0,
+                 y: 20,
+                  }})}
+                     else{
+                       $scope.comments = true 
+                        var DocReport = "无"
+                        var DocComment = "无"
+                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                          DocReport = vitalsign.doctorReport
+                        }
+                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                          DocComment = vitalsign.doctorComment
+                        }
+                    $scope.flagPD = vitalsign.flag.flagPD
+                    ChartData1 = vitalsign.item.data1
+                    ChartData2 = vitalsign.item.data2
+                    ChartTime = vitalsign.item.recordTime
+                        for(i=0; i<ChartTime.length; i++){
+                             ChartTime[i]=ChartTime[i].substring(0,10)
+                               }
+                       var chart = new Highcharts.Chart('container6', {
+                        credits:{enabled:false},
+                    chart: {
+                          borderRadius:5,//图表边框圆角角度  
+                          shadow:true,//是否设置阴影  
+                          zoomType:'x',
+                           events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                         }, 
+                    colors:[       
+                           '#FF8040',
+                           '#66B3FF',
+                          '#0080FF',
+                            ],  
+                   title: {
+                       text: '腹透',
+                       x: 0,
+                       y: 33,
+                     },
+                    xAxis: {
+                        categories: ChartTime
+                        },
+                     yAxis: {
+                         title: {
+                       text: '腹透（mL）',
+                               x:0,
+                               y:-10
+                            },
+                    plotLines: [{
+                    //控制x轴线型
+                    value: 0,
+                    width: 0.1,
+                    color: '#808080'
+                    }]
+                   },
+                    tooltip: {
+                    valueSuffix: 'mL'
+                  },
+                    legend: {
+                      layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                      align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                      verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                      borderWidth: 0,
+                      x:0,
+                      y:+50
+                  },
+                    series: [{
+                    name: '超滤量mL',
+                    data: ChartData1
+                },{
+                    name: '出量mL',
+                    data: ChartData2
+                }]
+             })
+            } },function(err){
+        })
+        //化验
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "LabTest", showType: timeType, modify: modify}).then(
+          function(data){
+            var vitalsign = new Array()
+            var ChartData1 = new Array()
+            var ChartData2 = new Array()
+            var ChartData3 = new Array()
+            var ChartData4 = new Array()
+            var ChartData5 = new Array()
+            var ChartTime1 = new Array()
+            var ChartTime2 = new Array()
+            var ChartTime3 = new Array()
+            var ChartTime4 = new Array()
+            var ChartTime5 = new Array()
+            vitalsign = data
+            if (data.results == "不存在该段时间的报告!"){
+                var chart1 = new Highcharts.Chart('container7', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+                var chart2 = new Highcharts.Chart('container8', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+                var chart3 = new Highcharts.Chart('container9', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+                var chart4 = new Highcharts.Chart('container10', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+                var chart5 = new Highcharts.Chart('container11', {
+               credits:{enabled:false},
+               chart: {                  
+                   }, 
+                title: {
+                text: ''
+                  }})
+                return
+            }
+            else if(vitalsign.results.item.recordTime.length==0){
+                var chart = new Highcharts.Chart('container7', {
+                    credits:{enabled:false},
+                    chart: {
+                        height:50,
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                    }, 
+                    title: {
+                        text: '您没有肌酐的测量数据！',
+                        x: 0,
+                        y: 20,
+                    }   
+                })
+               }else{
+                $scope.comments = true 
+                var DocReport = "无"
+                var DocComment = "无"
+                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                  DocReport = vitalsign.doctorReport
+                }
+                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                  DocComment = vitalsign.doctorComment
+                }
+                ChartData1 = vitalsign.results.item.data1
+                ChartTime1 = vitalsign.results.item.recordTime
+                for(i=0; i<ChartTime1.length; i++){
+                   ChartTime1[i]=ChartTime1[i].substring(0,10)
+                }
+                var chart = new Highcharts.Chart('container7', {
+                    credits:{enabled:false},
+                    chart: {
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                        zoomType:'x',
+                        events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                    }, 
+                    colors:[       
+                        '#FF8040',
+                        '#66B3FF',
+                        '#0080FF'
+                        ],  
+                    title: {
+                        text: '肌酐',
+                        x: 0,
+                        y: 33,
+                    },
+                    xAxis: {
+                        categories: ChartTime1
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'umol/L',
+                            x:0,
+                            y:-10
+                        },
+                        plotLines: [{
+                            //控制x轴线型
+                            value: 0,
+                            width: 0.1,
+                            color: '#808080'
+                        }]
+                    },
+                    tooltip: {
+                        valueSuffix: 'mL'
+                    },
+                    legend: {
+                        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                        borderWidth: 0,
+                        x:0,
+                        y:+50
+                    },
+                    series: [{
+                        name: '肌酐值',
+                        data: ChartData1
+                    }]
+                })
+            }
+            if(vitalsign.results.item.recordTime2.length==0){
+                var chart = new Highcharts.Chart('container8', {
+                    credits:{enabled:false},
+                    chart: {
+                        height:50,
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                    }, 
+                    title: {
+                        text: '您没有GFR的测量数据！',
+                        x: 0,
+                        y: 20,
+                    }   
+                })
+            }else{
+               $scope.comments = true 
+                var DocReport = "无"
+                var DocComment = "无"
+                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                  DocReport = vitalsign.doctorReport
+                }
+                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                  DocComment = vitalsign.doctorComment
+                }
+                ChartData2 = vitalsign.results.item.data2
+                ChartTime2 = vitalsign.results.item.recordTime2
+                for(i=0; i<ChartTime2.length; i++){
+                   ChartTime2[i]=ChartTime2[i].substring(0,10)
+                }
+                var chart = new Highcharts.Chart('container8', {
+                    credits:{enabled:false},
+                    chart: {
+                        borderRadius:5,//图表边框圆角角度                    
+                        shadow:true,//是否设置阴影  
+                        zoomType:'x',
+                        events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                    }, 
+                    colors:[       
+                        '#FF8040',
+                        '#66B3FF',
+                        '#0080FF'
+                        ],  
+                    title: {
+                        text: 'GFR',
+                        x: 0,
+                        y: 33,
+                    },
+                    xAxis: {
+                        categories: ChartTime2
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'GFR（mL/min）',
+                            x:0,
+                            y:-10
+                        },
+                        plotLines: [{
+                            //控制x轴线型
+                            value: 0,
+                            width: 0.1,
+                            color: '#808080'
+                        }]
+                    },                   
+                    legend: {
+                        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                        borderWidth: 0,
+                        x:0,
+                        y:+50
+                    },
+                    series: [{
+                        name: 'GFR',
+                        data: ChartData2
+                    }]
+                })
+            }
+            if(vitalsign.results.item.recordTime3.length==0){
+                var chart = new Highcharts.Chart('container9', {
+                    credits:{enabled:false},
+                    chart: {
+                        height:50,
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                    }, 
+                    title: {
+                        text: '您没有尿蛋白的测量数据！',
+                        x: 0,
+                        y: 20,
+                    }   
+                })
+            }else{
+               $scope.comments = true 
+                var DocReport = "无"
+                var DocComment = "无"
+                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                  DocReport = vitalsign.doctorReport
+                }
+                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                  DocComment = vitalsign.doctorComment
+                }
+                ChartData3 = vitalsign.results.item.data3
+                ChartTime3 = vitalsign.results.item.recordTime3
+                for(i=0; i<ChartTime3.length; i++){
+                   ChartTime3[i]=ChartTime3[i].substring(0,10)
+                }
+                var chart = new Highcharts.Chart('container9', {
+                    credits:{enabled:false},
+                    chart: {
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                        zoomType:'x',
+                        events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                    }, 
+                    colors:[       
+                        '#FF8040',
+                        '#66B3FF',
+                        '#0080FF'
+                        ],  
+                    title: {
+                        text: '尿蛋白',
+                        x: 0,
+                        y: 33,
+                    },
+                    xAxis: {
+                        categories: ChartTime3
+                    },
+                    yAxis: {
+                        title: {
+                            text: '尿蛋白（g/24h）',
+                            x:0,
+                            y:-10
+                        },
+                        plotLines: [{
+                            //控制x轴线型
+                            value: 0,
+                            width: 0.1,
+                            color: '#808080'
+                        }]
+                    },
+                    legend: {
+                        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                        borderWidth: 0,
+                        x:0,
+                        y:+50
+                    },
+                    series: [{
+                        name: '尿蛋白',
+                        data: ChartData3
+                    }]
+                })
+            }
+            if(vitalsign.results.item.recordTime4.length==0){
+                var chart = new Highcharts.Chart('container10', {
+                    credits:{enabled:false},
+                    chart: {
+                        height:50,
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                    }, 
+                    title: {
+                        text: '您没有血白蛋白的测量数据！',
+                        x: 0,
+                        y: 20,
+                    }   
+                })
+            }else{
+               $scope.comments = true 
+                var DocReport = "无"
+                var DocComment = "无"
+                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                  DocReport = vitalsign.doctorReport
+                }
+                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                  DocComment = vitalsign.doctorComment
+                }
+                ChartData4 = vitalsign.results.item.data4
+                ChartTime4 = vitalsign.results.item.recordTime4
+                for(i=0; i<ChartTime4.length; i++){
+                   ChartTime4[i]=ChartTime4[i].substring(0,10)
+                }
+                var chart = new Highcharts.Chart('container10', {
+                    credits:{enabled:false},
+                    chart: {
+                        borderRadius:5,//图表边框圆角角度                         
+                        shadow:true,//是否设置阴影  
+                        zoomType:'x',
+                        events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                    }, 
+                    colors:[       
+                        '#FF8040',
+                        '#66B3FF',
+                        '#0080FF'
+                        ],  
+                    title: {
+                        text: '血白蛋白',
+                        x: 0,
+                        y: 33,
+                    },
+                    xAxis: {
+                        categories: ChartTime4
+                    },
+                    yAxis: {
+                        title: {
+                            text: '血白蛋白（g/L）',
+                            x:0,
+                            y:-10
+                        },
+                        plotLines: [{
+                            //控制x轴线型
+                            value: 0,
+                            width: 0.1,
+                            color: '#808080'
+                        }]
+                    },
+                    legend: {
+                        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                        borderWidth: 0,
+                        x:0,
+                        y:+50
+                    },
+                    series: [{
+                        name: '血白蛋白',
+                        data: ChartData4
+                    }]
+                })
+            }
+            if(vitalsign.results.item.recordTime5.length==0){
+                var chart = new Highcharts.Chart('container11', {
+                    credits:{enabled:false},
+                    chart: {
+                        height:50,
+                        borderRadius:5,//图表边框圆角角度  
+                        shadow:true,//是否设置阴影  
+                    }, 
+                    title: {
+                        text: '您没有血红蛋白的测量数据！',
+                        x: 0,
+                        y: 20,
+                    }   
+                })
+            }else{
+               $scope.comments = true 
+                var DocReport = "无"
+                var DocComment = "无"
+                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
+                  DocReport = vitalsign.doctorReport
+                }
+                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
+                  DocComment = vitalsign.doctorComment
+                }
+                ChartData5 = vitalsign.results.item.data5
+                ChartTime5 = vitalsign.results.item.recordTime5
+                for(i=0; i<ChartTime5.length; i++){
+                   ChartTime5[i]=ChartTime5[i].substring(0,10)
+                }
+                var chart = new Highcharts.Chart('container11', {
+                    credits:{enabled:false},
+                    chart: {
+                        borderRadius:5,
+                        shadow:true,//是否设置阴影  
+                        zoomType:'x',
+                        events: {
+                                click: function(e) {
+                                  $ionicPopup.alert({
+                                    title: '医生评论&医生报告',
+                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
+                                    okText: '关闭',
+                                  }).then(function (res) {
+                                        })
+                                      }}
+                    }, 
+                    colors:[       
+                        '#FF8040',
+                        '#66B3FF',
+                        '#0080FF',
+                        '#00FF00',//绿  
+                        '#0000FF',//蓝  
+                        '#FFFF00',//黄  
+                        '#FF00FF',//紫  
+                        '#FFFFFF',//紫 
+                        '#000000',//黑  
+                        '#FF0000',//红  
+                        ],  
+                    title: {
+                        text: '血红蛋白',
+                        x: 0,
+                        y: 33,
+                    },
+                    xAxis: {
+                        categories: ChartTime5
+                    },
+                    yAxis: {
+                        title: {
+                            text: '血红蛋白（g/L）',
+                            x:0,
+                            y:-10
+                        },
+                        plotLines: [{
+                            //控制x轴线型
+                            value: 0,
+                            width: 0.1,
+                            color: '#808080'
+                        }]
+                    },
+                    legend: {
+                        layout: 'horizontal',   //图例内容布局方式，有水平布局及垂直布局可选，对应的配置值是： “horizontal”， “vertical”
+                        align: 'center',      //图例在图表中的对齐方式，有 “left”, "center", "right" 可选
+                        verticalAlign: 'top', //垂直对齐方式，有 'top'， 'middle' 及 'bottom' 可选
+                        borderWidth: 0,
+                        x:0,
+                        y:+50
+                    },
+                    series: [{
+                        name: '血红蛋白',
+                        data: ChartData5
+                    }]
+                })
+            }
+          },function(err){
+        })
     }
+  var ShowTime = function(date,modify,timeType){
+    if(modify==0){
+      if(timeType=="week"){
+        document.getElementById('middle').innerText = "本周"
+      }else if(timeType=="month"){
+        document.getElementById('middle').innerText = "本月"
+      }else if(timeType=="season"){
+        document.getElementById('middle').innerText = "本季"
+      }else if(timeType=="year"){
+        document.getElementById('middle').innerText = "本年"
+      }
+    }else {
+    //周
+    if(timeType=="week"){
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
+          function(data){
+            if(data.results=="不存在该段时间的报告!"){
+               document.getElementById('middle').innerText = "无数据"
+            }else{
+              var week1 = data.results.startTime
+              var week2 = data.results.endTime
+              week1 = week1.substring(0,10)
+              week2 = week2.substring(0,10)
+              document.getElementById('middle').innerText = week1+"-"+week2
+            }},function(err){
+          })
+    }
+    //月
+    else if(timeType=="month"){
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
+          function(data){
+            if(data.results=="不存在该段时间的报告!"){
+                document.getElementById('middle').innerText = "无数据"
+               }else{
+            var month = data.results.item.time
+             month1 = month.substring(0,4)
+             month2 = month.substring(4,6)
+            document.getElementById('middle').innerText = month1+"年"+month2+"月"
+            }},function(err){
+          })
+    }
+    //季
+    else if(timeType=="season"){
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
+          function(data){
+           if(data.results=="不存在该段时间的报告!"){
+                document.getElementById('middle').innerText = "无数据"
+               }else{
+            var season = data.results.item.time
+             season1 = season.substring(0,4)
+             season2 = season.substring(5,6)
+             document.getElementById('middle').innerText = season1+"年第"+season2+"季"
+            }},function(err){
+          })
+    }
+    //年
+    else if(timeType=="year"){
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
+          function(data){
+           if(data.results=="不存在该段时间的报告!"){
+                document.getElementById('middle').innerText = "无数据"
+               }else{
+            var year = data.results.item.time
+            document.getElementById('middle').innerText = year+"年"
+          }},function(err){
+          })
+    }
+  }}
   $scope.toWeekReports = function(){
       $scope.modify=0
       if ($scope.type){
@@ -5077,6 +5836,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var date = new Date() 
         var timeType = "week"
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
   }
   $scope.toMonthReports = function(){
       $scope.modify=0
@@ -5090,6 +5850,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var date = new Date() 
         var timeType = "month"
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
   }
   $scope.toSeasonReports = function(){
       $scope.modify=0
@@ -5103,6 +5864,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var date = new Date() 
         var timeType = "season"
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
   }
   $scope.toYearReports = function(){
       $scope.modify=0
@@ -5116,6 +5878,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var date = new Date() 
         var timeType = "year"
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
   }
   $scope.next = function(){
       var date = new Date()
@@ -5128,8 +5891,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           })
         $scope.modify=0
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
       }else{
         Painting(date,$scope.modify,timeType)
+        ShowTime(date,$scope.modify,timeType)
       }
   }
   $scope.last = function(){
@@ -5138,6 +5903,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       var timeType = $scope.type
       console.log(timeType)
       Painting(date,$scope.modify,timeType)
+      ShowTime(date,$scope.modify,timeType)
   }
   $scope.toWeekReports()
 }])
@@ -6574,6 +7340,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.patient = data.results
       if (angular.isDefined($scope.patient.TDCticket) != true) {
         var params = {
+          'role':"doctor",
           'userId': Storage.get('UID'),
           'postdata': {
             'action_name': 'QR_LIMIT_STR_SCENE',
