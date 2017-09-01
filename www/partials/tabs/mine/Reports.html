@@ -4,10 +4,10 @@
         <button class="button button-icon icon ion-ios-arrow-left fc-ff" ng-click="Goback()"></button>
         </ion-nav-buttons>
     </ion-nav-bar>
-  <ion-content>
+  <ion-content class="padding">
       <ion-refresher pulling-text="下拉刷新" spinner='ripple' refreshing-text="刷新一下" on-refresh="Refresh()">
       </ion-refresher>
-<!-- <div class="bar bar-header" style="position:absolute; top:-58px; border: none;"> -->
+
     <div style="text-align:center;height:44px" class="row">
       <button id="week" ng-click="toWeekReports()" class="seasonBtn">周</button>
       <button id="month" ng-click="toMonthReports()" class="seasonBtn">月</button>
@@ -17,43 +17,70 @@
 
     <div style="text-align:center; height:44px;" class="row">
       <button ng-click="last()" class="seasonBtn2"><i class="icon ion-ios-arrow-left"></i></button>
-      <button class="seasonBtn2"></button> <!-- 不要删掉这一行 -->
+      <button id="middle" class="seasonBtn2"></button> 
       <button ng-if="modify" ng-click="next()" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
       <button ng-if="!modify" class="seasonBtn2"><i class="icon ion-ios-arrow-right"></i></button>
     </div> 
 
+    <div style="text-align:center; height:44px;" class="row">
+      <button ng-if="flagT&&comments" class="textBtn">点击图表区查看医生报告/医生评论</button>
+    </div> 
+
     <div ng-if="type=='week'">
-      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagT" style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div ng-if="flagWeight" style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->      
+      <div ng-if="flagBP" style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div ng-if="flagVol" style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div ng-if="flagHR" style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagPD" style="margin-top: 0px; min-width: 300px; " id="container6"></div><!-- //腹透 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container7"></div><!-- //化验 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container8"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container9"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container10"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container11"></div>
     </div>
 
     <div ng-if="type=='month'">
-      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagT" style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div ng-if="flagWeight" style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div ng-if="flagBP" style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div ng-if="flagVol" style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div ng-if="flagHR" style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagPD" style="margin-top: 0px; min-width: 300px; " id="container6"></div><!-- //腹透 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container7"></div><!-- //化验 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container8"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container9"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container10"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container11"></div>
     </div>
 
     <div ng-if="type=='season'">
-      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagT" style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div ng-if="flagWeight" style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div ng-if="flagBP" style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div ng-if="flagVol" style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div ng-if="flagHR" style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagPD" style="margin-top: 0px; min-width: 300px; " id="container6"></div><!-- //腹透 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container7"></div><!-- //化验 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container8"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container9"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container10"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container11"></div>
     </div>
 
     <div ng-if="type=='year'">
-      <div style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
-      <div style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagT" style="margin-top: 0px; min-width: 300px; " id="container1"></div><!-- //体温 -->
+      <div ng-if="flagWeight" style="margin-top: 0px; min-width: 300px; " id="container2"></div><!-- //体重 -->
+      <div ng-if="flagBP" style="margin-top: 0px; min-width: 300px; " id="container3"></div><!-- //血压 -->
+      <div ng-if="flagVol" style="margin-top: 0px; min-width: 300px; " id="container4"></div><!-- //尿量 -->
+      <div ng-if="flagHR" style="margin-top: 0px; min-width: 300px; " id="container5"></div><!-- //心率 -->
+      <div ng-if="flagPD" style="margin-top: 0px; min-width: 300px; " id="container6"></div><!-- //腹透 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container7"></div><!-- //化验 -->
+      <div style="margin-top: 0px; min-width: 300px; " id="container8"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container9"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container10"></div>
+      <div style="margin-top: 0px; min-width: 300px; " id="container11"></div>
     </div>
-  <!-- <div style="margin-top: 50px; min-width: 300px; height: 450px;" id="container"></div> -->
 
   </ion-content>
 
