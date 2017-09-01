@@ -22,15 +22,14 @@
 
   <ion-content> 
 
-    <div class="bar bar-header item-input-inset" style="height:40px;padding:30;margin-top:40px;">
+    <div ng-if="params.allposts" class="list">
+      <div class="bar bar-header item-input-inset" style="height:40px;padding:30;margin-top:40px;">
             <div class="item-input-wrapper">
                 <i class="icon ion-ios-search placeholder-icon f-24"></i>
                 <input type="search" ng-model="search.title" placeholder="请输入搜索帖子主题" ng-change="goSearch()">
                 <button-clear-input input = "search.title" origin = "allposts" curr = "posts" ng-click="clearSearch()"></button-clear-input>
             </div>
-    </div>
-
-    <div ng-if="params.allposts" class="list">
+      </div>
 
         <div ng-repeat="item in posts">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
@@ -65,7 +64,7 @@
       
     </div>
 
-    <div ng-if="params.myposts" class="list">
+    <div ng-if="params.myposts" class="list" style="margin-top: 38px;">
 
       <div ng-repeat="item in myposts">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
@@ -97,11 +96,10 @@
       </div>  
 
     </div>
-
-    <div ng-if="params.mycollection" class="list">
+    <div ng-if="params.mycollection" class="list" style="margin-top: 38px;">
 
         <div ng-repeat="item in mycollection">
-           <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
+           <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px;">
                 <img style="margin-top: -6px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
                 <img style="margin-top: -6px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px" ng-if = "!(item.anonymous)">{{item.sponsorName || item.sponsorId}}</span>
