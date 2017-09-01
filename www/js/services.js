@@ -37,7 +37,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   urineConnectUrl: 'http://docker2.haihonghospitalmanagement.com/',
   mediaUrl: 'http://df2.haihonghospitalmanagement.com/',
   // mediaUrl: 'http://121.43.107.106:8054/',
-  socketServer: 'http://docker2.haihonghospitalmanagement.com/chat',
+  socketServer: 'http://docker2.haihonghospitalmanagement.com/',
   imgThumbUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/resize',
   imgLargeUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/',
   //
@@ -2544,6 +2544,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     if (userId == '') return
     var n = name || ''
     socket.emit('newUser', { user_name: n, user_id: userId, client: 'patient'})
+    console.log('newuser')
   }
   return {
     newUser: function (userId, name) {
@@ -2579,6 +2580,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 .factory('socket', ['$rootScope', 'socketFactory', 'CONFIG', function ($rootScope, socketFactory, CONFIG) {
   var myIoSocket = io.connect(CONFIG.socketServer + 'chat')
+  console.log(myIoSocket)
   var mySocket = socketFactory({
     ioSocket: myIoSocket,
     prefix: 'im:'
