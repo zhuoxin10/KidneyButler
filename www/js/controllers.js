@@ -4017,9 +4017,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 .controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover) {
   var patientId = Storage.get('UID')
 
-  $scope.Goback = function () {
-    $state.go('tab.mine')
-  }
 
   // 从字典中搜索选中的对象。
   // var searchObj = function(code,array){
@@ -4051,15 +4048,24 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.$on('$ionicView.enter', function () {
+    // $scope.labels = {}
+    Dict.getHeathLabelInfo({category: 'healthInfoType'}).then(
+      function (data) {
+        $scope.types = data.results.details
+        // $scope.label = $scope.labels[$scope.labels.length-1]
+      },
+      function(err){
+      })
     RefreshHealthRecords()
   })
 
-  $scope.do_refresher = function () {
+  $scope.do_refresher = function (code) {
+    console.log(code)
     RefreshHealthRecords()
     $scope.$broadcast('scroll.refreshComplete')
   }
 
-  $scope.gotoHealthDetail = function (ele, editId) {
+  $scope.gotoHealthDetail = function (ele, editId,type) {
     // console.log(ele)
     // console.log(ele.target)
     if (ele.target.nodeName == 'I') {
@@ -4162,15 +4168,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 健康详情--PXY
 .controller('HealthDetailCtrl', ['otherTask', '$scope', '$state', '$ionicHistory', '$ionicPopup', '$stateParams', '$ionicPopover', '$ionicModal', '$ionicScrollDelegate', '$ionicLoading', '$timeout', 'Dict', 'Health', 'Storage', 'Camera', 'CONFIG', function (otherTask, $scope, $state, $ionicHistory, $ionicPopup, $stateParams, $ionicPopover, $ionicModal, $ionicScrollDelegate, $ionicLoading, $timeout, Dict, Health, Storage, Camera, CONFIG) {
   var patientId = Storage.get('UID')
-  $scope.healthDetailStyle = {'top': '43px'}
-  if (ionic.Platform.isIOS()) {
-    $scope.healthDetailStyle = {'top': '63px'}
-  }
+  // $scope.healthDetailStyle = {'top': '43px'}
+  // if (ionic.Platform.isIOS()) {
+  //   $scope.healthDetailStyle = {'top': '63px'}
+  // }
 
-  $scope.$watch('canEdit', function (oldval, newval) {
-    console.log('oldval:' + oldval)
-    console.log('newval:' + newval)
-  })
+  // $scope.$watch('canEdit', function (oldval, newval) {
+  //   console.log('oldval:' + oldval)
+  //   console.log('newval:' + newval)
+  // })
   $scope.canEdit = $stateParams.caneidt
   console.log($stateParams.caneidt)
 
@@ -4184,8 +4190,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     } else {
       $ionicHistory.goBack()
     }
-    console.log(123)
-    console.log($ionicHistory.backTitle())
+    // console.log(123)
+    // console.log($ionicHistory.backTitle())
 
         // }
   }
@@ -4344,6 +4350,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $ionicHistory.goBack()
               },
               function (err) {
+                $ionicLoading.hide()
+                $ionicPopup.alert({
+                   title: '网络跑远啦',
+                   template: '请重新上传'
+                 })
                 console.log(err)
               }
             )
@@ -6237,29 +6248,29 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 
 
-  var IsDoctor =function (Doctor) {
-      Service.isMyDoctors({doctorId:Doctor.userId}). then(
-          function (data) {
-            // debugger
-            if (data.DIC==1)
-            Doctor.IsMyDoctor = true
-          else Doctor.IsMyDoctor = false
-            if (data.FD==1)
-              Doctor.IsMyFollowDoctor=true
-            else Doctor.IsMyFollowDoctor=false
-          }
-        )
-  }
+  // var IsDoctor =function (Doctor) {
+  //     Service.isMyDoctors({doctorId:Doctor.userId}). then(
+  //         function (data) {
+  //           // debugger
+  //           if (data.DIC==1)
+  //           Doctor.IsMyDoctor = true
+  //         else Doctor.IsMyDoctor = false
+  //           if (data.FD==1)
+  //             Doctor.IsMyFollowDoctor=true
+  //           else Doctor.IsMyFollowDoctor=false
+  //         }
+  //       )
+  // }
 
 
-  $scope.open =false
-  $scope.trigger = function(Doctor){
-    Doctor.open = !Doctor.open
-    if (Doctor.open){
-      IsDoctor(Doctor)
-      console.log("testme")
-    }
-  }
+  // $scope.open =false
+  // $scope.trigger = function(Doctor){
+  //   Doctor.open = !Doctor.open
+  //   if (Doctor.open){
+  //     IsDoctor(Doctor)
+  //     console.log("testme")
+  //   }
+  // }
 
   $scope.Provinces = {}
   $scope.Cities = {}

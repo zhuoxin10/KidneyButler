@@ -10,8 +10,15 @@
 
 
     <ion-content  class="padding">
+        <label  class="item item-input item-select-custom blue-round-input">
+        <div class="input-label">类别</div>
+        <select style="width: 80%" ng-model="type" ng-options="type.name for type in types track by type.code" ng-change="do_refresher(type.code)">
+        <option selected value="">所有</option>
+        </select>
+        </label>
+
         <ion-list>
-            <div class="card" ng-repeat="item in items " ng-click="gotoHealthDetail($event,item)">
+            <div class="card" ng-repeat="item in items " ng-click="gotoHealthDetail($event,item,type.code)">
             
                 <div class="row">
                     <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
@@ -40,7 +47,7 @@
         </div>
 
     
-        <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher()"></ion-refresher>
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher(type.code)"></ion-refresher>
     
     </ion-content>
 
