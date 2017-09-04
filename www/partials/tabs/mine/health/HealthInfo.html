@@ -1,14 +1,25 @@
 <ion-view cache-view="false" title="健康信息" hide-tabs>
-  <ion-nav-buttons side="left">
-    <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
-  </ion-nav-buttons>
-  <ion-nav-buttons side="right">
-    <button class="button button-clear" ng-click="openPopover($event)"><i class="icon ion-ios-plus-empty"></i></button>
-  </ion-nav-buttons>
-  <ion-content class="padding">
-    <ion-list>
+
+      <ion-nav-buttons  side="left" >
+        <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
+      </ion-nav-buttons>
+      <ion-nav-buttons  side="right" >
+         <button class="button button-clear" ng-click="openPopover($event)"><i class="icon ion-ios-plus-empty"></i></button>
+      </ion-nav-buttons>
+  
+
+
+    <ion-content  class="padding">
+        <label  class="item item-input item-select-custom blue-round-input">
+        <div class="input-label">类别</div>
+        <select style="width: 80%" ng-model="type" ng-options="type.name for type in types track by type.code" ng-change="do_refresher(type.code)">
+        <option selected value="">所有</option>
+        </select>
+        </label>
+
+         <ion-list>
       <div class="card" ng-repeat="item in items ">
-        <div ng-click="gotoHealthDetail($event,item)">
+        <div ng-click="gotoHealthDetail($event,item,type.code)">
           <div class="row">
             <p class="col" style="text-align: left;font-weight: bold;">{{item.label}}</p>
             <p class="col" style="text-align:center;">{{item.time|dateFormat:"YYYY-MM-DD"}}</p>
@@ -25,11 +36,18 @@
         </ion-item>
       </div>
     </ion-list>
-    <div class="card" ng-if="noHealth">
-      <div class="item item-text-wrap">
-        您还没有健康信息，可通过右上角加号添加！
-      </div>
-    </div>
-    <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher()"></ion-refresher>
-  </ion-content>
+
+
+        <div class="card" ng-if="noHealth">
+            <div class="item item-text-wrap">
+                您还没有健康信息，可通过右上角加号添加！
+            </div>
+        </div>
+
+    
+        <ion-refresher pulling-text="下拉刷新..." on-refresh="do_refresher(type.code)"></ion-refresher>
+    
+    </ion-content>
+
+
 </ion-view>
