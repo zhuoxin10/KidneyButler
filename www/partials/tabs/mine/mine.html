@@ -28,7 +28,7 @@
       <div class="myBtnBar button-bar" style="margin-top: 0px;">
         <a class="button button-small icon ion-document-text" ng-click="GoDiagnosiInfo()"><br>诊断记录</a>
         <a class="button button-small icon ion-laptop" ng-click="GoDevices()"><br>设备管理</a>
-        <a class="button button-small" ><br></a><!-- ng-click="GoHealthInfo()" -->
+        <a class="button button-small" ng-click="GoHealthInfo()"><br></a>
 
       </div>
 
@@ -54,6 +54,13 @@
             <span class="mg-left10">退出登录</span>
             <i class="icon ion-ios-arrow-right greyIcon"></i>
         </a>
+        
+        <a class="item item-icon-left item-icon-right" ng-click="GoReports()">
+          <i class="icon iconfont ion-ios-pulse mg-left10"></i>
+          <span class="mg-left10">测量记录</span>
+          <i class="icon ion-ios-arrow-right"></i>
+        </a>
+
         
       </ion-list>
 
