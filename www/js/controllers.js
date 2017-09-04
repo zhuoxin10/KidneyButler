@@ -1253,7 +1253,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.gotomyDoctors = function () {
     $state.go('tab.myDoctors')
   }
-
     // var RefreshUnread;
 
   $scope.cancelGetMessage = function () {
@@ -1278,6 +1277,21 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var OverTimeTaks = []
   var index = 0
   var dateNowStr = ChangeTimeForm(new Date()) // 方便设定当前日期进行调试，或是之后从数据库获取当前日期
+
+  var GetLatest = function () {
+    News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
+            function (data) {
+                console.log(data)
+                if(data.results[0]==undefined) {
+                  document.getElementById("newMes").innerText= "最新消息：无"
+                }else{
+                  document.getElementById("newMes").innerText= "最新消息："+data.results[0].description
+                }
+            }, function (err) {
+      console.log(err)
+    })
+  }
+  GetLatest()
 
   var GetUnread = function () {
         // console.log(new Date());
@@ -2727,7 +2741,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.Goback = function () {
     console.log('goBack')
     console.log($ionicHistory.backView())
-    $ionicHistory.goBack()
+   $ionicHistory.goBack() 
   }
 
   // 更新用户任务模板
@@ -3246,7 +3260,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询记录--PXY
 .controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup) {
-  
+  $scope.Goback = function(){
+    $ionicHistory.goBack()
+  }
+
   $scope.noConsult = false
 
     // 过滤重复的医生 顺序从后往前，保证最新的一次咨询不会被过滤掉
@@ -4036,7 +4053,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 .controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', 'CONFIG','$ionicModal','$ionicScrollDelegate',function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover,CONFIG,$ionicModal,$ionicScrollDelegate) {
   var patientId = Storage.get('UID')
 
-  
+  $scope.Goback = function () {
+    $ionicHistory.goBack()
+  }
   //点击显示大图
   $scope.zoomMin = 1
   $scope.imageUrl = ''
@@ -4651,7 +4670,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 测量记录
 .controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading', '$ionicPopup', '$state', '$http', function($scope, Measurement, Storage, $ionicHistory, $ionicLoading, $ionicPopup, $state, $http){
   $scope.Goback = function () {
-    $state.go('tab.mine')
+    $ionicHistory.goBack() 
     }
   $scope.Refresh = function () {
     $http.get('/#/tab/mine/Reports/').success(function() {
@@ -5969,7 +5988,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
             // return doctor;
   }
-
+  var latest = ''
   var Lastnews = function () {
     var receiver = Storage.get('UID')
     News.getNews({userId: receiver, type: 1}).then(
@@ -6020,6 +6039,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             function (data) {
               if (data.results.length) {
                 console.log(data.results)
+                $scope.Info = data.results[0]
+              }
+            }, function (err) {
+      console.log(err)
+    }
+        )
+        News.getNews({userId: receiver, type: 8}).then(
+            function (data) {
+              if (data.results.length) {
+                latest = data.results[0].description
                 $scope.Info = data.results[0]
               }
             }, function (err) {

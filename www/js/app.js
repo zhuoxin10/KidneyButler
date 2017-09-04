@@ -218,6 +218,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     })
     .state('tab.tasklist', {
       url: '/tasklist',
+      params: {messageType: null},
       views: {
         'tab-tasks': {
           cache: false,
