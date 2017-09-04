@@ -2903,7 +2903,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 我的 页面--PXY
-.controller('MineCtrl', ['$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
+.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID')
@@ -3013,12 +3013,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 根据用户ID查询用户头像
   $scope.myAvatar = 'img/DefaultAvatar.jpg'
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (res) {
-    console.log(Storage.get('UID'))
+    console.log(res)
         // console.log(res.results)
         // console.log(res.results.photoUrl)
         // console.log(angular.fromJson(res.results))
     if (res.results) {
             // console.log(res.results);
+      $scope.myName = res.results.name
+      $scope.myPhone = res.results.phoneNo
       if (res.results.photoUrl && res.results.photoUrl != 'http://pp.jpg') {
         $scope.myAvatar = res.results.photoUrl
       }
@@ -3032,10 +3034,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   //   $scope.myAvatar=Picturepath;
   // }
 
-  // 上传头像的点击事件----------------------------
-  $scope.onClickCamera = function ($event) {
-    $scope.openPopover($event)
-  }
+
   $scope.reload = function () {
     var t = $scope.myAvatar
     $scope.myAvatar = ''
@@ -3097,7 +3096,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
 
 // 相册键的点击事件---------------------------------
-  $scope.onClickCameraPhotos = function () {
+  function onClickCameraPhotos() {
    // console.log("选个照片");
     $scope.choosePhotos()
     $scope.closePopover()
@@ -3115,7 +3114,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   } // function结束
 
     // 照相机的点击事件----------------------------------
-  $scope.getPhoto = function () {
+  function getPhoto() {
       // console.log("要拍照了！");
     $scope.takePicture()
     $scope.closePopover()
@@ -3130,6 +3129,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       var imgURI
     })// 照相结束
   } // function结束
+
+  // 上传头像的点击事件----------------------------
+  $scope.onClickCamera = function ($event) {
+    $ionicActionSheet.show({
+     buttons: [
+       { text: '拍照' },
+       { text: '从相册选择' }
+     ],
+     // titleText: '上传头像',
+     buttonClicked: function(index) {
+      if(index===0){
+        getPhoto()
+      }else{
+        onClickCameraPhotos()
+      }
+       // return true;
+     }
+   })
+    // $scope.openPopover($event)
+  }
 }])
 
 // 诊断信息
@@ -4029,10 +4048,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   // HealthInfo.getall();
 
-  var RefreshHealthRecords = function () {
+  var RefreshHealthRecords = function (code) {
     $scope.noHealth = false
     $scope.items = new Array()
-    Health.getAllHealths({userId: patientId}).then(
+    Health.getAllHealths({userId: patientId,type:code}).then(
         function (data) {
           // console.log(data.results)
           if (data.results != '' && data.results != null) {
@@ -4061,7 +4080,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.do_refresher = function (code) {
     console.log(code)
-    RefreshHealthRecords()
+    RefreshHealthRecords(code)
     $scope.$broadcast('scroll.refreshComplete')
   }
 
@@ -4080,7 +4099,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (res) {
           Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
               function (data) {
-                RefreshHealthRecords()
+                RefreshHealthRecords(type)
                   // for (var i = 0; i < $scope.items.length; i++) {
                   //   if (editId.insertTime == $scope.items[i].insertTime) {
                   //     $scope.items.splice(i, 1)

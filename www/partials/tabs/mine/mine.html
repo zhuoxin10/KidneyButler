@@ -10,13 +10,52 @@
       <div class="my-down-bg">
         <ion-item class="item-avatar myPageBar" style="border:none;top:44px">
           <img ng-src="{{myAvatar || 'img/DefaultAvatar.jpg'}}" name="Photo" ng-click="onClickCamera($event)">
-          <h2>姓名</h2>
-          <p>用户名：{{}}</p>
+          <h2>姓名:{{myName}}</h2>
+          <p>用户名：{{myPhone}}</p>
           <a href="#/tab/mine/qrcode/"><i class="me-code iconfont icon-erweima"></i>
              <qrcode  version=3 error-correction-level="M" size="50" data="{{params.userId}}" style="width:30px;height:30px;position: absolute;right: 30px;top:10px;"></qrcode>
           </a>
         </ion-item>
       </div>
+
+
+      <div class="myBtnBar button-bar">
+        <a class="button button-small icon ion-card" ng-click="GoUserDetail()"><br>个人信息</a>
+        <a class="button button-small icon ion-ios-cart-outline" ng-click="GoMoney()"><br>增值服务</a>
+        <a class="button button-small icon ion-ios-heart-outline"><br>收藏文章</a>
+      </div>
+
+      <div class="myBtnBar button-bar" style="margin-top: 0px;">
+        <a class="button button-small icon ion-document-text" ng-click="GoDiagnosiInfo()"><br>诊断记录</a>
+        <a class="button button-small icon ion-laptop" ng-click="GoDevices()"><br>设备管理</a>
+        <a class="button button-small" ><br></a><!-- ng-click="GoHealthInfo()" -->
+
+      </div>
+
+      <div class="mylist list" style="margin-top: 8px">
+        <a class="item item-icon-left item-icon-right" ng-click="ReflectAdvice()">
+            <i style="color:#5a5ed1" class="icon iconfont ion-paper-airplane mg-left10"></i>
+              <span class="mg-left10">意见反馈和投诉</span>
+            <i class="icon ion-ios-arrow-right greyIcon"></i>
+        </a>
+        <a class="item item-icon-left item-icon-right" ng-click="About()">
+            <i style="color:#feca42" class="icon iconfont icon-jiangpai mg-left10"></i>
+              <span class="mg-left10">关于我们</span>
+            <i class="icon ion-ios-arrow-right greyIcon"></i>
+        </a>
+        <a class="item item-icon-left item-icon-right" ng-click="ChangePassword()">
+            <i style="color:#59d66f" class="icon iconfont icon-xiugaimima mg-left10"></i>
+          <span class="mg-left10">修改密码</span>
+            <i class="icon ion-ios-arrow-right greyIcon"></i>
+        </a>
+
+        <a class="item item-icon-left item-icon-right" ng-click="SignOut()">
+            <i style="color:#fa365c" class="icon iconfont icon-tuichuzhanghu mg-left10"></i>
+            <span class="mg-left10">退出登录</span>
+            <i class="icon ion-ios-arrow-right greyIcon"></i>
+        </a>
+        
+      </ion-list>
 
         <!-- <div class="me-top-box">
          <a href="#/tab/mine/qrcode/"><i class="me-code iconfont icon-erweima"></i>

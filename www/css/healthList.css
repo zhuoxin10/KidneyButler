@@ -129,11 +129,7 @@ div.others{
   white-space: pre-wrap;
 }
 /*我的*/
-/*.my-up-bg{
-  height: 100%;
-  width: 100%;
-  background-image : url(../img/upSky.jpg) !important;
-}*/
+
 .my-down-bg{
   height: 110px;
   width: 100%;
@@ -146,10 +142,16 @@ div.others{
 }
 
 
-/*ion-navbar.toolbar-background{
-         background-image: url('../img/upSky.jpg');
-         background-repeat: no-repeat;
-         background-size:cover;
-         text-align: center;
-    }*/
+.myBtnBar {height: 90px}
+.myBtnBar > .button { font-size: 15px; line-height: 30px; padding: 0 15px; border-color: #eee;background-color: #fff;border-top: none;}
+.myBtnBar > .button .icon,.myBtnBar > .button.icon:before, .myBtnBar > .button.icon-left:before, .myBtnBar > .button.icon-right:before{color:#6ac4f8;font-size: 300%; margin-top: 20px; }
+.myBtnBar > .button:first-child { border-radius: 0px 0px 0px 0px}
+.myBtnBar > .button:last-child { border-radius: 0px 0px 0px 0px}
+
+.mylist >.item {
+  border-color: #eee
+}
+.greyIcon {
+  color: #ddd
+}
  
