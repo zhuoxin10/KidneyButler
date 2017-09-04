@@ -4014,13 +4014,41 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 健康信息--PXY
-.controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover) {
+.controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', 'CONFIG','$ionicModal','$ionicScrollDelegate',function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover,CONFIG,$ionicModal,$ionicScrollDelegate) {
   var patientId = Storage.get('UID')
 
   $scope.Goback = function () {
     $state.go('tab.mine')
   }
-
+  //点击显示大图
+  $scope.zoomMin = 1
+  $scope.imageUrl = ''
+  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+    scope: $scope
+  }).then(function (modal) {
+    $scope.modal = modal
+      // $scope.modal.show();
+    $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle')
+  })
+  $scope.showbigger = function (path,imageIndex) {
+    var originalfilepath = CONFIG.imgLargeUrl + path.slice(path.lastIndexOf('/') + 1).substr(7)
+    $scope.imageHandle.zoomTo(1, true)
+    $scope.imageUrl = originalfilepath
+    $scope.modal.show()
+  }
+  $scope.closeModal = function () {
+    $scope.imageHandle.zoomTo(1, true)
+    $scope.modal.hide()
+      // $scope.modal.remove()
+  }
+  $scope.switchZoomLevel = function () {
+    if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin) { $scope.imageHandle.zoomTo(1, true) } else {
+      $scope.imageHandle.zoomTo(5, true)
+    }
+  }
+    $scope.$on('$ionicView.leave', function () {
+    $scope.modal.remove()
+  })
   // 从字典中搜索选中的对象。
   // var searchObj = function(code,array){
   //     for (var i = 0; i < array.length; i++) {
@@ -4031,7 +4059,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // console.log(HealthInfo.getall());
 
   // HealthInfo.getall();
-
   var RefreshHealthRecords = function () {
     $scope.noHealth = false
     $scope.items = new Array()
