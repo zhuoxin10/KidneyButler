@@ -10,7 +10,7 @@
       <div class="my-down-bg">
         <ion-item class="item-avatar myPageBar" style="border:none;top:44px">
           <img ng-src="{{myAvatar || 'img/DefaultAvatar.jpg'}}" name="Photo" ng-click="onClickCamera($event)">
-          <h2 style="color: #fff">姓名:{{myName}}</h2>
+          <h2 style="color: #fff">{{myName}}</h2>
           <p style="color: #fff">用户名：{{myPhone}}</p>
           <a href="#/tab/mine/qrcode/"><i class="me-code iconfont icon-erweima"></i>
              <qrcode  version=3 error-correction-level="M" size="50" data="{{params.userId}}" style="width:30px;height:30px;position: absolute;right: 30px;top:10px;"></qrcode>
