@@ -1,4 +1,4 @@
-/* Empty. Add your own CSS if you like */
+me-top-bg/* Empty. Add your own CSS if you like */
 .mt-40 {
   margin-top: 40px !important;
 }
@@ -89,7 +89,7 @@ display: inline-block;
   border-radius: 5px;
   margin-top: 10px;
 }*/
-.bar-header {
+.bar-myheader {
 border: 0px !important;
 border-bottom-color: transparent !important;
 
