@@ -63,6 +63,8 @@
       </div>  
       
     </div>
+    <ion-infinite-scroll ng-if="moredata" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
+
 
     <div ng-if="params.myposts" class="list" style="margin-top: 38px;">
 
@@ -132,6 +134,5 @@
     </div>
      
   </ion-content>
-<ion-infinite-scroll ng-if="moredata" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
           
 </ion-view>
