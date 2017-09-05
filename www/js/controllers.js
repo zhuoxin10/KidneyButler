@@ -6049,8 +6049,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         News.getNews({userId: receiver, type: 8}).then(
             function (data) {
               if (data.results.length) {
-                latest = data.results[0].description
-                $scope.Info = data.results[0]
+                $scope.edu = data.results[0]
               }
             }, function (err) {
       console.log(err)
@@ -6214,14 +6213,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       case '7':
         $scope.varyMes = {name: '审核'}
         break
-
+      case '8':
+        $scope.varyMes = {name: '群体教育'}
+        break
     }
 
     Message.getMessages({userId: Storage.get('UID'), type: Storage.get('getMessageType')}).then(
             function (data) {
               if (data.results.length) {
                 console.log(data.results)
-                if (Storage.get('getMessageType') == 5||Storage.get('getMessageType') == 7) {
+                if (Storage.get('getMessageType') == 5||Storage.get('getMessageType') == 7||Storage.get('getMessageType') == 8) {
                   for (var x in data.results) {
                     getDocNamePhoto(data.results[x].sendBy, data.results[x])
                   }
