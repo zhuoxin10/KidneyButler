@@ -1,13 +1,13 @@
 <ion-view cache-view="false" title="健康信息" hide-tabs>
 
     <ion-nav-buttons side="left">
-        <my-nav-back-button ng-click="Goback()"></my-nav-back-button>
+        <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
     </ion-nav-buttons>
     <ion-nav-buttons  side="right">
             <button class="button button-clear"  ng-if="!canEdit"  ng-click="edit() "><i class="icon ion-edit"></i></button>
     </ion-nav-buttons>
 
-  <ion-content padding="true" ng-style="healthDetailStyle">
+  <ion-content padding="true" style="position:absolute;top:44px;border: none">
     
 
   <form name="HealthForm" nonvalidate>

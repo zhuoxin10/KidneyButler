@@ -68,7 +68,11 @@
         <!-- <span class="row" style="margin-left:5px;">{{insurance.description}}</span> -->
       </ion-item>
 
-
+      <!-- 群体教育消息 -->
+      <ion-item class="item item-avatar card" ng-if="edu" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(edu)">
+        <img ng-src="img/edu.png" image-red-point="!edu.readOrNot">
+        <h2>群体教育消息</h2>
+      </ion-item>
 
       <!-- </div> -->
       
@@ -82,7 +86,7 @@
         <span class="row" style="margin-left:5px;">{{chat.description}}</span>
       </ion-item>
 
-      <div class="card" ng-if="(!pay)&&(!alert)&&(!task)&&(!insurance)&&(!Info)&&(chats.length==0)">
+      <div class="card" ng-if="(!pay)&&(!alert)&&(!task)&&(!insurance)&&(!Info)&&(!edu)&&(chats.length==0)">
         <div class="item item-text-wrap">
             暂时没有消息
         </div>
