@@ -6048,8 +6048,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         News.getNews({userId: receiver, type: 8}).then(
             function (data) {
               if (data.results.length) {
-                latest = data.results[0].description
-                $scope.Info = data.results[0]
+                $scope.edu = data.results[0]
               }
             }, function (err) {
       console.log(err)
