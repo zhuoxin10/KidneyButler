@@ -1168,7 +1168,45 @@ button.doctorBtn{
   border-width: thin;
   border-style: solid;
 }
-
+button.displayBtn{
+  width:100%;
+  border-color: #ddd;
+  color: #444;
+  height: 42px;
+  font-size:16px;
+  margin: 3px;
+  border-radius: 8px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: double;
+}
+button.displayBtn2{
+  width: 100%;
+  border-color: #ddd;
+  color: rgb(255, 255, 255);
+  height: 42px;
+  font-size: 16px;
+   /* margin: 3px; */
+  border-radius: 28px;
+  text-align: center;
+  background-color: #6ac4f8;
+  border-width: thin;
+  border-style: double;
+}
+button.displayBtn3{
+  width: 49%;
+  border-color: #fff;
+  color: #6ac4f8;
+  height: 42px;
+  font-size: 16px;
+  /* margin: 3px; */
+  border-radius: 28px;
+  text-align: center;
+  background-color: #ffffff;
+  border-width: thin;
+  border-style: double;
+}
 p.tag{
   color: #fff;
   text-align: center;
@@ -1397,3 +1435,9 @@ button.textBtn{
   margin-top: -190px;
 }
 
+.ionic_ratings .icon{
+  font-size: 20px;
+}
+.commentStyle{
+ font-size: 10px; 
+}
