@@ -7563,7 +7563,8 @@ textarea {
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 6px 0 5px 16px; }
+  padding: 6px 0 5px 16px; 
+}
   .item-input input {
     -webkit-border-radius: 0;
     border-radius: 0;
@@ -7762,12 +7763,15 @@ input[type="color"] {
 textarea {
   padding-left: 0; }
   textarea::-moz-placeholder {
-    color: #aaaaaa; }
+    color: #aaaaaa; 
+    text-align: right;}
   textarea:-ms-input-placeholder {
-    color: #aaaaaa; }
+    color: #aaaaaa; 
+    text-align: right;}
   textarea::-webkit-input-placeholder {
     color: #aaaaaa;
-    text-indent: -3px; }
+    text-indent: -3px; 
+    text-align: right;}
 
 textarea {
   height: auto; }
@@ -7815,16 +7819,19 @@ input[type="file"] {
 
 input::-moz-placeholder,
 textarea::-moz-placeholder {
-  color: #aaaaaa; }
+  color: #aaaaaa; 
+  text-align: right;}
 
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder {
-  color: #aaaaaa; }
+  color: #aaaaaa; 
+  text-align: right;}
 
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: #aaaaaa;
-  text-indent: 0; }
+  text-indent: 0;
+  text-align: right; }
 
 input[disabled],
 select[disabled],
