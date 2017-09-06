@@ -3809,7 +3809,7 @@ a.subdued {
   .action-sheet-open .action-sheet-backdrop {
     pointer-events: auto; }
 
-.platform-android .action-sheet-backdrop.active {
+/*.platform-android .action-sheet-backdrop.active {
   background-color: rgba(0, 0, 0, 0.2); }
 
 .platform-android .action-sheet {
@@ -3837,7 +3837,7 @@ a.subdued {
   display: none; }
 
 .platform-android .action-sheet-has-icons .button {
-  padding-left: 56px; }
+  padding-left: 56px; }*/
 
 .backdrop {
   position: fixed;
@@ -5968,7 +5968,7 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
 .item-content p {
   overflow: hidden;
   text-overflow: ellipsis;
-  /*white-space: nowrap; */}
+  white-space: nowrap; }
 
 a.item {
   color: inherit;
@@ -7563,7 +7563,8 @@ textarea {
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 6px 0 5px 16px; }
+  padding: 6px 0 5px 16px; 
+}
   .item-input input {
     -webkit-border-radius: 0;
     border-radius: 0;
@@ -7762,12 +7763,15 @@ input[type="color"] {
 textarea {
   padding-left: 0; }
   textarea::-moz-placeholder {
-    color: #aaaaaa; }
+    color: #aaaaaa; 
+    text-align: right;}
   textarea:-ms-input-placeholder {
-    color: #aaaaaa; }
+    color: #aaaaaa; 
+    text-align: right;}
   textarea::-webkit-input-placeholder {
     color: #aaaaaa;
-    text-indent: -3px; }
+    text-indent: -3px; 
+    text-align: right;}
 
 textarea {
   height: auto; }
@@ -7815,16 +7819,19 @@ input[type="file"] {
 
 input::-moz-placeholder,
 textarea::-moz-placeholder {
-  color: #aaaaaa; }
+  color: #aaaaaa; 
+  text-align: right;}
 
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder {
-  color: #aaaaaa; }
+  color: #aaaaaa; 
+  text-align: right;}
 
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: #aaaaaa;
-  text-indent: 0; }
+  text-indent: 0;
+  text-align: right; }
 
 input[disabled],
 select[disabled],

@@ -1,4 +1,4 @@
-/* Empty. Add your own CSS if you like */
+me-top-bg/* Empty. Add your own CSS if you like */
 .mt-40 {
   margin-top: 40px !important;
 }
@@ -89,7 +89,7 @@ display: inline-block;
   border-radius: 5px;
   margin-top: 10px;
 }*/
-.bar-header {
+.bar-myheader {
 border: 0px !important;
 border-bottom-color: transparent !important;
 
@@ -1168,7 +1168,45 @@ button.doctorBtn{
   border-width: thin;
   border-style: solid;
 }
-
+button.displayBtn{
+  width:100%;
+  border-color: #ddd;
+  color: #444;
+  height: 45px;
+  font-size:16.5px;
+  margin: 3px;
+  border-radius: 8px;
+  text-align: center;
+  background-color: transparent;
+  border-width: thin;
+  border-style: double;
+}
+button.displayBtn2{
+  width: 100%;
+  border-color: #ddd;
+  color: rgb(255, 255, 255);
+  height: 50px;
+  font-size: 16.5px;
+   /* margin: 3px; */
+  border-radius: 28px;
+  text-align: center;
+  background-color: #6ac4f8;
+  border-width: thin;
+  border-style: double;
+}
+button.displayBtn3{
+  width: 49%;
+  border-color: #fff;
+  color: #6ac4f8;
+  height: 15px;
+  font-size: 16.5px;
+  /* margin: 3px; */
+  border-radius: 28px;
+  text-align: center;
+  background-color: #ffffff;
+  border-width: thin;
+  border-style: double;
+}
 p.tag{
   color: #fff;
   text-align: center;
