@@ -317,9 +317,9 @@
   color: #ffa76d;
   font-size: 16px;
 }
-.item-avatar > img:first-child{
+/*.item-avatar > img:first-child{
   top:10px
-}
+}*/
 .patient-bar .button{
   background: #fff;
   color: #333;

@@ -8723,17 +8723,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var allposts = []
   $scope.posts = []
   $scope.moredata = true
-  var pagecontrol = {skip: 0, limit: 4}
+  var pagecontrol = {skip: 0, limit: 10}
 
   var myposts = []
   $scope.posts1 = []
   $scope.moredata1 = true
-  var pagecontrol1 = {skip: 0, limit: 4}
+  var pagecontrol1 = {skip: 0, limit: 10}
 
   var mycollection = []
   $scope.posts2 = []
   $scope.moredata2 = true
-  var pagecontrol2 = {skip: 0, limit: 4}
+  var pagecontrol2 = {skip: 0, limit: 10}
 
 
 $scope.initial={
@@ -8745,7 +8745,7 @@ $scope.initial={
     $scope.params.allposts = true
     $scope.params.myposts = false
     $scope.params.mycollection = false
-    pagecontrol = {skip: 0, limit: 4},
+    pagecontrol = {skip: 0, limit: 10},
     allposts = []
     $scope.loadMore()
   }
@@ -8754,7 +8754,7 @@ $scope.initial={
     $scope.params.allposts = false
     $scope.params.myposts = true
     $scope.params.mycollection = false
-    pagecontrol1 = {skip: 0, limit: 4},
+    pagecontrol1 = {skip: 0, limit: 10},
     myposts = []
     $scope.loadMore1()
   }
@@ -8763,7 +8763,7 @@ $scope.initial={
     $scope.params.allposts = false
     $scope.params.myposts = false
     $scope.params.mycollection = true
-    pagecontrol2 = {skip: 0, limit: 4},
+    pagecontrol2 = {skip: 0, limit: 10},
     mycollection = []
     $scope.loadMore2()
   }
@@ -8872,10 +8872,10 @@ $scope.initial={
         if (res) {
           Forum.deletepost({token: Storage.get('TOKEN'),postId: tip}).then(function (data) {
           console.log(data)
-          pagecontrol1 = {skip: 0, limit: 4},
+          pagecontrol1 = {skip: 0, limit: 10},
           myposts = []
           $scope.loadMore1()
-          pagecontrol = {skip: 0, limit: 4},
+          pagecontrol = {skip: 0, limit: 10},
           allposts = []
           console.log(allposts)
           $scope.loadMore()
@@ -8904,6 +8904,13 @@ $scope.initial={
 
   // 根据帖子主题在列表中搜索
   $scope.goSearch = function () {
+    
+    if($scope.search.title == ''){
+      pagecontrol = {skip: 0, limit: 10},
+      allposts = []
+      $scope.loadMore()
+    } else {
+      $scope.moredata = false
     console.log(123)
     Forum.allposts({
       token: Storage.get('TOKEN'),
@@ -8911,9 +8918,7 @@ $scope.initial={
       limit:1000,
       skip:0
     }).then(function (data) {
-      // $scope.params.isPatients=true;
        console.log(data.data)
-      // debugger
       $scope.posts = data.data.results
 
       if (data.data.results.length == 0) {
@@ -8923,11 +8928,15 @@ $scope.initial={
     }, function (err) {
       console.log(err)
     })
+   }
   }
 
   $scope.clearSearch = function () {
     $scope.search.title = ''
-    $scope.posts = $scope.allposts
+    // $scope.posts = $scope.allposts
+    pagecontrol = {skip: 0, limit: 10},
+    allposts = []
+    $scope.posts = $scope.loadMore()
   }
     // ----------------结束搜索患者------------------
 

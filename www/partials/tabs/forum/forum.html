@@ -33,8 +33,8 @@
 
         <div ng-repeat="item in posts">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
-                <img style="margin-top: -6px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
-                <img style="margin-top: -6px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px" ng-if = "!(item.anonymous)">{{item.sponsorName || item.sponsorId}}</span>
                 <span style="font-size: 14px" ng-if = "(item.anonymous)">匿名用户</span><br/>
                 <span style="font-size: 12px">{{item.time |dateFormat:"YYYY-MM-DD"}}</span>
@@ -70,7 +70,7 @@
 
       <div ng-repeat="item in posts1">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
-                <img style="margin-top: -6px" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px">{{item.sponsorName || item.sponsorId}}</span><i class="icon ion-trash-a" style="width: 5%;float: right;" ng-click="deletemyposts(item.postId)"></i><br/>
                 <span style="font-size: 12px">{{item.time |dateFormat:"YYYY-MM-DD"}}</span>
            </div>
@@ -104,8 +104,8 @@
 
         <div ng-repeat="item in posts2">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px;">
-                <img style="margin-top: -6px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
-                <img style="margin-top: -6px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px" ng-if = "!(item.anonymous)">{{item.sponsorName || item.sponsorId}}</span>
                 <span style="font-size: 14px" ng-if = "(item.anonymous)">匿名用户</span><br/>
                 <span style="font-size: 12px">{{item.time |dateFormat:"YYYY-MM-DD"}}</span>
