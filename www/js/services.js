@@ -420,7 +420,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var Comment = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'comment'}, {
       // getComments: {method: 'GET', params: {route: 'getComments'}, timeout: 100000},
-      getCommentsByC: {method: 'GET', params: {route: 'commentsByCounsel'}, timeout: 100000}
+      getCommentsByC: {method: 'GET', params: {route: 'commentsByCounsel'}, timeout: 100000},
+      getCommentsByDoc: {method: 'GET', params: {route: 'commentsByDoc'}, timeout: 100000}
     })
   }
 
@@ -2446,6 +2447,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.getCommentsByC = function (params) {
     var deferred = $q.defer()
     Data.Comment.getCommentsByC(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  self.getCommentsByDoc = function (params) {
+    var deferred = $q.defer()
+    Data.Comment.getCommentsByDoc(
             params,
             function (data, headers) {
               deferred.resolve(data)

@@ -4067,17 +4067,24 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.Goback = function () {
     $ionicHistory.goBack()
   }
-  //点击显示大图
-  $scope.zoomMin = 1
-  $scope.imageUrl = ''
-  $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
-    scope: $scope
-  }).then(function (modal) {
-    $scope.modal = modal
-      // $scope.modal.show();
-    $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle')
-  })
-  $scope.showbigger = function (path,imageIndex) {
+  //---------点击显示大图------------
+  //图片模块初始化
+    function imgModalInit () {
+    $scope.zoomMin = 1
+    $scope.imageUrl = ''
+    // $scope.imageIndex = -1 //当前展示的图片
+    $scope.Images = []
+    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.modal = modal;
+        // $scope.modal.show();
+        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+    }); 
+  }
+  $scope.showbigger = function (path) {
+    $scope.imageIndex = urlArray.indexOf(path)
+    console.log($scope.imageIndex)
     var originalfilepath = CONFIG.imgLargeUrl + path.slice(path.lastIndexOf('/') + 1).substr(7)
     $scope.imageHandle.zoomTo(1, true)
     $scope.imageUrl = originalfilepath
@@ -4093,11 +4100,31 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.imageHandle.zoomTo(5, true)
     }
   }
+    //右划图片
+  $scope.onSwipeRight = function () {
+    if ($scope.imageIndex <= $scope.Images.length - 1 && $scope.imageIndex > 0)
+      $scope.imageIndex = $scope.imageIndex - 1;
+    else {
+      //如果图片已经是第一张图片了，则取index = Images.length-1
+      $scope.imageIndex = $scope.Images.length - 1;
+    }
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }
+  //左划图片
+  $scope.onSwipeLeft = function () {
+    if ($scope.imageIndex < $scope.Images.length - 1 && $scope.imageIndex >= 0)
+      $scope.imageIndex = $scope.imageIndex + 1;
+    else {
+      //如果图片已经是最后一张图片了，则取index = 0
+      $scope.imageIndex = 0;
+    }
+    //替换url，展示图片
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }  
     $scope.$on('$ionicView.leave', function () {
     $scope.modal.remove()
   })
-
-
+  var urlArray = new Array()  
   var RefreshHealthRecords = function (code) {
 
     $scope.noHealth = false
@@ -4107,6 +4134,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           // console.log(data.results)
           if (data.results != '' && data.results != null) {
             $scope.items = data.results
+            for (i = 0; i < $scope.items.length;i++){
+              if ($scope.items[i].url != "" && $scope.items[i].url!=null) {
+                urlArray = urlArray.concat($scope.items[i].url)
+            }
+          }
+            for (i = 0; i < urlArray.length; i++) {
+              $scope.Images[i] = CONFIG.imgLargeUrl+urlArray[i].slice(urlArray[i].lastIndexOf('/')+1).substr(7)
+            } 
           } else {
             $scope.noHealth = true
           }
@@ -4126,11 +4161,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       },
       function(err){
       })
+    imgModalInit ()
     RefreshHealthRecords()
   })
 
   $scope.do_refresher = function (code) {
     console.log(code)
+    imgModalInit ()
     RefreshHealthRecords(code)
     $scope.$broadcast('scroll.refreshComplete')
   }
@@ -4269,6 +4306,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 点击显示大图
   $scope.zoomMin = 1
   $scope.imageUrl = ''
+  $scope.imageIndex = -1
   $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
     scope: $scope
   }).then(function (modal) {
@@ -4310,6 +4348,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     imgurl: null
   }
   $scope.health.imgurl = []
+  $scope.Images = []
   Dict.getHeathLabelInfo({category: 'healthInfoType'}).then(
         function (data) {
           $scope.labels = data.results.details
@@ -4333,6 +4372,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   // console.log(data.results.url)
                   $scope.health.imgurl = data.results.url
                         // $scope.showflag=true;
+                    for (i = 0; i < data.results.url.length; i++) {
+                    $scope.Images[i] = CONFIG.imgLargeUrl+data.results.url[i].slice(data.results.url[i].lastIndexOf('/')+1).substr(7)
+                   } 
                 }
               }
               console.log($scope.health)
@@ -4629,7 +4671,27 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.health.imgurl.splice(index, 1)
     // Storage.set('tempimgrul',angular.toJson($scope.images));
   }
-
+    //右划图片
+  $scope.onSwipeRight = function () {
+    if ($scope.imageIndex <= $scope.Images.length - 1 && $scope.imageIndex > 0)
+      $scope.imageIndex = $scope.imageIndex - 1;
+    else {
+      //如果图片已经是第一张图片了，则取index = Images.length-1
+      $scope.imageIndex = $scope.Images.length - 1;
+    }
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }
+  //左划图片
+  $scope.onSwipeLeft = function () {
+    if ($scope.imageIndex < $scope.Images.length - 1 && $scope.imageIndex >= 0)
+      $scope.imageIndex = $scope.imageIndex + 1;
+    else {
+      //如果图片已经是最后一张图片了，则取index = 0
+      $scope.imageIndex = 0;
+    }
+    //替换url，展示图片
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }  
   $scope.$on('$ionicView.leave', function () {
     $scope.modal.remove()
   })
@@ -6910,7 +6972,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 
-.controller('DoctorDetailCtrl', ['Service','DoctorService','QandC', '$ionicLoading',  '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams',  'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (Service,DoctorService, QandC, $ionicLoading, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams,Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
+.controller('DoctorDetailCtrl', ['Comment', 'Service','DoctorService','QandC', '$ionicLoading',  '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams',  'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (Comment, Service,DoctorService, QandC, $ionicLoading, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams,Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
   $scope.GoBack = function () {
     // console.log('111');
     // console.log($ionicHistory.backView());
@@ -7050,11 +7112,93 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $state.go('tab.appointDoctor',{appointDoc:doctor})
   }
 
-
+  var pagecontrol = {skip: 0, limit: 5}
+  //$scope.doctorComment = {CommentId:'',CommentTime:''}
+  // var data = {results: {items:[]}}
+  //   data.results.items = [{
+  //   item: "131*******2",
+  //   scole: 4,
+  //   CommentTime: 2017-07-27
+  // },{
+  //   item: "133*******7",
+  //   scole: 5,
+  //   CommentTime: 2017-08-01
+  // }]
+  // $scope.doctorComment = data.results.items
+  $scope.hasComment = true
+  Comment.getCommentsByDoc({doctorId:DoctorId,skip:pagecontrol.skip,limit:pagecontrol.limit}).then(
+    function(data){
+      $scope.doctorComment = data.results
+      $scope.commentNum = data.num
+      if (data.num<=5)
+        $scope.moreComment = false
+      else $scope.moreComment =true
+      if ($scope.dotorComment == []){
+        $scope.hasComment = false
+        return
+      }
+      for (var i = $scope.doctorComment.length - 1; i >= 0; i--) {
+        $scope.doctorComment[i].time = $scope.doctorComment[i].time.slice(0,10)
+        $scope.doctorComment[i].ratingsObject = {
+          iconOn: 'ion-ios-star',
+          iconOff: 'ion-ios-star-outline',
+          iconOnColor: '#FFD700', // rgb(200, 200, 100)
+          iconOffColor: 'rgb(200, 100, 100)',
+          rating: $scope.doctorComment[i].totalScore/2,
+          minRating: 1,
+          readOnly: true,
+          callback: function (){
+          }
+        }
+      }
+      // $scope.doctorComment.CommentTime = data.results.items.CommentTime
+    },function(err){
+  })
   
+  $scope.goAllComment = function(){
+    console.log(DoctorId)
+    $state.go('tab.DoctorComment', {DoctorId: DoctorId})
+    // $state.go('tab.consult-comment',{counselId:'CL201708220001',doctorId:'U201708180001',patientId:'U201708220002'})
+    // Storage.set('doctorId',id)
+  }
+}])
 
+.controller('DoctorCommentCtrl', ['$scope', 'Comment', '$stateParams', function($scope, Comment, $stateParams){
+  var pagecontrol = {skip: 0, limit: 10}
+  var allComments = new Array()
+  // console.log($stateParams)
+  $scope.loadMore = function () {
+    Comment.getCommentsByDoc({skip: pagecontrol.skip, limit: pagecontrol.limit, doctorId:$stateParams.DoctorId}).then(function (data) {
+      console.log(data)
+      $scope.$broadcast('scroll.infiniteScrollComplete')
+      allComments = allComments.concat(data.results)
+      $scope.doctorComment = allComments
+      for (var i = $scope.doctorComment.length - 1; i >= 0; i--) {
+        $scope.doctorComment[i].time = $scope.doctorComment[i].time.slice(0,10)
+        console.log($scope.doctorComment[i].time)
+        $scope.doctorComment[i].ratingsObject = {
+          iconOn: 'ion-ios-star',
+          iconOff: 'ion-ios-star-outline',
+          iconOnColor: '#FFD700', // rgb(200, 200, 100)
+          iconOffColor: 'rgb(200, 100, 100)',
+          rating: $scope.doctorComment[i].totalScore/2,
+          minRating: 1,
+          readOnly: true,
+          callback: function (){
+          }
+        }
+      }
+      pagecontrol.skip = pagecontrol.skip+pagecontrol.limit
+      console.log(pagecontrol.skip)
+      if (data.results.length < pagecontrol.limit) 
+        { $scope.moredata = false } else { $scope.moredata = true }
+    }, function (err) {
+      console.log(err)
+    })
+  }
 
-
+  $scope.loadMore();
+  
 }])
 
 .controller('appointmentCtrl', ['Service','$ionicPopup','Patient', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function (Service,$ionicPopup, Patient, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {

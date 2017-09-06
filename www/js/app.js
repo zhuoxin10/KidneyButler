@@ -314,6 +314,16 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         }
       }
     })
+    .state('tab.DoctorComment', {
+      url: '/DoctorDetail/:DoctorId/DoctorComment',
+      views: {
+        'tab-consult': {
+          cache: false,
+          templateUrl: 'partials/tabs/consult/DoctorComment.html',
+          controller: 'DoctorCommentCtrl'
+        }
+      }
+    })
     .state('tab.applyDoctor', {
       url: '/applyDoctor',
       params: {applyDoc: null},
