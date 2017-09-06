@@ -76,6 +76,10 @@
   color: #ea790a!important;
   font-size: 12px;
 }
+.icon_mine {
+  size: 50px;
+  vertical-align: middle;
+}
 .c-red {
   color: red !important;
   font-size: 10px;
