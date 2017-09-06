@@ -134,7 +134,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        * @param    {[type]}
        * @return   code:string
        */
-    debugger
     var wxscope = 'snsapi_userinfo',
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
