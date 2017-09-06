@@ -1435,3 +1435,9 @@ button.textBtn{
   margin-top: -190px;
 }
 
+.ionic_ratings .icon{
+  font-size: 20px;
+}
+.commentStyle{
+ font-size: 10px; 
+}
