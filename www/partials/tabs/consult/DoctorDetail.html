@@ -74,8 +74,18 @@
          <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.description}}</p>
       </ion-item>
       <ion-item>
-        <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>医生评价</span>
-         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap"></p>
+        <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>医生评价({{commentNum}}个）</span>
+        <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap" ng-if="!hasComment">暂无评论</p>
+        <div class="list" ng-repeat="comment in doctorComment" style="margin:6px,6px,6px,6px;border-bottom: solid 1px gray;">
+          <div class="row">
+            <span class="commentStyle">{{comment.patientId.phoneNo}}</span>
+            <div class="item" style="padding-top: 0;border: white"><ionic-ratings ratingsobj='comment.ratingsObject'></ionic-ratings> </div>
+            <span class="commentStyle">{{comment.time}}</span>
+          </div>
+        </div>
+        <div class="row">
+          <button style="margin:auto;border:white;color:#6ac4f8;background-color:white" ng-click='goAllComment()' ng-if="moreComment"><span>点击查看全部</span></button>
+        </div>
       </ion-item>
 
     </div>
