@@ -1172,8 +1172,8 @@ button.displayBtn{
   width:100%;
   border-color: #ddd;
   color: #444;
-  height: 45px;
-  font-size:16.5px;
+  height: 42px;
+  font-size:16px;
   margin: 3px;
   border-radius: 8px;
   text-align: center;
@@ -1185,8 +1185,8 @@ button.displayBtn2{
   width: 100%;
   border-color: #ddd;
   color: rgb(255, 255, 255);
-  height: 50px;
-  font-size: 16.5px;
+  height: 42px;
+  font-size: 16px;
    /* margin: 3px; */
   border-radius: 28px;
   text-align: center;
@@ -1198,8 +1198,8 @@ button.displayBtn3{
   width: 49%;
   border-color: #fff;
   color: #6ac4f8;
-  height: 15px;
-  font-size: 16.5px;
+  height: 42px;
+  font-size: 16px;
   /* margin: 3px; */
   border-radius: 28px;
   text-align: center;

@@ -7763,15 +7763,12 @@ input[type="color"] {
 textarea {
   padding-left: 0; }
   textarea::-moz-placeholder {
-    color: #aaaaaa; 
-    text-align: right;}
+    color: #aaaaaa; }
   textarea:-ms-input-placeholder {
-    color: #aaaaaa; 
-    text-align: right;}
+    color: #aaaaaa; }
   textarea::-webkit-input-placeholder {
     color: #aaaaaa;
-    text-indent: -3px; 
-    text-align: right;}
+    text-indent: -3px; }
 
 textarea {
   height: auto; }
@@ -7819,19 +7816,16 @@ input[type="file"] {
 
 input::-moz-placeholder,
 textarea::-moz-placeholder {
-  color: #aaaaaa; 
-  text-align: right;}
+  color: #aaaaaa; }
 
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder {
-  color: #aaaaaa; 
-  text-align: right;}
+  color: #aaaaaa; }
 
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: #aaaaaa;
-  text-indent: 0;
-  text-align: right; }
+  text-indent: 0; }
 
 input[disabled],
 select[disabled],
