@@ -7538,7 +7538,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 肾病保险主页面--TDY
-.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory', 'insurance', 'Storage', '$filter', '$ionicPopup', function ($scope, $state, $ionicHistory, insurance, Storage, $filter, $ionicPopup) {
+.controller('insuranceCtrl', ['$scope', '$state', '$ionicHistory', 'insurance', 'Storage', '$filter', '$ionicPopup', 'Patient', function ($scope, $state, $ionicHistory, insurance, Storage, $filter, $ionicPopup, Patient) {
+  $scope.vip = false
+  var IsVip = function () {
+    Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
+      if (data.results.VIP == 1) {
+        $scope.vip = true
+        console.log("woshiVIP")
+      }}, function (err) {
+      console.log(err)
+    })
+  }
+  IsVip()
+
+
   var show = false
 
   $scope.isShown = function () {
@@ -7574,6 +7587,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'date': time.substr(0, 10)
     }
     insurance.setPrefer(temp).then(function (data) {
+      console.log(data.results)
       if (data.results == 'success') {
         $ionicPopup.show({
           title: '已收到您的保险意向，工作人员将尽快与您联系！',
