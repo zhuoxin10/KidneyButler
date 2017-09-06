@@ -1296,21 +1296,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
-            function (data) {
-                // console.log(data);
-              if (data.results.length) {
-                $scope.HasUnreadMessages = true
-                    // console.log($scope.HasUnreadMessages);
-              } else {
-                $scope.HasUnreadMessages = false
-              }
-            }, function (err) {
-      console.log(err)
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+           $interval.cancel(RefreshUnread)
+        }
+        console.log(err)
     })
   }
 
   $scope.$on('$ionicView.enter', function () {
     GetTasks()
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
@@ -2924,20 +2929,25 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var GetUnread = function () {
       // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: Number(0), userRole: 'patient'}).then(
-          function (data) {
-              // console.log(data);
-            if (data.results.length) {
-              $scope.HasUnreadMessages = true
-                  // console.log($scope.HasUnreadMessages);
-            } else {
-              $scope.HasUnreadMessages = false
-            }
-          }, function (err) {
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+       $interval.cancel(RefreshUnread)
+    }
       console.log(err)
     })
   }
 
   $scope.$on('$ionicView.enter', function () {
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
@@ -6548,15 +6558,19 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
-            function (data) {
-                // console.log(data);
-              if (data.results.length) {
-                $scope.HasUnreadMessages = true
-                    // console.log($scope.HasUnreadMessages);
-              } else {
-                $scope.HasUnreadMessages = false
-              }
-            }, function (err) {
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+          $interval.cancel(RefreshUnread)
+        }
       console.log(err)
     })
   }
@@ -6566,6 +6580,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // if (ionic.Platform.isIOS()) {
     //   $scope.mydocStyle = {'top': '95px'}
     // }
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
     RefreshUnread = $interval(GetUnread, 2000)
 
   })
@@ -8528,20 +8543,25 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var GetUnread = function () {
       // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
-          function (data) {
-              // console.log(data);
-            if (data.results.length) {
-              $scope.HasUnreadMessages = true
-                  // console.log($scope.HasUnreadMessages);
-            } else {
-              $scope.HasUnreadMessages = false
-            }
-          }, function (err) {
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+       $interval.cancel(RefreshUnread)
+    }
       console.log(err)
     })
   }
 
   $scope.$on('$ionicView.enter', function () {
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
     RefreshUnread = $interval(GetUnread, 2000)
   })
 
