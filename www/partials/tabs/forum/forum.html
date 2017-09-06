@@ -9,13 +9,13 @@
 
   <div class="bar bar-header item-input-inset text-center" style="padding:0;position:absolute;top:44px;height:38px;">
 
-            <a ng-class="{'high-light':params.allposts}" class="item col-33 " ng-click="Showallposts()">
+            <a ng-class="{'high-light':params.allposts}" class="item col-33 " style="padding-top: 2px;padding-bottom: 2px;border-top-width: 0px;border-bottom-width: 0px;" ng-click="Showallposts()">
                 <span>全部帖子</span>
             </a>
-            <a ng-class="{'high-light':params.myposts}" class="item col-33 " style="border-right:0px" ng-click="Showmyposts()">
+            <a ng-class="{'high-light':params.myposts}" class="item col-33 " style="border-right:0px;padding-top: 2px;padding-bottom: 2px;border-top-width: 0px;border-bottom-width: 0px;" ng-click="Showmyposts()">
                 <span>我的帖子</span>
             </a>
-            <a ng-class="{'high-light':params.mycollection}" class="item col-33 " style="border-right:0px" ng-click="Showmycollection()">
+            <a ng-class="{'high-light':params.mycollection}" class="item col-33 " style="border-right:0px;padding-top: 2px;padding-bottom: 2px;border-top-width: 0px;border-bottom-width: 0px;" ng-click="Showmycollection()">
                 <span>我的收藏</span>
             </a>
     </div>
@@ -61,14 +61,14 @@
                 </a>
            </div>
       </div>  
-      
+      <ion-infinite-scroll ng-if="moredata" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
     </div>
     <ion-infinite-scroll ng-if="moredata" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
 
 
     <div ng-if="params.myposts" class="list" style="margin-top: 38px;">
 
-      <div ng-repeat="item in myposts">
+      <div ng-repeat="item in posts1">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
                 <img style="margin-top: -6px" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px">{{item.sponsorName || item.sponsorId}}</span><i class="icon ion-trash-a" style="width: 5%;float: right;" ng-click="deletemyposts(item.postId)"></i><br/>
@@ -96,11 +96,13 @@
                 </a>
            </div>
       </div>  
-
+      <ion-infinite-scroll ng-if="moredata1" on-infinite="loadMore1()" distance="1%"></ion-infinite-scroll>
     </div>
+
+
     <div ng-if="params.mycollection" class="list" style="margin-top: 38px;">
 
-        <div ng-repeat="item in mycollection">
+        <div ng-repeat="item in posts2">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px;">
                 <img style="margin-top: -6px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
                 <img style="margin-top: -6px" ng-if = "(item.anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
@@ -130,7 +132,7 @@
                 </a>
            </div>
       </div>  
-
+      <ion-infinite-scroll ng-if="moredata2" on-infinite="loadMore2()" distance="1%"></ion-infinite-scroll>
     </div>
      
   </ion-content>
