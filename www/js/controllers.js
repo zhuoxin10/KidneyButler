@@ -3151,6 +3151,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        { text: '拍照' },
        { text: '从相册选择' }
      ],
+     cancelOnStateChange: true,
      // titleText: '上传头像',
      buttonClicked: function(index) {
       if(index===0){
