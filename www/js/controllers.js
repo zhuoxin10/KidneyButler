@@ -440,6 +440,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     } else if ($stateParams.phonevalidType == 'wechatsignin') {
       User.getUserID({username: Verify.Phone}).then(function (data) {
+        //questionMark
         if (data.results == 0 && data.roles.indexOf('patient') != -1) { // 导入的用户
           $scope.patientofimport = 1
           Storage.set('UID', data.AlluserId)
@@ -828,9 +829,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       if (data.results && data.results != '没有填写个人信息') {
-        if ($stateParams.last == 'mine') {
-          $scope.canEdit = false
-        }
         $scope.User = data.results
         // 避免最近就诊信息没填，上一步赋值造成lastVist未定义
         if (!data.results.lastVisit) {
@@ -863,9 +861,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // }, function (err) {
         //   console.log(err)
         // })
-      } else {
-        $scope.canEdit = true
-      }
+      } 
 
       /**
        * [从字典表获取疾病类型]
@@ -1282,9 +1278,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             function (data) {
                 console.log(data)
                 if(data.results[0]==undefined) {
-                  document.getElementById("newMes").innerText= "最新消息：无"
+                  $scope.newMes = "最新消息：无"
                 }else{
-                  document.getElementById("newMes").innerText= "最新消息："+data.results[0].description
+                  $scope.newMes= "最新消息："+data.results[0].description
                 }
             }, function (err) {
       console.log(err)
@@ -2980,6 +2976,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.GoMoney = function () {
     $state.go('tab.myMoney')
+  }
+
+  $scope.PaperCollection = function () {
+    $ionicLoading.show({
+      template: '程序猿正努力中，请耐心等待！',
+      duration:1500,
+      hideOnStateChange: true
+    })
   }
 
   $scope.SignOut = function () {
@@ -6990,39 +6994,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   var DoctorId = $stateParams.DoctorId
-  // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
-  $scope.$on('$ionicView.beforeEnter', function () {
-    Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      // console.log(data)
-      if (data.results) {
-        $scope.DisabledConsult = false
-      } else {
-        $scope.DisabledConsult = true
-        var unComPatPopup = $ionicPopup.show({
-          title: '温馨提示',
-          template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
-          buttons: [
-            {
-              text: '取消',
-              onTap: function (e) {
-                // e.preventDefault();
-              }
-            },
-            {
-              text: '确定',
-              type: 'button-calm',
-              onTap: function (e) {
-                $state.go('userdetail', {last: 'consult'})
-              }
-            }
-          ]
-        })
-      }
-    }, function (err) {
-      console.log(err)
-      $ionicLoading.show({template: '网络错误！', duration: 1000})
-    })
-  })
+  
 
   var IsDoctor =function (Doctor) {
     Service.isMyDoctors({doctorId:Doctor.userId}). then(
