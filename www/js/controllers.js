@@ -43,9 +43,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *          err
          */
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
-          // console.log(data)
+           console.log(data)
           if (data.results == 1) {
-            $scope.logStatus = '账号密码错误！'
+            if (data.mesg =="Alluser doesn't Exist!") {
+              $scope.logStatus = '账号不存在！'
+            } else if (data.mesg =="Alluser password isn't correct!") {
+              $scope.logStatus = '账号密码错误！'
+            }
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
             $ionicHistory.clearCache()
@@ -9067,7 +9071,7 @@ $scope.initial={
     $scope.closePopover()
   }
   $scope.choosePhotos = function () {
-    Camera.getPictureFromPhotos('gallery').then(function (data) {
+    Camera.getPictureFromPhotos('gallery', true).then(function (data) {
         // data里存的是图像的地址
         // console.log(data);
       var imgURI = data
