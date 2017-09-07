@@ -71,7 +71,7 @@
       </ion-item>
       <ion-item>
         <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>医生评价({{commentNum}}个）</span>
-        <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap" ng-if="!hasComment">暂无评论</p>
+        <p style="font-size: 14px;padding-left: 20px;margin-top: 5px;" class="item-text-wrap" ng-if="!hasComment">暂无评论</p>
         <div class="list" ng-repeat="comment in doctorComment" style="margin:6px,6px,6px,6px;border-bottom: solid 1px gray;">
           <div class="row">
             <span class="commentStyle">{{comment.patientId.phoneNo}}</span>

@@ -43,9 +43,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *          err
          */
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
-          // console.log(data)
+           console.log(data)
           if (data.results == 1) {
-            $scope.logStatus = '账号密码错误！'
+            if (data.mesg =="Alluser doesn't Exist!") {
+              $scope.logStatus = '账号不存在！'
+            } else if (data.mesg =="Alluser password isn't correct!") {
+              $scope.logStatus = '账号密码错误！'
+            }
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
             $ionicHistory.clearCache()
@@ -3504,7 +3508,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         loadWatcher()
         var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', readOrNot: 1})
+        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', userRole:'doctor', readOrNot: 1})
       }
     })
   })
@@ -3514,6 +3518,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
               $scope.counselstatus = data.result.status
@@ -3581,7 +3586,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', readOrNot: 1})
+      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', userRole:'doctor', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -3961,6 +3966,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
+    console.log($scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
@@ -7115,7 +7121,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (data.num<=5)
         $scope.moreComment = false
       else $scope.moreComment =true
-      if ($scope.dotorComment == []){
+      if (data.num==0){
         $scope.hasComment = false
         return
       }
@@ -9048,7 +9054,7 @@ $scope.initial={
     $scope.closePopover()
   }
   $scope.choosePhotos = function () {
-    Camera.getPictureFromPhotos('gallery').then(function (data) {
+    Camera.getPictureFromPhotos('gallery', true).then(function (data) {
         // data里存的是图像的地址
         // console.log(data);
       var imgURI = data
