@@ -3504,7 +3504,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         loadWatcher()
         var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', readOrNot: 1})
+        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', userRole:'doctor', readOrNot: 1})
       }
     })
   })
@@ -3514,6 +3514,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
               $scope.counselstatus = data.result.status
@@ -3581,7 +3582,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', readOrNot: 1})
+      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', userRole:'doctor', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -3961,6 +3962,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
+    console.log($scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
