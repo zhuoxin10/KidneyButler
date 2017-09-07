@@ -9,8 +9,8 @@
     <div class="list" style="margin-bottom: 0px;">
 
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
-                <img style="margin-top: -6px" ng-if = "!(anonymous)" ng-src="{{avatar || 'img/DefaultAvatar.jpg'}}">
-                <img style="margin-top: -6px" ng-if = "(anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "!(anonymous)" ng-src="{{avatar || 'img/DefaultAvatar.jpg'}}">
+                <img style="margin-top: -10px" ng-if = "(anonymous)" ng-src="{{'img/DefaultAvatar.jpg'}}">
                 <span style="font-size: 14px" ng-if = "!(anonymous)">{{name || sponsorId}}</span>
                 <span style="font-size: 14px" ng-if = "(anonymous)">匿名用户</span><br/>
                 <span style="font-size: 12px">{{time|dateFormat:"YYYY-MM-DD"}}</span>
