@@ -154,4 +154,9 @@ div.others{
 .greyIcon {
   color: #ddd
 }
+
+.paddContent {
+  padding-left: 13%;
+  padding-right: 13%;
+}
  

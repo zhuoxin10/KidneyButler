@@ -139,6 +139,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
 
   // ios 白屏可能问题配置
   $ionicConfigProvider.views.swipeBackEnabled(false)
+  $ionicConfigProvider.platform.android.navBar.alignTitle('center')
   // function checkForAuthenticatedUser () {
   //   return ['$state', 'Authentication', function ($state, Authentication) {
   //     console.log('i am here')

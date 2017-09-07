@@ -2,7 +2,7 @@
     <ion-nav-buttons side="right" >
             <button class="button button-clear" ng-click="GoToMessage() " head-red-point='HasUnreadMessages'><i class="icon iconfont icon-lingdang"></i></button>
     </ion-nav-buttons>
-    <ion-content class="padding">
+    <ion-content>
         <ion-refresher pulling-text="下拉刷新" spinner='ripple' refreshing-text="。。。" on-refresh="Refresh()">
         </ion-refresher>
 
@@ -14,8 +14,8 @@
             <button ng-click="CompleteUserdetail()" style="background-color: transparent;border: none;color: #6ac4f8">点击完善个人信息<i style="margin-left: 10px" class="icon iconfont ion-ios-redo"></i></button>
         </div>
 
-        <div class="bar bar-header item-input-inset text-center" style="padding:0;position:relative;height:38px;">
-           <a class="item col-100 ion-volume-high" id="newMes" style="border-right:0px;color: #feca42" ></a>
+        <div class="scroll-left">
+           <p class="ion-volume-high" style="color: #feca42;display: inline;" >{{newMes}}</p>
         </div>
 
         <div class="bar bar-header item-input-inset text-center" style="padding:0;position:relative;height:38px;">
