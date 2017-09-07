@@ -134,7 +134,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
        * @param    {[type]}
        * @return   code:string
        */
-    debugger
     var wxscope = 'snsapi_userinfo',
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
@@ -6061,7 +6060,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
             // return doctor;
   }
-  var latest = ''
   var Lastnews = function () {
     var receiver = Storage.get('UID')
     News.getNews({userId: receiver, type: 1}).then(
