@@ -442,7 +442,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       User.getUserID({username: Verify.Phone}).then(function (data) {
         if (data.results == 0 && data.roles.indexOf('patient') != -1) { // 导入的用户
           $scope.patientofimport = 1
-          Storage.set('UID', data.UserId)
+          Storage.set('UID', data.AlluserId)
         }
         sendSMS(Verify.Phone)
       }, function () {
@@ -6651,32 +6651,34 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log('destroy')
       $interval.cancel(RefreshUnread)
   })
+  var unComPatPopup = function(){
+    $ionicPopup.show({
+      title: '温馨提示',
+      template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
+      buttons: [
+        {
+          text: '取消',
+          onTap: function (e) {
+                            // e.preventDefault();
+          }
+        },
+        {
+          text: '确定',
+          type: 'button-calm',
+          onTap: function (e) {
+            $state.go('userdetail', {last: 'consult'})
+          }
+        }
+      ]
+    })}
+
     // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       // console.log(data)
       if (data.results == '没有填写个人信息') {
-        console.log('123')
         $scope.DisabledConsult = true
-        var unComPatPopup = $ionicPopup.show({
-          title: '温馨提示',
-          template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
-          buttons: [
-            {
-              text: '取消',
-              onTap: function (e) {
-                                // e.preventDefault();
-              }
-            },
-            {
-              text: '确定',
-              type: 'button-calm',
-              onTap: function (e) {
-                $state.go('userdetail', {last: 'consult'})
-              }
-            }
-          ]
-        })
+        unComPatPopup()
       } else {
         $scope.DisabledConsult = false
       }
@@ -6817,11 +6819,21 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.allDoctors = function () {
-    $state.go('tab.AllDoctors')
+    if($scope.DisabledConsult === true){
+        unComPatPopup()
+    }else{
+      $state.go('tab.AllDoctors')
+
+    }
     // $scope.loadMore()
   }
   $scope.consultRecord = function () {
-    $state.go('tab.myConsultRecord')
+    if($scope.DisabledConsult === true){
+      unComPatPopup()
+    }else{
+      $state.go('tab.myConsultRecord')
+
+    }
     // $scope.loadMore()
   }
   /**
