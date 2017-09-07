@@ -7131,7 +7131,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (data.num<=5)
         $scope.moreComment = false
       else $scope.moreComment =true
-      if ($scope.dotorComment == []){
+      if (data.num==0){
         $scope.hasComment = false
         return
       }
