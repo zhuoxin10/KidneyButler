@@ -3500,6 +3500,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
               $scope.counselstatus = data.result.status
@@ -3947,6 +3948,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
+    console.log($scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
