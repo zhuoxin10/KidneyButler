@@ -4315,7 +4315,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 点击显示大图
   $scope.zoomMin = 1
   $scope.imageUrl = ''
-  $scope.imageIndex = -1
+  // $scope.imageIndex = -1
   $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
     scope: $scope
   }).then(function (modal) {
@@ -4658,9 +4658,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var originalfilepath = CONFIG.imgLargeUrl + resizedpath.slice(resizedpath.lastIndexOf('/') + 1).substr(7)
     // console.log(originalfilepath)
     // $scope.doctorimgurl=originalfilepath;
-
     $scope.imageHandle.zoomTo(1, true)
     $scope.imageUrl = originalfilepath
+    $scope.imageIndex = $scope.Images.indexOf($scope.imageUrl)
     $scope.modal.show()
   }
   $scope.closeModal = function () {
@@ -7372,7 +7372,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         okText: '确认'
     }).then(function(res){
       if(res){
-        debugger
         Service.cancelAppointment({diagId: period.diagId}).then(function(data){
           $ionicLoading.show({
             template:'预约已取消',
