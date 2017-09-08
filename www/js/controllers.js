@@ -8843,6 +8843,9 @@ $scope.initial={
           Forum.deletefavorite(param).then(function (data) {
                         // console.log(data)
           tip.favoritesstatus = 0
+          pagecontrol2 = {skip: 0, limit: 10},
+          mycollection = []
+          $scope.loadMore2()
           }, function (err) {
             console.log(err)
           })
@@ -9105,7 +9108,6 @@ $scope.initial={
 }])
 
 .controller('postsdetailCtrl',  ['CONFIG', '$scope', '$state', 'Storage', '$ionicHistory', 'Forum', '$http', '$ionicPopup', '$timeout', '$ionicPopover', '$ionicModal','$ionicScrollDelegate', function (CONFIG, $scope, $state, Storage, $ionicHistory, Forum, $http, $ionicPopup, $timeout, $ionicPopover, $ionicModal, $ionicScrollDelegate)  {
-
 //----------------页面跳转------------------
   $scope.GoBack = function () {
     $state.go('tab.forum');
