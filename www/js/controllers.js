@@ -154,7 +154,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   results:{headimgurl：微信头像路径，unionid：string，}
          */
       Mywechat.getUserInfo({role: 'appPatient', code: response.code, state: ''}).then(function (persondata) {
-          // alert('getUserInfo:'+JSON.stringify(persondata));
+          alert('getUserInfo:'+JSON.stringify(persondata));
         Storage.set('wechatheadimgurl', persondata.results.headimgurl)
 
         $scope.unionid = persondata.results.unionid
