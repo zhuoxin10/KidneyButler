@@ -139,6 +139,7 @@ div.others{
 
 .myPageBar{
   background: transparent !important;
+  /*border:1px none #fff;*/
 }
 
 
@@ -156,7 +157,7 @@ div.others{
 }
 
 .paddContent {
-  padding-left: 13%;
-  padding-right: 13%;
+  padding-left: 12%;
+  padding-right: 12%;
 }
  

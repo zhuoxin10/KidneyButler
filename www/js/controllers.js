@@ -337,7 +337,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var unablebutton = function () {
      // 验证码BUTTON效果
     $scope.isable = true
-    $scope.veritext = '60S再次发送'
+    $scope.veritext = '60s'
     var time = 59
     var timer
     timer = $interval(function () {
@@ -347,7 +347,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.veritext = '获取验证码'
         $scope.isable = false
       } else {
-        $scope.veritext = time + 'S再次发送'
+        $scope.veritext = time + 's'
         time--
       }
     }, 1000)
