@@ -657,7 +657,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
                     // This makes it so that this request doesn't send the JWT
             skipAuthorization: true,
             method: 'GET',
-            timeout: 5000
+            timeout: 2000
           }).then(function (res) { // $http返回的值不同于$resource, 包含config等对象, 其中数据在res.data中
                      // console.log(res);
                     // sessionStorage.setItem('token', res.data.token);
