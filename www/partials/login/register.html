@@ -1,0 +1,76 @@
+<ion-view view-title="注册">
+    <ion-nav-buttons side="left">
+      <my-nav-back-button ng-click="$ionicGoBack()"></my-nav-back-button>
+    </ion-nav-buttons>
+    
+  <!-- <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 3px;background-color: #33cd5f;{{barwidth}}" ></div> -->
+  <ion-content class="paddContent">
+    <div style="text-align: center;margin-top:25px">
+      <img style="border-radius: 20%;width: 80px;height: 80px;" ng-src="img/app.png">
+      <p>肾事管家</p>
+    </div>
+    <form>
+      <div class="list" style="margin-bottom:0;margin-top: 30px">
+        <label class="item item-input green-edite-css">
+          <span class="input" style="margin-right:16px"><i class="icon ion-iphone ion-iphone1"></i></span>
+          <input type="tel" style="padding-right: 0px" ng-model="Verify.Phone" placeholder="请输入手机号" >
+          <button-clear-input input="Verify.Phone"></button-clear-input>
+        </label>
+        <label class="item item-input green-edite-css mg-10 ">
+          <span class="input" style="margin-right:16px"><i class="icon ion-key"></i></span>
+          <input type="password" style="padding-right: 0px" ng-model="Verify.Code" placeholder="请输入验证码" >
+          <button-clear-input input="Verify.Code"></button-clear-input>
+          <button item-right style="background-color: transparent;border-width: 0px 0px 0px 1px;border-color: #6ac4f8;">{{veritext}}</button>
+        </label>
+        <label class="item item-input green-edite-css mg-10">
+          <span class="input" style="margin-right:16px"><i class="icon ion-ios-locked-outline"></i></span>
+          <input type="password" placeholder="请输入6位以上密码" ng-model="setPassword.newPass">
+          <button-clear-input input="setPassword.newPass"></button-clear-input>
+
+        </label>
+        <label class="item item-input green-edite-css mg-10">
+          <span class="input" style="margin-right:16px"><i class="icon ion-ios-locked-outline"></i></span>
+          <input type="password" placeholder="请再次确认密码" ng-model="setPassword.confirm">
+          <button-clear-input input="setPassword.confirm"></button-clear-input>
+
+        </label>
+        <label class="item item-input green-edite-css mg-10">
+          <span class="input" style="margin-right:16px"><i class="icon ion-person"></i></span>
+          <input type="text" placeholder="请输入姓名" ng-model="setPassword.confirm">
+          <button-clear-input input="setPassword.confirm"></button-clear-input>
+
+        </label>
+         <!-- <div class="item item-checkbox" style="border: none;font-size: 12px;padding-left: 40px;padding-right:0px;color: #aaa;display: inline;background-color: transparent;">
+           <label class="checkbox">
+             <input type="checkbox" checked="">
+           </label>
+           我已阅读并同意
+        </div>
+        <a style="margin-top: 10px" href="#/agreeOrNot">《肾事管家协议》</a> -->
+
+        <div  style="border: none;font-size: 12px;background-color: transparent;padding: 0px 5px 0px 5px;text-align: center;">
+           <label class="checkbox" style="padding: 0px;top: 4px;">
+             <input type="checkbox" checked="">
+           </label>
+            <p style="display: inline;color: #aaa;">我已阅读并同意<a  href="#/agreeOrNot">《肾事管家协议》</a></p>
+        </div>
+       
+      </div>
+
+     
+      <!-- <button  style="margin-top:30px" class="button button-block button-stable green-bg font-white" ng-disabled="isable"  ng-click = "getcode(Verify)">
+        {{veritext}}
+      </button> -->
+
+      <button  style="margin-top:10px" class="button roundBtn" type="submit" ng-click ="gotoReset(Verify)">
+         立即注册
+      </button>
+    </form> 
+    <p style="color:#B8B8B8;text-align: center;">{{logStatus}}</p>
+
+
+
+
+
+  </ion-content>
+</ion-view>

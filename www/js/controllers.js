@@ -320,7 +320,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
   }
 }])
+.controller('registerCtrl', ['$stateParams', '$scope', '$timeout', '$state', 'Storage',  function ($stateParams, $scope, $timeout, $state, Storage) {
 
+}])
 // 手机号码验证--PXY
 .controller('phonevalidCtrl', ['$scope', '$state', '$interval', '$stateParams', 'Storage', 'User', '$timeout', function ($scope, $state, $interval, $stateParams, Storage, User, $timeout) {
   // Storage.set("personalinfobackstate","register")

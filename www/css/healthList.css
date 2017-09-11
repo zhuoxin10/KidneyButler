@@ -46,7 +46,7 @@
 }
 
 
-#healthCheck.checkbox input:checked:before, .checkbox input:checked + .checkbox-icon:before {
+.checkbox input:checked:before, .checkbox input:checked + .checkbox-icon:before {
     background: #6ac4f8;
     border-color: #6ac4f8;
 }
@@ -161,3 +161,10 @@ div.others{
   padding-right: 12%;
 }
  
+#agreement >p {
+  text-indent: 2em
+}
+#agreement >h4 {
+  color: #6ac4f8;
+  font-size: 16px;
+}
