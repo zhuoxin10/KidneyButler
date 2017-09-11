@@ -49,6 +49,22 @@ angular.module('kidney.directives', ['kidney.services'])
     }
   }
 }])
+
+.directive('multilineText', [function () {
+  return {
+    // template: '<div ng-include="getTemplateUrl()"></div>'
+    // template: '<div class="media-text">{{multilineText}}</div>',
+    scope: {
+      multilineText: '=info'
+    },
+    restrict: 'AE',
+    link: function (scope, elem) {
+      scope.multilineText = scope.multilineText.replace(/ /g, '&nbsp;')
+      elem[0].innerHTML = scope.multilineText.replace(/\n/g, '<br/>')
+      // scope.multilineText = scope.multilineText.replace(/\n/g, '<br/>')
+    }
+  }
+}])
 // .directive('myMessage',['Storage','CONFIG',function(Storage,CONFIG){
 //     var picArr=[
 //                 {"src":"img/1.jpg","hiRes":"img/2.jpg"},

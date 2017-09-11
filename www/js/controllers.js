@@ -444,9 +444,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     } else if ($stateParams.phonevalidType == 'wechatsignin') {
       User.getUserID({username: Verify.Phone}).then(function (data) {
+        //questionMark
         if (data.results == 0 && data.roles.indexOf('patient') != -1) { // 导入的用户
           $scope.patientofimport = 1
-          Storage.set('UID', data.UserId)
+          Storage.set('UID', data.AlluserId)
         }
         sendSMS(Verify.Phone)
       }, function () {
@@ -832,9 +833,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       if (data.results && data.results != '没有填写个人信息') {
-        if ($stateParams.last == 'mine') {
-          $scope.canEdit = false
-        }
         $scope.User = data.results
         // 避免最近就诊信息没填，上一步赋值造成lastVist未定义
         if (!data.results.lastVisit) {
@@ -867,9 +865,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // }, function (err) {
         //   console.log(err)
         // })
-      } else {
-        $scope.canEdit = true
-      }
+      } 
 
       /**
        * [从字典表获取疾病类型]
@@ -1268,10 +1264,18 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 任务列表--GL
-.controller('tasklistCtrl', ['$interval', 'News', 'otherTask', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', function ($interval, News, otherTask, $scope, $timeout, $state, Storage, $ionicHistory, $ionicPopup, $ionicModal, Compliance, $window, Task, Patient, VitalSign) {
+.controller('tasklistCtrl', ['$interval', 'News', 'otherTask', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', '$ionicPopup', '$ionicModal', 'Compliance', '$window', 'Task', 'Patient', 'VitalSign', '$ionicLoading', function ($interval, News, otherTask, $scope, $timeout, $state, Storage, $ionicHistory, $ionicPopup, $ionicModal, Compliance, $window, Task, Patient, VitalSign, $ionicLoading) {
   $scope.goinsurance = function () {
     $state.go('insurance')
   }
+  $scope.GoReport = function () {
+    if($scope.unCompleted==false){
+      $state.go('tab.Reports')
+    }
+    else{
+         $ionicLoading.show({template: '请您先在个人信息中完善用户信息', duration: 1000})
+      }
+    }
   // 初始化
   var UserId = Storage.get('UID')
     // UserId = "Test13"; //
@@ -1286,9 +1290,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             function (data) {
                 console.log(data)
                 if(data.results[0]==undefined) {
-                  document.getElementById("newMes").innerText= "最新消息：无"
+                  $scope.newMes = "最新消息：无"
                 }else{
-                  document.getElementById("newMes").innerText= "最新消息："+data.results[0].description
+                  $scope.newMes= "最新消息："+data.results[0].description
                 }
             }, function (err) {
       console.log(err)
@@ -2986,6 +2990,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $state.go('tab.myMoney')
   }
 
+  $scope.PaperCollection = function () {
+    $ionicLoading.show({
+      template: '程序猿正努力中，请耐心等待！',
+      duration:1500,
+      hideOnStateChange: true
+    })
+  }
+
   $scope.SignOut = function () {
     $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
     var myPopup = $ionicPopup.show({
@@ -3504,7 +3516,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         loadWatcher()
         var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', readOrNot: 1})
+        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', userRole:'doctor', readOrNot: 1})
       }
     })
   })
@@ -3514,6 +3526,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
               $scope.counselstatus = data.result.status
@@ -3581,7 +3594,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', readOrNot: 1})
+      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', userRole:'doctor', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -3961,6 +3974,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
+    console.log($scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
@@ -4309,7 +4323,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 点击显示大图
   $scope.zoomMin = 1
   $scope.imageUrl = ''
-  $scope.imageIndex = -1
+  // $scope.imageIndex = -1
   $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
     scope: $scope
   }).then(function (modal) {
@@ -4652,9 +4666,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var originalfilepath = CONFIG.imgLargeUrl + resizedpath.slice(resizedpath.lastIndexOf('/') + 1).substr(7)
     // console.log(originalfilepath)
     // $scope.doctorimgurl=originalfilepath;
-
     $scope.imageHandle.zoomTo(1, true)
     $scope.imageUrl = originalfilepath
+    $scope.imageIndex = $scope.Images.indexOf($scope.imageUrl)
     $scope.modal.show()
   }
   $scope.closeModal = function () {
@@ -4745,6 +4759,20 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // 测量记录
 .controller('ReportsCtrl', ['$scope', 'Measurement','Storage','$ionicHistory', '$ionicLoading', '$ionicPopup', '$state', '$http', function($scope, Measurement, Storage, $ionicHistory, $ionicLoading, $ionicPopup, $state, $http){
+   //加载动作
+  $scope.$on('$ionicView.beforeEnter', function () {
+    $ionicLoading.show({  
+            template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
+            duration: 1800
+        });  
+  })
+  var switchLoading = function(){
+    $ionicLoading.show({  
+            template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
+            duration: 1000
+        })
+  }
+
   $scope.Goback = function () {
     $ionicHistory.goBack() 
     }
@@ -4763,7 +4791,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.flagWeight = true
         $scope.flagHR = true
         $scope.flagVol = true
-        $scope.comments = false
         //体温
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
          function(data){
@@ -4802,15 +4829,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                       }})
                   }
                         else{
-                        $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
                         $scope.flagT = vitalsign.flag.flagT
                         ChartData = vitalsign.item.data1
                         ChartTime = vitalsign.item.recordTime
@@ -4822,17 +4840,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                               chart: {
                               borderRadius:5,//图表边框圆角角度  
                               shadow:true,//是否设置阴影  
-                              zoomType:'x',
-                              events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }},
-                              }, 
+                              zoomType:'x',                            
+                            }, 
                             colors:[       
                               '#FF8040',
                               '#66B3FF',
@@ -4905,16 +4914,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  x: 0,
                  y: 20,
                   }})}
-                     else{
-                        $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
+                     else{                      
                     $scope.flagWeight = vitalsign.flag.flagWeight
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
@@ -4927,15 +4927,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
                           zoomType:'x',
-                           events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5011,15 +5002,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
-                        $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
                     $scope.flagBP = vitalsign.flag.flagBP
                     ChartData = vitalsign.item.data1
                     ChartData2 = vitalsign.item.data2
@@ -5032,16 +5014,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
-                           events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
+                          zoomType:'x',                         
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5120,15 +5093,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
-                       $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
                    $scope.flagVol = vitalsign.flag.flagVol
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
@@ -5141,15 +5105,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
                           zoomType:'x',
-                           events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5224,15 +5179,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
-                       $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
                     $scope.flagHR = vitalsign.flag.flagHR
                     ChartData = vitalsign.item.data1
                     ChartTime = vitalsign.item.recordTime
@@ -5245,15 +5191,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
                           zoomType:'x',
-                           events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5328,15 +5265,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  y: 20,
                   }})}
                      else{
-                       $scope.comments = true 
-                        var DocReport = "无"
-                        var DocComment = "无"
-                        if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                          DocReport = vitalsign.doctorReport
-                        }
-                        if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                          DocComment = vitalsign.doctorComment
-                        }
                     $scope.flagPD = vitalsign.flag.flagPD
                     ChartData1 = vitalsign.item.data1
                     ChartData2 = vitalsign.item.data2
@@ -5350,15 +5278,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
                           zoomType:'x',
-                           events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5475,15 +5394,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }   
                 })
                }else{
-                $scope.comments = true 
-                var DocReport = "无"
-                var DocComment = "无"
-                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                  DocReport = vitalsign.doctorReport
-                }
-                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                  DocComment = vitalsign.doctorComment
-                }
                 ChartData1 = vitalsign.results.item.data1
                 ChartTime1 = vitalsign.results.item.recordTime
                 for(i=0; i<ChartTime1.length; i++){
@@ -5495,15 +5405,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
                         zoomType:'x',
-                        events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                     }, 
                     colors:[       
                         '#FF8040',
@@ -5563,15 +5464,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }   
                 })
             }else{
-               $scope.comments = true 
-                var DocReport = "无"
-                var DocComment = "无"
-                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                  DocReport = vitalsign.doctorReport
-                }
-                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                  DocComment = vitalsign.doctorComment
-                }
                 ChartData2 = vitalsign.results.item.data2
                 ChartTime2 = vitalsign.results.item.recordTime2
                 for(i=0; i<ChartTime2.length; i++){
@@ -5583,15 +5475,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         borderRadius:5,//图表边框圆角角度                    
                         shadow:true,//是否设置阴影  
                         zoomType:'x',
-                        events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                     }, 
                     colors:[       
                         '#FF8040',
@@ -5648,15 +5531,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }   
                 })
             }else{
-               $scope.comments = true 
-                var DocReport = "无"
-                var DocComment = "无"
-                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                  DocReport = vitalsign.doctorReport
-                }
-                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                  DocComment = vitalsign.doctorComment
-                }
                 ChartData3 = vitalsign.results.item.data3
                 ChartTime3 = vitalsign.results.item.recordTime3
                 for(i=0; i<ChartTime3.length; i++){
@@ -5668,15 +5542,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
                         zoomType:'x',
-                        events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                     }, 
                     colors:[       
                         '#FF8040',
@@ -5733,15 +5598,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }   
                 })
             }else{
-               $scope.comments = true 
-                var DocReport = "无"
-                var DocComment = "无"
-                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                  DocReport = vitalsign.doctorReport
-                }
-                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                  DocComment = vitalsign.doctorComment
-                }
                 ChartData4 = vitalsign.results.item.data4
                 ChartTime4 = vitalsign.results.item.recordTime4
                 for(i=0; i<ChartTime4.length; i++){
@@ -5753,15 +5609,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         borderRadius:5,//图表边框圆角角度                         
                         shadow:true,//是否设置阴影  
                         zoomType:'x',
-                        events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                     }, 
                     colors:[       
                         '#FF8040',
@@ -5818,15 +5665,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     }   
                 })
             }else{
-               $scope.comments = true 
-                var DocReport = "无"
-                var DocComment = "无"
-                if ((vitalsign.doctorReport!=undefined)&&(vitalsign.doctorReport!="")){
-                  DocReport = vitalsign.doctorReport
-                }
-                if (vitalsign.doctorComment!=undefined&&(vitalsign.doctorComment!="")){
-                  DocComment = vitalsign.doctorComment
-                }
                 ChartData5 = vitalsign.results.item.data5
                 ChartTime5 = vitalsign.results.item.recordTime5
                 for(i=0; i<ChartTime5.length; i++){
@@ -5838,15 +5676,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         borderRadius:5,
                         shadow:true,//是否设置阴影  
                         zoomType:'x',
-                        events: {
-                                click: function(e) {
-                                  $ionicPopup.alert({
-                                    title: '医生评论&医生报告',
-                                    template: "医生评论："+DocComment+"； 医生报告："+DocReport,
-                                    okText: '关闭',
-                                  }).then(function (res) {
-                                        })
-                                      }}
                     }, 
                     colors:[       
                         '#FF8040',
@@ -5897,7 +5726,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             }
           },function(err){
         })
-    }
+  }
   var ShowTime = function(date,modify,timeType){
     if(modify==0){
       if(timeType=="week"){
@@ -5915,13 +5744,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
           function(data){
             if(data.results=="不存在该段时间的报告!"){
-               document.getElementById('middle').innerText = "无数据"
+              var week1 = data.startTime
+              var week2 = data.endTime
+              week1 = week1.substring(0,10)
+              week2 = week2.substring(0,10)
+              document.getElementById('middle').innerText = week1+" "+week2
             }else{
               var week1 = data.results.startTime
               var week2 = data.results.endTime
               week1 = week1.substring(0,10)
               week2 = week2.substring(0,10)
-              document.getElementById('middle').innerText = week1+"-"+week2
+              document.getElementById('middle').innerText = week1+" "+week2
             }},function(err){
           })
     }
@@ -5930,13 +5763,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
           function(data){
             if(data.results=="不存在该段时间的报告!"){
-                document.getElementById('middle').innerText = "无数据"
+                var month = data.time
+                   month1 = month.substring(0,4)
+                   month2 = month.substring(4,6)
+                  document.getElementById('middle').innerText = month1+"年"+month2+"月"
                }else{
-            var month = data.results.item.time
-             month1 = month.substring(0,4)
-             month2 = month.substring(4,6)
-            document.getElementById('middle').innerText = month1+"年"+month2+"月"
-            }},function(err){
+                  var month = data.results.item.time
+                   month1 = month.substring(0,4)
+                   month2 = month.substring(4,6)
+                  document.getElementById('middle').innerText = month1+"年"+month2+"月"
+                  }},function(err){
           })
     }
     //季
@@ -5944,12 +5780,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
           function(data){
            if(data.results=="不存在该段时间的报告!"){
-                document.getElementById('middle').innerText = "无数据"
+                  var season = data.time
+                   season1 = season.substring(0,4)
+                   season2 = season.substring(5,6)
+                   document.getElementById('middle').innerText = season1+"年第"+season2+"季"
                }else{
-            var season = data.results.item.time
-             season1 = season.substring(0,4)
-             season2 = season.substring(5,6)
-             document.getElementById('middle').innerText = season1+"年第"+season2+"季"
+                  var season = data.results.item.time
+                   season1 = season.substring(0,4)
+                   season2 = season.substring(5,6)
+                   document.getElementById('middle').innerText = season1+"年第"+season2+"季"
             }},function(err){
           })
     }
@@ -5958,15 +5797,236 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
           function(data){
            if(data.results=="不存在该段时间的报告!"){
-                document.getElementById('middle').innerText = "无数据"
+                var year = data.time
+                document.getElementById('middle').innerText = year+"年"
                }else{
             var year = data.results.item.time
             document.getElementById('middle').innerText = year+"年"
           }},function(err){
           })
-    }
-  }}
+    }}
+  }
+  var DoctorWord = function(date,modify,timeType){
+    // 医生建议
+        //体温
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+          console.log(vitalsign)
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.tw = false
+               }else if(vitalsign.item.recommendValue1==''){
+                   $scope.tw = true
+                   $scope.tw1 = "医生建议：无"
+                  }else {
+                    $scope.tw = true    
+                    $scope.tw1 = "医生建议：体温高于"+ vitalsign.item.recommendValue1 +"℃为发热。" 
+            } },function(err){
+        })
+        //体重
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Weight", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.tz = false
+                }else if(vitalsign.item.recommendValue11==null){
+                   $scope.tz = true
+                   $scope.tz1 = "医生建议：无"
+                  }else {
+                    $scope.tz = true
+                    $scope.tz1 = "医生建议：体重控制在"+ vitalsign.item.recommendValue11 +"Kg到"+ vitalsign.item.recommendValue12 +"Kg之间。" 
+            } },function(err){
+        })
+        //血压
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "BloodPressure", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.xy = false
+                }else if(vitalsign.item.recommendValue11==null){
+                   $scope.xy = true
+                   $scope.xy1 = "医生建议：无"
+                  }else {
+                    $scope.xy = true
+                    $scope.xy1 = "医生建议：收缩压控制在"+ vitalsign.item.recommendValue11 +"mmHg到"+ vitalsign.item.recommendValue12 +"mmHg之间；舒张压控制在" +vitalsign.item.recommendValue13 +"mmHg到"+ vitalsign.item.recommendValue14 +"mmHg之间。"
+            } },function(err){
+        })
+        //尿量
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Vol", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+          console.log(vitalsign)
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.nl = false
+               }else if(vitalsign.item.recommendValue1==''){
+                   $scope.nl = true
+                   $scope.nl1 = "医生建议：无"
+                  }else {
+                    $scope.nl = true    
+                    $scope.nl1 = "医生建议：少尿为小于"+ vitalsign.item.recommendValue1 +"mL(腹透、血透病人除外)。" 
+            } },function(err){
+        })
+         //心率
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "HeartRate", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.xl = false
+                }else if(vitalsign.item.recommendValue11==null){
+                   $scope.xl = true
+                   $scope.xl1 = "医生建议：无"
+                  }else {
+                    $scope.xl = true
+                    $scope.xl1 = "医生建议：心率控制在"+ vitalsign.item.recommendValue11 +"次/分钟到"+ vitalsign.item.recommendValue12 +"次/分钟之间。" 
+            } },function(err){
+        })
+        //腹透
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "PeritonealDialysis", showType: timeType, modify:modify-1}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.ft = false
+                }else if(vitalsign.item.recommendValue11==null){
+                   $scope.ft = true
+                   $scope.ft1 = "医生建议：无"
+                  }else {
+                    $scope.ft = true
+                    $scope.ft1 = "医生建议：超滤量控制在"+ vitalsign.item.recommendValue11 +"mL到"+ vitalsign.item.recommendValue12 +"mL之间。" 
+            } },function(err){
+        })
+    //化验
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "LabTest", showType: timeType, modify:modify}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.hy = false
+               }else if(modify==0){
+                   $scope.hy = false
+                  }else if (vitalsign.doctorReport=='') {
+                    $scope.hy = true
+                    $scope.hy1 = "化验：无。" 
+                  }else {
+                    $scope.hy = true    
+                    $scope.hy1 = "化验："+ vitalsign.doctorReport +"。" 
+            } },function(err){
+        })
+    //医生报告
+        Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "DoctorReport", showType: timeType, modify:modify}).then(
+         function(data){
+          var vitalsign = data.results
+             if(vitalsign=="不存在该段时间的报告!"){
+                 $scope.bg = false
+               }else if(modify==0){
+                   $scope.bg = false
+                  }else if (vitalsign.doctorReport=='') {
+                    $scope.bg = true
+                    $scope.bg1 = "医生报告：无" 
+                  }else {
+                    $scope.bg = true    
+                    $scope.bg1= "医生报告："+ vitalsign.doctorReport +"。" 
+            } },function(err){
+        })
+    // 医生评论（comment）
+          //体温
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Temperature", showType: timeType, modify:modify}).then(
+            function(data){
+              var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_tw = false
+                   }else if(modify==0){
+                       $scope.pl_tw = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_tw = true
+                        $scope.tw2 = "医生小结：无" 
+                      }else {
+                        $scope.pl_tw = true 
+                        $scope.tw2 = "医生小结："+ vitalsign.doctorComment +"。" 
+                } },function(err){
+            })
+          //体重
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Weight", showType: timeType, modify:modify}).then(
+           function(data){
+               var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_tz = false
+                   }else if(modify==0){
+                       $scope.pl_tz = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_tz = true
+                        $scope.tz2 = "医生小结：无。" 
+                      }else {
+                        $scope.pl_tw = true 
+                        $scope.tz2 = "医生小结："+ vitalsign.doctorComment +"。" 
+             }},function(err){
+          })
+          //血压
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "BloodPressure", showType: timeType, modify:modify}).then(
+           function(data){
+               var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_xy = false
+                   }else if(modify==0){
+                       $scope.pl_xy = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_xy = true
+                        $scope.xy2 = "医生小结：无。" 
+                      }else {
+                        $scope.pl_xy = true 
+                        $scope.xy2 = "医生小结："+ vitalsign.doctorComment +"。" 
+             }},function(err){
+          })
+          //尿量
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "Vol", showType: timeType, modify:modify}).then(
+           function(data){
+            var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_nl = false
+                   }else if(modify==0){
+                       $scope.pl_nl = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_nl = true
+                        $scope.nl2 = "医生小结：无。" 
+                      }else {
+                        $scope.pl_nl = true 
+                        $scope.nl2 = "医生小结："+ vitalsign.doctorComment +"。" 
+             }},function(err){
+          })
+           //心率
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "HeartRate", showType: timeType, modify:modify}).then(
+           function(data){
+            var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_xl = false
+                   }else if(modify==0){
+                       $scope.pl_xl = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_xl = true
+                        $scope.xl2 = "医生小结：无。" 
+                      }else {
+                        $scope.pl_xl = true 
+                        $scope.xl2 = "医生小结："+ vitalsign.doctorComment +"。" 
+             }},function(err){
+          })
+          //腹透
+          Measurement.getPatientSign({token:Storage.get('TOKEN'), time: date, type: "Measure", code: "PeritonealDialysis", showType: timeType, modify:modify}).then(
+           function(data){
+            var vitalsign = data.results
+                 if(vitalsign=="不存在该段时间的报告!"){
+                     $scope.pl_ft = false
+                   }else if(modify==0){
+                       $scope.pl_ft = false
+                      }else if (vitalsign.doctorComment=='') {
+                        $scope.pl_ft = true
+                        $scope.ft2 = "医生小结：无。" 
+                      }else {
+                        $scope.pl_ft = true 
+                        $scope.ft2 = "医生小结："+ vitalsign.doctorComment +"。" 
+             }},function(err){
+          })
+
+  }
   $scope.toWeekReports = function(){
+      switchLoading()
       $scope.modify=0
       if ($scope.type){
         document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
@@ -5979,8 +6039,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var timeType = "week"
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toMonthReports = function(){
+      switchLoading()
       $scope.modify=0
       if ($scope.type){
         document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
@@ -5993,8 +6055,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var timeType = "month"
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toSeasonReports = function(){
+      switchLoading()
       $scope.modify=0
       if ($scope.type){
         document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
@@ -6007,8 +6071,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var timeType = "season"
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toYearReports = function(){
+      switchLoading()
       $scope.modify=0
       if ($scope.type){
         document.getElementById($scope.type).style.backgroundColor = "#FFFFFF"
@@ -6021,8 +6087,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         var timeType = "year"
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
   }
   $scope.next = function(){
+      switchLoading()
       var date = new Date()
       $scope.modify+=1
       var timeType = $scope.type
@@ -6034,18 +6102,22 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.modify=0
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
       }else{
         Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        DoctorWord(date,$scope.modify,timeType)
       }
   }
   $scope.last = function(){
+      switchLoading()
       var date = new Date()
       $scope.modify-=1
       var timeType = $scope.type
       console.log(timeType)
       Painting(date,$scope.modify,timeType)
       ShowTime(date,$scope.modify,timeType)
+      DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toWeekReports()
 }])
@@ -6655,32 +6727,34 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log('destroy')
       $interval.cancel(RefreshUnread)
   })
+  var unComPatPopup = function(){
+    $ionicPopup.show({
+      title: '温馨提示',
+      template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
+      buttons: [
+        {
+          text: '取消',
+          onTap: function (e) {
+                            // e.preventDefault();
+          }
+        },
+        {
+          text: '确定',
+          type: 'button-calm',
+          onTap: function (e) {
+            $state.go('userdetail', {last: 'consult'})
+          }
+        }
+      ]
+    })}
+
     // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       // console.log(data)
       if (data.results == '没有填写个人信息') {
-        console.log('123')
         $scope.DisabledConsult = true
-        var unComPatPopup = $ionicPopup.show({
-          title: '温馨提示',
-          template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
-          buttons: [
-            {
-              text: '取消',
-              onTap: function (e) {
-                                // e.preventDefault();
-              }
-            },
-            {
-              text: '确定',
-              type: 'button-calm',
-              onTap: function (e) {
-                $state.go('userdetail', {last: 'consult'})
-              }
-            }
-          ]
-        })
+        unComPatPopup()
       } else {
         $scope.DisabledConsult = false
       }
@@ -6821,11 +6895,21 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.allDoctors = function () {
-    $state.go('tab.AllDoctors')
+    if($scope.DisabledConsult === true){
+        unComPatPopup()
+    }else{
+      $state.go('tab.AllDoctors')
+
+    }
     // $scope.loadMore()
   }
   $scope.consultRecord = function () {
-    $state.go('tab.myConsultRecord')
+    if($scope.DisabledConsult === true){
+      unComPatPopup()
+    }else{
+      $state.go('tab.myConsultRecord')
+
+    }
     // $scope.loadMore()
   }
   /**
@@ -6982,39 +7066,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   var DoctorId = $stateParams.DoctorId
-  // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
-  $scope.$on('$ionicView.beforeEnter', function () {
-    Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      // console.log(data)
-      if (data.results) {
-        $scope.DisabledConsult = false
-      } else {
-        $scope.DisabledConsult = true
-        var unComPatPopup = $ionicPopup.show({
-          title: '温馨提示',
-          template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
-          buttons: [
-            {
-              text: '取消',
-              onTap: function (e) {
-                // e.preventDefault();
-              }
-            },
-            {
-              text: '确定',
-              type: 'button-calm',
-              onTap: function (e) {
-                $state.go('userdetail', {last: 'consult'})
-              }
-            }
-          ]
-        })
-      }
-    }, function (err) {
-      console.log(err)
-      $ionicLoading.show({template: '网络错误！', duration: 1000})
-    })
-  })
+  
 
   var IsDoctor =function (Doctor) {
     Service.isMyDoctors({doctorId:Doctor.userId}). then(
@@ -7386,7 +7438,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         okText: '确认'
     }).then(function(res){
       if(res){
-        debugger
         Service.cancelAppointment({diagId: period.diagId}).then(function(data){
           $ionicLoading.show({
             template:'预约已取消',

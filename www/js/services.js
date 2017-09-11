@@ -37,7 +37,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   urineConnectUrl: 'http://docker2.haihonghospitalmanagement.com/',
   mediaUrl: 'http://df2.haihonghospitalmanagement.com/',
   // mediaUrl: 'http://121.43.107.106:8054/',
-  socketServer: 'http://docker2.haihonghospitalmanagement.com/chat',
+  socketServer: 'http://docker2.haihonghospitalmanagement.com/',
   imgThumbUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/resize',
   imgLargeUrl: 'http://df2.haihonghospitalmanagement.com/uploads/photos/',
   //
@@ -2557,6 +2557,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     if (userId == '') return
     var n = name || ''
     socket.emit('newUser', { user_name: n, user_id: userId, client: 'patient'})
+    console.log('newuser')
   }
   return {
     newUser: function (userId, name) {
@@ -2592,6 +2593,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 .factory('socket', ['$rootScope', 'socketFactory', 'CONFIG', function ($rootScope, socketFactory, CONFIG) {
   var myIoSocket = io.connect(CONFIG.socketServer + 'chat')
+  console.log(myIoSocket)
   var mySocket = socketFactory({
     ioSocket: myIoSocket,
     prefix: 'im:'
@@ -3128,9 +3130,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           }
                           socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          setTimeout(function () {
-                            $state.go('tab.consult-chat', {chatId: DoctorId})
-                          }, 500)
+                          $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
                           console.log(err)
                         })
@@ -3183,9 +3183,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           }
                           socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          setTimeout(function () {
-                            $state.go('tab.consult-chat', {chatId: DoctorId})
-                          }, 500)
+                          $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
                           console.log(err)
                         })
@@ -3383,18 +3381,20 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    */
     Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')}).then(function (data) {
       // alert(121212)
-        // zxf 判断条件重写
-      console.log(data)
+      // zxf 判断条件重写
+      debugger
       if (self.consultable == 1) {
         self.consultable = 0
-        if (data.result != '请填写咨询问卷!' && data.result.status == 1) { // 有尚未完成的咨询或者问诊
+        if (data.result != '请填写咨询问卷!' && data.result.status == 1) {
+          // 有尚未完成的咨询或者问诊
           if (data.result.type == 1) { // 咨询转加急咨询
             $ionicPopup.confirm({
               title: '问诊确认',
-              template: '您有尚未结束的咨询，补齐差价可升级为加急咨询，升级为积极咨询后医生会在2小时内回答，如超过2小时医生未作答，本次咨询关闭，且不收取费用。确认付费升级为加急咨询？',
+              template: '您有尚未结束的咨询，补齐差价可升级为加急咨询，升级为加急咨询后医生会在2小时内回答，如超过2小时医生未作答，本次咨询关闭，且不收取费用。确认付费升级为加急咨询？',
               okText: '确认',
               cancelText: '取消'
             }).then(function (res) {
+              debugger
               self.consultable = 1
               if (res) {
                 ionicLoadingshow()
@@ -3467,9 +3467,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           }
                           socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          setTimeout(function () {
-                            $state.go('tab.consult-chat', {chatId: DoctorId})
-                          }, 500)
+                          $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
                           console.log(err)
                         })
@@ -3498,8 +3496,10 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @return   {[type]}
                      */
                       Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type7'}).then(function (data) {
+                        alert('changeType' + JSON.stringify(data))
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
-                          // console.log(data)
+                          alert('modifyCounts' + JSON.stringify(data))
+
                           var msgJson = {
                             clientType: 'app',
                             contentType: 'custom',
@@ -3522,13 +3522,16 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           }
                           socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          setTimeout(function () {
-                            $state.go('tab.consult-chat', {chatId: DoctorId})
-                          }, 500)
+
+                          $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
+                          alert('modifyCountsERROR' + JSON.stringify(data))
+
                           console.log(err)
                         })
                       }, function (err) {
+                        alert('changeTypeERROR' + JSON.stringify(data))
+
                         console.log(err)
                       })
                     }, function (reason) {
@@ -3545,6 +3548,9 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       }
                     })
                   }
+                }, function (err) {
+                  ionicLoadinghide()
+                  console.log('addOrder' + err)
                 })
               }
             })

@@ -1,5 +1,5 @@
 <!-- 任务视图中的列表-tab -->
-<ion-view cache-view="false" view-title='个人中心' show-tabs>
+<ion-view cache-view="false" title='个人中心' show-tabs>
   <ion-nav-bar class="bar myPageBar">
     <ion-nav-buttons side="right" >
         <button class="button button-clear" style="color:#fff" ng-click="GoToMessage() " head-red-point='HasUnreadMessages'><i class="icon iconfont icon-lingdang"></i></button>
@@ -9,7 +9,7 @@
     <ion-content class="bg-f5" style="background-color: #eee;position:absolute;top:0px">
       <div class="my-down-bg">
         <ion-item class="item-avatar myPageBar" style="border:none;top:44px">
-          <img style="top: 10px" ng-src="{{myAvatar || 'img/DefaultAvatar.jpg'}}" name="Photo" ng-click="onClickCamera($event)">
+          <img style="top: 15px" ng-src="{{myAvatar || 'img/DefaultAvatar.jpg'}}" name="Photo" ng-click="onClickCamera($event)">
           <h2 style="color: #fff">{{myName}}</h2>
           <p style="color: #fff">用户名：{{myPhone}}</p>
           <a href="#/tab/mine/qrcode/"><i class="me-code iconfont icon-erweima"></i>
@@ -22,7 +22,7 @@
       <div class="myBtnBar button-bar">
         <a class="button button-small icon ion-card" ng-click="GoUserDetail()"><br>个人信息</a>
         <a class="button button-small icon ion-ios-cart-outline" ng-click="GoMoney()"><br>增值服务</a>
-        <a class="button button-small icon ion-ios-heart-outline"><br>收藏文章</a>
+        <a class="button button-small icon ion-ios-heart-outline" ng-click="PaperCollection()"><br>收藏文章</a>
       </div>
 
       <div class="myBtnBar button-bar" style="margin-top: 0px;">
