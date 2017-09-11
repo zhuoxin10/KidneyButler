@@ -20,7 +20,7 @@
           <span class="input" style="margin-right:16px"><i class="iconfont icon-suo"></i></span>
           <input type="password" style="padding-right: 0px" ng-model="Verify.Code" placeholder="请输入验证码" >
           <button-clear-input input="Verify.Code"></button-clear-input>
-          <button item-right style="background-color: transparent;border-width: 0px 0px 0px 1px;border-color: #6ac4f8;">{{veritext}}</button>
+          <button item-right ng-disabled="isable" on-tap="getcode(Verify)" style="width:60%;background-color: transparent;border-width: 0px 0px 0px 1px;border-color: #6ac4f8;">{{veritext}}</button>
         </label>
       </div>
 

@@ -1,9 +1,6 @@
 angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 'ionic-datepicker', 'kidney.directives'])//, 'ngRoute'
 
 .controller('SignInCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', 'Data', 'User', '$sce', 'Mywechat', 'Patient', 'mySocket', function ($ionicLoading, $scope, $timeout, $state, Storage, $ionicHistory, Data, User, $sce, Mywechat, Patient, mySocket) {
-  // $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
-  // $scope.autologflag = 0
-
   /**
    * [从本地存储中取手机号码USERNAME,如果有则显示在登录页面，无则显示空]
    * @Author   PXY
@@ -43,13 +40,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *          err
          */
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
-           console.log(data)
+           // console.log(data)
           if (data.results == 1) {
-            if (data.mesg =="Alluser doesn't Exist!") {
-              $scope.logStatus = '账号不存在！'
-            } else if (data.mesg =="Alluser password isn't correct!") {
-              $scope.logStatus = '账号密码错误！'
-            }
+            $scope.logStatus = '账号或密码错误！'
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
             $ionicHistory.clearCache()
@@ -81,13 +74,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
           }
         }, function (err) {
-          if (err.results == null && err.status == 0) {
+          
             $scope.logStatus = '网络错误！'
             return
-          }
-          if (err.status == 404) {
-            $scope.logStatus = '连接服务器失败！'
-          }
+         
         })
       }
     } else {
@@ -110,7 +100,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-04
    */
   $scope.toRegister = function () {
-    $state.go('phonevalid', {phonevalidType: 'register'})
+    $state.go('registerPat',{rType:'phone'})
   }
   /**
    * [点击重置密码,跳转获取验证码页面，传递参数reset表示重置密码流程]
@@ -118,7 +108,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-04
    */
   $scope.toReset = function () {
-    $state.go('phonevalid', {phonevalidType: 'reset'})
+    $state.go('phonevalid')
   }
 /**
  * *[微信登录点击，获取用户unionid，以及个人基本信息]
@@ -127,17 +117,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
  * @return   {[type]}
  */
   $scope.wxsignIn = function () {
-      $ionicLoading.show({
-        template: '<ion-spinner icon="ios"></ion-spinner>'
-      })
-      /**
-       * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
-       * @Author   ZXF
-       * @DateTime 2017-07-05
-       * @param    {[type]}
-       * @param    {[type]}
-       * @return   code:string
-       */
+    $ionicLoading.show({
+      template: '<ion-spinner icon="ios"></ion-spinner>'
+    })
+    /**
+     * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
+     * @Author   ZXF
+     * @DateTime 2017-07-05
+     * @param    {[type]}
+     * @param    {[type]}
+     * @return   code:string
+     */
     var wxscope = 'snsapi_userinfo',
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
@@ -242,7 +232,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           } else {
                 // alert('else');
             Storage.set('patientunionid', $scope.unionid)// 自动登录使用
-            $state.go('phonevalid', {phonevalidType: 'wechatsignin'})
+            $state.go('registerPat',{rType:'openId'})
           }
         })
       }, function (err) {
@@ -320,11 +310,101 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
   }
 }])
-.controller('registerCtrl', ['$stateParams', '$scope', '$timeout', '$state', 'Storage',  function ($stateParams, $scope, $timeout, $state, Storage) {
+.controller('registerCtrl', ['$stateParams', '$scope', '$timeout', '$state', 'Storage','User',  function ($stateParams, $scope, $timeout, $state, Storage,User) {
+  $scope.Register = {Phone: '', Code: ''}
+  $scope.veritext = '获取验证码'
+  $scope.isable = false
+
+  /**
+   * [disable获取验证码按钮1分钟，并改变获取验证码按钮显示的文字]
+   * @Author   PXY
+   * @DateTime 2017-07-04
+   */
+  var unablebutton = function () {
+     // 验证码BUTTON效果
+    $scope.isable = true
+    $scope.veritext = '60s'
+    var time = 59
+    var timer
+    timer = $interval(function () {
+      if (time == 0) {
+        $interval.cancel(timer)
+        timer = undefined
+        $scope.veritext = '获取验证码'
+        $scope.isable = false
+      } else {
+        $scope.veritext = time + 's'
+        time--
+      }
+    }, 1000)
+  }
+
+  $scope.registerMode = null
+  /**
+   * [点击获取验证码，如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码]
+   * @Author   PXY
+   * @DateTime 2017-07-04
+   * @param    Verify:{Phone:String,Code:String} 注：Code没用到
+   */
+  $scope.getcode = function (Verify) { 
+    // console.log('123')
+    $scope.logStatus = ''
+   
+    if (Verify.Phone == '') {
+      $scope.logStatus = '手机号码不能为空！'
+      return
+    }
+    var phoneReg = /^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+        // 手机正则表达式验证
+    if (!phoneReg.test(Verify.Phone)) {
+      $scope.logStatus = '手机号验证失败！'
+      return
+    }
+
+
+    
+    User.getUserID({username: Verify.Phone}).then(function (data) {
+      // 如果是手机号码注册则未注册账号才发验证码
+      if($stateParams.rType === 'phone'){
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
+          $scope.logStatus = '该账户已注册！'
+        }else{
+          sendSMS(Verify.Phone)
+          $scope.registerMode = 'phone'
+        }
+      }
+      // 如果是微信号注册则分为三种：1：未注册手机号；2：已注册非导入用户（已签协议）；3：导入用户（未签协议）
+      else if($stateParams.rType === 'openId'){
+        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
+          $scope.registerMode = 'wechatUnsigned'
+          sendSMS(Verify.Phone)
+        }else{
+          User.getAgree({userId: data.AlluserId}).then(function (res) {
+            sendSMS(Verify.Phone)
+            if (res.results.agreement == '0') {
+              //签过协议
+              $scope.registerMode = 'wechatSigned'
+            } else {
+              $scope.registerMode = 'wechatImported'
+            }
+          }, function (err) {
+            $scope.logStatus = '网络错误！'
+          })
+        }
+      }
+      
+    }, function () {
+      $scope.logStatus = '连接超时！'
+    })
+  }
+  $scope.PatRegister = function(register){
+    console.log(register)
+  }
+  
 
 }])
-// 手机号码验证--PXY
-.controller('phonevalidCtrl', ['$scope', '$state', '$interval', '$stateParams', 'Storage', 'User', '$timeout', function ($scope, $state, $interval, $stateParams, Storage, User, $timeout) {
+// 忘记密码--手机号码验证--PXY
+.controller('phonevalidCtrl', ['$scope', '$state', '$interval', '$stateParams', 'Storage', 'User',  function ($scope, $state, $interval, $stateParams, Storage, User) {
   // Storage.set("personalinfobackstate","register")
 
   $scope.Verify = {Phone: '', Code: ''}
@@ -370,27 +450,22 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      * @return   data:{results:Number,mesg:String} 注：results为0为成功发送
      *           err
      */
+    
     User.sendSMS({mobile: phone, smsType: 1}).then(function (data) {
       unablebutton()
-      if (data.mesg.substr(0, 8) == '您的邀请码已发送') {
-        $scope.logStatus = '您的验证码已发送，重新获取请稍后'
-      } else if (data.results == 1) {
+      if (data.results == 1) {
         $scope.logStatus = '验证码发送失败！'
+      } else if (data.mesg.substr(0, 8) == '您的邀请码已发送'){
+        $scope.logStatus = '您的验证码已发送，重新获取请稍后'
       } else {
         $scope.logStatus = '验证码发送成功！'
       }
     }, function (err) {
-      if (err.results == null && err.status == 0) {
-        $scope.logStatus = '连接超时!'
-        return
-      }
       $scope.logStatus = '验证码发送失败！'
     })
   }
 
-    // console.log($stateParams.phonevalidType);
 
-  $scope.patientofimport = 0
 
   /**
    * [点击获取验证码，如果为注册，注册过的用户不能获取验证码；如果为重置密码，没注册过的用户不能获取验证码]
@@ -398,9 +473,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-04
    * @param    Verify:{Phone:String,Code:String} 注：Code没用到
    */
-  $scope.getcode = function (Verify) {
+  $scope.getcode = function (Verify) { 
+    // console.log('123')
     $scope.logStatus = ''
-
+   
     if (Verify.Phone == '') {
       $scope.logStatus = '手机号码不能为空！'
       return
@@ -413,54 +489,21 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
 
 
-    // 如果为注册，注册过的用户不能获取验证码；
-    if ($stateParams.phonevalidType == 'register') {
-      /**
-       * [根据手机号码获取userId]
-       * @Author   PXY
-       * @DateTime 2017-07-04
-       * @param    {username:String}
-       * @return   data:{results:Number，roles:Array} 注：1为未注册；0为已注册
-       */
-      User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
-          $scope.logStatus = '该手机号码已经注册！'
-        } else {
-          sendSMS(Verify.Phone)
-        }
-      }, function () {
-        $scope.logStatus = '连接超时！'
-      })
-
-    }
-    // 如果为重置密码，没注册过的用户不能获取验证码
-    else if ($stateParams.phonevalidType == 'reset') {
-      User.getUserID({username: Verify.Phone}).then(function (data) {
-        if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
-          sendSMS(Verify.Phone)
-        }else{
-          $scope.logStatus = '该账户不存在！'
-        }
-      }, function () {
-        $scope.logStatus = '连接超时！'
-      })
-    } else if ($stateParams.phonevalidType == 'wechatsignin') {
-      User.getUserID({username: Verify.Phone}).then(function (data) {
-        //questionMark
-        if (data.results == 0 && data.roles.indexOf('patient') != -1) { // 导入的用户
-          $scope.patientofimport = 1
-          Storage.set('UID', data.AlluserId)
-        }
+    
+    User.getUserID({username: Verify.Phone}).then(function (data) {
+      if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
         sendSMS(Verify.Phone)
-      }, function () {
-        $scope.logStatus = '连接超时！'
-      })
-    }
+      }else{
+        $scope.logStatus = '该账户不存在！'
+      }
+    }, function () {
+      $scope.logStatus = '连接超时！'
+    })
   }
 
 
   /**
-   * [点击验证手机号，验证通过后如果是注册流程则跳转协议页面，如果是重置密码则跳转设置密码页面]
+   * [点击验证手机号，通过后跳转设置密码页面]
    * @Author   PXY
    * @DateTime 2017-07-04
    * @param    {[type]}
@@ -496,15 +539,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           if (data.results == 0) {
             $scope.logStatus = '验证成功'
             Storage.set('USERNAME', Verify.Phone)
-            if ($stateParams.phonevalidType == 'register') {
-              $timeout(function () { $state.go('agreement', {last: 'register'}) }, 500)
-            } else if ($stateParams.phonevalidType == 'wechatsignin' && $scope.patientofimport) { // 微信登录 同时该患者是导入的病人即有uid
-              $timeout(function () { $state.go('agreement', {last: 'patientofimport'}) }, 500)
-            } else if ($stateParams.phonevalidType == 'wechatsignin') {
-              $timeout(function () { $state.go('agreement', {last: 'wechatsignin'}) }, 500)
-            } else {
-              $timeout(function () { $state.go('setpassword', {phonevalidType: $stateParams.phonevalidType}) }, 500)
-            }
+            
+            $state.go('setpassword')
           } else {
             $scope.logStatus = data.mesg
           }
@@ -517,7 +553,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 设置密码  --PXY
-.controller('setPasswordCtrl', ['$ionicLoading', '$http', '$scope', '$state', '$rootScope', '$timeout', 'Storage', '$stateParams', 'User', 'Patient', function ($ionicLoading, $http, $scope, $state, $rootScope, $timeout, Storage, $stateParams, User, Patient) {
+.controller('setPasswordCtrl', ['$ionicLoading', '$http', '$scope', '$state', '$rootScope', '$timeout', 'Storage',  'User', 'Patient', function ($ionicLoading, $http, $scope, $state, $rootScope, $timeout, Storage,  User, Patient) {
 
   /**
    * [点击返回，返回到登录页面]
@@ -527,165 +563,43 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.BackMain = function () {
     $state.go('signin')
   }
-  var setPassState = $stateParams.phonevalidType
 
-  /**
-   * [根据$stateParams.phonevalidType判断是重置密码还是注册流程，改变页面显示]
-   * @Author   PXY
-   * @DateTime 2017-07-04
-   */
-  if (setPassState == 'reset') {
-    $scope.headerText = '重置密码'
-    $scope.buttonText = '确认修改'
-  } else {
-    $scope.headerText = '设置密码'
-    $scope.buttonText = '下一步'
-  }
   $scope.setPassword = {newPass: '', confirm: ''}
 
 
   /**
-   * [设置密码或重置密码，密码一致后如果是重置密码流程，则修改密码；如果是注册流程则注册、更新协议状态、注册论坛，最后跳转登录页面（微信则跳转到主页）]
+   * [重置密码，密码一致后修改密码]
    * @Author   PXY
    * @DateTime 2017-07-04
    * @param    setPassword:{newPass:String,confirm:String}
    */
   $scope.resetPassword = function (setPassword) {
     $scope.logStatus = ''
-    if ((setPassword.newPass != '') && (setPassword.confirm != '')) {
-      if (setPassword.newPass == setPassword.confirm) {
-        // var phone = $stateParams.phoneNumber;
-        // console.log(phone);
-        if (setPassword.newPass.length < 6) {  /// ^(\d+\w+[*/+]*){6,12}$/   1.输入的密码必须有数字和字母同时组成，可含特殊字符，6-12位；
-          $scope.logStatus = '密码太短了！'
+    if (setPassword.newPass == setPassword.confirm) {
+      // var phone = $stateParams.phoneNumber;
+      
+      /**
+       * [修改密码]
+       * @Author   PXY
+       * @DateTime 2017-07-04
+       * @param    {phoneNo:String，password:String}
+       * @return   data:Object
+       *           err
+       */
+      User.changePassword({phoneNo: Storage.get('USERNAME'), password: setPassword.newPass}).then(function (data) {
+        if (data.results == 0) {
+          $scope.logStatus = '重置密码成功！'
+          $timeout(function () { $state.go('signin') }, 500)
         } else {
-          // 如果是注册
-          if (setPassState == 'register' || setPassState == 'wechatsignin') {
-                      // 结果分为连接超时或者注册成功
-            $rootScope.password = setPassword.newPass
-
-            /**
-             * [注册]
-             * @Author   PXY
-             * @DateTime 2017-07-04
-             * @param    {phoneNo:String,password:String,role:String} 注：写死role: 'patient'
-             * @return   data:{results:Number,userNo:String,...} 注：results为0为注册成功,userNo为userId
-             */
-            User.register({phoneNo: Storage.get('USERNAME'), password: setPassword.newPass, role: 'patient'}).then(function (data) {
-              if (data.results == 0) {
-                              // alert(JSON.stringify(data))
-                var patientId = data.userNo
-                Storage.set('UID', patientId)
-
-                if (setPassState == 'wechatsignin') {
-                  User.setOpenId({phoneNo: Storage.get('USERNAME'), openId: Storage.get('patientunionid')}).then(function (response) {
-                    console.log(response)
-                  })
-                }
-                if (Storage.get('wechatheadimgurl')) {
-
-                  /**
-                   * [用微信头像替换个人头像（如果个人头像之前没有上传）]
-                   * @Author   PXY
-                   * @DateTime 2017-07-05
-                   * @param    {patientId:String,wechatPhotoUrl:String}
-                   * @return   data:Object
-                   *           err
-                   */
-                  Patient.replacePhoto({patientId: patientId, wechatPhotoUrl: Storage.get('wechatheadimgurl')}).then(function (data) {
-                    Storage.rm('wechatheadimgurl')
-                  }
-                                    )
-                }
-
-                // 注册论坛
-                // 发送http请求，请求的地址是从论坛中抽出来的api
-                // 参数：username->用户名->病人端用的是病人UID
-                //     password->密码->密码和用户名一样
-                //     password2->密码的确认->同上
-                //     email->这里随便取得，邮箱的域名不一定有效
-                //     regsubmit、formhash两个参数就这样填就行，forhash参数已经在论坛的代码中被注释掉了，随便填什么都行，它的作用是防止恶意注册
-                // $http({
-                //   method: 'POST',
-                //   url: 'http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=register&mobile=2&handlekey=registerform&inajax=1',
-                //   params: {
-                //     'regsubmit': 'yes',
-                //     'formhash': '',
-                //     'username': patientId,
-                //     'password': patientId,
-                //     'password2': patientId,
-                //     'email': patientId + '@bme319.com'
-                //   },  // pass in data as strings
-                //   headers: {
-                //     'Content-Type': 'application/x-www-form-urlencoded',
-                //     'Accept': 'application/xml, text/xml, */*'
-                //   }  // set the headers so angular passing info as form data (not request payload)
-                // }).success(function (data) {
-                //                     // console.log(data);
-                //                     // $state.go('tab.tasklist');
-                // })
-
-                /**
-                 * [更新协议状态，在注册流程中，虽然之前同意协议但是必须注册后用户才存在，因此在注册后更新协议状态]
-                 * @Author   PXY
-                 * @DateTime 2017-07-04
-                 * @param    {userId:String,agreement:String} 注：agreement写死‘0’
-                 * @return   data:Object
-                 *           err
-                 */
-                User.updateAgree({userId: patientId, agreement: '0'}).then(function (data) {
-                  if (data.results != null) {
-                    if (setPassState == 'wechatsignin') {
-                      $scope.logStatus = '注册结束后你也可以用手机号和密码登录！'
-                    } else {
-                      $scope.logStatus = '恭喜您注册成功！'
-                    }
-                    $timeout(function () { $state.go('signin') }, 1000)
-                  }
-                }, function (err) {
-                  $ionicLoading.show({
-                    template: '注册失败',
-                    duration: 1000
-                  })
-                  $scope.logStatus = '连接超时！'
-                })
-              }
-            }, function () {
-              $ionicLoading.show({
-                template: '注册失败',
-                duration: 1000
-              })
-              $scope.logStatus = '连接超时！'
-            })
-          } else if (setPassState == 'reset') {
-
-            // 如果是重置密码
-            /**
-             * [修改密码]
-             * @Author   PXY
-             * @DateTime 2017-07-04
-             * @param    {phoneNo:String，password:String}
-             * @return   data:Object
-             *           err
-             */
-            User.changePassword({phoneNo: Storage.get('USERNAME'), password: setPassword.newPass}).then(function (data) {
-              if (data.results == 0) {
-                $scope.logStatus = '重置密码成功！'
-                $timeout(function () { $state.go('signin') }, 500)
-              } else {
-                $scope.logStatus = '该账户不存在！'
-              }
-            }, function () {
-              $scope.logStatus = '连接超时！'
-            })
-          }
+          $scope.logStatus = '该账户不存在！'
         }
-      } else {
-        $scope.logStatus = '两次输入的密码不一致'
-      }
+      }, function () {
+        $scope.logStatus = '连接超时！'
+      })
     } else {
-      $scope.logStatus = '请输入两遍新密码'
+      $scope.logStatus = '两次输入的密码不一致'
     }
+    
   }
 }])
 

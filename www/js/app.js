@@ -170,7 +170,6 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     .state('phonevalid', {
       cache: false,
       url: '/phonevalid',
-      params: {phonevalidType: null},
       templateUrl: 'partials/login/phonevalid.html',
       controller: 'phonevalidCtrl'
     })
@@ -185,6 +184,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     .state('registerPat', {
       cache: false,
       url: '/register',
+      params: {rType: null},
       templateUrl: 'partials/login/register.html',
       controller: 'registerCtrl'
     })
@@ -195,6 +195,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       templateUrl: 'partials/login/userDetail.html',
       controller: 'userdetailCtrl'
     })
+
     .state('messages', {
       cache: false,
       url: '/messages',

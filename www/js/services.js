@@ -2593,7 +2593,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 .factory('socket', ['$rootScope', 'socketFactory', 'CONFIG', function ($rootScope, socketFactory, CONFIG) {
   var myIoSocket = io.connect(CONFIG.socketServer + 'chat')
-  console.log(myIoSocket)
+  // console.log(myIoSocket)
   var mySocket = socketFactory({
     ioSocket: myIoSocket,
     prefix: 'im:'
