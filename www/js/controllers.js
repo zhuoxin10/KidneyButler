@@ -8722,7 +8722,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.moredata2 = true
   var pagecontrol2 = {skip: 0, limit: 10}
 
-
 $scope.initial={
     item:""
  }
@@ -8835,6 +8834,9 @@ $scope.initial={
           Forum.favorite(param).then(function (data) {
             // console.log(data)
         tip.favoritesstatus = 1
+        $ionicLoading.show({
+          template: '收藏成功', duration: 1000
+        })
           }, function (err) {
             console.log(err)
           })
@@ -8845,6 +8847,9 @@ $scope.initial={
           pagecontrol2 = {skip: 0, limit: 10},
           mycollection = []
           $scope.loadMore2()
+          $ionicLoading.show({
+          template: '取消收藏', duration: 1000
+        })
           }, function (err) {
             console.log(err)
           })
@@ -8869,6 +8874,9 @@ $scope.initial={
           allposts = []
           console.log(allposts)
           $scope.loadMore()
+          $ionicLoading.show({
+          template: '删除成功', duration: 1000
+        })
           }, function (err) {
           console.log(err)
           })   
@@ -8910,7 +8918,6 @@ $scope.initial={
     }).then(function (data) {
        console.log(data.data)
       $scope.posts = data.data.results
-
       if (data.data.results.length == 0) {
         console.log('aaa')
         $ionicLoading.show({ template: '查无此帖', duration: 1000 })
@@ -8929,7 +8936,6 @@ $scope.initial={
     $scope.posts = $scope.loadMore()
   }
     // ----------------结束搜索患者------------------
-
 }])
 
 .controller('postCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', '$ionicPopover', 'Forum', 'Camera', 'CONFIG' , '$ionicLoading', '$timeout',function ($scope, $state, Storage, $ionicHistory, $ionicPopover, Forum, Camera, CONFIG, $ionicLoading, $timeout) {
@@ -8962,7 +8968,7 @@ $scope.initial={
         console.log(data)
       if (data.msg == 'success') {
                 $ionicLoading.show({
-                  template: '提交成功',
+                  template: '发帖成功',
                   noBackdrop: false,
                   duration: 1000,
                   hideOnStateChange: true
@@ -8972,7 +8978,7 @@ $scope.initial={
     }, function (err) {
       $scope.hasDeliver = false
       $ionicLoading.show({
-        template: '提交失败',
+        template: '发帖失败',
         noBackdrop: false,
         duration: 1000,
         hideOnStateChange: true
