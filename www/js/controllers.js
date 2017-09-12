@@ -8792,32 +8792,27 @@ $scope.initial={
     item:""
  }
 
+ $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll')
 // 点亮全部帖子标签 显示全部帖子
   $scope.Showallposts = function () {
     $scope.params.allposts = true
     $scope.params.myposts = false
     $scope.params.mycollection = false
-    pagecontrol = {skip: 0, limit: 10},
-    allposts = []
-    $scope.loadMore()
+     $scope.scrollHandle.scrollTop(false)
   }
   // 点亮我的帖子标签 显示我的帖子
   $scope.Showmyposts = function () {
     $scope.params.allposts = false
     $scope.params.myposts = true
     $scope.params.mycollection = false
-    pagecontrol1 = {skip: 0, limit: 10},
-    myposts = []
-    $scope.loadMore1()
+     $scope.scrollHandle.scrollTop(false)
   }
   // 点亮我的收藏标签 显示我的收藏
   $scope.Showmycollection = function () {
     $scope.params.allposts = false
     $scope.params.myposts = false
     $scope.params.mycollection = true
-    pagecontrol2 = {skip: 0, limit: 10},
-    mycollection = []
-    $scope.loadMore2()
+     $scope.scrollHandle.scrollTop(false)
   }
 /**
    * [获取该患者所有帖子列表]
