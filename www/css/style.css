@@ -1168,6 +1168,11 @@ button.doctorBtn{
   border-width: thin;
   border-style: solid;
 }
+button.docDetailBtn{
+  width:25%;
+  border:white;
+  background-color: white;
+}
 button.displayBtn{
   width:100%;
   border-color: #ddd;
