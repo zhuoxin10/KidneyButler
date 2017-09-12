@@ -401,7 +401,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getAgree: {method: 'GET', params: {route: 'agreement', userId: '@userId'}, timeout: 100000},
       updateAgree: {method: 'POST', skipAuthorization: true, params: {route: 'agreement'}, timeout: 100000},
       // getUserIDbyOpenId: {method: 'GET', skipAuthorization: true, params: {route: 'getUserIDbyOpenId'}, timeout: 100000},
-      setOpenId: {method: 'POST', skipAuthorization: true, params: {route: 'unionid'}, timeout: 100000}
+      setUnionId: {method: 'POST', skipAuthorization: true, params: {route: 'unionid'}, timeout: 100000},
+      setOpenId: {method: 'POST', skipAuthorization: true, params: {route: 'openId'}, timeout: 100000}
 
     })
   }
@@ -1517,6 +1518,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   //   return deferred.promise
   // }
 
+  self.setUnionId = function (params) {
+    var deferred = $q.defer()
+    Data.User.setUnionId(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
   self.setOpenId = function (params) {
     var deferred = $q.defer()
     Data.User.setOpenId(
