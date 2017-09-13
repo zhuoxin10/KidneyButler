@@ -7800,8 +7800,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'date': time.substr(0, 10)
     }
     insurance.setPrefer(temp).then(function (data) {
-      console.log(data.results)
-      if (data.results == 'success') {
+      console.log(data)
+      if (data.msg == '已设置意向，请等候保险专员联系') {
         $ionicPopup.show({
           title: '已收到您的保险意向，工作人员将尽快与您联系！',
           buttons: [
