@@ -7800,8 +7800,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'date': time.substr(0, 10)
     }
     insurance.setPrefer(temp).then(function (data) {
-      console.log(data.results)
-      if (data.results == 'success') {
+      console.log(data)
+      if (data.msg == '已设置意向，请等候保险专员联系') {
         $ionicPopup.show({
           title: '已收到您的保险意向，工作人员将尽快与您联系！',
           buttons: [
@@ -8794,32 +8794,27 @@ $scope.initial={
     item:""
  }
 
+ $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll')
 // 点亮全部帖子标签 显示全部帖子
   $scope.Showallposts = function () {
     $scope.params.allposts = true
     $scope.params.myposts = false
     $scope.params.mycollection = false
-    pagecontrol = {skip: 0, limit: 10},
-    allposts = []
-    $scope.loadMore()
+     $scope.scrollHandle.scrollTop(false)
   }
   // 点亮我的帖子标签 显示我的帖子
   $scope.Showmyposts = function () {
     $scope.params.allposts = false
     $scope.params.myposts = true
     $scope.params.mycollection = false
-    pagecontrol1 = {skip: 0, limit: 10},
-    myposts = []
-    $scope.loadMore1()
+     $scope.scrollHandle.scrollTop(false)
   }
   // 点亮我的收藏标签 显示我的收藏
   $scope.Showmycollection = function () {
     $scope.params.allposts = false
     $scope.params.myposts = false
     $scope.params.mycollection = true
-    pagecontrol2 = {skip: 0, limit: 10},
-    mycollection = []
-    $scope.loadMore2()
+     $scope.scrollHandle.scrollTop(false)
   }
 /**
    * [获取该患者所有帖子列表]
