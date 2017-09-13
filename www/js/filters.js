@@ -123,11 +123,8 @@ angular.module('kidney.filters', [])
   return function (type) {
     var name = '未定义'
     switch (type) {
-      case 0:
-        name = '等待付款'
-        break
-      case 1:
-        name = '预付单'
+      case 0: case 1:
+        name = '付款失败'
         break
       case 2:
         name = '支付成功'
