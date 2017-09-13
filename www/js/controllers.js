@@ -250,8 +250,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 
-.controller('AgreeCtrl', ['$stateParams', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', '$http',  'User', '$ionicPopup', 'mySocket', function ($stateParams, $scope, $timeout, $state, Storage, $ionicHistory, $http, User, $ionicPopup, mySocket) {
-
+.controller('AgreeCtrl', ['$ionicLoading','$stateParams', '$scope', '$timeout', '$state', 'Storage', '$ionicHistory', '$http',  'User', '$ionicPopup', 'mySocket', function ($ionicLoading,$stateParams, $scope, $timeout, $state, Storage, $ionicHistory, $http, User, $ionicPopup, mySocket) {
+  var ionicLoadingshow = function(){
+    $ionicLoading.show({
+      template: '<ion-spinner icon="ios"></ion-spinner>', 
+      hideOnStateChange:true  
+    })
+  }
   /**
    * [点击同意协议，如果是登录补签协议则更新协议状态后跳转主页；如果是注册则更新协议状态后跳转设置密码]
    * @Author   PXY
@@ -273,6 +278,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       })
     }else if($stateParams.delay && last === 'registerPat'){
       // 微信注册补签协议，则登录和签协议后去首页
+      ionicLoadingshow()
       User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (succ) {
         alert("userlogin"+JSON.stringify(succ))
         if (succ.results.mesg == 'login success!') {
@@ -280,8 +286,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
           Storage.set('refreshToken', succ.results.refreshToken)
           mySocket.newUser(succ.results.userId)
-          ionicLoadinghide()
           User.updateAgree({userId: Storage.get('UID'), agreement: '0'}).then(function (data) {
+            $ionicLoading.hide()
             if (data.results != null) {
               $ionicPopup.show({
                 title: '微信账号绑定手机账号成功，您的初始密码是123456，您以后也可以用手机号码登录！',
@@ -299,11 +305,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               console.log('用户不存在!')
             }
           }, function (err) {
+            $ionicLoading.hide()
             console.log(err)
           })
          
         }
       },function(err){
+        $ionicLoading.hide()
       })
     }else{
       // 手机号码注册，把签协议的勾勾上
@@ -312,7 +320,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
   }
 }])
-.controller('registerCtrl', ['$interval','$timeout','$ionicLoading','$stateParams', '$scope', '$timeout', '$state', 'Storage','User','$ionicHistory','$q','Patient',  function ($interval,$timeout,$ionicLoading,$stateParams, $scope, $timeout, $state, Storage,User,$ionicHistory,$q,Patient) {
+.controller('registerCtrl', ['mySocket','$interval','$timeout','$ionicLoading','$stateParams', '$scope', '$timeout', '$state', 'Storage','User','$ionicHistory','$q','Patient',  function (mySocket,$interval,$timeout,$ionicLoading,$stateParams, $scope, $timeout, $state, Storage,User,$ionicHistory,$q,Patient) {
   $scope.veritext = '获取验证码'
   $scope.isable = false
   $scope.Register = {}
@@ -490,8 +498,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     Storage.set('UID', succ.results.userId)// 后续页面必要uid
                     Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
                     Storage.set('refreshToken', succ.results.refreshToken)
-                    mySocket.newUser(succ.results.userId)
                     $state.go('tab.tasklist')
+                    mySocket.newUser(succ.results.userId)
+                    
                   }
                 },function(err){
                   $ionicLoading.hide()
@@ -513,9 +522,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             }
           }else{
             $scope.logStatus = data.mesg
+            $ionicLoading.hide()
           }
         },function(err){
           $scope.logStatus = JSON.stringify(err)
+          $ionicLoading.hide()
         })
       }else{
         $scope.logStatus = '验证码不能为空！'
@@ -547,9 +558,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
                   Storage.set('UID',res.userNo)
                   Storage.set('USERNAME',register.Phone)
-                  $q.all([User.updateAgree({userId:res.userNo,agreement:'0'}),Patient.editPatientDetail({name:register.name})]).then(function(succ){
-                    $scope.logStatus = '恭喜您！注册成功！'
-                    $timeout(function(){$state.go('signin')},500)
+                  User.updateAgree({userId:res.userNo,agreement:'0'}).then(function(succ){
+                    $ionicLoading.hide()
+                    $ionicLoading.show({
+                      template:"恭喜您，注册成功！",
+                      duration:1000
+                    })
+                    $timeout(function(){$state.go('signin')},1000)
                     if(Storage.get('agreement')){
                       Storage.rm('agreement')
                     }
@@ -562,6 +577,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 })
                 
               } else {
+                $ionicLoading.hide()
                 $scope.logStatus = data.mesg
               }
             }, function () {
@@ -580,8 +596,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
 
     
-    console.log(register)
-    
        
   }
 
@@ -599,9 +613,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
           ]).then(function(succ){
             alert('$Q返回' + JSON.stringify(succ))
-            $scope.logStatus = '恭喜您！注册成功！'
+            $ionicLoading.hide()
+            $ionicLoading.show({
+              template:"恭喜您，注册成功！正在登录，请稍后。",
+              hideOnStateChange:true
+            })
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
-              alert("userlogin"+JSON.stringify(succ))
+              alert("userlogin"+JSON.stringify(data))
               if (succ.results.mesg == 'login success!') {
                 Storage.set('UID', data.results.userId)// 后续页面必要uid
                 Storage.set('TOKEN', data.results.token)// token作用目前还不明确
@@ -610,7 +628,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $state.go('tab.tasklist')
               }
             },function(err){
-
+              $ionicLoading.hide()
+              $scope.logStatus = JSON.stringify(err)
             })
             
             if(Storage.get('agreement')){

@@ -20,12 +20,12 @@
           <button-clear-input input="Register.Phone"></button-clear-input>
         </label>
 
-        <label class="item item-input green-edite-css mg-10 ">
+        <span class="item item-input green-edite-css mg-10 ">
           <span class="input" style="margin-right:16px"><i class="icon ion-unlocked"></i></span>
           <input type="password" style="padding-right: 0px" ng-model="Register.Code" placeholder="请输入验证码" >
           <button-clear-input input="Register.Code"></button-clear-input>
-          <button item-right ng-disabled="isable" on-tap="getcode()" style="width:60%;background-color: transparent;border-width: 0px 0px 0px 1px;border-color: #6ac4f8;">{{veritext}}</button>
-        </label>
+          <button item-right ng-disabled="isable" ng-click="getcode()" class="phonevalid">{{veritext}}</button>
+        </span>
 
         <label class="item item-input green-edite-css mg-10">
           <span class="input" style="margin-right:16px"><i class="icon ion-ios-locked-outline"></i></span>
@@ -69,12 +69,12 @@
           <button-clear-input input="Register.Phone"></button-clear-input>
         </label>
 
-        <label class="item item-input green-edite-css mg-10 ">
+        <span class="item item-input green-edite-css mg-10 ">
           <span class="input" style="margin-right:16px"><i class="icon ion-unlocked"></i></span>
           <input type="password" style="padding-right: 0px" ng-model="Register.Code" placeholder="请输入验证码" >
           <button-clear-input input="Register.Code"></button-clear-input>
-          <button item-right ng-disabled="isable" on-tap="getcode()" style="width:60%;background-color: transparent;border-width: 0px 0px 0px 1px;border-color: #6ac4f8;">{{veritext}}</button>
-        </label>
+          <button item-right  class="phonevalid" ng-disabled="isable" ng-click="getcode()">{{veritext}}</button>
+        </span>
         <button ng-disabled="!(wechatForm.$valid)" style="margin-top:10px" class="button roundBtn" type="submit" ng-click ="wechatPhone(Register.Phone,Register.Code)">
          下一步
         </button>

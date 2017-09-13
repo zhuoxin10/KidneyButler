@@ -168,3 +168,13 @@ div.others{
   color: #6ac4f8;
   font-size: 16px;
 }
+
+button.phonevalid {
+  width:60%;
+  background-color: transparent;
+  border-style:solid;
+  font-size:14px;
+  text-align:center;
+  border-width: 0px 0px 0px 1px;
+  border-color: #6ac4f8;
+}
