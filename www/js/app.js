@@ -98,7 +98,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       cordova.plugins.Keyboard.disableScroll(true)
     }
     if (window.StatusBar) {
-      StatusBar.backgroundColorByHexString('#33bbff')
+      StatusBar.backgroundColorByHexString('#6ac4f8')
 
       // StatusBar.styleDefault();
     }
@@ -161,24 +161,30 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
     .state('agreement', {
       cache: false,
       url: '/agreeOrNot',
-      params: {last: null},
-
+      params: {delay: null},
       templateUrl: 'partials/login/agreement.html',
       controller: 'AgreeCtrl'
     })
+    // 忘记密码--验证手机号
     .state('phonevalid', {
       cache: false,
       url: '/phonevalid',
-      params: {phonevalidType: null},
       templateUrl: 'partials/login/phonevalid.html',
       controller: 'phonevalidCtrl'
     })
+    // 忘记密码--重置密码
     .state('setpassword', {
       cache: false,
       url: '/setpassword',
-      params: {phonevalidType: null},
       templateUrl: 'partials/login/setpassword.html',
       controller: 'setPasswordCtrl'
+    })
+    .state('registerPat', {
+      cache: true,
+      url: '/register',
+      params: {rType: null},
+      templateUrl: 'partials/login/register.html',
+      controller: 'registerCtrl'
     })
     .state('userdetail', {
       cache: false,
@@ -187,6 +193,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       templateUrl: 'partials/login/userDetail.html',
       controller: 'userdetailCtrl'
     })
+
     .state('messages', {
       cache: false,
       url: '/messages',
