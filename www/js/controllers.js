@@ -996,7 +996,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
      * @param    {userId:String}
      */
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
-      if (data.results && data.results != '没有填写个人信息') {
         $scope.User = data.results
         // 避免最近就诊信息没填，上一步赋值造成lastVist未定义
         if (!data.results.lastVisit) {
@@ -1012,24 +1011,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           $scope.User.hypertension = searchObj($scope.User.hypertension, $scope.Hypers)
         }
 
-        /**
-         * [读取最新一条体重信息，后端方法改了（读取个人信息时一并把体重传回）这函数不需要了]
-         * @Author   PXY
-         * @DateTime 2017-07-05
-         * @param    {userId:String,type:String} 注：type写死'Weight'
-         * @return   data：{results:[{data:[{time:Date,value:Number}],...}]}    [外层数组results以天为单位,里层数组data以次数为单位]
-         */
-        // VitalSign.getVitalSigns({userId: Storage.get('UID'), type: 'Weight'}).then(function (data) {
-        //   if (data.results.length) {
-        //     var n = data.results.length - 1
-        //     var m = data.results[n].data.length - 1
-        //     $scope.User.weight = data.results[n].data[m] ? data.results[n].data[m].value : ''
-        //                       // console.log($scope.BasicInfo)
-        //   }
-        // }, function (err) {
-        //   console.log(err)
-        // })
-      } 
 
       /**
        * [从字典表获取疾病类型]
@@ -3377,7 +3358,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(// userId:Storage.get('UID')
         function (data) {
           console.log(data.results)
-          if (data.results && data.results != '没有填写个人信息') {
+          if (!data.results.class) {
             if (data.results.diagnosisInfo.length) {
               var allDiags = data.results.diagnosisInfo
               console.log(allDiags)
@@ -6916,7 +6897,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.$on('$ionicView.beforeEnter', function () {
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
       // console.log(data)
-      if (data.results == '没有填写个人信息') {
+      if (!data.results.class) {
         $scope.DisabledConsult = true
         unComPatPopup()
       } else {
