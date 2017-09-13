@@ -1459,7 +1459,7 @@ button.textBtn{
 .scroll-left p {
  position: absolute;
  min-width: 100%;
- width: auto;
+ width: 200%;
  height: 100%;
  margin: 0;
  line-height: 35px;

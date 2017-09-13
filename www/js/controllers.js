@@ -66,7 +66,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               if (res.results.agreement == '0') {
                 $timeout(function () { $state.go('tab.tasklist') }, 500)
               } else {
-                $timeout(function () { $state.go('agreement', {last: 'signin'}) }, 500)
+                $timeout(function () { $state.go('agreement', {delay: true}) }, 500)
               }
             }, function (err) {
               $scope.logStatus = '网络错误！'
