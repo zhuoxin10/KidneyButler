@@ -144,7 +144,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   results:{headimgurl：微信头像路径，unionid：string，}
          */
       Mywechat.getUserInfo({role: 'appPatient', code: response.code, state: ''}).then(function (persondata) {
-          alert('getUserInfo:'+JSON.stringify(persondata));
+          // alert('getUserInfo:'+JSON.stringify(persondata));
         Storage.set('wechatheadimgurl', persondata.results.headimgurl)
         Storage.set('openId',persondata.results.openid)
         $scope.unionid = persondata.results.unionid
@@ -280,7 +280,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       // 微信注册补签协议，则登录和签协议后去首页
       ionicLoadingshow()
       User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (succ) {
-        alert("userlogin"+JSON.stringify(succ))
+        // alert("userlogin"+JSON.stringify(succ))
         if (succ.results.mesg == 'login success!') {
           Storage.set('UID', succ.results.userId)// 后续页面必要uid
           Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
@@ -429,7 +429,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     
     User.getUserID({username: $scope.Register.Phone}).then(function (data) {
-      alert('getUserID:'+ JSON.stringify(data))
+      // alert('getUserID:'+ JSON.stringify(data))
       // 如果是手机号码注册则未注册账号才发验证码
       if($stateParams.rType === 'phone'){
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
@@ -476,8 +476,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         ionicLoadingshow()
 
         User.verifySMS({mobile: phoneNum, smsType: 1, smsCode:phoneCode}).then(function (data) {
-          alert('verifySMS'+JSON.stringify(data))
-          alert('registerMode'+$scope.registerMode)
+          // alert('verifySMS'+JSON.stringify(data))
+          // alert('registerMode'+$scope.registerMode)
           if(data.results == 0){
             Storage.set('USERNAME',phoneNum)
 
@@ -491,9 +491,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setUnionId({phoneNo:phoneNum,openId:Storage.get('patientunionid')}),
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
-                alert('setUnionId'+JSON.stringify(res))
+                // alert('setUnionId'+JSON.stringify(res))
                 User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (succ) {
-                  alert("userlogin"+JSON.stringify(succ))
+                  // alert("userlogin"+JSON.stringify(succ))
                   if (succ.results.mesg == 'login success!') {
                     Storage.set('UID', succ.results.userId)// 后续页面必要uid
                     Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
@@ -514,7 +514,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setUnionId({phoneNo:phoneNum,openId:Storage.get('patientunionid')}),
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
-                alert('setUnionId'+JSON.stringify(res))
+                // alert('setUnionId'+JSON.stringify(res))
                 $state.go('agreement',{delay:true})
               },function(err){
                 $ionicLoading.hide()
@@ -600,7 +600,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.wxRegister = function(register){
-    alert('register参数是'+JSON.stringify(register))
+    // alert('register参数是'+JSON.stringify(register))
       if(register.newPass === register.confirm){
         ionicLoadingshow()
         User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
@@ -612,14 +612,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             //type为4是指患者app端，若为微信则要改为2
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
           ]).then(function(succ){
-            alert('$Q返回' + JSON.stringify(succ))
+            // alert('$Q返回' + JSON.stringify(succ))
             $ionicLoading.hide()
             $ionicLoading.show({
               template:"恭喜您，注册成功！正在登录，请稍后。",
               hideOnStateChange:true
             })
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
-              alert("userlogin"+JSON.stringify(data))
+              // alert("userlogin"+JSON.stringify(data))
               if (succ.results.mesg == 'login success!') {
                 Storage.set('UID', data.results.userId)// 后续页面必要uid
                 Storage.set('TOKEN', data.results.token)// token作用目前还不明确
