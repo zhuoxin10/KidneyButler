@@ -3667,6 +3667,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
   // 进入页面时：获取咨询状态、剩余次数
   $scope.$on('$ionicView.enter', function () {
+    if ($ionicPlatform.is('ios') == false)document.getElementById('inputbar').removeAttribute('keyboard-attach')
     $rootScope.conversation.type = 'single'
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
