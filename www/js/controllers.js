@@ -1449,31 +1449,34 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var index = 0
   var dateNowStr = ChangeTimeForm(new Date()) // 方便设定当前日期进行调试，或是之后从数据库获取当前日期
 
-  var GetLatest = function () {
-    News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
-            function (data) {
-                console.log(data)
-                if(data.results[0]==undefined) {
-                  $scope.newMes = "最新消息：无"
-                }else{
-                  $scope.newMes= "最新消息："+data.results[0].description
-                }
-            }, function (err) {
-      console.log(err)
-    })
-  }
-  GetLatest()
+  // var GetLatest = function () {
+  //   News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
+  //           function (data) {
+  //               console.log(data)
+  //               if(data.results[0]==undefined) {
+  //                 $scope.newMes = "最新消息：无"
+  //               }else{
+  //                 $scope.newMes= "最新消息："+data.results[0].description
+  //               }
+  //           }, function (err) {
+  //     console.log(err)
+  //   })
+  // }
+  // GetLatest()
 
   var GetUnread = function () {
         // console.log(new Date());
+    console.log("message refresh")
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
       function (data) {
-          // console.log(data);
+        console.log(data);
         if (data.results.length) {
           $scope.HasUnreadMessages = true
+          $scope.newMes= "最新消息："+ data.results[0].description
               // console.log($scope.HasUnreadMessages);
         } else {
           $scope.HasUnreadMessages = false
+          $scope.newMes= "最新消息：没有最新的未读消息！"
         }
         Storage.set('unReadTxt',$scope.HasUnreadMessages)
       }, function (err) {
@@ -1483,11 +1486,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
     })
   }
+  GetUnread()
 
   $scope.$on('$ionicView.enter', function () {
     GetTasks()
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
-    RefreshUnread = $interval(GetUnread, 2000)
+    RefreshUnread = $interval(GetUnread, 60000)
   })
 
   $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
@@ -1793,7 +1797,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       // 确定任务是否完成，修改显示标志位，获取已填写的数值并在页面显示
     var Code = doneTask.code
     var Description = doneTask.description
-    console.log(doneTask)
+    // console.log(doneTask)
     EveTaskDone(doneTask, flag)
     if (flag == 'POST') {
       if ((doneTask.type == 'ReturnVisit') && (doneTask.code == 'stage_9')) // 血透排班
@@ -5416,6 +5420,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   }})
                }else if(vitalsign.item.data1.length==0){
                 $scope.flagPD = vitalsign.flag.flagPD
+                console.log($scope.flagPD)
                  var chart = new Highcharts.Chart('container6', {
                  credits:{enabled:false},
                  chart: {
