@@ -3097,7 +3097,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 我的 页面--PXY
-.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
+.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', 'Mywechatphoto', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket, Mywechatphoto) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID')
@@ -3205,6 +3205,42 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
   }
 
+ //二维码
+  Patient.getPatientDetail({userId: Storage.get('UID')}).then(
+    function (data) {
+      $scope.patient = data.results
+      // console.log($scope.patient)
+      // console.log($scope.patient.patTDCticket)
+      if ( $scope.patient.patTDCticket == null || $scope.patient.patTDCticket == undefined) {
+        // console.log("yes")
+        var params = {
+          'role':"doctor",
+          'userId': Storage.get('UID'),
+          'postdata': {
+            'action_name': 'QR_LIMIT_STR_SCENE',
+            'action_info': {
+              'scene': {
+                'scene_str': Storage.get('UID')
+              }
+            }
+          }
+        }
+        Mywechatphoto.createTDCticket(params).then(function (data) {
+          $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.patTDCticket
+        },
+            function (err) {
+              console.log(err)
+            })
+      } else {
+        // console.log("no")
+        $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.patTDCticket
+      }
+    },
+    function (err) {
+      console.log(err)
+    }
+)
+
   $scope.ReflectAdvice = function () {
     $state.go('tab.advice')
   }
@@ -3220,7 +3256,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 根据用户ID查询用户头像
   $scope.myAvatar = 'img/DefaultAvatar.jpg'
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (res) {
-    console.log(res)
+    // console.log(res)
         // console.log(res.results)
         // console.log(res.results.photoUrl)
         // console.log(angular.fromJson(res.results))
@@ -7792,12 +7828,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // "我”二维码页
 .controller('QRcodeCtrl', ['Patient', '$scope', '$state', '$interval', '$rootScope', 'Storage','Mywechat','Mywechatphoto', function (Patient, $scope, $state, $interval, $rootScope, Storage, Mywechat, Mywechatphoto) {
-  
   $scope.patient = ''
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(
     function (data) {
       $scope.patient = data.results
-      if (angular.isDefined($scope.patient.TDCticket) != true) {
+      // console.log($scope.patient)
+      // console.log($scope.patient.patTDCticket)
+      if ( $scope.patient.patTDCticket == null || $scope.patient.patTDCticket == undefined) {
+        // console.log("yes")
         var params = {
           'role':"doctor",
           'userId': Storage.get('UID'),
@@ -7811,13 +7849,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           }
         }
         Mywechatphoto.createTDCticket(params).then(function (data) {
-          $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.TDCticket
+          $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.patTDCticket
         },
             function (err) {
               console.log(err)
             })
       } else {
-        $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.TDCticket
+        // console.log("no")
+        $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.patTDCticket
       }
     },
     function (err) {
