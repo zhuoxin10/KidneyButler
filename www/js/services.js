@@ -2884,6 +2884,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                   'type': 1,
                     // 咨询类型为1
                   'userId': Storage.get('UID'),
+
                   'role': 'appPatient',
                     // 微信支付以分为单位
                   'money': charge1 * 100,

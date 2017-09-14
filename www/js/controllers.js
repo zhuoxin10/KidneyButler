@@ -118,7 +118,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
  */
   $scope.wxsignIn = function () {
     $ionicLoading.show({
-      template: '<ion-spinner icon="ios"></ion-spinner>'
+      template: '<ion-spinner icon="ios"></ion-spinner>',
+      hideOnStateChange:true
     })
     /**
      * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
@@ -132,7 +133,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        $ionicLoading.hide()
+        // $ionicLoading.hide()
         // alert(JSON.stringify(response))
         // alert(response.code);
         /**
@@ -620,21 +621,22 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
               // alert("userlogin"+JSON.stringify(data))
-              if (succ.results.mesg == 'login success!') {
+              if (data.results.mesg == 'login success!') {
                 Storage.set('UID', data.results.userId)// 后续页面必要uid
                 Storage.set('TOKEN', data.results.token)// token作用目前还不明确
                 Storage.set('refreshToken', data.results.refreshToken)
                 mySocket.newUser(data.results.userId)
                 $state.go('tab.tasklist')
+                if(Storage.get('agreement')){
+                  Storage.rm('agreement')
+                }
               }
             },function(err){
               $ionicLoading.hide()
               $scope.logStatus = JSON.stringify(err)
             })
             
-            if(Storage.get('agreement')){
-              Storage.rm('agreement')
-            }
+            
           },function(err){
             $ionicLoading.hide()
           })
@@ -8691,7 +8693,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       userInfo.class_info = userInfo.class_info.code
     }
     userInfo.class = userInfo.class.type
-    debugger
     Patient.editPatientDetail(userInfo).then(function (data) {
                     // 保存成功
       // console.log($scope.BasicInfo)
@@ -8738,6 +8739,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Counsels.questionaire(temp).then(
           function (data) {
             console.log(data)
+            alert('questionaire'+JSON.stringify(data))
             if (data.result == '新建成功') {
               // 不能重复提交
               $scope.submitable = true
