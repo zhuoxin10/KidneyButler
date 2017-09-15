@@ -9069,6 +9069,30 @@ $scope.initial={
       console.log(err)
     })
   }
+
+  $scope.refresher1 = function () {
+    pagecontrol = {skip: 0, limit: 10},
+    allposts = []
+    $scope.loadMore()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.refresher2 = function () {
+    pagecontrol1 = {skip: 0, limit: 10},
+    myposts = []
+    $scope.loadMore1()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.refresher3 = function () {
+    pagecontrol2 = {skip: 0, limit: 10},
+    mycollection = []
+    $scope.loadMore2()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
   
   $scope.myStyle=[
     {'color':'gray'},
