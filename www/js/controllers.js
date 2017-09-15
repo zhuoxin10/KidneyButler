@@ -118,7 +118,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
  */
   $scope.wxsignIn = function () {
     $ionicLoading.show({
-      template: '<ion-spinner icon="ios"></ion-spinner>'
+      template: '<ion-spinner icon="ios"></ion-spinner>',
+      hideOnStateChange:true
     })
     /**
      * *[微信js版sdk自带方法，微信登录，获取用户授权之后拿到用户的基本信息]
@@ -132,7 +133,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     wxstate = '_' + (+new Date())
     Wechat.auth(wxscope, wxstate, function (response) {
         // you may use response.code to get the access token.
-        $ionicLoading.hide()
+        // $ionicLoading.hide()
         // alert(JSON.stringify(response))
         // alert(response.code);
         /**
@@ -620,21 +621,22 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
               // alert("userlogin"+JSON.stringify(data))
-              if (succ.results.mesg == 'login success!') {
+              if (data.results.mesg == 'login success!') {
                 Storage.set('UID', data.results.userId)// 后续页面必要uid
                 Storage.set('TOKEN', data.results.token)// token作用目前还不明确
                 Storage.set('refreshToken', data.results.refreshToken)
                 mySocket.newUser(data.results.userId)
                 $state.go('tab.tasklist')
+                if(Storage.get('agreement')){
+                  Storage.rm('agreement')
+                }
               }
             },function(err){
               $ionicLoading.hide()
               $scope.logStatus = JSON.stringify(err)
             })
             
-            if(Storage.get('agreement')){
-              Storage.rm('agreement')
-            }
+            
           },function(err){
             $ionicLoading.hide()
           })
@@ -3104,7 +3106,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.$on('$ionicView.enter', function () {
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
-    RefreshUnread = $interval(GetUnread, 2000)
+    RefreshUnread = $interval(GetUnread, 60000)
   })
 
   $scope.$on('$ionicView.leave', function () {
@@ -3501,7 +3503,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (data.results.length) {
         FilteredDoctors = FilterDoctor(data.results)
                 // console.log(FilteredDoctors);
-        News.getNews({userId: MyId, type: 11}).then(
+        News.getNews({userId: MyId, type: 11,userRole:'patient'}).then(
                     function (data) {
                       console.log(data.results)
                       if (data.results) {
@@ -6325,6 +6327,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
             // return doctor;
   }
+  //其实这边并不需要拿到消息本身，只需要拿到患者接受到的消息种类以及该种类是否未读即可（除了聊天消息），最好根据response更改Storage里unReadTxt的值
   var Lastnews = function () {
     var receiver = Storage.get('UID')
     News.getNews({userId: receiver, type: 1}).then(
@@ -6395,9 +6398,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             function (data) {
               console.log(data)
               if (data.results.length) {
-                var mesFromDoc = new Array()
-                var singleMes = new Object()
-
                 for (var x in data.results) {
                   getDocNamePhoto(data.results[x].sendBy, data.results[x])
                 }
@@ -6428,8 +6428,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       message.readOrNot = 1
       News.setReadOrNot(message).then(
                 function (data) {
-                  console.log(data)
-                  Lastnews()
+                  
                 }, function (err) {
         console.log(err)
       }
@@ -6497,6 +6496,30 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 }
               })
             }
+          }else if (data.result.type == 6 || data.result.type == 7) {
+            if (data.result.status == 1) { // 尚未结束的加急咨询
+              $ionicPopup.confirm({
+                title: '问诊确认',
+                template: '您有尚未结束的加急咨询，点击确认可以查看历史消息，在医生完成三次问答之前，您还可以对您的问题作进一步的描述。',
+                okText: '确认',
+                cancelText: '取消'
+              }).then(function (res) {
+                if (res) {
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                }
+              })
+            } else {
+              $ionicPopup.confirm({
+                title: '问诊确认',
+                template: '您的加急咨询已结束，点击确认可以查看历史消息，但是无法继续发送消息。',
+                okText: '确认',
+                cancelText: '取消'
+              }).then(function (res) {
+                if (res) {
+                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                }
+              })
+            }
           }
         })
         // SetRead(chat);
@@ -6505,8 +6528,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.getMessageDetail = function (message) {
     console.log(message)
     Storage.set('getMessageType', message.type)
-    $state.go('messagesDetail')
     SetRead(message)
+    $state.go('messagesDetail')
+   
   }
 }])
 // 消息类型--PXY
@@ -6581,13 +6605,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 console.log(data.results)
                 if (data.results[0].readOrNot == 0) {
                   data.results[0].readOrNot = 1
-                  News.insertNews(data.results[0]).then(
-                            function (success) {
-                              console.log(success)
-                            }, function (err) {
+                  News.setReadOrNot(data.results[0]).then(
+                    function (data) {
+                      console.log(data)
+                    }, function (err) {
                     console.log(err)
-                  }
-                        )
+                  })
+                  
                 }
               }
             }, function (err) {
@@ -6906,7 +6930,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     //   $scope.mydocStyle = {'top': '95px'}
     // }
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
-    RefreshUnread = $interval(GetUnread, 2000)
+    RefreshUnread = $interval(GetUnread, 60000)
 
   })
 
@@ -8251,7 +8275,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['CONFIG','$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function (CONFIG,$ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['Account','CONFIG','$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function (Account,CONFIG,$ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -8738,7 +8762,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       userInfo.class_info = userInfo.class_info.code
     }
     userInfo.class = userInfo.class.type
-    debugger
     Patient.editPatientDetail(userInfo).then(function (data) {
                     // 保存成功
       // console.log($scope.BasicInfo)
@@ -8785,6 +8808,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Counsels.questionaire(temp).then(
           function (data) {
             console.log(data)
+            alert('questionaire'+JSON.stringify(data))
             if (data.result == '新建成功') {
               // 不能重复提交
               $scope.submitable = true
@@ -8823,6 +8847,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 // $scope.$on('im:messageRes',function(event,messageRes){
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
+              if($stateParams.counseltype==1||$stateParams.counseltype==6||$stateParams.counseltype==7){
+                Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
+
+                },function(err){
+
+                })
+              }
               if (DoctorId == 'U201612291283') {
                 var time = new Date()
                 var gid = 'G' + $filter('date')(time, 'MMddHmsss')
@@ -8953,7 +8984,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.$on('$ionicView.enter', function () {
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
-    RefreshUnread = $interval(GetUnread, 2000)
+    RefreshUnread = $interval(GetUnread, 60000)
   })
 
   $scope.$on('$ionicView.leave', function () {
