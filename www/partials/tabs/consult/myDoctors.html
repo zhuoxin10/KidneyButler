@@ -41,18 +41,18 @@
             </div>
 
             <div class="row">
-              <button ng-disabled="DisabledConsult||!doctor.counselStatus1"  ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
+              <button ng-disabled="DisabledConsult||!doctor.counselStatus1||(doctor.charge1==undefined)"  ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
                 <i class="icon iconfont icon-zixun2" style="color:#daf603;font-size: 25px;"></i></br>咨询</br>
-                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus1">{{doctor.charge1}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus1">未开通</span></button>
-              <button ng-disabled="DisabledConsult||!doctor.counselStatus2" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="docDetailBtn">
+                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus1&&!(doctor.charge1==undefined)">{{doctor.charge1}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus1||(doctor.charge1==undefined)">未开通</span></button>
+              <button ng-disabled="DisabledConsult||!doctor.counselStatus2||(doctor.charge2==undefined)" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="docDetailBtn">
                 <i class="icon iconfont icon-baojifuben" style="color: #3ef63d;font-size: 25px;"></i></br>问诊</br>
-                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus2">{{doctor.charge2}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus2">未开通</span></button>
-              <button ng-disabled="DisabledConsult||!doctor.counselStatus3" ng-click="urgentquestion(doctor.userId,doctor.charge1,doctor.charge3)" class="docDetailBtn">
+                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus2&&!(doctor.charge2==undefined)">{{doctor.charge2}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus2||(doctor.charge2==undefined)">未开通</span></button>
+              <button ng-disabled="DisabledConsult||!doctor.counselStatus3||(doctor.charge3==undefined)" ng-click="urgentquestion(doctor.userId,doctor.charge1,doctor.charge3)" class="docDetailBtn">
                 <i class="icon ion-speakerphone" style="color: #ff00dd;font-size: 25px;"></i></br>加急咨询</br>
-                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus3">{{doctor.charge3}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus3">未开通</span></button>
-              <button ng-disabled="DisabledConsult||!doctor.counselStatus5" class="docDetailBtn" ng-click="docAppointment(doctor)">
+                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus3&&!(doctor.charge3==undefined)">{{doctor.charge3}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus3||(doctor.charge3==undefined)">未开通</span></button>
+              <button ng-disabled="DisabledConsult||!doctor.counselStatus5||(doctor.charge5==undefined)" class="docDetailBtn" ng-click="docAppointment(doctor)">
                 <i class="icon ion-person-stalker" style="color: #00c2ff;font-size: 25px;"></i></br>面诊</br>
-                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus5">{{doctor.charge5}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus5">未开通</span></button>
+                <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus5&&!(doctor.charge5==undefined)">{{doctor.charge5}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus5||(doctor.charge5==undefined)">未开通</span></button>
             </div>
            <!--  <div class="row">
                 <button  ng-if="!doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor.userId)" class="doctorBtn"><i class="icon ion-ios-heart-outline"></i>关注医生</button>
