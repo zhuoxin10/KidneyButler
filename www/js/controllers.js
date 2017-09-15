@@ -3708,6 +3708,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 进入页面时：获取咨询状态、剩余次数
   $scope.$on('$ionicView.enter', function () {
     if ($ionicPlatform.is('ios') == false)document.getElementById('inputbar').removeAttribute('keyboard-attach')
+      console.log(document.getElementById('inputbar'))
     $rootScope.conversation.type = 'single'
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
@@ -3764,9 +3765,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 显示键盘
   $scope.$on('keyboardshow', function (event, height) {
     $scope.params.helpDivHeight = height
-    setTimeout(function () {
-      $scope.scrollHandle.scrollBottom()
-    }, 100)
+    toBottom(true, 100)
+    // setTimeout(function () {
+    //   $scope.scrollHandle.scrollBottom()
+    // }, 100)
   })
   // 收起键盘
   $scope.$on('keyboardhide', function (event) {
