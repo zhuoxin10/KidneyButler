@@ -6581,13 +6581,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 console.log(data.results)
                 if (data.results[0].readOrNot == 0) {
                   data.results[0].readOrNot = 1
-                  News.insertNews(data.results[0]).then(
-                            function (success) {
-                              console.log(success)
-                            }, function (err) {
+                  News.setReadOrNot(data.results[0]).then(
+                    function (data) {
+                      console.log(data)
+                    }, function (err) {
                     console.log(err)
-                  }
-                        )
+                  })
+                  
                 }
               }
             }, function (err) {
