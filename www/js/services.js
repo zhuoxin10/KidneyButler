@@ -401,7 +401,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getAgree: {method: 'GET', params: {route: 'agreement', userId: '@userId'}, timeout: 100000},
       updateAgree: {method: 'POST', skipAuthorization: true, params: {route: 'agreement'}, timeout: 100000},
       // getUserIDbyOpenId: {method: 'GET', skipAuthorization: true, params: {route: 'getUserIDbyOpenId'}, timeout: 100000},
-      setOpenId: {method: 'POST', skipAuthorization: true, params: {route: 'unionid'}, timeout: 100000}
+      setUnionId: {method: 'POST', skipAuthorization: true, params: {route: 'unionid'}, timeout: 100000},
+      setOpenId: {method: 'POST', skipAuthorization: true, params: {route: 'openId'}, timeout: 100000}
 
     })
   }
@@ -1517,6 +1518,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   //   return deferred.promise
   // }
 
+  self.setUnionId = function (params) {
+    var deferred = $q.defer()
+    Data.User.setUnionId(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
   self.setOpenId = function (params) {
     var deferred = $q.defer()
     Data.User.setOpenId(
@@ -2593,7 +2606,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 }])
 .factory('socket', ['$rootScope', 'socketFactory', 'CONFIG', function ($rootScope, socketFactory, CONFIG) {
   var myIoSocket = io.connect(CONFIG.socketServer + 'chat')
-  console.log(myIoSocket)
+  // console.log(myIoSocket)
   var mySocket = socketFactory({
     ioSocket: myIoSocket,
     prefix: 'im:'
@@ -2744,7 +2757,14 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self = this
   var ionicLoadingshow = function () {
     $ionicLoading.show({
-      template: '加载中...'
+      template: '加载中...',
+      hideOnStateChange: true
+    })
+  }
+  var ionicLoadingShowError = function () {
+    $ionicLoading.show({
+      template: '网络跑远了，请重试！',
+      duration: 1500
     })
   }
   var ionicLoadinghide = function () {
@@ -3104,7 +3124,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @changeType    {[bool]}
                      * @return   {[type]}
                      */
-                    Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type3'}).then(function (data) {
+                    Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
                       if (data.result == '修改成功') {
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
                           // console.log(data)
@@ -3158,7 +3178,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @changeType    {[bool]}
                      * @return   {[type]}
                      */
-                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type3'}).then(function (data) {
+                      ionicLoadingshow()
+                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
                           // console.log(data)
                           var msgJson = {
@@ -3185,9 +3206,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
                           $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
+                          ionicLoadingShowError()
                           console.log(err)
                         })
                       }, function (err) {
+                        ionicLoadingShowError()
                         console.log(err)
                       })
                     }, function (reason) {
@@ -3336,10 +3359,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                        * @modify    {[int]}
                        * @return   {[type]}
                        */
+                        ionicLoadingshow()
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
                             // console.log(data)
+                          ionicLoadinghide()
                           $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
                         }, function (err) {
+                          ionicLoadingShowError()
                           console.log(err)
                         })
                       }, function (reason) {
@@ -3394,7 +3420,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               okText: '确认',
               cancelText: '取消'
             }).then(function (res) {
-              debugger
               self.consultable = 1
               if (res) {
                 ionicLoadingshow()
@@ -3408,7 +3433,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                   'role': 'appPatient',
                     // 微信支付以分为单位
                   'money': charge3 * 100 - charge1 * 100,
-                  'class': '06',
+                  'class': '07',
                   'name': '咨询升级加急咨询',
                   'notes': DoctorId,
                   'trade_type': 'APP',
@@ -3420,14 +3445,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                  * @DateTime 2017-07-05
                  * @return   {[type]}results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信，else拉起微信
                  */
-                console.log(charge3 * 100 - charge1 * 100)
+                // console.log(charge3 * 100 - charge1 * 100)
                 Mywechat.addOrder(neworder).then(function (orderdata) {
                   if (orderdata.results.status === 1) {
                     ionicLoadinghide()
                     // if (orderdata.results.status === 0) {
                     $ionicLoading.show({
                       template: orderdata.results.msg,
-                      duration: 1000,
                       hideOnStateChange: true
                     })
                     // }
@@ -3441,7 +3465,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @changeType    {[bool]}
                      * @return   {[type]}
                      */
-                    Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type7'}).then(function (data) {
+                    Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
                       if (data.result == '修改成功') {
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
                           // console.log(data)
@@ -3469,11 +3493,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
                           $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
+                          ionicLoadingShowError()
                           console.log(err)
                         })
                       }
                     }, function (err) {
-
+                      ionicLoadingShowError()
                     })
                   } else {
                     ionicLoadinghide()
@@ -3495,7 +3520,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @changeType    {[bool]}
                      * @return   {[type]}
                      */
-                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, changeType: 'type7'}).then(function (data) {
+                      ionicLoadingshow()
+                      Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
                         alert('changeType' + JSON.stringify(data))
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
                           alert('modifyCounts' + JSON.stringify(data))
@@ -3526,12 +3552,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           $state.go('tab.consult-chat', {chatId: DoctorId})
                         }, function (err) {
                           alert('modifyCountsERROR' + JSON.stringify(data))
-
+                          ionicLoadingShowError()
                           console.log(err)
                         })
                       }, function (err) {
                         alert('changeTypeERROR' + JSON.stringify(data))
-
+                        ionicLoadingShowError()
                         console.log(err)
                       })
                     }, function (reason) {
@@ -3633,7 +3659,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       // if (orderdata.results.status === 0) {
                       $ionicLoading.show({
                         template: orderdata.results.msg,
-                        duration: 1000,
                         hideOnStateChange: true
                       })
                       // }
@@ -3651,6 +3676,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
                       }, function (err) {
                         console.log(err)
+                        ionicLoadingShowError()
                       })
                     } else {
                       ionicLoadinghide()
@@ -3684,10 +3710,12 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                        * @modify    {[int]}
                        * @return   {[type]}
                        */
+                        ionicLoadingshow()
                         Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
                             // console.log(data)
                           $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
                         }, function (err) {
+                          ionicLoadingShowError()
                           console.log(err)
                         })
                       }, function (reason) {

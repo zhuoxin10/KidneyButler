@@ -46,7 +46,7 @@
 }
 
 
-#healthCheck.checkbox input:checked:before, .checkbox input:checked + .checkbox-icon:before {
+.checkbox input:checked:before, .checkbox input:checked + .checkbox-icon:before {
     background: #6ac4f8;
     border-color: #6ac4f8;
 }
@@ -139,6 +139,7 @@ div.others{
 
 .myPageBar{
   background: transparent !important;
+  /*border:1px none #fff;*/
 }
 
 
@@ -156,7 +157,24 @@ div.others{
 }
 
 .paddContent {
-  padding-left: 13%;
-  padding-right: 13%;
+  padding-left: 12%;
+  padding-right: 12%;
 }
  
+#agreement >p {
+  text-indent: 2em
+}
+#agreement >h4 {
+  color: #6ac4f8;
+  font-size: 16px;
+}
+
+button.phonevalid {
+  width:60%;
+  background-color: transparent;
+  border-style:solid;
+  font-size:14px;
+  text-align:center;
+  border-width: 0px 0px 0px 1px;
+  border-color: #6ac4f8;
+}
