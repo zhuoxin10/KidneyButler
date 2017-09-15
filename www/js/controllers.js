@@ -1432,31 +1432,34 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var index = 0
   var dateNowStr = ChangeTimeForm(new Date()) // 方便设定当前日期进行调试，或是之后从数据库获取当前日期
 
-  var GetLatest = function () {
-    News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
-            function (data) {
-                console.log(data)
-                if(data.results[0]==undefined) {
-                  $scope.newMes = "最新消息：无"
-                }else{
-                  $scope.newMes= "最新消息："+data.results[0].description
-                }
-            }, function (err) {
-      console.log(err)
-    })
-  }
-  GetLatest()
+  // var GetLatest = function () {
+  //   News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
+  //           function (data) {
+  //               console.log(data)
+  //               if(data.results[0]==undefined) {
+  //                 $scope.newMes = "最新消息：无"
+  //               }else{
+  //                 $scope.newMes= "最新消息："+data.results[0].description
+  //               }
+  //           }, function (err) {
+  //     console.log(err)
+  //   })
+  // }
+  // GetLatest()
 
   var GetUnread = function () {
         // console.log(new Date());
+    console.log("message refresh")
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
       function (data) {
-          // console.log(data);
+        console.log(data);
         if (data.results.length) {
           $scope.HasUnreadMessages = true
+          $scope.newMes= "最新消息："+ data.results[0].description
               // console.log($scope.HasUnreadMessages);
         } else {
           $scope.HasUnreadMessages = false
+          $scope.newMes= "最新消息：没有最新的未读消息！"
         }
         Storage.set('unReadTxt',$scope.HasUnreadMessages)
       }, function (err) {
@@ -1466,11 +1469,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
     })
   }
+  GetUnread()
 
   $scope.$on('$ionicView.enter', function () {
     GetTasks()
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
-    RefreshUnread = $interval(GetUnread, 2000)
+    RefreshUnread = $interval(GetUnread, 60000)
   })
 
   $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
@@ -1776,7 +1780,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       // 确定任务是否完成，修改显示标志位，获取已填写的数值并在页面显示
     var Code = doneTask.code
     var Description = doneTask.description
-    console.log(doneTask)
+    // console.log(doneTask)
     EveTaskDone(doneTask, flag)
     if (flag == 'POST') {
       if ((doneTask.type == 'ReturnVisit') && (doneTask.code == 'stage_9')) // 血透排班
@@ -3076,7 +3080,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 我的 页面--PXY
-.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket) {
+.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', 'Mywechatphoto', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket, Mywechatphoto) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID')
@@ -3184,6 +3188,42 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
   }
 
+ //二维码
+  Patient.getPatientDetail({userId: Storage.get('UID')}).then(
+    function (data) {
+      $scope.patient = data.results
+      // console.log($scope.patient)
+      // console.log($scope.patient.patTDCticket)
+      if ( $scope.patient.patTDCticket == null || $scope.patient.patTDCticket == undefined) {
+        // console.log("yes")
+        var params = {
+          'role':"doctor",
+          'userId': Storage.get('UID'),
+          'postdata': {
+            'action_name': 'QR_LIMIT_STR_SCENE',
+            'action_info': {
+              'scene': {
+                'scene_str': Storage.get('UID')
+              }
+            }
+          }
+        }
+        Mywechatphoto.createTDCticket(params).then(function (data) {
+          $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.patTDCticket
+        },
+            function (err) {
+              console.log(err)
+            })
+      } else {
+        // console.log("no")
+        $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.patTDCticket
+      }
+    },
+    function (err) {
+      console.log(err)
+    }
+)
+
   $scope.ReflectAdvice = function () {
     $state.go('tab.advice')
   }
@@ -3199,7 +3239,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 根据用户ID查询用户头像
   $scope.myAvatar = 'img/DefaultAvatar.jpg'
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (res) {
-    console.log(res)
+    // console.log(res)
         // console.log(res.results)
         // console.log(res.results.photoUrl)
         // console.log(angular.fromJson(res.results))
@@ -3669,6 +3709,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   })
   // 进入页面时：获取咨询状态、剩余次数
   $scope.$on('$ionicView.enter', function () {
+    if ($ionicPlatform.is('ios') == false)document.getElementById('inputbar').removeAttribute('keyboard-attach')
     $rootScope.conversation.type = 'single'
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
@@ -5399,6 +5440,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   }})
                }else if(vitalsign.item.data1.length==0){
                 $scope.flagPD = vitalsign.flag.flagPD
+                console.log($scope.flagPD)
                  var chart = new Highcharts.Chart('container6', {
                  credits:{enabled:false},
                  chart: {
@@ -7770,12 +7812,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
 // "我”二维码页
 .controller('QRcodeCtrl', ['Patient', '$scope', '$state', '$interval', '$rootScope', 'Storage','Mywechat','Mywechatphoto', function (Patient, $scope, $state, $interval, $rootScope, Storage, Mywechat, Mywechatphoto) {
-  
   $scope.patient = ''
   Patient.getPatientDetail({userId: Storage.get('UID')}).then(
     function (data) {
       $scope.patient = data.results
-      if (angular.isDefined($scope.patient.TDCticket) != true) {
+      // console.log($scope.patient)
+      // console.log($scope.patient.patTDCticket)
+      if ( $scope.patient.patTDCticket == null || $scope.patient.patTDCticket == undefined) {
+        // console.log("yes")
         var params = {
           'role':"doctor",
           'userId': Storage.get('UID'),
@@ -7789,13 +7833,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           }
         }
         Mywechatphoto.createTDCticket(params).then(function (data) {
-          $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.TDCticket
+          $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.results.patTDCticket
         },
             function (err) {
               console.log(err)
             })
       } else {
-        $scope.patient.TDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.TDCticket
+        // console.log("no")
+        $scope.patient.patTDCticket = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + $scope.patient.patTDCticket
       }
     },
     function (err) {
@@ -9026,6 +9071,30 @@ $scope.initial={
     }, function (err) { 
       console.log(err)
     })
+  }
+
+  $scope.refresher1 = function () {
+    pagecontrol = {skip: 0, limit: 10},
+    allposts = []
+    $scope.loadMore()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.refresher2 = function () {
+    pagecontrol1 = {skip: 0, limit: 10},
+    myposts = []
+    $scope.loadMore1()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.refresher3 = function () {
+    pagecontrol2 = {skip: 0, limit: 10},
+    mycollection = []
+    $scope.loadMore2()
+    // RefreshDiagnosisInfo()
+    $scope.$broadcast('scroll.refreshComplete')
   }
   
   $scope.myStyle=[

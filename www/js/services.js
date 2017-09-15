@@ -506,7 +506,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
   var Forum = function () {
-    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'forum'}, {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'forump'}, {
       allposts: {method: 'GET', params: {route: 'allposts'}, timeout: 10000},
       myposts: {method: 'GET', params: {route: 'myposts'}, timeout: 10000},
       mycollection: {method: 'GET', params: {route: 'mycollection'}, timeout: 10000},

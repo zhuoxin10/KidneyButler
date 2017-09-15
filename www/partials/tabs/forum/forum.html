@@ -23,6 +23,7 @@
   <ion-content delegate-handle="myContentScroll"> 
 
     <div ng-if="params.allposts" class="list">
+    <ion-refresher pulling-text="下拉刷新..." on-refresh="refresher1()"></ion-refresher>
       <div class="bar bar-header item-input-inset" style="height:40px;padding:30;margin-top:40px;">
             <div class="item-input-wrapper">
                 <i class="icon ion-ios-search placeholder-icon f-24"></i>
@@ -65,7 +66,7 @@
     </div>
 
     <div ng-if="params.myposts" class="list" style="margin-top: 38px;">
-
+    <ion-refresher pulling-text="下拉刷新..." on-refresh="refresher2()"></ion-refresher>
       <div ng-repeat="item in posts1">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
                 <img style="margin-top: -10px" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
@@ -99,7 +100,7 @@
 
 
     <div ng-if="params.mycollection" class="list" style="margin-top: 38px;">
-
+    <ion-refresher pulling-text="下拉刷新..." on-refresh="refresher3()"></ion-refresher>
         <div ng-repeat="item in posts2">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px;">
                 <img style="margin-top: -10px" ng-if = "!(item.anonymous)" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
