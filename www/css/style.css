@@ -1295,7 +1295,13 @@ button.doctorBtn5{
   border-style: solid;
 }
 
-
+button.topbutton{
+  width:50%;
+  background: white;
+  border-radius: 7px;
+  height: 32px;
+  border: 1px solid #ddd;
+}
 
 button.doctorBtn:disabled{
   background-color: #ddd;

@@ -9,7 +9,15 @@
 
   <!-- <div  style="position: absolute;top: 43px;z-index:100;display: block;height: 2.5px;background-color: #33cd5f;{{barwidth}}" ></div> -->
   <ion-content padding="true">
+    <div class="row">  
+        <button class="topbutton" ng-click ="allDoctors()">
+            更多医生
+        </button>
 
+         <button class="topbutton" ng-click ="consultRecord()">
+            咨询记录
+        </button>  
+    </div>
     <div class="card" style="margin-top: 10px">
 
         <div class="item item-divider">
@@ -130,15 +138,7 @@
       </div>
  
     </div>
-    <div>  
-        <button style="margin:20px auto;width:80%;" class="button button-block green-bg font-white" ng-click ="allDoctors()">
-            更多医生
-        </button>
 
-         <button style="margin:20px auto;width:80%;" class="button button-block green-bg font-white" ng-click ="consultRecord()">
-            咨询记录
-        </button>  
-    </div>
              
   </ion-content>
           
