@@ -8284,6 +8284,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.openPersonal = true
   $scope.openDiag = true
   var patientId = Storage.get('UID')
+  // console.log($stateParams)
   var DoctorId = $stateParams.DoctorId
   var counselType = $stateParams.counselType
   $scope.submitable = false
@@ -8849,12 +8850,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 // $scope.$on('im:messageRes',function(event,messageRes){
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
-              alert('counseltype'+counseltype)
-              if(counseltype==1||counseltype==6||counseltype==7){
+              // console.log(counselType)
+              alert('counselType'+counselType)
+              if(counselType==1||counselType==6||counselType==7){
                 Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
                   alert('modifyCounts'+JSON.stringify(data))
                 },function(err){
-
+                  alert('modifyError'+JSON.stringify(err))
                 })
               }
               if (DoctorId == 'U201612291283') {
