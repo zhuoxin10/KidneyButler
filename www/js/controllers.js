@@ -8649,7 +8649,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       var d = dd < 10 ? ('0' + String(dd)) : String(dd)
       var m = mm < 10 ? ('0' + String(mm)) : String(mm)
       // 日期的存储格式和显示格式不一致
-      $scope.BasicInfo.LastDiseaseTime = yyyy + '-' + m + '-' + d
+      $scope.Questionare.LastDiseaseTime = yyyy + '-' + m + '-' + d
     }
   }
 
