@@ -1432,21 +1432,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var index = 0
   var dateNowStr = ChangeTimeForm(new Date()) // 方便设定当前日期进行调试，或是之后从数据库获取当前日期
 
-  // var GetLatest = function () {
-  //   News.getNews({userId: Storage.get('UID'), token:Storage.get('TOKEN'), userRole: 'patient'}).then(//
-  //           function (data) {
-  //               console.log(data)
-  //               if(data.results[0]==undefined) {
-  //                 $scope.newMes = "最新消息：无"
-  //               }else{
-  //                 $scope.newMes= "最新消息："+data.results[0].description
-  //               }
-  //           }, function (err) {
-  //     console.log(err)
-  //   })
-  // }
-  // GetLatest()
-
   var GetUnread = function () {
         // console.log(new Date());
     console.log("message refresh")
@@ -1455,8 +1440,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(data);
         if (data.results.length) {
           $scope.HasUnreadMessages = true
-          $scope.newMes= "最新消息："+ data.results[0].description
-              // console.log($scope.HasUnreadMessages);
+            if (data.results[0].type==11) {
+                str1=data.results[0].title.split(",")[1]
+                str2=str1.split(":")[1]
+                str3=str2.split("}")[0]
+                $scope.newMes= "最新消息：医生"+str3+"给您发来一条聊天消息“"+data.results[0].description+"”"
+                console.log($scope.newMes)
+              } else {
+                  $scope.newMes= "最新消息："+ data.results[0].description
+              }             
         } else {
           $scope.HasUnreadMessages = false
           $scope.newMes= "最新消息：没有最新的未读消息！"
