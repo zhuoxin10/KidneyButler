@@ -235,13 +235,33 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         }
       }
     })
-    .state('tab.forum', {
-      url: '/forum',
+    .state('tab.allposts', {
+      url: '/allposts',
+      cache: false,
       views: {
         'tab-forum': {
-          cache: false,
-          templateUrl: 'partials/tabs/forum/forum.html',
-          controller: 'forumCtrl'
+          controller: 'allpostsCtrl',
+          templateUrl: 'partials/tabs/forum/allposts.html'
+        }
+      }
+    })
+    .state('tab.myposts', {
+      url: '/myposts',
+      cache: false,
+      views: {
+        'tab-forum': {
+      templateUrl: 'partials/tabs/forum/myposts.html',
+      controller: 'mypostsCtrl'
+      }
+     }
+    })
+    .state('tab.mycollection', {
+      url: '/mycollection',
+      cache: false,
+      views: {
+        'tab-forum': {
+          controller: 'mycollectionCtrl',
+          templateUrl: 'partials/tabs/forum/mycollection.html'
         }
       }
     })
