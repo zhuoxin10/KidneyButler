@@ -2856,31 +2856,33 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
         // 没有进行中的问诊咨询 查看是否已经付过费
         // console.log("fj;akfmasdfzjl")
         /**
-         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.result[0].type对应已付费的咨询类型
+         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.results[0].type对应已付费的咨询类型
          * @Author   ZXF
          * @DateTime 2017-07-05
          * @param    {[type]}
          * @return   {[type]}
          */
         Order.PaidUnfinishedOrders({doctorId: DoctorId}).then(function (data) {
-          debugger
+          // debugger
           if (self.consultable === 1) {
             if (data.msg != 'nonexistence') {
+              // console.log('nonexistence')
               self.consultable = 0
 
               $ionicPopup.confirm({
                 title: '咨询确认',
-                template: whichTemplate[data.result[0].type].counselTemplate,
+                template: whichTemplate[data.results[0].type].counselTemplate,
                 okText: '确认',
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
                   // console.log(whichTemplate[data.result.count].counselType)
-                  $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[data.result[0].type].counselType})
+                  $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[data.results[0].type].counselType})
                 }
                 self.consultable = 1
               })
             } else {
+              // console.log('account')
               Account.getCounts({patientId: Storage.get('UID'), doctorId: DoctorId}).then(function (succ) {
                 if (succ.result.freeTimes > 0) {
                   self.consultable = 0
@@ -3056,7 +3058,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
    */
     Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')}).then(function (data) {
         // zxf 判断条件重写
-      debugger
+      // debugger
       console.log(data)
       if (self.consultable == 1) {
         self.consultable = 0
@@ -3225,7 +3227,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
           }
         } else {
           /**
-         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.result[0].type对应已付费的咨询类型
+         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.results[0].type对应已付费的咨询类型
          * @Author   ZXF
          * @DateTime 2017-07-05
          * @param    {[type]}
@@ -3235,13 +3237,13 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             if (succ.msg != 'nonexistence') {
               $ionicPopup.confirm({
                 title: '咨询确认',
-                template: whichTemplate[succ.result[0].type].counselTemplate,
+                template: whichTemplate[succ.results[0].type].counselTemplate,
                 okText: '确认',
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
                   // console.log(whichTemplate[data.result.count].counselType)
-                  $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[succ.result[0].type].counselType})
+                  $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: whichTemplate[succ.results[0].type].counselType})
                 }
                 self.consultable = 1
               })
@@ -3249,7 +3251,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               // self.consultable = 0
               $ionicPopup.confirm({// 没有免费也没有回答次数 交钱 充值 加次数
                 title: '咨询确认',
-                template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费',
+                template: '进入问诊后，您询问该医生的次数不限，最后由医生结束此次问诊，请尽量详细描述病情和需求。医生会在24小时内回答，如超过24小时医生未作答，本次咨询关闭，且不收取费用。是否确认付费?',
                 okText: '确认',
                 cancelText: '取消'
               }).then(function (res) {
@@ -3357,7 +3359,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     Counsels.getStatus({doctorId: DoctorId, patientId: Storage.get('UID')}).then(function (data) {
       // alert(121212)
       // zxf 判断条件重写
-      debugger
+      // debugger
       if (self.consultable == 1) {
         self.consultable = 0
         if (data.result != '请填写咨询问卷!' && data.result.status == 1) {
@@ -3530,7 +3532,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
           }
         } else {
           /**
-         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.result[0].type对应已付费的咨询类型
+         * *[没有正在进行的咨询，判断用户是否有已付费未提交的咨询：有已付钱但尚未新建的问诊，进入咨询问卷，返回data.results[0].type对应已付费的咨询类型
          * @Author   ZXF
          * @DateTime 2017-07-05
          * @param    {[type]}

@@ -27,7 +27,7 @@
             </i>关注医生</button>
             <button  ng-if="doctor.IsMyFollowDoctor" ng-click="unfollowDoctor(doctor)" class="doctorBtn2"><i class="icon ion-ios-heart">
             </i>已关注医生</button>
-            <button  ng-if="!doctor.IsMyDoctor" ng-disabled="(!doctor.counselStatus4)||(doctor.change4==undefined)" ng-click="applyMyDoctor(doctor)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
+            <button  ng-if="!doctor.IsMyDoctor" ng-disabled="(!doctor.counselStatus4)||(doctor.charge4==undefined)" ng-click="applyMyDoctor(doctor)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
             <button  ng-if="doctor.IsMyDoctor" ng-click="cancelMyDoc(doctor)" class="doctorBtn2"><i class="icon ion-person-add"></i>已成为管理医生</button>
 
 

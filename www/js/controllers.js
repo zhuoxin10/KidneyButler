@@ -6373,6 +6373,16 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       console.log(err)
     }
         )
+    News.getNews({userId: receiver, type: 6}).then(
+            function (data) {
+              if (data.results.length) {
+                console.log(data.results)
+                $scope.refund = data.results[0]
+              }
+            }, function (err) {
+      console.log(err)
+    }
+        )
 
         News.getNews({userId: receiver, type: 7}).then(
             function (data) {
@@ -8847,9 +8857,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 // $scope.$on('im:messageRes',function(event,messageRes){
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
-              if($stateParams.counseltype==1||$stateParams.counseltype==6||$stateParams.counseltype==7){
+              alert('counseltype'+counseltype)
+              if(counseltype==1||counseltype==6||counseltype==7){
                 Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
-
+                  alert('modifyCounts'+JSON.stringify(data))
                 },function(err){
 
                 })

@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            <div class="row" style="border:none">
+            <div class="row" style="border-width: 1px 0px 0px 0px;border-color: #eee;border-style: solid">
               <button ng-disabled="DisabledConsult||!doctor.counselStatus1||(doctor.charge1==undefined)"  ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
                 <i class="icon iconfont icon-zixun2" style="color:#daf603;font-size: 25px;"></i></br>咨询</br>
                 <span style="font-size: 2px; color:#a2a2a2" ng-if="!DisabledConsult&&doctor.counselStatus1&&!(doctor.charge1==undefined)">{{doctor.charge1}}元/次</span><span style="font-size: 2px; color:#a2a2a2" ng-if="DisabledConsult||!doctor.counselStatus1||(doctor.charge1==undefined)">未开通</span></button>
