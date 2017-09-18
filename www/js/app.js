@@ -299,16 +299,12 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
         }
       }
     })
-    .state('tab.consult-chat', {
+    .state('consult-chat', {
       url: '/consult/chat/:chatId',
       // params:{type:null,status:null,msgCount:null},
-      views: {
-        'tab-consult': {
-          cache: false,
-          templateUrl: 'partials/tabs/consult/consult-chat.html',
-          controller: 'ChatCtrl'
-        }
-      }
+      cache: false,
+      templateUrl: 'partials/tabs/consult/consult-chat.html',
+      controller: 'ChatCtrl'
     })
     .state('tab.consult-comment', {
       url: '/consult/comment',
