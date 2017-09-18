@@ -39,9 +39,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *               （2、账号密码错误）{results:Number,mesg:String}
          *          err
          */
+        $ionicLoading.show({
+          template:'<ion-spinner icon="ios"></ion-spinner>',
+          hideOnStateChange:true
+        })
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
            // console.log(data)
+          $ionicLoading.hide()
           if (data.results == 1) {
+
             $scope.logStatus = '账号或密码错误！'
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
@@ -69,12 +75,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $timeout(function () { $state.go('agreement', {delay: true}) }, 500)
               }
             }, function (err) {
+              $ionicLoading.hide()
               $scope.logStatus = '网络错误！'
             })
 
           }
         }, function (err) {
-          
+            $ionicLoading.hide()
             $scope.logStatus = '网络错误！'
             return
          
@@ -3491,6 +3498,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (arr[i].doctorId) {
         var elem = arr[i].doctorId.userId
         if (!hash[elem]) {
+          arr[i].doctorId.lastMsgDate = arr[i].time
           result.push(arr[i].doctorId)
           hash[elem] = true
         }
@@ -3514,7 +3522,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         for (x in FilteredDoctors) {
                           for (y in data.results) {
                             if (FilteredDoctors[x].userId == data.results[y].sendBy || FilteredDoctors[x].userId == data.results[y].userId) {
-                              FilteredDoctors[x].lastMsgDate = data.results[y].time
+                              FilteredDoctors[x].lastMsgDate = data.results[y].time 
                               FilteredDoctors[x].latestMsg = data.results[y].description
                               try {
                                 data.results[y].url = JSON.parse(data.results[y].url)
