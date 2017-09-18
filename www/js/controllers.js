@@ -9253,10 +9253,13 @@ $scope.initial={
     // ----------------结束搜索患者------------------
 }])
 
-.controller('postCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', '$ionicPopover', 'Forum', 'Camera', 'CONFIG' , '$ionicLoading', '$timeout',function ($scope, $state, Storage, $ionicHistory, $ionicPopover, Forum, Camera, CONFIG, $ionicLoading, $timeout) {
+.controller('postCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', '$ionicPopover', 'Forum', 'Camera', 'CONFIG' , '$ionicLoading', '$timeout', '$ionicModal','$ionicScrollDelegate', function ($scope, $state, Storage, $ionicHistory, $ionicPopover, Forum, Camera, CONFIG, $ionicLoading, $timeout, $ionicModal, $ionicScrollDelegate) {
   $scope.GoBack = function () {
     $state.go('tab.forum')
   }
+  $scope.$on('$ionicView.enter', function () {
+    imgModalInit();
+  })
   $scope.hasDeliver = true
   $scope.postphoto = '';
   $scope.post = {
@@ -9270,6 +9273,7 @@ $scope.initial={
     anonymous:''
     // imgurl:[]
   }
+  $scope.Images=[]
   $scope.Post = function () {
     var param = {
       token: Storage.get('TOKEN'),
@@ -9417,6 +9421,73 @@ $scope.initial={
   //   $scope.modal.show()
   // }
 
+    
+  function imgModalInit () {
+    $scope.zoomMin = 1;
+    $scope.imageUrl = '';
+    $scope.imageIndex = -1;//当前展示的图片
+    $ionicModal.fromTemplateUrl('partials/tabs/consult/msg/imageViewer.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.modal = modal;
+        // $scope.modal.show();
+        $scope.imageHandle = $ionicScrollDelegate.$getByHandle('imgScrollHandle');
+    }); 
+  }
+
+  $scope.showoriginal=function(resizedpath){
+        // $scope.openModal();
+        for (i = 0; i < $scope.post.content[1].image.length; i++) {
+              $scope.Images[i] = CONFIG.imgLargeUrl+$scope.post.content[1].image[i].slice($scope.post.content[1].image[i].lastIndexOf('/')+1).substr(7)
+              // console.log('Images',$scope.Images)
+              // console.log('images',$scope.image)
+        }
+        console.log(resizedpath)
+        $scope.imageIndex = 0;
+        //console.log($scope.imageIndex)
+        var originalfilepath=CONFIG.imgLargeUrl+resizedpath.slice(resizedpath.lastIndexOf('/')+1).substr(7)
+        //console.log(originalfilepath)
+        // $scope.doctorimgurl=originalfilepath;
+        $scope.imageHandle.zoomTo(1, true);
+        $scope.imageUrl = originalfilepath;
+        $scope.modal.show();
+    }
+  //关掉图片
+  $scope.closeModal = function() {
+      $scope.imageHandle.zoomTo(1, true);
+      $scope.modal.hide();
+      // $scope.modal.remove()
+  };
+  //双击调整缩放
+  $scope.switchZoomLevel = function() {
+      if ($scope.imageHandle.getScrollPosition().zoom != $scope.zoomMin)
+          $scope.imageHandle.zoomTo(1, true);
+      else {
+          $scope.imageHandle.zoomTo(5, true);
+      }
+  }
+  //右划图片
+  $scope.onSwipeRight = function () {
+    if ($scope.imageIndex <= $scope.Images.length - 1 && $scope.imageIndex > 0)
+      $scope.imageIndex = $scope.imageIndex - 1;
+    else {
+      //如果图片已经是第一张图片了，则取index = Images.length-1
+      $scope.imageIndex = $scope.Images.length - 1;
+    }
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }
+
+  //左划图片
+  $scope.onSwipeLeft = function () {
+    if ($scope.imageIndex < $scope.Images.length - 1 && $scope.imageIndex >= 0)
+      $scope.imageIndex = $scope.imageIndex + 1;
+    else {
+      //如果图片已经是最后一张图片了，则取index = 0
+      $scope.imageIndex = 0;
+    }
+    //替换url，展示图片
+    $scope.imageUrl = $scope.Images[$scope.imageIndex];
+  }
 
   $scope.deleteimg = function (index) {
     // somearray.removeByValue("tue");
