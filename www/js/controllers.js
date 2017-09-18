@@ -493,6 +493,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
                 // alert('setUnionId'+JSON.stringify(res))
+                if (Storage.get('wechatheadimgurl')) {
+                  // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+                  Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+                  // alert(JSON.stringify(data))
+                    Storage.rm('wechatheadimgurl')
+                  }, function (err) {
+                  // alert('imageerror'+JSON.stringify(err))
+                    console.log(err)
+                  })
+                // 已有头像，未更新;没有头像，已替换
+                }
                 User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (succ) {
                   // alert("userlogin"+JSON.stringify(succ))
                   if (succ.results.mesg == 'login success!') {
@@ -516,6 +527,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
                 // alert('setUnionId'+JSON.stringify(res))
+                if (Storage.get('wechatheadimgurl')) {
+                  // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+                  Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+                  // alert(JSON.stringify(data))
+                    Storage.rm('wechatheadimgurl')
+                  }, function (err) {
+                  // alert('imageerror'+JSON.stringify(err))
+                    console.log(err)
+                  })
+                // 已有头像，未更新;没有头像，已替换
+                }
                 $state.go('agreement',{delay:true})
               },function(err){
                 $ionicLoading.hide()
@@ -619,6 +641,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               template:"恭喜您，注册成功！正在登录，请稍后。",
               hideOnStateChange:true
             })
+            if (Storage.get('wechatheadimgurl')) {
+              // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+              Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+              // alert(JSON.stringify(data))
+                Storage.rm('wechatheadimgurl')
+              }, function (err) {
+              // alert('imageerror'+JSON.stringify(err))
+                console.log(err)
+              })
+            // 已有头像，未更新;没有头像，已替换
+            }
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
               // alert("userlogin"+JSON.stringify(data))
               if (data.results.mesg == 'login success!') {

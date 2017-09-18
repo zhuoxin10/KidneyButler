@@ -3014,7 +3014,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                            */
                           Wechat.sendPaymentRequest(params, function () {
                           // alert("Success");
-
+                            ionicLoadingshow()
                             $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
                           }, function (reason) {
                             if (reason == '发送请求失败') {
