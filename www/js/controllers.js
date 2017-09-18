@@ -8882,7 +8882,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 论坛
-.controller('forumCtrl', ['$interval', 'News', '$scope', '$state', '$sce', '$http', 'Storage', 'Forum', '$stateParams', '$ionicPopup', '$ionicPopover', '$ionicLoading', '$ionicScrollDelegate',function ($interval, News, $scope, $state, $sce, $http, Storage, Forum, $stateParams, $ionicPopup, $ionicPopover, $ionicLoading, $ionicScrollDelegate) {
+.controller('allpostsCtrl', ['$interval', 'News', '$scope', '$state', '$sce', '$http', 'Storage', 'Forum', '$stateParams', '$ionicPopup', '$ionicPopover', '$ionicLoading', '$ionicScrollDelegate',function ($interval, News, $scope, $state, $sce, $http, Storage, Forum, $stateParams, $ionicPopup, $ionicPopover, $ionicLoading, $ionicScrollDelegate) {
   var patientId = Storage.get('UID')
   var GetUnread = function () {
       // console.log(new Date());
@@ -8905,6 +8905,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.$on('$ionicView.enter', function () {
+    $scope.loadMore()
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
     RefreshUnread = $interval(GetUnread, 2000)
   })
@@ -8913,209 +8914,90 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     console.log('destroy')
     $interval.cancel(RefreshUnread)
   })
-  $scope.params = {
-    allposts: true,
-    myposts: false,
-    mycollection: false,
-    updateTime: 0
-  }
 
   var allposts = []
   $scope.posts = []
   $scope.moredata = true
   var pagecontrol = {skip: 0, limit: 10}
 
-  var myposts = []
-  $scope.posts1 = []
-  $scope.moredata1 = true
-  var pagecontrol1 = {skip: 0, limit: 10}
-
-  var mycollection = []
-  $scope.posts2 = []
-  $scope.moredata2 = true
-  var pagecontrol2 = {skip: 0, limit: 10}
-
-$scope.initial={
-    item:""
- }
-
- $scope.scrollHandle = $ionicScrollDelegate.$getByHandle('myContentScroll')
-// 点亮全部帖子标签 显示全部帖子
-  $scope.Showallposts = function () {
-    $scope.params.allposts = true
-    $scope.params.myposts = false
-    $scope.params.mycollection = false
-     $scope.scrollHandle.scrollTop(false)
+  $scope.initial = {
+    item: ''
   }
-  // 点亮我的帖子标签 显示我的帖子
-  $scope.Showmyposts = function () {
-    $scope.params.allposts = false
-    $scope.params.myposts = true
-    $scope.params.mycollection = false
-     $scope.scrollHandle.scrollTop(false)
-  }
-  // 点亮我的收藏标签 显示我的收藏
-  $scope.Showmycollection = function () {
-    $scope.params.allposts = false
-    $scope.params.myposts = false
-    $scope.params.mycollection = true
-     $scope.scrollHandle.scrollTop(false)
-  }
+
+  // $scope.$on('$ionicView.enter', function () {
+  //   $scope.loadMore()
+  // })
 /**
-   * [获取该患者所有帖子列表]
+   * [获取该患者三种帖子列表]
    * @Author   WZX
    * @DateTime 2017-08-03
    */
-   $scope.loadMore = function () {
+  $scope.loadMore = function () {
     Forum.allposts({token: Storage.get('TOKEN'), skip: pagecontrol.skip, limit: pagecontrol.limit}).then(function (data) {
       console.log(data)
-     $scope.$broadcast('scroll.infiniteScrollComplete')
-     allposts = allposts.concat(data.data.results)
-     $scope.posts = allposts
-     if (allposts.length == 0) {
+      $scope.$broadcast('scroll.infiniteScrollComplete')
+      allposts = allposts.concat(data.data.results)
+      $scope.posts = allposts
+      if (allposts.length == 0) {
         console.log('aaa')
         $ionicLoading.show({
           template: '没有帖子', duration: 1000
         })
       }
-     var skiploc = data.data.nexturl.indexOf('skip')
+      var skiploc = data.data.nexturl.indexOf('skip')
       pagecontrol.skip = data.data.nexturl.substring(skiploc + 5)
       if (data.data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
-    }, function (err) { 
+    }, function (err) {
       console.log(err)
     })
   }
 
-  $scope.loadMore1 = function () {
-    Forum.myposts({token: Storage.get('TOKEN'), skip: pagecontrol1.skip, limit: pagecontrol1.limit}).then(function (data) {
-      console.log(data)
-     $scope.$broadcast('scroll.infiniteScrollComplete')
-     myposts = myposts.concat(data.data.results)
-     $scope.posts1 = myposts
-     if (myposts.length == 0) {
-        console.log('aaa')
-        $ionicLoading.show({
-          template: '没有帖子', duration: 1000
-        })
-      }
-     var skiploc = data.data.nexturl.indexOf('skip')
-      pagecontrol1.skip = data.data.nexturl.substring(skiploc + 5)
-      if (data.data.results.length < pagecontrol1.limit) { $scope.moredata1 = false } else { $scope.moredata1 = true };
-    }, function (err) { 
-      console.log(err)
-    })
-  }
-
-  $scope.loadMore2 = function () {
-    Forum.mycollection({token: Storage.get('TOKEN'), skip: pagecontrol2.skip, limit: pagecontrol2.limit}).then(function (data) {
-      console.log(data)
-     $scope.$broadcast('scroll.infiniteScrollComplete')
-     mycollection = mycollection.concat(data.data.results)
-     $scope.posts2 = mycollection
-     if (mycollection.length == 0) {
-        console.log('aaa')
-        $ionicLoading.show({
-          template: '没有帖子', duration: 1000
-        })
-      }
-     var skiploc = data.data.nexturl.indexOf('skip')
-      pagecontrol2.skip = data.data.nexturl.substring(skiploc + 5)
-      if (data.data.results.length < pagecontrol2.limit) { $scope.moredata2 = false } else { $scope.moredata2 = true };
-    }, function (err) { 
-      console.log(err)
-    })
-  }
-
-  $scope.refresher1 = function () {
+   $scope.refresher = function () {
     pagecontrol = {skip: 0, limit: 10},
     allposts = []
     $scope.loadMore()
-    // RefreshDiagnosisInfo()
     $scope.$broadcast('scroll.refreshComplete')
   }
 
-  $scope.refresher2 = function () {
-    pagecontrol1 = {skip: 0, limit: 10},
-    myposts = []
-    $scope.loadMore1()
-    // RefreshDiagnosisInfo()
-    $scope.$broadcast('scroll.refreshComplete')
-  }
-
-  $scope.refresher3 = function () {
-    pagecontrol2 = {skip: 0, limit: 10},
-    mycollection = []
-    $scope.loadMore2()
-    // RefreshDiagnosisInfo()
-    $scope.$broadcast('scroll.refreshComplete')
-  }
-  
-  $scope.myStyle=[
-    {'color':'gray'},
-    {'color':'DodgerBlue'}
+  $scope.myStyle = [
+    {'color': 'gray'},
+    {'color': 'DodgerBlue'}
   ]
 
   $scope.changefavoritestatus = function (tip) {
     console.log(tip)
     var param = {
-          token: Storage.get('TOKEN'),
-          postId: tip.postId
-        }
+      token: Storage.get('TOKEN'),
+      postId: tip.postId
+    }
 
     if (tip.favoritesstatus == 0) {
-          Forum.favorite(param).then(function (data) {
+      Forum.favorite(param).then(function (data) {
             // console.log(data)
         tip.favoritesstatus = 1
         $ionicLoading.show({
           template: '收藏成功', duration: 1000
         })
-          }, function (err) {
-            console.log(err)
-          })
-        } else {
-          Forum.deletefavorite(param).then(function (data) {
+      }, function (err) {
+        console.log(err)
+      })
+    } else {
+      Forum.deletefavorite(param).then(function (data) {
                         // console.log(data)
-          tip.favoritesstatus = 0
-          pagecontrol2 = {skip: 0, limit: 10},
-          mycollection = []
-          $scope.loadMore2()
-          $ionicLoading.show({
+        tip.favoritesstatus = 0
+        pagecontrol = {skip: 0, limit: 10},
+        allposts = []
+        $scope.loadMore()
+        $ionicLoading.show({
           template: '取消收藏', duration: 1000
         })
-          }, function (err) {
-            console.log(err)
-          })
-        }
+      }, function (err) {
+        console.log(err)
+      })
+    }
   }
 
-  $scope.deletemyposts = function (tip) {
-     var confirmPopup = $ionicPopup.confirm({
-        title: '删除提示',
-        template: '帖子删除后将无法恢复，确认删除？',
-        cancelText: '取消',
-        okText: '删除'
-      })
-      confirmPopup.then(function (res) {
-        if (res) {
-          Forum.deletepost({token: Storage.get('TOKEN'),postId: tip}).then(function (data) {
-          console.log(data)
-          pagecontrol1 = {skip: 0, limit: 10},
-          myposts = []
-          $scope.loadMore1()
-          pagecontrol = {skip: 0, limit: 10},
-          allposts = []
-          console.log(allposts)
-          $scope.loadMore()
-          $ionicLoading.show({
-          template: '删除成功', duration: 1000
-        })
-          }, function (err) {
-          console.log(err)
-          })   
-        }
-      })
-  }
-//----------------页面跳转------------------
+// ----------------页面跳转------------------
   $scope.GoToPost = function () {
     $state.go('post')
   }
@@ -9134,30 +9016,29 @@ $scope.initial={
 
   // 根据帖子主题在列表中搜索
   $scope.goSearch = function () {
-    
-    if($scope.search.title == ''){
+    if ($scope.search.title == '') {
       pagecontrol = {skip: 0, limit: 10},
       allposts = []
       $scope.loadMore()
     } else {
       $scope.moredata = false
-    console.log(123)
-    Forum.allposts({
-      token: Storage.get('TOKEN'),
-      title: $scope.search.title,
-      limit:1000,
-      skip:0
-    }).then(function (data) {
-       console.log(data.data)
-      $scope.posts = data.data.results
-      if (data.data.results.length == 0) {
-        console.log('aaa')
-        $ionicLoading.show({ template: '查无此帖', duration: 1000 })
-      }
-    }, function (err) {
-      console.log(err)
-    })
-   }
+      console.log(123)
+      Forum.allposts({
+        token: Storage.get('TOKEN'),
+        title: $scope.search.title,
+        limit: 1000,
+        skip: 0
+      }).then(function (data) {
+        console.log(data.data)
+        $scope.posts = data.data.results
+        if (data.data.results.length == 0) {
+          console.log('aaa')
+          $ionicLoading.show({ template: '没有搜索到该帖', duration: 1000 })
+        }
+      }, function (err) {
+        console.log(err)
+      })
+    }
   }
 
   $scope.clearSearch = function () {
@@ -9170,9 +9051,289 @@ $scope.initial={
     // ----------------结束搜索患者------------------
 }])
 
+.controller('mypostsCtrl', ['$interval', 'News', '$scope', '$state', '$sce', '$http', 'Storage', 'Forum', '$stateParams', '$ionicPopup', '$ionicPopover', '$ionicLoading', '$ionicScrollDelegate', function ($interval, News, $scope, $state, $sce, $http, Storage, Forum, $stateParams, $ionicPopup, $ionicPopover, $ionicLoading, $ionicScrollDelegate) {
+ 
+ var patientId = Storage.get('UID')
+  var GetUnread = function () {
+      // console.log(new Date());
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+       $interval.cancel(RefreshUnread)
+    }
+      console.log(err)
+    })
+  }
+
+  $scope.$on('$ionicView.enter', function () {
+    $scope.loadMore()
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
+    RefreshUnread = $interval(GetUnread, 2000)
+  })
+
+  $scope.$on('$ionicView.leave', function () {
+    console.log('destroy')
+    $interval.cancel(RefreshUnread)
+  })
+
+  var myposts = []
+  $scope.posts = []
+  $scope.moredata = true
+  var pagecontrol = {skip: 0, limit: 10}
+
+  $scope.initial = {
+    item: ''
+  }
+
+/**
+   * [获取该患者三种帖子列表]
+   * @Author   WZX
+   * @DateTime 2017-08-03
+   */
+  $scope.loadMore = function () {
+    Forum.myposts({token: Storage.get('TOKEN'), skip: pagecontrol.skip, limit: pagecontrol.limit}).then(function (data) {
+      console.log(data)
+      $scope.$broadcast('scroll.infiniteScrollComplete')
+      myposts = myposts.concat(data.data.results)
+      $scope.posts = myposts
+      if (myposts.length == 0) {
+        console.log('aaa')
+        $ionicLoading.show({
+          template: '没有帖子', duration: 1000
+        })
+      }
+      var skiploc = data.data.nexturl.indexOf('skip')
+      pagecontrol.skip = data.data.nexturl.substring(skiploc + 5)
+      if (data.data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
+    }, function (err) {
+      console.log(err)
+    })
+  }
+
+
+   $scope.refresher = function () {
+    pagecontrol = {skip: 0, limit: 10},
+    myposts = []
+    $scope.loadMore()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.myStyle = [
+    {'color': 'gray'},
+    {'color': 'DodgerBlue'}
+  ]
+
+  $scope.changefavoritestatus = function (tip) {
+    console.log(tip)
+    var param = {
+      token: Storage.get('TOKEN'),
+      postId: tip.postId
+    }
+
+    if (tip.favoritesstatus == 0) {
+      Forum.favorite(param).then(function (data) {
+            // console.log(data)
+        tip.favoritesstatus = 1
+        $ionicLoading.show({
+          template: '收藏成功', duration: 1000
+        })
+      }, function (err) {
+        console.log(err)
+      })
+    } else {
+      Forum.deletefavorite(param).then(function (data) {
+                        // console.log(data)
+        tip.favoritesstatus = 0
+        pagecontrol = {skip: 0, limit: 10},
+        myposts = []
+        $scope.loadMore()
+        $ionicLoading.show({
+          template: '取消收藏', duration: 1000
+        })
+      }, function (err) {
+        console.log(err)
+      })
+    }
+  }
+
+  $scope.deletemyposts = function (tip) {
+    var confirmPopup = $ionicPopup.confirm({
+      title: '删除提示',
+      template: '帖子删除后将无法恢复，确认删除？',
+      cancelText: '取消',
+      okText: '删除'
+    })
+    confirmPopup.then(function (res) {
+      if (res) {
+        Forum.deletepost({token: Storage.get('TOKEN'), postId: tip}).then(function (data) {
+          console.log(data)
+          pagecontrol = {skip: 0, limit: 10},
+          myposts = []
+          console.log(myposts)
+          $scope.loadMore()
+          $ionicLoading.show({
+            template: '删除成功', duration: 1000
+          })
+        }, function (err) {
+          console.log(err)
+        })
+      }
+    })
+  }
+// ----------------页面跳转------------------
+  $scope.GoToPost = function () {
+    $state.go('post')
+  }
+  $scope.GoToComment = function (rep) {
+    $state.go('comment')
+    Storage.set('POSTID', rep)
+  }
+  $scope.gotopostsdetail = function (tip) {
+    $state.go('postsdetail')
+    Storage.set('POSTID', tip)
+  }
+    // ----------------结束页面搜索------------------
+}])
+
+.controller('mycollectionCtrl', ['$interval', 'News', '$scope', '$state', '$sce', '$http', 'Storage', 'Forum', '$stateParams', '$ionicPopup', '$ionicPopover', '$ionicLoading', '$ionicScrollDelegate', function ($interval, News, $scope, $state, $sce, $http, Storage, Forum, $stateParams, $ionicPopup, $ionicPopover, $ionicLoading, $ionicScrollDelegate) {
+
+var patientId = Storage.get('UID')
+  var GetUnread = function () {
+      // console.log(new Date());
+    News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(
+      function (data) {
+          // console.log(data);
+        if (data.results.length) {
+          $scope.HasUnreadMessages = true
+              // console.log($scope.HasUnreadMessages);
+        } else {
+          $scope.HasUnreadMessages = false
+        }
+        Storage.set('unReadTxt',$scope.HasUnreadMessages)
+      }, function (err) {
+        if(err.status === 401 && angular.isDefined(RefreshUnread)){
+       $interval.cancel(RefreshUnread)
+    }
+      console.log(err)
+    })
+  }
+
+  $scope.$on('$ionicView.enter', function () {
+    $scope.loadMore()
+    $scope.HasUnreadMessages = Storage.get('unReadTxt')
+    RefreshUnread = $interval(GetUnread, 2000)
+  })
+
+  $scope.$on('$ionicView.leave', function () {
+    console.log('destroy')
+    $interval.cancel(RefreshUnread)
+  })
+
+  var mycollection = []
+  $scope.posts = []
+  $scope.moredata = true
+  var pagecontrol = {skip: 0, limit: 10}
+
+  $scope.initial = {
+    item: ''
+  }
+/**
+   * [获取该患者三种帖子列表]
+   * @Author   WZX
+   * @DateTime 2017-08-03
+   */
+
+  $scope.loadMore = function () {
+    console.log()
+    Forum.mycollection({token: Storage.get('TOKEN'), skip: pagecontrol.skip, limit: pagecontrol.limit}).then(function (data) {
+      console.log(data)
+      $scope.$broadcast('scroll.infiniteScrollComplete')
+      mycollection = mycollection.concat(data.data.results)
+      $scope.posts = mycollection
+      if (mycollection.length == 0) {
+        console.log('aaa')
+        $ionicLoading.show({
+          template: '没有帖子', duration: 1000
+        })
+      }
+      var skiploc = data.data.nexturl.indexOf('skip')
+      pagecontrol.skip = data.data.nexturl.substring(skiploc + 5)
+      if (data.data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
+    }, function (err) {
+      console.log(err)
+    })
+  }
+
+   $scope.refresher = function () {
+    pagecontrol = {skip: 0, limit: 10},
+    mycollection = []
+    $scope.loadMore()
+    $scope.$broadcast('scroll.refreshComplete')
+  }
+
+  $scope.myStyle = [
+    {'color': 'gray'},
+    {'color': 'DodgerBlue'}
+  ]
+
+  $scope.changefavoritestatus = function (tip) {
+    console.log(tip)
+    var param = {
+      token: Storage.get('TOKEN'),
+      postId: tip.postId
+    }
+
+    if (tip.favoritesstatus == 0) {
+      Forum.favorite(param).then(function (data) {
+            // console.log(data)
+        tip.favoritesstatus = 1
+        $ionicLoading.show({
+          template: '收藏成功', duration: 1000
+        })
+      }, function (err) {
+        console.log(err)
+      })
+    } else {
+      Forum.deletefavorite(param).then(function (data) {
+        tip.favoritesstatus = 0
+        pagecontrol = {skip: 0, limit: 10},
+        mycollection = []
+        $scope.loadMore()
+        $ionicLoading.show({
+          template: '取消收藏', duration: 1000
+        })
+      }, function (err) {
+        console.log(err)
+      })
+    }
+  }
+
+// ----------------页面跳转------------------
+  $scope.GoToPost = function () {
+    $state.go('post')
+  }
+  $scope.GoToComment = function (rep) {
+    $state.go('comment')
+    Storage.set('POSTID', rep)
+  }
+  $scope.gotopostsdetail = function (tip) {
+    $state.go('postsdetail')
+    Storage.set('POSTID', tip)
+  }
+}])
+
 .controller('postCtrl', ['$scope', '$state', 'Storage', '$ionicHistory', '$ionicPopover', 'Forum', 'Camera', 'CONFIG' , '$ionicLoading', '$timeout',function ($scope, $state, Storage, $ionicHistory, $ionicPopover, Forum, Camera, CONFIG, $ionicLoading, $timeout) {
   $scope.GoBack = function () {
-    $state.go('tab.forum')
+    $state.go('tab.allposts')
   }
   $scope.hasDeliver = true
   $scope.postphoto = '';
@@ -9205,7 +9366,7 @@ $scope.initial={
                   duration: 1000,
                   hideOnStateChange: true
                 })
-                $timeout(function () { $state.go('tab.forum') }, 900)
+                $timeout(function () { $state.go('tab.allposts') }, 900)
               }
     }, function (err) {
       $scope.hasDeliver = false
@@ -9347,7 +9508,7 @@ $scope.initial={
 .controller('postsdetailCtrl',  ['CONFIG', '$scope', '$state', 'Storage', '$ionicHistory', 'Forum', '$http', '$ionicPopup', '$timeout', '$ionicPopover', '$ionicModal','$ionicScrollDelegate', function (CONFIG, $scope, $state, Storage, $ionicHistory, Forum, $http, $ionicPopup, $timeout, $ionicPopover, $ionicModal, $ionicScrollDelegate)  {
 //----------------页面跳转------------------
   $scope.GoBack = function () {
-    $state.go('tab.forum');
+    $state.go('tab.allposts');
   }
   $scope.GoToCommentf = function (tip) {
     $state.go('comment')
