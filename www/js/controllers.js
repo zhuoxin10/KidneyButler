@@ -7761,7 +7761,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          */
         ionicLoadinghide()
         Wechat.sendPaymentRequest(params, function (data) {
-          alert('wechat:'+JSON.stringify(data))
+          // alert('wechat:'+JSON.stringify(data))
           // $q.all([
           // /**
           //  * [给医生账户‘转账’]
@@ -7781,7 +7781,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
              */
             Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              alert('apply:'+JSON.stringify(data))
+              // alert('apply:'+JSON.stringify(data))
               $ionicPopup.alert({
                 template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
                 okText: '好的'
@@ -8811,7 +8811,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Counsels.questionaire(temp).then(
           function (data) {
             console.log(data)
-            alert('questionaire'+JSON.stringify(data))
+            // alert('questionaire'+JSON.stringify(data))
             if (data.result == '新建成功') {
               // 不能重复提交
               $scope.submitable = true
@@ -8851,12 +8851,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     // socket.off('messageRes');
                     // socket.emit('disconnect');
               // console.log(counselType)
-              alert('counselType'+counselType)
+              // alert('counselType'+counselType)
               if(counselType==1||counselType==6||counselType==7){
                 Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
-                  alert('modifyCounts'+JSON.stringify(data))
+                  // alert('modifyCounts'+JSON.stringify(data))
                 },function(err){
-                  alert('modifyError'+JSON.stringify(err))
+                  // alert('modifyError'+JSON.stringify(err))
                 })
               }
               if (DoctorId == 'U201612291283') {

@@ -3116,7 +3116,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @return   {[type]}
                      */
                     Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
-                      alert('changeType' + JSON.stringify(data))
+                      // alert('changeType' + JSON.stringify(data))
                           // console.log(data)
                       var msgJson = {
                         clientType: 'app',
@@ -3166,7 +3166,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      */
                       ionicLoadingshow()
                       Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
-                        alert('changeType' + JSON.stringify(data))
+                        // alert('changeType' + JSON.stringify(data))
                         var msgJson = {
                           clientType: 'app',
                           contentType: 'custom',
@@ -3417,7 +3417,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @return   {[type]}
                      */
                     Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
-                      alert('changeType' + JSON.stringify(data))
+                      // alert('changeType' + JSON.stringify(data))
                       var msgJson = {
                         clientType: 'app',
                         contentType: 'custom',
@@ -3466,7 +3466,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      */
                       ionicLoadingshow()
                       Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
-                        alert('changeType' + JSON.stringify(data))
+                        // alert('changeType' + JSON.stringify(data))
                         var msgJson = {
                           clientType: 'app',
                           contentType: 'custom',
@@ -3492,7 +3492,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
                         $state.go('tab.consult-chat', {chatId: DoctorId})
                       }, function (err) {
-                        alert('changeTypeERROR' + JSON.stringify(data))
+                        // alert('changeTypeERROR' + JSON.stringify(data))
                         ionicLoadingShowError()
                         console.log(err)
                       })
