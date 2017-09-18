@@ -3693,9 +3693,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var loadWatcher = $scope.$watch('msgs.length', function (newv, oldv) {
       if (newv) {
         loadWatcher()
-        var lastMsg = $scope.msgs[$scope.msgs.length - 1]
-        if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.fromID, type: '11', userRole:'patient', readOrNot: 1})
+        // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
+        // if (lastMsg.fromID == $scope.params.UID) return
+        return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
       }
     })
   })
@@ -3776,7 +3776,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: $scope.params.groupId, type: '11', userRole:'patient', readOrNot: 1})
+      News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
