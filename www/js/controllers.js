@@ -3569,7 +3569,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -3581,7 +3581,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -3595,7 +3595,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -3607,7 +3607,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -3621,7 +3621,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -3633,7 +3633,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               }).then(function (res) {
                 if (res) {
                   counseltype
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6459,7 +6459,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -6470,7 +6470,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6483,7 +6483,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -6494,7 +6494,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -6507,7 +6507,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             } else {
@@ -6518,7 +6518,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 cancelText: '取消'
               }).then(function (res) {
                 if (res) {
-                  $state.go('tab.consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
+                  $state.go('consult-chat', {chatId: doctorId}) // 虽然传了type和status但不打算使用 byZYH 删了 byPXY
                 }
               })
             }
@@ -8897,14 +8897,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                             // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
                           socket.emit('message', {msg: msgTeam, to: '10050278', role: 'patient'})
                           setTimeout(function () {
-                            $state.go('tab.consult-chat', {chatId: DoctorId})
+                            $state.go('consult-chat', {chatId: DoctorId})
                           }, 500)
                         }, function (er) {
                           console.error(err)
                         })
               } else {
                 setTimeout(function () {
-                  $state.go('tab.consult-chat', {chatId: DoctorId})
+                  $state.go('consult-chat', {chatId: DoctorId})
                 }, 500)
               }
                 // });

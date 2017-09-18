@@ -2847,7 +2847,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             cancelText: '取消'
           }).then(function (res) {
             if (res) {
-              $state.go('tab.consult-chat', {chatId: DoctorId})
+              $state.go('consult-chat', {chatId: DoctorId})
             }
             self.consultable = 1
           })
@@ -3140,7 +3140,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       }
                       socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                      $state.go('tab.consult-chat', {chatId: DoctorId})
+                      $state.go('consult-chat', {chatId: DoctorId})
                     }, function (err) {
 
                     })
@@ -3189,7 +3189,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         }
                         socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                        $state.go('tab.consult-chat', {chatId: DoctorId})
+                        $state.go('consult-chat', {chatId: DoctorId})
                       }, function (err) {
                         ionicLoadingShowError()
                         console.log(err)
@@ -3220,7 +3220,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               cancelText: '取消'
             }).then(function (res) {
               if (res) {
-                $state.go('tab.consult-chat', {chatId: DoctorId})
+                $state.go('consult-chat', {chatId: DoctorId})
               }
               self.consultable = 1
             })
@@ -3440,7 +3440,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       }
                       socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                      $state.go('tab.consult-chat', {chatId: DoctorId})
+                      $state.go('consult-chat', {chatId: DoctorId})
                     }, function (err) {
                       ionicLoadingShowError()
                     })
@@ -3490,7 +3490,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
 
-                        $state.go('tab.consult-chat', {chatId: DoctorId})
+                        $state.go('consult-chat', {chatId: DoctorId})
                       }, function (err) {
                         // alert('changeTypeERROR' + JSON.stringify(data))
                         ionicLoadingShowError()
@@ -3525,7 +3525,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
               cancelText: '取消'
             }).then(function (res) {
               if (res) {
-                $state.go('tab.consult-chat', {chatId: DoctorId})
+                $state.go('consult-chat', {chatId: DoctorId})
               }
               self.consultable = 1
             })
