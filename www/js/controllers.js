@@ -176,7 +176,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               Storage.rm('wechatheadimgurl')
             }, function (err) {
               // alert('imageerror'+JSON.stringify(err))
-              console.log(err)
+              // console.log(err)
             }
                 )
                 // 已有头像，未更新;没有头像，已替换
@@ -204,27 +204,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 ionicLoadinghide()
                 $state.go('tab.tasklist')
                 
-                  // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-                  //   alert(JSON.stringify(data))
-                  //   if(data.results){
-                  //       $timeout(function(){
-                  //           ionicLoadinghide();
-                  //           $state.go('tab.tasklist');
-                  //       },500);
-                  //       mySocket.newUser(data.results.userId,data.results.name);
-                  //   }else{
-                  //       $timeout(function(){
-                  //           ionicLoadinghide();
-                  //           $state.go('tab.tasklist');
-                  //       },500);
-                  //       mySocket.newUser(data.results.userId,data.results.name);
-                  //   }
-                  // },function(e){
-                  //   console.log(e)
-                  //   // alert(JSON.stringify(e))
-                  //   ionicLoadinghide();
-                  // });
-                  // $state.go('tab.tasklist')
               }
             }, function (er) {
                 // alert(JSON.stringify(er))
