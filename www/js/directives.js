@@ -118,6 +118,9 @@ angular.module('kidney.directives', ['kidney.services'])
         this.style.borderBottomColor = '#64DD17'
       })
       elem.bind('blur', function () {
+        this.style.height = '1px'
+        var h = 4 + this.scrollHeight
+        this.style.height = (h < 70 ? h : 70) + 'px'
         this.style.borderBottomColor = '#AAA'
                 // this.setAttribute("style", "border-color: #AAA");
       })
