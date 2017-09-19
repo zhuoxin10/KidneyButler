@@ -4058,7 +4058,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
         // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         // if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
+        // return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
+        return New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
       }
     })
   })
@@ -4139,7 +4140,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
+      // News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
+      New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -4284,7 +4286,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return $q(function (resolve, reject) {
       var q = {
         messageType: '1',
-        newsType: '11',
+        newsType: 11,
         id1: Storage.get('UID'),
         id2: $scope.params.chatId,
         skip: $scope.params.msgCount,
@@ -4474,7 +4476,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       targetType: 'single',
       status: 'send_going',
       createTimeInMillis: Date.now(),
-      newsType: '11',
+      newsType: 11,
       targetRole: 'doctor',
       content: data
     }
@@ -9202,7 +9204,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 targetType: 'single',
                 status: 'send_going',
                 createTimeInMillis: Date.now(),
-                newsType: '11',
+                newsType: 11,
                 targetRole: 'doctor',
                 content: msgContent
               }
@@ -9248,7 +9250,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   targetName: '陈江华主任医师团队',
                   targetType: 'group',
                   status: 'send_going',
-                  newsType: '13',
+                  newsType: 13,
                   createTimeInMillis: Date.now(),
                   content: msgContent
                 }
