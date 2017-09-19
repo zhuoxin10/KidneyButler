@@ -4056,9 +4056,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (newv) {
         loadWatcher()
 
-        var lastMsg = $scope.msgs[$scope.msgs.length - 1]
-        if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', userRole:'patient', readOrNot: 1}) 
+        // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
+        // if (lastMsg.fromID == $scope.params.UID) return
+        return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
       }
     })
   })
@@ -4139,7 +4139,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', userRole:'patient', readOrNot: 1})
+      News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -8640,7 +8640,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['Account','CONFIG','$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function (Account,CONFIG,$ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9173,7 +9173,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     Counsels.questionaire(temp).then(
           function (data) {
-            console.log(data)
             // alert('questionaire'+JSON.stringify(data))
               // 不能重复提交
               $scope.submitable = true
