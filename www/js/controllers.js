@@ -4059,7 +4059,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         // if (lastMsg.fromID == $scope.params.UID) return
         // return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
-        return New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
+        return News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
       }
     })
   })
@@ -4141,7 +4141,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         insertMsg(data.msg)
       })
       // News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
-      New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
+      News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
