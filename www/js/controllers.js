@@ -9175,7 +9175,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           function (data) {
             console.log(data)
             // alert('questionaire'+JSON.stringify(data))
-            if (data.result == '新建成功') {
               // 不能重复提交
               $scope.submitable = true
 
@@ -9271,8 +9270,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 }, 500)
               }
                 // });
-            }
-            console.log(data.results)
           },
         function (err) {
           console.log(err)
