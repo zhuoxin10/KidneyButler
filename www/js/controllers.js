@@ -4071,6 +4071,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log('进入页面getstatus ')
               console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
@@ -4078,6 +4079,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
               Account.getCounts({doctorId: $scope.params.chatId, patientId: Storage.get('UID')})
                 .then(function (res) {
+                  console.log('进入页面getcounts ')
+                  console.log(res)
                   if ($scope.params.loaded) {
                     return sendNotice($scope.params.counseltype, $scope.counselstatus, res.result.count)
                   } else {
@@ -4145,6 +4148,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
+                      console.log('收到消息getstatus ')
                       console.log(data)
                       $scope.counselstatus = data.result.status
                     }, function (err) {
@@ -4521,7 +4525,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
-    console.log($scope.counselstatus)
+    console.log('发送消息确认状态 '+$scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
