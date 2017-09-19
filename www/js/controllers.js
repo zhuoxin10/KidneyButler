@@ -39,9 +39,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          *               （2、账号密码错误）{results:Number,mesg:String}
          *          err
          */
+        $ionicLoading.show({
+          template:'<ion-spinner icon="ios"></ion-spinner>',
+          hideOnStateChange:true
+        })
         User.logIn({username: logOn.username, password: logOn.password, role: 'patient'}).then(function (data) {
            // console.log(data)
+          $ionicLoading.hide()
           if (data.results == 1) {
+
             $scope.logStatus = '账号或密码错误！'
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
@@ -69,12 +75,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $timeout(function () { $state.go('agreement', {delay: true}) }, 500)
               }
             }, function (err) {
+              $ionicLoading.hide()
               $scope.logStatus = '网络错误！'
             })
 
           }
         }, function (err) {
-          
+            $ionicLoading.hide()
             $scope.logStatus = '网络错误！'
             return
          
@@ -177,7 +184,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               Storage.rm('wechatheadimgurl')
             }, function (err) {
               // alert('imageerror'+JSON.stringify(err))
-              console.log(err)
+              // console.log(err)
             }
                 )
                 // 已有头像，未更新;没有头像，已替换
@@ -205,27 +212,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 ionicLoadinghide()
                 $state.go('tab.tasklist')
                 
-                  // Patient.getPatientDetail({ userId: Storage.get('UID') }).then(function(data){
-                  //   alert(JSON.stringify(data))
-                  //   if(data.results){
-                  //       $timeout(function(){
-                  //           ionicLoadinghide();
-                  //           $state.go('tab.tasklist');
-                  //       },500);
-                  //       mySocket.newUser(data.results.userId,data.results.name);
-                  //   }else{
-                  //       $timeout(function(){
-                  //           ionicLoadinghide();
-                  //           $state.go('tab.tasklist');
-                  //       },500);
-                  //       mySocket.newUser(data.results.userId,data.results.name);
-                  //   }
-                  // },function(e){
-                  //   console.log(e)
-                  //   // alert(JSON.stringify(e))
-                  //   ionicLoadinghide();
-                  // });
-                  // $state.go('tab.tasklist')
               }
             }, function (er) {
                 // alert(JSON.stringify(er))
@@ -494,6 +480,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
                 // alert('setUnionId'+JSON.stringify(res))
+                if (Storage.get('wechatheadimgurl')) {
+                  // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+                  Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+                  // alert(JSON.stringify(data))
+                    Storage.rm('wechatheadimgurl')
+                  }, function (err) {
+                  // alert('imageerror'+JSON.stringify(err))
+                    console.log(err)
+                  })
+                // 已有头像，未更新;没有头像，已替换
+                }
                 User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function (succ) {
                   // alert("userlogin"+JSON.stringify(succ))
                   if (succ.results.mesg == 'login success!') {
@@ -517,6 +514,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
               ]).then(function(res){
                 // alert('setUnionId'+JSON.stringify(res))
+                if (Storage.get('wechatheadimgurl')) {
+                  // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+                  Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+                  // alert(JSON.stringify(data))
+                    Storage.rm('wechatheadimgurl')
+                  }, function (err) {
+                  // alert('imageerror'+JSON.stringify(err))
+                    console.log(err)
+                  })
+                // 已有头像，未更新;没有头像，已替换
+                }
                 $state.go('agreement',{delay:true})
               },function(err){
                 $ionicLoading.hide()
@@ -620,6 +628,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               template:"恭喜您，注册成功！正在登录，请稍后。",
               hideOnStateChange:true
             })
+            if (Storage.get('wechatheadimgurl')) {
+              // alert("image"+ret.AlluserId+Storage.get('wechatheadimgurl')); 
+              Patient.replacePhoto({'patientId': Storage.get('UID'), 'wechatPhotoUrl': Storage.get('wechatheadimgurl')}).then(function (res) {
+              // alert(JSON.stringify(data))
+                Storage.rm('wechatheadimgurl')
+              }, function (err) {
+              // alert('imageerror'+JSON.stringify(err))
+                console.log(err)
+              })
+            // 已有头像，未更新;没有头像，已替换
+            }
             User.logIn({username: Storage.get('patientunionid'), password: '112233', role: 'patient'}).then(function(data){
               // alert("userlogin"+JSON.stringify(data))
               if (data.results.mesg == 'login success!') {
@@ -3821,6 +3840,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (arr[i].doctorId) {
         var elem = arr[i].doctorId.userId
         if (!hash[elem]) {
+          arr[i].doctorId.lastMsgDate = arr[i].time
           result.push(arr[i].doctorId)
           hash[elem] = true
         }
@@ -3844,7 +3864,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                         for (x in FilteredDoctors) {
                           for (y in data.results) {
                             if (FilteredDoctors[x].userId == data.results[y].sendBy || FilteredDoctors[x].userId == data.results[y].userId) {
-                              FilteredDoctors[x].lastMsgDate = data.results[y].time
+                              FilteredDoctors[x].lastMsgDate = data.results[y].time 
                               FilteredDoctors[x].latestMsg = data.results[y].description
                               try {
                                 data.results[y].url = JSON.parse(data.results[y].url)
@@ -4036,9 +4056,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       if (newv) {
         loadWatcher()
 
-        var lastMsg = $scope.msgs[$scope.msgs.length - 1]
-        if (lastMsg.fromID == $scope.params.UID) return
-        return News.insertNews({userId: lastMsg.targetID, sendBy: lastMsg.fromID, type: '11', userRole:'patient', readOrNot: 1}) 
+        // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
+        // if (lastMsg.fromID == $scope.params.UID) return
+        return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
       }
     })
   })
@@ -4119,7 +4139,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
-      News.insertNews({userId: Storage.get('UID'), sendBy: $scope.params.groupId, type: '11', userRole:'patient', readOrNot: 1})
+      News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -8620,7 +8640,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['Account','CONFIG','$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function (Account,CONFIG,$ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9153,9 +9173,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     Counsels.questionaire(temp).then(
           function (data) {
-            console.log(data)
             // alert('questionaire'+JSON.stringify(data))
-            if (data.result == '新建成功') {
               // 不能重复提交
               $scope.submitable = true
 
@@ -9251,8 +9269,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 }, 500)
               }
                 // });
-            }
-            console.log(data.results)
           },
         function (err) {
           console.log(err)

@@ -3014,7 +3014,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                            */
                           Wechat.sendPaymentRequest(params, function () {
                           // alert("Success");
-
+                            ionicLoadingshow()
                             $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 1})
                           }, function (reason) {
                             if (reason == '发送请求失败') {
@@ -3116,10 +3116,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @return   {[type]}
                      */
                     Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
-
-                      if (data.result == '修改成功') {
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-
+                      // alert('changeType' + JSON.stringify(data))
                           // console.log(data)
                       var msgJson = {
                         clientType: 'app',
@@ -3169,37 +3166,30 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      */
                       ionicLoadingshow()
                       Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type3'}).then(function (data) {
-
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                          // console.log(data)
-                          var msgJson = {
-                            clientType: 'app',
-                            contentType: 'custom',
-                            fromName: '',
-                            fromID: Storage.get('UID'),
-                            fromUser: {
-                              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                            },
-                            targetID: DoctorId,
-                            targetName: '',
-                            targetType: 'single',
-                            status: 'send_going',
-                            createTimeInMillis: Date.now(),
-                            newsType: '11',
-                            targetRole: 'doctor',
-                            content: {
-                              type: 'counsel-upgrade',
-                              flag: 'consult'
-                            }
+                        // alert('changeType' + JSON.stringify(data))
+                        var msgJson = {
+                          clientType: 'app',
+                          contentType: 'custom',
+                          fromName: '',
+                          fromID: Storage.get('UID'),
+                          fromUser: {
+                            avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
+                          },
+                          targetID: DoctorId,
+                          targetName: '',
+                          targetType: 'single',
+                          status: 'send_going',
+                          createTimeInMillis: Date.now(),
+                          newsType: '11',
+                          targetRole: 'doctor',
+                          content: {
+                            type: 'counsel-upgrade',
+                            flag: 'consult'
                           }
-                          socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                          socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          $state.go('tab.consult-chat', {chatId: DoctorId})
-                        }, function (err) {
-                          ionicLoadingShowError()
-                          console.log(err)
-                        })
-
+                        }
+                        socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                        socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
+                        $state.go('consult-chat', {chatId: DoctorId})
                       }, function (err) {
                         ionicLoadingShowError()
                         console.log(err)
@@ -3326,26 +3316,9 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                            */
                       Wechat.sendPaymentRequest(params, function () {
                           // alert("Success");
-
-                      /**
-                       * *[修改患者咨询问诊过程能够询问的次数]count=3表示咨询 count=999表示问诊
-                       * @Author   ZXF
-                       * @DateTime 2017-07-05
-                       * @patientId    {[string]}
-                       * @doctorId    {[string]}
-                       * @modify    {[int]}
-                       * @return   {[type]}
-                       */
                         ionicLoadingshow()
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 999}).then(function (data) {
-                            // console.log(data)
-                          ionicLoadinghide()
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
-                        }, function (err) {
-                          ionicLoadingShowError()
-                          console.log(err)
-                        })
 
+                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 2})
                       }, function (reason) {
                         if (reason == '发送请求失败') {
                           $ionicLoading.show({
@@ -3444,38 +3417,26 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      * @return   {[type]}
                      */
                     Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
-
-                      if (data.result == '修改成功') {
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
-                          // console.log(data)
-                          var msgJson = {
-                            clientType: 'app',
-                            contentType: 'custom',
-                            fromName: '',
-                            fromID: Storage.get('UID'),
-                            fromUser: {
-                              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                            },
-                            targetID: DoctorId,
-                            targetName: '',
-                            targetType: 'single',
-                            status: 'send_going',
-                            createTimeInMillis: Date.now(),
-                            newsType: '11',
-                            targetRole: 'doctor',
-                            content: {
-                              type: 'counsel-upgrade',
-                              flag: 'urgent'
-                            }
-                          }
-                          socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                          socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                          $state.go('tab.consult-chat', {chatId: DoctorId})
-                        }, function (err) {
-                          ionicLoadingShowError()
-                          console.log(err)
-                        })
-
+                      // alert('changeType' + JSON.stringify(data))
+                      var msgJson = {
+                        clientType: 'app',
+                        contentType: 'custom',
+                        fromName: '',
+                        fromID: Storage.get('UID'),
+                        fromUser: {
+                          avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
+                        },
+                        targetID: DoctorId,
+                        targetName: '',
+                        targetType: 'single',
+                        status: 'send_going',
+                        createTimeInMillis: Date.now(),
+                        newsType: '11',
+                        targetRole: 'doctor',
+                        content: {
+                          type: 'counsel-upgrade',
+                          flag: 'urgent'
+                        }
                       }
                       socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
@@ -3505,43 +3466,33 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                      */
                       ionicLoadingshow()
                       Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
-
-                        alert('changeType' + JSON.stringify(data))
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
-                          alert('modifyCounts' + JSON.stringify(data))
-
-                          var msgJson = {
-                            clientType: 'app',
-                            contentType: 'custom',
-                            fromName: '',
-                            fromID: Storage.get('UID'),
-                            fromUser: {
-                              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
-                            },
-                            targetID: DoctorId,
-                            targetName: '',
-                            targetType: 'single',
-                            status: 'send_going',
-                            createTimeInMillis: Date.now(),
-                            newsType: '11',
-                            targetRole: 'doctor',
-                            content: {
-                              type: 'counsel-upgrade',
-                              flag: 'urgent'
-                            }
+                        // alert('changeType' + JSON.stringify(data))
+                        var msgJson = {
+                          clientType: 'app',
+                          contentType: 'custom',
+                          fromName: '',
+                          fromID: Storage.get('UID'),
+                          fromUser: {
+                            avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + Storage.get('UID') + '_myAvatar.jpg'
+                          },
+                          targetID: DoctorId,
+                          targetName: '',
+                          targetType: 'single',
+                          status: 'send_going',
+                          createTimeInMillis: Date.now(),
+                          newsType: '11',
+                          targetRole: 'doctor',
+                          content: {
+                            type: 'counsel-upgrade',
+                            flag: 'urgent'
                           }
-                          socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
-                          socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
+                        }
+                        socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                        socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
 
-                          $state.go('tab.consult-chat', {chatId: DoctorId})
-                        }, function (err) {
-                          alert('modifyCountsERROR' + JSON.stringify(data))
-                          ionicLoadingShowError()
-                          console.log(err)
-                        })
+                        $state.go('consult-chat', {chatId: DoctorId})
                       }, function (err) {
-                        alert('changeTypeERROR' + JSON.stringify(data))
-
+                        // alert('changeTypeERROR' + JSON.stringify(data))
                         ionicLoadingShowError()
                         console.log(err)
                       })
@@ -3654,12 +3605,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                        * @return   {[type]}
                        */
                         // console.log(data)
-
-                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
-                      }, function (err) {
-                        console.log(err)
-                        ionicLoadingShowError()
-                      })
+                      $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
                     } else {
                       ionicLoadinghide()
                       var params = {
@@ -3693,15 +3639,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                        * @return   {[type]}
                        */
                         ionicLoadingshow()
-
-                        Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 1001}).then(function (data) {
-                            // console.log(data)
-                          $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
-                        }, function (err) {
-                          ionicLoadingShowError()
-                          console.log(err)
-                        })
-
+                        $state.go('tab.consultQuestionnaire', {DoctorId: DoctorId, counselType: 6})
                       }, function (reason) {
                         if (reason == '发送请求失败') {
                           $ionicLoading.show({

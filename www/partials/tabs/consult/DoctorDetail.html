@@ -68,18 +68,18 @@
 
       <ion-item>
         <span style="font-size: 18px"><i class="icon ion-ios-lightbulb-outline" style="margin-right: 10px"></i>擅长方向</span>
-         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.major}}</p>
+         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.major||"医生有点忙，还没填写噢"}}</p>
       </ion-item>
 
       <ion-item>
         <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>个人介绍</span>
-         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.description}}</p>
+         <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.description||"医生有点忙，还没填写噢"}}</p>
       </ion-item>
-      <ion-item>
+      <ion-item style="border-bottom: 1px none #fff">
         <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>医生评价({{commentNum}}个）</span>
         <p style="font-size: 14px;padding-left: 20px;margin-top: 5px;" class="item-text-wrap" ng-if="!hasComment">暂无评论</p>
-        <div class="list" ng-repeat="comment in doctorComment" style="margin:6px,6px,6px,6px;border-bottom: solid 1px gray;">
-          <div class="row">
+        <div class="list" ng-repeat="comment in doctorComment" style="margin:0px">
+          <div class="row" style="padding: 0px">
             <span class="commentStyle">{{comment.patientId.phoneNo}}</span>
             <div class="item" style="padding-top: 0;border: white"><ionic-ratings ratingsobj='comment.ratingsObject'></ionic-ratings> </div>
             <span class="commentStyle">{{comment.time}}</span>
