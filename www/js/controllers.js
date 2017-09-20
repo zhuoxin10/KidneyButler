@@ -7188,20 +7188,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     ChangeSearch()
     // console.log($scope.Hospital)
   }
-  /**
-   * *[android在拉起微信支付时耗时很长，添加loading画面]
-   * @Author   ZXF
-   * @DateTime 2017-07-05
-   * @return   {[type]}
-   */
-  var ionicLoadingshow = function () {
-    $ionicLoading.show({
-      template: '加载中...'
-    })
-  }
-  var ionicLoadinghide = function () {
-    $ionicLoading.hide()
-  }
+  
   $scope.getDoctorByHospital = function (hospital) {
     ChangeSearch()
   }
@@ -7650,44 +7637,73 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log($ionicHistory.backView());
     $ionicHistory.goBack()
   }
-
   var DoctorId = $stateParams.DoctorId
   
-
-  var IsDoctor =function (Doctor) {
-    Service.isMyDoctors({doctorId:Doctor.userId}). then(
-        function (data) {
-          if (data.DIC==1)
-          Doctor.IsMyDoctor = true
-        else Doctor.IsMyDoctor = false
-          if (data.FD==1)
-            Doctor.IsMyFollowDoctor=true
-          else Doctor.IsMyFollowDoctor=false
-        }
-      )
-  }
-
-  $scope.doctor = ''
-
-  Patient.getDoctorLists({doctorId: DoctorId}).then(
-    function (data) {
-      $scope.doctor = data.results[0]
-      IsDoctor($scope.doctor)
-      console.log($scope.doctor)
-    },
-    function (err) {
-      console.log(err)
+   // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
+  $scope.$on('$ionicView.beforeEnter', function () {
+    var unComPatPopup = function(){
+      $ionicPopup.show({
+        title: '温馨提示',
+        template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
+        buttons: [
+          {
+            text: '取消',
+            onTap: function (e) {
+                              // e.preventDefault();
+            }
+          },
+          {
+            text: '确定',
+            type: 'button-calm',
+            onTap: function (e) {
+              $state.go('userdetail', {last: 'consult'})
+            }
+          }
+        ]})
     }
-  )
-
-  var ionicLoadingshow = function () {
-    $ionicLoading.show({
-      template: '加载中...'
+    Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
+      // console.log(data)
+      if (!data.results.class) {
+        $scope.DisabledConsult = true
+        unComPatPopup()
+      } else {
+        $scope.DisabledConsult = false
+      }
+    }, function (err) {
+      console.log(err)
+      $ionicLoading.show({template: '网络错误！', duration: 1000})
     })
-  }
-  var ionicLoadinghide = function () {
-    $ionicLoading.hide()
-  }
+    
+
+    var IsDoctor =function (Doctor) {
+      Service.isMyDoctors({doctorId:Doctor.userId}). then(
+          function (data) {
+            if (data.DIC==1)
+            Doctor.IsMyDoctor = true
+          else Doctor.IsMyDoctor = false
+            if (data.FD==1)
+              Doctor.IsMyFollowDoctor=true
+            else Doctor.IsMyFollowDoctor=false
+          }
+        )
+    }
+
+    $scope.doctor = ''
+
+    Patient.getDoctorLists({doctorId: DoctorId}).then(
+      function (data) {
+        $scope.doctor = data.results[0]
+        IsDoctor($scope.doctor)
+        console.log($scope.doctor)
+      },
+      function (err) {
+        console.log(err)
+      }
+    )
+  })
+
+  
+
   $scope.question = function(DoctorId, charge1){
     QandC.question(DoctorId, charge1)
   }

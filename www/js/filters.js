@@ -230,8 +230,11 @@ angular.module('kidney.filters', [])
             case 4:
               name = '医生停诊'
               break
-            case 5:case 6:
-              name = '等待处理'
+            case 5:
+              name = '人工处理'
+              break
+            case 6:
+              name = '正在退款'
               break
           }
         } else {

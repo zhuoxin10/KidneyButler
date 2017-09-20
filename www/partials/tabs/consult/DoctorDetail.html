@@ -30,11 +30,11 @@
           </div> -->
         <div class="row" style="border:none">
 
-            <button  ng-if="!doctor.IsMyFollowDoctor" ng-click="followDoctor(doctor)" class="doctorBtn"><i class="icon ion-ios-heart-outline">
+            <button  ng-if="!doctor.IsMyFollowDoctor" ng-disabled="DisabledConsult" ng-click="followDoctor(doctor)" class="doctorBtn"><i class="icon ion-ios-heart-outline">
             </i>关注医生</button>
-            <button  ng-if="doctor.IsMyFollowDoctor" ng-click="unfollowDoctor(doctor)" class="doctorBtn2"><i class="icon ion-ios-heart">
+            <button  ng-if="doctor.IsMyFollowDoctor"  ng-click="unfollowDoctor(doctor)" class="doctorBtn2"><i class="icon ion-ios-heart">
             </i>已关注医生</button>
-            <button  ng-if="!doctor.IsMyDoctor" ng-disabled="(!doctor.counselStatus4)||(doctor.charge4==undefined)" ng-click="applyMyDoctor(doctor)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
+            <button  ng-if="!doctor.IsMyDoctor" ng-disabled="(!doctor.counselStatus4)||(doctor.charge4==undefined)||DisabledConsult" ng-click="applyMyDoctor(doctor)" class="doctorBtn"><i class="icon ion-person-add"></i>申请为管理医生</button>
             <button  ng-if="doctor.IsMyDoctor" ng-click="cancelMyDoc(doctor)" class="doctorBtn2"><i class="icon ion-person-add"></i>已成为管理医生</button>
 
 
@@ -45,18 +45,22 @@
       <ion-item>
         <span style="font-size: 18px"><i class="icon ion-ios-lightbulb-outline" style="margin-right: 10px"></i>医生服务</span>
         <div class="row">
-            <button ng-disabled="!doctor.counselStatus1" ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
-            <i class="icon iconfont icon-zixun2" style="color:#daf603;font-size: 25px;"></i></br>咨询</br>
-                <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus1">{{doctor.charge1}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus1">未开通</span></button>
-            <button ng-disabled="!doctor.counselStatus2" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="docDetailBtn">
-            <i class="icon iconfont icon-baojifuben" style="color: #3ef63d;font-size: 25px;"></i></br>问诊</br>
-                <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus2">{{doctor.charge2}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus2">未开通</span></button>
-            <button ng-disabled="!doctor.counselStatus3||(doctor.charge3==undefined)" class="docDetailBtn" ng-click="urgentquestion(doctor.userId, doctor.charge1,doctor.charge3)">
-            <i class="icon ion-speakerphone" style="color: #ff00dd;font-size: 25px;"></i></br>加急咨询</br>
-                <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus3&&!(doctor.charge3==undefined)">{{doctor.charge3}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus3||(doctor.charge3==undefined)">未开通</span></button>
-            <button ng-disabled="!doctor.counselStatus5||(doctor.charge5==undefined)" class="docDetailBtn" ng-click="docAppointment(doctor)">
+            <button ng-disabled="!doctor.counselStatus1||(doctor.charge1==undefined)||DisabledConsult" ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
+              <i class="icon iconfont icon-zixun2" style="color:#daf603;font-size: 25px;"></i></br>咨询</br>
+              <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus1">{{doctor.charge1}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus1">未开通</span>
+            </button>
+            <button ng-disabled="!doctor.counselStatus2||(doctor.charge2==undefined)||DisabledConsult" ng-click="consult(doctor.userId,doctor.charge1,doctor.charge2)" class="docDetailBtn">
+              <i class="icon iconfont icon-baojifuben" style="color: #3ef63d;font-size: 25px;"></i></br>问诊</br>
+              <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus2">{{doctor.charge2}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus2">未开通</span>
+            </button>
+            <button ng-disabled="!doctor.counselStatus3||(doctor.charge3==undefined)||DisabledConsult" class="docDetailBtn" ng-click="urgentquestion(doctor.userId, doctor.charge1,doctor.charge3)">
+              <i class="icon ion-speakerphone" style="color: #ff00dd;font-size: 25px;"></i></br>加急咨询</br>
+              <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus3&&!(doctor.charge3==undefined)">{{doctor.charge3}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus3||(doctor.charge3==undefined)">未开通</span>
+            </button>
+            <button ng-disabled="!doctor.counselStatus5||(doctor.charge5==undefined)||DisabledConsult" class="docDetailBtn" ng-click="docAppointment(doctor)">
               <i class="icon ion-person-stalker" style="color: #00c2ff;font-size: 25px;"></i></br>面诊</br>
-              <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus5&&!(doctor.charge5==undefined)">{{doctor.charge5}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus5||(doctor.charge5==undefined)">未开通</span></button>
+              <span style="font-size: 14px; color:#a2a2a2" ng-if="doctor.counselStatus5&&!(doctor.charge5==undefined)">{{doctor.charge5}}元/次</span><span style="font-size: 14px; color:#a2a2a2" ng-if="!doctor.counselStatus5||(doctor.charge5==undefined)">未开通</span>
+            </button>
         </div>
         </ion-item>
        
