@@ -4294,6 +4294,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         id1: Storage.get('UID'),
         id2: $scope.params.chatId,
         skip: $scope.params.msgCount,
+        receiverRole:'doctor',
+        sendByRole: 'patient',
         limit: num
       }
       Communication.getCommunication(q)
