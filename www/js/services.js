@@ -2296,7 +2296,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   self.changeNewsStatus = function (params) {
     var deferred = $q.defer()
-    Data.New.changeNewsStatus(
+    Data.News.changeNewsStatus(
             params,
             function (data, headers) {
               deferred.resolve(data)
