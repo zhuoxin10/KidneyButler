@@ -4059,7 +4059,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         // if (lastMsg.fromID == $scope.params.UID) return
         // return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
-        return New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
+        return News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
       }
     })
   })
@@ -4071,6 +4071,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
+              console.log('进入页面getstatus ')
               console.log(data)
               $scope.params.counseltype = data.result.type == '3' ? '2' : (data.result.type == '7' ? '6' : data.result.type)
               $scope.params.counsel = data.result
@@ -4078,6 +4079,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
               Account.getCounts({doctorId: $scope.params.chatId, patientId: Storage.get('UID')})
                 .then(function (res) {
+                  console.log('进入页面getcounts ')
+                  console.log(res)
                   if ($scope.params.loaded) {
                     return sendNotice($scope.params.counseltype, $scope.counselstatus, res.result.count)
                   } else {
@@ -4141,10 +4144,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         insertMsg(data.msg)
       })
       // News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
-      New.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
+      News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
+                      console.log('收到消息getstatus ')
                       console.log(data)
                       $scope.counselstatus = data.result.status
                     }, function (err) {
@@ -4290,6 +4294,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         id1: Storage.get('UID'),
         id2: $scope.params.chatId,
         skip: $scope.params.msgCount,
+        receiverRole:'doctor',
+        sendByRole: 'patient',
         limit: num
       }
       Communication.getCommunication(q)
@@ -4521,7 +4527,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // toBottom(true);
   }
   $scope.submitMsg = function () {
-    console.log($scope.counselstatus)
+    console.log('发送消息确认状态 '+$scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
@@ -7182,20 +7188,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     ChangeSearch()
     // console.log($scope.Hospital)
   }
-  /**
-   * *[android在拉起微信支付时耗时很长，添加loading画面]
-   * @Author   ZXF
-   * @DateTime 2017-07-05
-   * @return   {[type]}
-   */
-  var ionicLoadingshow = function () {
-    $ionicLoading.show({
-      template: '加载中...'
-    })
-  }
-  var ionicLoadinghide = function () {
-    $ionicLoading.hide()
-  }
+  
   $scope.getDoctorByHospital = function (hospital) {
     ChangeSearch()
   }
@@ -7644,44 +7637,73 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log($ionicHistory.backView());
     $ionicHistory.goBack()
   }
-
   var DoctorId = $stateParams.DoctorId
   
-
-  var IsDoctor =function (Doctor) {
-    Service.isMyDoctors({doctorId:Doctor.userId}). then(
-        function (data) {
-          if (data.DIC==1)
-          Doctor.IsMyDoctor = true
-        else Doctor.IsMyDoctor = false
-          if (data.FD==1)
-            Doctor.IsMyFollowDoctor=true
-          else Doctor.IsMyFollowDoctor=false
-        }
-      )
-  }
-
-  $scope.doctor = ''
-
-  Patient.getDoctorLists({doctorId: DoctorId}).then(
-    function (data) {
-      $scope.doctor = data.results[0]
-      IsDoctor($scope.doctor)
-      console.log($scope.doctor)
-    },
-    function (err) {
-      console.log(err)
+   // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
+  $scope.$on('$ionicView.beforeEnter', function () {
+    var unComPatPopup = function(){
+      $ionicPopup.show({
+        title: '温馨提示',
+        template: '您的个人信息并未完善，无法向医生发起咨询或问诊，请先前往 [我的->个人信息] 完善您的个人信息。',
+        buttons: [
+          {
+            text: '取消',
+            onTap: function (e) {
+                              // e.preventDefault();
+            }
+          },
+          {
+            text: '确定',
+            type: 'button-calm',
+            onTap: function (e) {
+              $state.go('userdetail', {last: 'consult'})
+            }
+          }
+        ]})
     }
-  )
-
-  var ionicLoadingshow = function () {
-    $ionicLoading.show({
-      template: '加载中...'
+    Patient.getPatientDetail({userId: Storage.get('UID')}).then(function (data) {
+      // console.log(data)
+      if (!data.results.class) {
+        $scope.DisabledConsult = true
+        unComPatPopup()
+      } else {
+        $scope.DisabledConsult = false
+      }
+    }, function (err) {
+      console.log(err)
+      $ionicLoading.show({template: '网络错误！', duration: 1000})
     })
-  }
-  var ionicLoadinghide = function () {
-    $ionicLoading.hide()
-  }
+    
+
+    var IsDoctor =function (Doctor) {
+      Service.isMyDoctors({doctorId:Doctor.userId}). then(
+          function (data) {
+            if (data.DIC==1)
+            Doctor.IsMyDoctor = true
+          else Doctor.IsMyDoctor = false
+            if (data.FD==1)
+              Doctor.IsMyFollowDoctor=true
+            else Doctor.IsMyFollowDoctor=false
+          }
+        )
+    }
+
+    $scope.doctor = ''
+
+    Patient.getDoctorLists({doctorId: DoctorId}).then(
+      function (data) {
+        $scope.doctor = data.results[0]
+        IsDoctor($scope.doctor)
+        console.log($scope.doctor)
+      },
+      function (err) {
+        console.log(err)
+      }
+    )
+  })
+
+  
+
   $scope.question = function(DoctorId, charge1){
     QandC.question(DoctorId, charge1)
   }
