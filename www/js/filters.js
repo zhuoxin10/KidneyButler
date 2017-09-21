@@ -214,6 +214,7 @@ angular.module('kidney.filters', [])
         break
       case 'appointment':
         if (containObject) {
+          // 0: 待核销，1: 医生完成核销，2: 过期自动核销，3: 患者取消，直接退款，4: 医生停诊或取消，直接退款，5: 患者申请取消，等待人工处理退款，6: 医生停诊或取消，等待人工通知，7:患者取消，人工处理不予退款，8:患者取消，人工退款，9：医生停诊或取消，人工通知完成【1／2都是订单完成，3/4/8／9都是退款完成，5/6等待人工，7不予退款
           switch (containObject.status) {
             case 0:
               name = '等待核销'
@@ -235,6 +236,12 @@ angular.module('kidney.filters', [])
               break
             case 6:
               name = '正在退款'
+              break
+            case 7:
+              name = '退款失败'
+              break
+            case 8:case 9:
+              name = '退款成功'
               break
           }
         } else {
