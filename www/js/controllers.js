@@ -68,8 +68,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @return   res:{result:{agreement: String}}
              *           err
              */
-            User.getAgree({userId: data.results.userId}).then(function (res) {
-              if (res.results.agreement == '0') {
+            User.getAgree({userId: data.results.userId,role:'patient'}).then(function (res) {
+              if (res.results.agreementPat == '0') {
                 $timeout(function () { $state.go('tab.tasklist') }, 500)
               } else {
                 $timeout(function () { $state.go('agreement', {delay: true}) }, 500)
@@ -255,7 +255,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 分为三种情况：1、导入用户补签：（1.1手机号码登录；1.2微信注册）；2、手机号注册
     if($stateParams.delay && last === 'signin'){
       // 手机号码登录后补签协议，则签完协议去首页
-      User.updateAgree({userId: Storage.get('UID'), agreement: '0'}).then(function (data) {
+      User.updateAgree({userId: Storage.get('UID'), agreement: '0',role:'patient'}).then(function (data) {
         if (data.results != null) {
           $timeout(function () { $state.go('tab.tasklist') }, 500)
         } else {
@@ -274,7 +274,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
           Storage.set('refreshToken', succ.results.refreshToken)
           mySocket.newUser(succ.results.userId)
-          User.updateAgree({userId: Storage.get('UID'), agreement: '0'}).then(function (data) {
+          User.updateAgree({userId: Storage.get('UID'), agreement: '0',role:'patient'}).then(function (data) {
             $ionicLoading.hide()
             if (data.results != null) {
               $ionicPopup.show({
@@ -430,9 +430,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       else if($stateParams.rType === 'openId'){
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
-          User.getAgree({userId: data.AlluserId}).then(function (res) {
+          User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
             sendSMS($scope.Register.Phone)
-            if (res.results.agreement == '0') {
+            if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
             } else {
@@ -568,7 +568,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
                   Storage.set('UID',res.userNo)
                   Storage.set('USERNAME',register.Phone)
-                  User.updateAgree({userId:res.userNo,agreement:'0'}).then(function(succ){
+                  User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}).then(function(succ){
                     $ionicLoading.hide()
                     $ionicLoading.show({
                       template:"恭喜您，注册成功！",
@@ -617,7 +617,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('UID',res.userNo)
           Storage.set('USERNAME',register.Phone)
           $q.all([
-            User.updateAgree({userId:res.userNo,agreement:'0'}),
+            User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}),
             User.setUnionId({phoneNo:register.Phone,openId:Storage.get('patientunionid')}),
             //type为4是指患者app端，若为微信则要改为2
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
@@ -803,9 +803,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       else if($stateParams.rType === 'openId'){
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
-          User.getAgree({userId: data.AlluserId}).then(function (res) {
+          User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
             sendSMS($scope.Register.Phone)
-            if (res.results.agreement == '0') {
+            if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
             } else {
@@ -922,7 +922,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
                   Storage.set('UID',res.userNo)
                   Storage.set('USERNAME',register.Phone)
-                  User.updateAgree({userId:res.userNo,agreement:'0'}).then(function(succ){
+                  User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}).then(function(succ){
                     $ionicLoading.hide()
                     $ionicLoading.show({
                       template:"恭喜您，注册成功！",
@@ -970,7 +970,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('UID',res.userNo)
           Storage.set('USERNAME',register.Phone)
           $q.all([
-            User.updateAgree({userId:res.userNo,agreement:'0'}),
+            User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}),
             User.setUnionId({phoneNo:register.Phone,openId:Storage.get('patientunionid')}),
             //type为4是指患者app端，若为微信则要改为2
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
