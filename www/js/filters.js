@@ -236,6 +236,8 @@ angular.module('kidney.filters', [])
             case 6:
               name = '正在退款'
               break
+            case 7:
+              name = '退款失败'
           }
         } else {
           name = '预约失败'
