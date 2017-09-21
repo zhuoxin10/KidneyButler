@@ -1,11 +1,13 @@
-<ion-view cache-view="false" title="帖子内容" show-tabs>
+<ion-view cache-view="false" hide-Back-Button="true" title="帖子内容" show-tabs>
 
     <ion-nav-buttons side="left">
         <my-nav-back-button ng-click="GoBack()"></my-nav-back-button>
     </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <button class="button button-clear" ng-click="GoToCommentf(postId)"><i class="icon ion-compose"></i></button>
+    </ion-nav-buttons>
 
-  <ion-content style="bottom: 44px;">
-
+  <ion-content>
     <div class="list" style="margin-bottom: 0px;">
 
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
@@ -49,17 +51,5 @@
             </div>
     </div>
   </ion-content>
-
-  <div class="bar item-input-inset text-center bar-footer" style="padding:0;position:absolute;margin-bottom: 0px;height:44px;">
-
-            <a class="item col-50 " style="height: 28px;border: none;font-size: 15px;padding-top: 4px;padding-bottom: 4px;" ng-click="GoToCommentf(postId)">
-                <i class="icon ion-chatbox-working"></i>
-                <span>评论</span>
-            </a>
-            <a class="item col-50 " style="height: 28px; font-size: 15px; border-right-width: 0px;border-bottom-width: 0px;border-top-width: 0px;padding-top: 4px;padding-bottom: 4px;" ng-click="GoToShare() ">
-                <i class="icon ion-share"></i>
-                <span>分享</span>
-            </a>
-    </div>
 
 </ion-view>

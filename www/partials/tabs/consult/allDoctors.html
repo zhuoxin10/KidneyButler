@@ -43,7 +43,7 @@
     <ion-list style="position: absolute;top:89px;width: 95%; margin-top: -20px">
       <div  class="card" ng-repeat="doctor in doctors">
 
-        <div class="item item-thumbnail-left" ng-click="getDoctorDetail(doctor.userId)"> 
+        <div class="item item-thumbnail-left" ng-click="getDoctorDetail(doctor.userId)" style="border:none"> 
             <img style="border-radius: 100%;top: 40%;margin-top: -40px" ng-src="{{doctor.photoUrl  || 'img/DefaultAvatar.jpg'}}">
             <span>{{doctor.name}}</span>
             <span style="float: right">{{doctor.department}}</span>
@@ -53,8 +53,8 @@
             <div class="row row-below-avatar" style="font-size: 14px;color:#2B67F5;">
                 <span class="col font-c" style="text-align: left;">&nbsp;&nbsp;&nbsp;&nbsp;
                 <i class="icon ion-star"></i>{{doctor.score.toFixed(2)||"无"}}</span>
-                <!-- <span class="col font-c">咨询量：{{doctor.count1}}</span>
-                <span class="col font-c">问诊量：{{doctor.count2}}</span> -->
+                <span class="col font-c">咨询量：{{doctor.count1}}</span>
+                <span class="col font-c">问诊量：{{doctor.count2}}</span>
             </div>
         </div>
 
@@ -64,12 +64,12 @@
         </div> -->
 
 
-        <div class="row">
+        <div class="row" style="border:none">
             <button ng-disabled="DisabledConsult||!doctor.counselStatus1"   ng-click="question(doctor.userId,doctor.charge1)" class="doctorBtn">
             <i class="icon iconfont icon-zixun2"></i>咨询&nbsp;&nbsp;&nbsp;
-                <span style="font-size: 2px; color:#a2a2a2">{{doctor.charge1}}元/次</span></button>
+                <span style="font-size: 14px; color:#a2a2a2">{{doctor.charge1}}元/次</span></button>
             <button ng-disabled="DisabledConsult||!doctor.counselStatus2" ng-click="consult(doctor.userId, doctor.charge1, doctor.charge2)" class="doctorBtn"><i class="icon iconfont icon-baojifuben"></i>问诊&nbsp;&nbsp;&nbsp;
-                <span style="font-size: 2px; color:#a2a2a2">{{doctor.charge2}}元/次</span></button>
+                <span style="font-size: 14px; color:#a2a2a2">{{doctor.charge2}}元/次</span></button>
 
             <!-- <button class="doctorBtn4" ng-click="trigger(doctor)"><i class="icon ion-chevron-up" ng-if="doctor.open"></i> <i class="icon ion-chevron-down" ng-if="!doctor.open"></i></button> -->
 

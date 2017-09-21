@@ -178,3 +178,5 @@ button.phonevalid {
   border-width: 0px 0px 0px 1px;
   border-color: #6ac4f8;
 }
+
+#followDoc> .card:last-child {margin:0px !important;}
