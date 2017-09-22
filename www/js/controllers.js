@@ -3753,7 +3753,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(// userId:Storage.get('UID')
         function (data) {
           console.log(data.results)
-          if (!data.results.class) {
+          if (data.results.class) {
             if (data.results.diagnosisInfo.length) {
               var allDiags = data.results.diagnosisInfo
               console.log(allDiags)
@@ -4707,8 +4707,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             for (i = 0; i < $scope.items.length;i++){
               if ($scope.items[i].url != "" && $scope.items[i].url!=null) {
                 urlArray = urlArray.concat($scope.items[i].url)
+              }
             }
-          }
             for (i = 0; i < urlArray.length; i++) {
               $scope.Images[i] = CONFIG.imgLargeUrl+urlArray[i].slice(urlArray[i].lastIndexOf('/')+1).substr(7)
             } 

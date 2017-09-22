@@ -1121,11 +1121,15 @@ border-bottom: none !important;
 select:disabled{
     border: none;
     background-color: #FFFFFF;
+    color:#333;
+    pointer-events: none !important;
     /*color:#ACA899;*/
 }
+
 input:disabled{
     /*border: none;*/
     background-color: #FFFFFF;
+    color:#333;
     /*color:#ACA899;*/
 }
 
