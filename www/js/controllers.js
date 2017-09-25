@@ -8664,7 +8664,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicActionSheet', '$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicActionSheet, $ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9301,7 +9301,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
  // 上传健康信息的点击事件----------------------------
   $scope.addHealth = function ($event) {
-    $scope.openPopover($event)
+    $ionicActionSheet.show({
+     buttons: [
+       { text: '新建' },
+       { text: '选择' }
+     ],
+     cancelOnStateChange: true,
+     titleText: '上传',
+     buttonClicked: function(index) {
+      if(index===0){
+        $scope.newHealth()
+      }else{
+        $scope.chooseHealths()
+      }
+       // return true;
+     }
+   })
+    // $scope.openPopover($event)
   }
 
   $ionicPopover.fromTemplateUrl('partials/pop/healthPopover.html', {
