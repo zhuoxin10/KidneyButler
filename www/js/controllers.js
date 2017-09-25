@@ -3825,9 +3825,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 // 咨询记录--PXY
-.controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup) {
+.controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', '$rootScope', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup, $rootScope) {
   $scope.Goback = function(){
-    $ionicHistory.goBack()
+    $state.go('tab.myDoctors')
   }
 
   $scope.noConsult = false
@@ -5393,7 +5393,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                               chart: {
                               borderRadius:5,//图表边框圆角角度  
                               shadow:true,//是否设置阴影  
-                              zoomType:'x',                            
+                              // zoomType:'x',                            
                             }, 
                             colors:[       
                               '#FF8040',
@@ -5479,7 +5479,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5567,7 +5567,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',                         
+                          // zoomType:'x',                         
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5657,7 +5657,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5743,7 +5743,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5831,7 +5831,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5958,7 +5958,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6028,7 +6028,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度                    
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6095,7 +6095,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6162,7 +6162,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度                         
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6229,7 +6229,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -7263,7 +7263,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 
-.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
+.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', 'Patient',  function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -8664,7 +8664,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicActionSheet', '$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicActionSheet, $ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9301,7 +9301,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
  // 上传健康信息的点击事件----------------------------
   $scope.addHealth = function ($event) {
-    $scope.openPopover($event)
+    $ionicActionSheet.show({
+     buttons: [
+       { text: '新建' },
+       { text: '选择' }
+     ],
+     cancelOnStateChange: true,
+     titleText: '上传',
+     buttonClicked: function(index) {
+      if(index===0){
+        $scope.newHealth()
+      }else{
+        $scope.chooseHealths()
+      }
+       // return true;
+     }
+   })
+    // $scope.openPopover($event)
   }
 
   $ionicPopover.fromTemplateUrl('partials/pop/healthPopover.html', {
@@ -9512,7 +9528,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $scope.posts = $scope.allposts
     pagecontrol = {skip: 0, limit: 10},
     allposts = []
-    $scope.posts = $scope.loadMore()
+    $scope.loadMore()
   }
     // ----------------结束搜索患者------------------
 }])
