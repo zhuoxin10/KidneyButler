@@ -1459,6 +1459,7 @@ button.textBtn{
 
 .scroll-left {
  height: 50px;  
+ width: 400%;
  overflow: hidden;
  text-overflow: ellipsis ;
  position: relative;
@@ -1468,8 +1469,11 @@ button.textBtn{
 }
 .scroll-left p {
  position: absolute;
- min-width: 100%;
- width: 200%;
+ min-width: 24%;
+ /*width: 200%;*/
+ display:inline-block; 
+*display:inline; 
+*zoom:1;
  height: 100%;
  margin: 0;
  line-height: 35px;
