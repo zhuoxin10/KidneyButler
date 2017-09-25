@@ -91,7 +91,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
       // 注释掉尝试解决ios select Done的问题
-      // cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true)
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true)
 
       // Don't remove this line unless you know what you are doing. It stops the viewport
       // from snapping when text inputs are focused. Ionic handles this internally for

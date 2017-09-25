@@ -8586,9 +8586,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }
     } else if ($scope.Kidneyfunction.CreatinineUnit == 'μmol/L' && $scope.Kidneyfunction.Gender == 'Female') {
       if ($scope.Kidneyfunction.Creatinine <= 62) {
-        $scope.Kidneyfunction.KidneyfunctionValue = 141 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.9), -0.411) * Math.pow(0.993, $scope.Kidneyfunction.Age)
+        $scope.Kidneyfunction.KidneyfunctionValue = 144 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.7), -0.329) * Math.pow(0.993, $scope.Kidneyfunction.Age)
       } else {
-        $scope.Kidneyfunction.KidneyfunctionValue = 141 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.9), -1.209) * Math.pow(0.993, $scope.Kidneyfunction.Age)
+        $scope.Kidneyfunction.KidneyfunctionValue = 144 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.7), -1.209) * Math.pow(0.993, $scope.Kidneyfunction.Age)
       }
     } else if ($scope.Kidneyfunction.CreatinineUnit == 'μmol/L' && $scope.Kidneyfunction.Gender == 'Male') {
       if ($scope.Kidneyfunction.Creatinine <= 80) {
