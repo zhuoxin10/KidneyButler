@@ -1806,10 +1806,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 str2=str1.split(":")[1]
                 str3=str2.split("}")[0]
                 $scope.newMes= "最新消息：医生"+str3+"给您发来一条聊天消息“"+data.results[0].description+"”"
-                console.log($scope.newMes)
-              } else {
-                  $scope.newMes= "最新消息："+ data.results[0].description
-              }             
+                
+            } else {
+                $scope.newMes= "最新消息："+ data.results[0].description
+            } 
+            if($scope.newMes.length>=80){
+              $scope.newMes = $scope.newMes.slice(0,79)+ "..."
+            } 
+
+              // console.log($scope.newMes.length)    
         } else {
           $scope.HasUnreadMessages = false
           $scope.newMes= "最新消息：没有最新的未读消息！"
