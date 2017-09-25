@@ -9512,7 +9512,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $scope.posts = $scope.allposts
     pagecontrol = {skip: 0, limit: 10},
     allposts = []
-    $scope.posts = $scope.loadMore()
+    $scope.loadMore()
   }
     // ----------------结束搜索患者------------------
 }])
