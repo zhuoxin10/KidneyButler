@@ -1215,7 +1215,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 个人信息--PXY
-.controller('userdetailCtrl', ['$http', '$stateParams', '$scope', '$state', '$ionicHistory', '$timeout', 'Storage', '$ionicPopup', '$ionicLoading', '$ionicPopover', 'Dict', 'Patient', 'VitalSign', '$filter', 'Task', 'User', 'mySocket', function ($http, $stateParams, $scope, $state, $ionicHistory, $timeout, Storage, $ionicPopup, $ionicLoading, $ionicPopover, Dict, Patient, VitalSign, $filter, Task, User, mySocket) {
+.controller('userdetailCtrl', ['$http', '$stateParams', '$scope', '$state', '$ionicHistory', '$timeout', 'Storage', '$ionicPopup', '$ionicLoading', '$ionicPopover', 'Dict', 'Patient',  '$filter', 'Task', 'User', 'mySocket', function ($http, $stateParams, $scope, $state, $ionicHistory, $timeout, Storage, $ionicPopup, $ionicLoading, $ionicPopover, Dict, Patient,  $filter, Task, User, mySocket) {
 
    // 页面绑定数据初始化
   $scope.User =
@@ -8664,7 +8664,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['$ionicActionSheet', '$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicActionSheet, $ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicActionSheet', '$ionicLoading', 'Task', '$scope', '$ionicPopup',  '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicActionSheet, $ionicLoading, Task, $scope, $ionicPopup, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9320,29 +9320,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $scope.openPopover($event)
   }
 
-  $ionicPopover.fromTemplateUrl('partials/pop/healthPopover.html', {
-    scope: $scope
-    // animation: 'slide-in-up'
-  }).then(function (popover) {
-    $scope.popover = popover
-  })
-  $scope.openPopover = function ($event) {
-    $scope.popover.show($event)
-  }
-  $scope.closePopover = function () {
-    $scope.popover.hide()
-  }
-  // Cleanup the popover when we're done with it!
-  $scope.$on('$destroy', function () {
-    console.log('remove')
-    // 考虑把健康信息的内存删除掉
-    $scope.popover.remove()
-  })
 
   // 新建个人信息的点击事件----------------------------
   $scope.newHealth = function () {
     var healthList = angular.fromJson(Storage.get('consulthealthinfo')) ? angular.fromJson(Storage.get('consulthealthinfo')) : []
-    $scope.closePopover()
     if( healthList.length >= CONFIG.maxHealthNumber) {
       $ionicLoading.show({
         template:'最多只能上传' + CONFIG.maxHealthNumber +'条健康信息',
@@ -9357,7 +9338,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
   // 选择个人信息的点击事件----------------------------
   $scope.chooseHealths = function () {
-    $scope.closePopover()
     $state.go('tab.healthList')
 
   }
