@@ -6943,7 +6943,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.varyMes = {name: '退款', avatar: 'payment.png'}
         break
       case '7':
-        $scope.varyMes = {name: '审核'}
+        $scope.varyMes = {name: '系统'}
         break
       case '8':
         $scope.varyMes = {name: '群体教育'}
