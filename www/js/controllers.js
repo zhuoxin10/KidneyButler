@@ -6933,6 +6933,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 消息类型--PXY
 .controller('VaryMessageCtrl', ['Patient', 'News', '$scope', 'Message', '$state', '$ionicHistory', 'Storage', function (Patient, News, $scope, Message, $state, $ionicHistory, Storage) {
   $scope.notInsurance = true
+  $scope.notInfo = true
   var getDocNamePhoto = function (sender, doctor) {
     Patient.getDoctorLists({doctorId: sender}).then(
             function (data) {
@@ -6968,6 +6969,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         break
       case '7':
         $scope.varyMes = {name: '系统'}
+        $scope.notInfo = false
         break
       case '8':
         $scope.varyMes = {name: '群体教育'}
