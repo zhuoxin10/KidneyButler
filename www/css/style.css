@@ -1130,7 +1130,9 @@ input:disabled{
     /*border: none;*/
     background-color: #FFFFFF;
     color:#333;
-    /*color:#ACA899;*/
+    -webkit-text-fill-color:#333; /* Override iOS / Android font color change */
+    -webkit-opacity:1; /* Override iOS opacity change affecting text & background color */
+    opacity: 1 !important;
 }
 
 span.tick {
@@ -1471,9 +1473,9 @@ button.textBtn{
  position: absolute;
  min-width: 24%;
  /*width: 200%;*/
- display:inline-block; 
-*display:inline; 
-*zoom:1;
+ /*display:inline-block; */
+ display:inline; 
+ zoom:1;
  height: 100%;
  margin: 0;
  line-height: 35px;
