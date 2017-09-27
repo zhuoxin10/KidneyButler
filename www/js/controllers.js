@@ -4806,8 +4806,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.addHealth = function ($event) {
     $ionicActionSheet.show({
      buttons: [
-       { text: '新建' },
-       { text: '选择' }
+       { text: '尿液试纸上传' },
+       { text: '其他健康信息' }
      ],
      cancelOnStateChange: true,
      titleText: '上传',
