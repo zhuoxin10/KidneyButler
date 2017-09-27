@@ -68,8 +68,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @return   res:{result:{agreement: String}}
              *           err
              */
-            User.getAgree({userId: data.results.userId}).then(function (res) {
-              if (res.results.agreement == '0') {
+            User.getAgree({userId: data.results.userId,role:'patient'}).then(function (res) {
+              if (res.results.agreementPat == '0') {
                 $timeout(function () { $state.go('tab.tasklist') }, 500)
               } else {
                 $timeout(function () { $state.go('agreement', {delay: true}) }, 500)
@@ -255,7 +255,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // 分为三种情况：1、导入用户补签：（1.1手机号码登录；1.2微信注册）；2、手机号注册
     if($stateParams.delay && last === 'signin'){
       // 手机号码登录后补签协议，则签完协议去首页
-      User.updateAgree({userId: Storage.get('UID'), agreement: '0'}).then(function (data) {
+      User.updateAgree({userId: Storage.get('UID'), agreement: '0',role:'patient'}).then(function (data) {
         if (data.results != null) {
           $timeout(function () { $state.go('tab.tasklist') }, 500)
         } else {
@@ -274,7 +274,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('TOKEN', succ.results.token)// token作用目前还不明确
           Storage.set('refreshToken', succ.results.refreshToken)
           mySocket.newUser(succ.results.userId)
-          User.updateAgree({userId: Storage.get('UID'), agreement: '0'}).then(function (data) {
+          User.updateAgree({userId: Storage.get('UID'), agreement: '0',role:'patient'}).then(function (data) {
             $ionicLoading.hide()
             if (data.results != null) {
               $ionicPopup.show({
@@ -430,9 +430,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       else if($stateParams.rType === 'openId'){
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
-          User.getAgree({userId: data.AlluserId}).then(function (res) {
+          User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
             sendSMS($scope.Register.Phone)
-            if (res.results.agreement == '0') {
+            if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
             } else {
@@ -568,7 +568,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
                   Storage.set('UID',res.userNo)
                   Storage.set('USERNAME',register.Phone)
-                  User.updateAgree({userId:res.userNo,agreement:'0'}).then(function(succ){
+                  User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}).then(function(succ){
                     $ionicLoading.hide()
                     $ionicLoading.show({
                       template:"恭喜您，注册成功！",
@@ -617,7 +617,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('UID',res.userNo)
           Storage.set('USERNAME',register.Phone)
           $q.all([
-            User.updateAgree({userId:res.userNo,agreement:'0'}),
+            User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}),
             User.setUnionId({phoneNo:register.Phone,openId:Storage.get('patientunionid')}),
             //type为4是指患者app端，若为微信则要改为2
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
@@ -803,9 +803,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       else if($stateParams.rType === 'openId'){
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
-          User.getAgree({userId: data.AlluserId}).then(function (res) {
+          User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
             sendSMS($scope.Register.Phone)
-            if (res.results.agreement == '0') {
+            if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
             } else {
@@ -922,7 +922,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 User.register({phoneNo:register.Phone,password:register.confirm,name:register.name,role:'patient'}).then(function(res){
                   Storage.set('UID',res.userNo)
                   Storage.set('USERNAME',register.Phone)
-                  User.updateAgree({userId:res.userNo,agreement:'0'}).then(function(succ){
+                  User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}).then(function(succ){
                     $ionicLoading.hide()
                     $ionicLoading.show({
                       template:"恭喜您，注册成功！",
@@ -970,7 +970,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           Storage.set('UID',res.userNo)
           Storage.set('USERNAME',register.Phone)
           $q.all([
-            User.updateAgree({userId:res.userNo,agreement:'0'}),
+            User.updateAgree({userId:res.userNo,agreement:'0',role:'patient'}),
             User.setUnionId({phoneNo:register.Phone,openId:Storage.get('patientunionid')}),
             //type为4是指患者app端，若为微信则要改为2
             User.setOpenId({type:4,openId:Storage.get('openId'),userId:Storage.get('UID')})
@@ -1215,7 +1215,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 个人信息--PXY
-.controller('userdetailCtrl', ['$http', '$stateParams', '$scope', '$state', '$ionicHistory', '$timeout', 'Storage', '$ionicPopup', '$ionicLoading', '$ionicPopover', 'Dict', 'Patient', 'VitalSign', '$filter', 'Task', 'User', 'mySocket', function ($http, $stateParams, $scope, $state, $ionicHistory, $timeout, Storage, $ionicPopup, $ionicLoading, $ionicPopover, Dict, Patient, VitalSign, $filter, Task, User, mySocket) {
+.controller('userdetailCtrl', ['$http', '$stateParams', '$scope', '$state', '$ionicHistory', '$timeout', 'Storage', '$ionicPopup', '$ionicLoading', '$ionicPopover', 'Dict', 'Patient',  '$filter', 'Task', 'User', 'mySocket', function ($http, $stateParams, $scope, $state, $ionicHistory, $timeout, Storage, $ionicPopup, $ionicLoading, $ionicPopover, Dict, Patient,  $filter, Task, User, mySocket) {
 
    // 页面绑定数据初始化
   $scope.User =
@@ -1806,10 +1806,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 str2=str1.split(":")[1]
                 str3=str2.split("}")[0]
                 $scope.newMes= "最新消息：医生"+str3+"给您发来一条聊天消息“"+data.results[0].description+"”"
-                console.log($scope.newMes)
-              } else {
-                  $scope.newMes= "最新消息："+ data.results[0].description
-              }             
+                
+            } else {
+                $scope.newMes= "最新消息："+ data.results[0].description
+            } 
+            if($scope.newMes.length>=80){
+              $scope.newMes = $scope.newMes.slice(0,79)+ "..."
+            } 
+
+              // console.log($scope.newMes.length)    
         } else {
           $scope.HasUnreadMessages = false
           $scope.newMes= "最新消息：没有最新的未读消息！"
@@ -3753,7 +3758,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     Patient.getPatientDetail({userId: Storage.get('UID')}).then(// userId:Storage.get('UID')
         function (data) {
           console.log(data.results)
-          if (!data.results.class) {
+          if (data.results.class) {
             if (data.results.diagnosisInfo.length) {
               var allDiags = data.results.diagnosisInfo
               console.log(allDiags)
@@ -3825,9 +3830,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 }])
 // 咨询记录--PXY
-.controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup) {
+.controller('ConsultRecordCtrl', ['News', 'Patient', 'Storage', '$scope', '$state', '$ionicHistory', '$ionicLoading', '$ionicPopover', 'Counsels', '$ionicPopup', '$rootScope', function (News, Patient, Storage, $scope, $state, $ionicHistory, $ionicLoading, $ionicPopover, Counsels, $ionicPopup, $rootScope) {
   $scope.Goback = function(){
-    $ionicHistory.goBack()
+    $state.go('tab.myDoctors')
   }
 
   $scope.noConsult = false
@@ -4631,7 +4636,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 健康信息--PXY
-.controller('HealthInfoCtrl', ['$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', 'CONFIG','$ionicModal','$ionicScrollDelegate',function ($ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover,CONFIG,$ionicModal,$ionicScrollDelegate) {
+.controller('HealthInfoCtrl', ['$ionicActionSheet', '$ionicLoading', '$scope', '$timeout', '$state', '$ionicHistory', '$ionicPopup', 'Storage', 'Health', 'Dict','$ionicPopover', 'CONFIG','$ionicModal','$ionicScrollDelegate',function ($ionicActionSheet, $ionicLoading, $scope, $timeout, $state, $ionicHistory, $ionicPopup, Storage, Health, Dict,$ionicPopover,CONFIG,$ionicModal,$ionicScrollDelegate) {
   var patientId = Storage.get('UID')
 
   $scope.Goback = function () {
@@ -4707,8 +4712,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             for (i = 0; i < $scope.items.length;i++){
               if ($scope.items[i].url != "" && $scope.items[i].url!=null) {
                 urlArray = urlArray.concat($scope.items[i].url)
+              }
             }
-          }
             for (i = 0; i < urlArray.length; i++) {
               $scope.Images[i] = CONFIG.imgLargeUrl+urlArray[i].slice(urlArray[i].lastIndexOf('/')+1).substr(7)
             } 
@@ -4797,7 +4802,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.popover = popover;
   });
 
-
+  $scope.addHealth = function ($event) {
+    $ionicActionSheet.show({
+     buttons: [
+       { text: '尿液试纸上传' },
+       { text: '其他健康信息' }
+     ],
+     cancelOnStateChange: true,
+     titleText: '上传',
+     buttonClicked: function(index) {
+      if(index===0){
+        $scope.urineUpload()
+      }else{
+        $scope.newHealth()
+      }
+       // return true;
+     }
+   })
+    // $scope.openPopover($event)
+  }
+  // 选择个人信息的点击事件----------------------------
   $scope.openPopover = function($event) {
     $scope.popover.show($event);
   };
@@ -5393,7 +5417,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                               chart: {
                               borderRadius:5,//图表边框圆角角度  
                               shadow:true,//是否设置阴影  
-                              zoomType:'x',                            
+                              // zoomType:'x',                            
                             }, 
                             colors:[       
                               '#FF8040',
@@ -5479,7 +5503,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5567,7 +5591,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',                         
+                          // zoomType:'x',                         
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5657,7 +5681,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5743,7 +5767,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5831,7 +5855,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                           borderRadius:5,//图表边框圆角角度  
                           shadow:true,//是否设置阴影  
-                          zoomType:'x',
+                          // zoomType:'x',
                          }, 
                     colors:[       
                            '#FF8040',
@@ -5958,7 +5982,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6028,7 +6052,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度                    
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6095,7 +6119,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度  
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6162,7 +6186,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,//图表边框圆角角度                         
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6229,7 +6253,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     chart: {
                         borderRadius:5,
                         shadow:true,//是否设置阴影  
-                        zoomType:'x',
+                        // zoomType:'x',
                     }, 
                     colors:[       
                         '#FF8040',
@@ -6909,6 +6933,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 // 消息类型--PXY
 .controller('VaryMessageCtrl', ['Patient', 'News', '$scope', 'Message', '$state', '$ionicHistory', 'Storage', function (Patient, News, $scope, Message, $state, $ionicHistory, Storage) {
   $scope.notInsurance = true
+  $scope.notInfo = true
   var getDocNamePhoto = function (sender, doctor) {
     Patient.getDoctorLists({doctorId: sender}).then(
             function (data) {
@@ -6943,7 +6968,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.varyMes = {name: '退款', avatar: 'payment.png'}
         break
       case '7':
-        $scope.varyMes = {name: '审核'}
+        $scope.varyMes = {name: '系统'}
+        $scope.notInfo = false
         break
       case '8':
         $scope.varyMes = {name: '群体教育'}
@@ -7263,7 +7289,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 
-.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup',   'Patient', function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup,  Patient) {
+.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', 'Patient',  function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, Patient) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -8586,9 +8612,9 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }
     } else if ($scope.Kidneyfunction.CreatinineUnit == 'μmol/L' && $scope.Kidneyfunction.Gender == 'Female') {
       if ($scope.Kidneyfunction.Creatinine <= 62) {
-        $scope.Kidneyfunction.KidneyfunctionValue = 141 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.9), -0.411) * Math.pow(0.993, $scope.Kidneyfunction.Age)
+        $scope.Kidneyfunction.KidneyfunctionValue = 144 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.7), -0.329) * Math.pow(0.993, $scope.Kidneyfunction.Age)
       } else {
-        $scope.Kidneyfunction.KidneyfunctionValue = 141 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.9), -1.209) * Math.pow(0.993, $scope.Kidneyfunction.Age)
+        $scope.Kidneyfunction.KidneyfunctionValue = 144 * Math.pow(($scope.Kidneyfunction.Creatinine * 0.01131 / 0.7), -1.209) * Math.pow(0.993, $scope.Kidneyfunction.Age)
       }
     } else if ($scope.Kidneyfunction.CreatinineUnit == 'μmol/L' && $scope.Kidneyfunction.Gender == 'Male') {
       if ($scope.Kidneyfunction.Creatinine <= 80) {
@@ -8664,7 +8690,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 // 咨询问卷--TDY
 
-.controller('consultquestionCtrl', ['$ionicLoading', 'Task', '$scope', '$ionicPopup', '$ionicModal', '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', '$ionicPopover', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicLoading, Task, $scope, $ionicPopup, $ionicModal, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, $ionicPopover, Camera, Counsels, CONFIG, Health, Account, socket) {
+.controller('consultquestionCtrl', ['$ionicActionSheet', '$ionicLoading', 'Task', '$scope', '$ionicPopup',  '$state', 'Dict', 'Storage', 'Patient', 'VitalSign', '$filter', '$stateParams', 'Camera', 'Counsels', 'CONFIG', 'Health', 'Account', 'socket', function ($ionicActionSheet, $ionicLoading, Task, $scope, $ionicPopup, $state, Dict, Storage, Patient, VitalSign, $filter, $stateParams, Camera, Counsels, CONFIG, Health, Account, socket) {
 
   $scope.showProgress = false
   $scope.showSurgicalTime = false
@@ -9301,32 +9327,29 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
  // 上传健康信息的点击事件----------------------------
   $scope.addHealth = function ($event) {
-    $scope.openPopover($event)
+    $ionicActionSheet.show({
+     buttons: [
+       { text: '新建' },
+       { text: '选择' }
+     ],
+     cancelOnStateChange: true,
+     titleText: '上传',
+     buttonClicked: function(index) {
+      if(index===0){
+        $scope.newHealth()
+      }else{
+        $scope.chooseHealths()
+      }
+       // return true;
+     }
+   })
+    // $scope.openPopover($event)
   }
 
-  $ionicPopover.fromTemplateUrl('partials/pop/healthPopover.html', {
-    scope: $scope
-    // animation: 'slide-in-up'
-  }).then(function (popover) {
-    $scope.popover = popover
-  })
-  $scope.openPopover = function ($event) {
-    $scope.popover.show($event)
-  }
-  $scope.closePopover = function () {
-    $scope.popover.hide()
-  }
-  // Cleanup the popover when we're done with it!
-  $scope.$on('$destroy', function () {
-    console.log('remove')
-    // 考虑把健康信息的内存删除掉
-    $scope.popover.remove()
-  })
 
   // 新建个人信息的点击事件----------------------------
   $scope.newHealth = function () {
     var healthList = angular.fromJson(Storage.get('consulthealthinfo')) ? angular.fromJson(Storage.get('consulthealthinfo')) : []
-    $scope.closePopover()
     if( healthList.length >= CONFIG.maxHealthNumber) {
       $ionicLoading.show({
         template:'最多只能上传' + CONFIG.maxHealthNumber +'条健康信息',
@@ -9341,7 +9364,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
   // 选择个人信息的点击事件----------------------------
   $scope.chooseHealths = function () {
-    $scope.closePopover()
     $state.go('tab.healthList')
 
   }
@@ -9512,7 +9534,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $scope.posts = $scope.allposts
     pagecontrol = {skip: 0, limit: 10},
     allposts = []
-    $scope.posts = $scope.loadMore()
+    $scope.loadMore()
   }
     // ----------------结束搜索患者------------------
 }])

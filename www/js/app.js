@@ -86,11 +86,13 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       console.log(data)
       if (!appState.background && (($rootScope.conversation.type == 'single' && $rootScope.conversation.id == data.msg.fromID) || ($rootScope.conversation.type == 'group' && $rootScope.conversation.id == data.msg.targetID))) return
       notify.add(data.msg)
+      socket.emit('gotMsg', {msg: data.msg, userId: Storage.get('UID')})
     }
     if (window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true)
+      // 注释掉尝试解决ios select Done的问题
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(false)
 
       // Don't remove this line unless you know what you are doing. It stops the viewport
       // from snapping when text inputs are focused. Ionic handles this internally for
@@ -109,7 +111,7 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       console.log(arguments)
       var msg = JSON.parse(note.data)
       if (msg.newsType == '11') {
-        $state.go('tab.consult-chat', {chatId: msg.fromID})
+        $state.go('consult-chat', {chatId: msg.fromID})
       }
     })
 
@@ -250,10 +252,10 @@ angular.module('kidney', ['ionic', 'kidney.services', 'kidney.controllers', 'kid
       cache: false,
       views: {
         'tab-forum': {
-      templateUrl: 'partials/tabs/forum/myposts.html',
-      controller: 'mypostsCtrl'
+          templateUrl: 'partials/tabs/forum/myposts.html',
+          controller: 'mypostsCtrl'
+        }
       }
-     }
     })
     .state('tab.mycollection', {
       url: '/mycollection',
