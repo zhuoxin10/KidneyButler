@@ -77,7 +77,7 @@
       <!-- </div> -->
       
       <!-- 聊天消息 -->
-      <ion-item  ng-repeat="chat in chats"  class="item item-avatar card" ng-click="getConsultRecordDetail(chat)">
+      <ion-item  ng-repeat="chat in chats"  class="item item-avatar card" ng-click="getConsultRecordDetail($event,chat)">
         <img ng-src="{{chat.docPhoto}}" image-red-point="!chat.readOrNot">
         <div class="row">
             <h2 class="col">{{chat.docName}}</h2>

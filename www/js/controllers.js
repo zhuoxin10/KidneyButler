@@ -3917,6 +3917,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     var template = ''
     var counseltype = 0
     var counselstatus = ''
+
     if (ele.target.nodeName == 'IMG') {
       $state.go('tab.DoctorDetail', {DoctorId: doctorId})
     } else {
@@ -6833,14 +6834,17 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
   }
 
-  $scope.getConsultRecordDetail = function (chat) {
+  $scope.getConsultRecordDetail = function (ele,chat) {
     var template = ''
     // var counseltype = 0
     var counselstatus = ''
     var doctorId = chat.sendBy
-
+    if (ele.target.nodeName == 'IMG') {
+      $state.go('tab.DoctorDetail', {DoctorId: doctorId})
+    } else 
+    {
         // zz最新方法根据docid pid 不填写type获取最新一条咨询信息
-    Counsels.getStatus({doctorId: doctorId, patientId: Storage.get('UID')})
+      Counsels.getStatus({doctorId: doctorId, patientId: Storage.get('UID')})
         .then(function (data) {
           console.log(data.result)
           console.log(data.result.type)
@@ -6920,7 +6924,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           }
         })
         // SetRead(chat);
-  }
+    }
+    }
 
   $scope.getMessageDetail = function (message) {
     console.log(message)

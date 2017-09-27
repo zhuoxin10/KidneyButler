@@ -43,7 +43,7 @@
 
      
       <ion-item>
-        <span style="font-size: 18px"><i class="icon ion-ios-lightbulb-outline" style="margin-right: 10px"></i>医生服务</span>
+        <span style="font-size: 18px"><i class="icon ion-network" style="margin-right: 10px"></i>医生服务</span>
         <div class="row">
             <button ng-disabled="!doctor.counselStatus1||(doctor.charge1==undefined)||DisabledConsult" ng-click="question(doctor.userId,doctor.charge1)" class="docDetailBtn">
               <i class="icon iconfont icon-zixun2" style="color:#daf603;font-size: 25px;"></i></br>咨询</br>
@@ -76,7 +76,7 @@
       </ion-item>
 
       <ion-item>
-        <span style="font-size: 18px"><i class="icon ion-clipboard" style="margin-right: 10px"></i>个人介绍</span>
+        <span style="font-size: 18px"><i class="icon ion-person" style="margin-right: 10px"></i>个人介绍</span>
          <p style="font-size: 14px;padding-left: 20px" class="item-text-wrap">{{doctor.description||"医生有点忙，还没填写噢"}}</p>
       </ion-item>
       <ion-item style="border-bottom: 1px none #fff">
