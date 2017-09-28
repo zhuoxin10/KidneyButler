@@ -6754,7 +6754,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 消息中心--PXY
-.controller('messageCtrl', ['$ionicPopup', 'Counsels', '$q', '$scope', '$state', '$ionicHistory', 'News', 'Storage', 'Patient', function ($ionicPopup, Counsels, $q, $scope, $state, $ionicHistory, News, Storage, Patient) {
+.controller('messageCtrl', ['$ionicPopup', 'Counsels', '$q', '$scope', '$state', '$ionicHistory', 'News', 'Storage', 'Patient', 'Message',function ($ionicPopup, Counsels, $q, $scope, $state, $ionicHistory, News, Storage, Patient,Message) {
   var getDocNamePhoto = function (sender, doctor) {
     Patient.getDoctorLists({doctorId: sender}).then(
             function (data) {
@@ -6875,7 +6875,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   var SetRead = function (message) {
     News.setReadOrNot({type:message.type}).then(
                function (data) {
- 
+              }, function (err) {
+      console.log(err)
+    }
+            )
+    Message.setMessagesRead({type:message.type,readOrNot:1}).then(
+               function (data) {
               }, function (err) {
       console.log(err)
     }

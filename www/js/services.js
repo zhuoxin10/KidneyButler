@@ -447,7 +447,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Message = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'message'}, {
-      getMessages: {method: 'GET', params: {route: 'messages'}, timeout: 100000}
+      getMessages: {method: 'GET', params: {route: 'messages'}, timeout: 100000},
+      setMessagesRead:{method: 'POST', params: {route: 'status'}, timeout: 100000}
     })
   }
 
@@ -2159,6 +2160,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.getMessages = function (params) {
     var deferred = $q.defer()
     Data.Message.getMessages(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+
+    self.setMessagesRead = function (params) {
+    var deferred = $q.defer()
+    Data.Message.setMessagesRead(
             params,
             function (data, headers) {
               deferred.resolve(data)
