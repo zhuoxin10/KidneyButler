@@ -7422,62 +7422,80 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log(123);
     // $ionicHistory.goBack();
   }
-  
+
   //获取医生排班表
    function GetMyDoctors () {
     $scope.HemoTbl=[]
     var promise = Patient.getDoctorLists({doctorId: $scope.doctor.userId})
     promise.then(function (data) {
-      console.log(data)
       if (data.results[0]) {
         var schedules = data.results[0].schedules
         console.log(schedules)
         if (schedules) {
           for (var i = 0; i < schedules.length; i++) {
-            var num = parseInt(schedules[i].day)
-            if (schedules[i].time == '1') {
-              num = num + 7
+            if (schedules[i].day=='Mon'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[1] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[2] = {'background-color': 'red'}
+                }
             }
-            $scope.HemoTbl[num].style = {'background-color': 'red'}
+            if (schedules[i].day=='Tue'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[3] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[4] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Wed'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[5] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[6] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Thu'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[7] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[8] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Fri'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[9] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[10] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sat'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[11] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[12] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sun'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[13] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[14] = {'background-color': 'red'}
+                }
+            }           
+
           }
-        }
-      }
-      if (data.results[0].suspendTime.length == 0) {
-        $scope.hasstop = false
-      } else {
-        $scope.dateC = new Date()
-        var date = new Date()
-        var dateNow = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateNow += '0' + (date.getMonth() + 1) : dateNow += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateNow += '0' + date.getDate() : dateNow += date.getDate()
-        console.log(dateNow)
-
-        $scope.begin = data.results.doctorId.suspendTime[0].start
-        $scope.end = data.results.doctorId.suspendTime[0].end
-
-        date = new Date($scope.begin)
-        var dateB = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateB += '0' + (date.getMonth() + 1) : dateB += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateB += '0' + date.getDate() : dateB += date.getDate()
-        date = new Date($scope.end)
-        var dateE = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateE += '0' + (date.getMonth() + 1) : dateE += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateE += '0' + date.getDate() : dateE += date.getDate()
-
-        if (dateNow >= dateB && dateNow <= dateE) {
-          $scope.hasstop = true
-        } else {
-          $scope.hasstop = false
         }
       }
     }, function () {
     })
   }
-  
-  // 医生排班表数据
-  $scope.Docweek = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-  $scope.TblColor1 = ['gray', 'green', 'gray', 'gray', 'green', 'green', 'gray']
-  $scope.TblColor2 = ['gray', 'green', 'green', 'green', 'gray', 'gray', 'gray']
 
    $ionicModal.fromTemplateUrl('templates/modal.html', {
     scope: $scope,
@@ -7972,57 +7990,75 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.HemoTbl=[]
     var promise = Patient.getDoctorLists({doctorId: DoctorId})
     promise.then(function (data) {
-      console.log(data)
       if (data.results[0]) {
         var schedules = data.results[0].schedules
         console.log(schedules)
         if (schedules) {
           for (var i = 0; i < schedules.length; i++) {
-            var num = parseInt(schedules[i].day)
-            if (schedules[i].time == '1') {
-              num = num + 7
+            if (schedules[i].day=='Mon'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[1] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[2] = {'background-color': 'red'}
+                }
             }
-            $scope.HemoTbl[num] = {'background-color': 'red'}
+            if (schedules[i].day=='Tue'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[3] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[4] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Wed'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[5] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[6] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Thu'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[7] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[8] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Fri'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[9] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[10] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sat'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[11] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[12] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sun'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[13] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[14] = {'background-color': 'red'}
+                }
+            }           
+
           }
-        }
-      }
-      if (data.results[0].suspendTime.length == 0) {
-        $scope.hasstop = false
-      } else {
-        $scope.dateC = new Date()
-        var date = new Date()
-        var dateNow = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateNow += '0' + (date.getMonth() + 1) : dateNow += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateNow += '0' + date.getDate() : dateNow += date.getDate()
-        console.log(dateNow)
-
-        $scope.begin = data.results.doctorId.suspendTime[0].start
-        $scope.end = data.results.doctorId.suspendTime[0].end
-
-        date = new Date($scope.begin)
-        var dateB = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateB += '0' + (date.getMonth() + 1) : dateB += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateB += '0' + date.getDate() : dateB += date.getDate()
-        date = new Date($scope.end)
-        var dateE = '' + date.getFullYear();
-        (date.getMonth() + 1) < 10 ? dateE += '0' + (date.getMonth() + 1) : dateE += (date.getMonth() + 1)
-        date.getDate() < 10 ? dateE += '0' + date.getDate() : dateE += date.getDate()
-
-        if (dateNow >= dateB && dateNow <= dateE) {
-          $scope.hasstop = true
-        } else {
-          $scope.hasstop = false
         }
       }
     }, function () {
     })
   }
   
-  // 医生排班表数据
-  $scope.Docweek = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-  $scope.TblColor1 = ['gray', 'green', 'gray', 'gray', 'green', 'green', 'gray']
-  $scope.TblColor2 = ['gray', 'green', 'green', 'green', 'gray', 'gray', 'gray']
-
    $ionicModal.fromTemplateUrl('templates/modal.html', {
     scope: $scope,
     animation: 'slide-in-up'
