@@ -2949,6 +2949,58 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     return Date2
   }
 
+
+  //获取医生排班表
+   function GetMyDoctors () {
+    var promise = Patient.getMyDoctors({userId: UserId})
+    promise.then(function (data) {
+      if (data.results.doctorId) {
+        console.log(data)
+        var schedules = data.results.doctorId.schedules
+            // console.log(schedules);
+        if (schedules) {
+          for (var i = 0; i < schedules.length; i++) {
+            var num = parseInt(schedules[i].day)
+            if (schedules[i].time == '1') {
+              num = num + 7
+            }
+                   // console.log(num);
+            $scope.HemoTbl[num]['background-color'] = 'red'
+          }
+        }
+      }
+      if (data.results.doctorId.suspendTime.length == 0) {
+        $scope.hasstop = false
+      } else {
+        $scope.dateC = new Date()
+        var date = new Date()
+        var dateNow = '' + date.getFullYear();
+        (date.getMonth() + 1) < 10 ? dateNow += '0' + (date.getMonth() + 1) : dateNow += (date.getMonth() + 1)
+        date.getDate() < 10 ? dateNow += '0' + date.getDate() : dateNow += date.getDate()
+        console.log(dateNow)
+
+        $scope.begin = data.results.doctorId.suspendTime[0].start
+        $scope.end = data.results.doctorId.suspendTime[0].end
+
+        date = new Date($scope.begin)
+        var dateB = '' + date.getFullYear();
+        (date.getMonth() + 1) < 10 ? dateB += '0' + (date.getMonth() + 1) : dateB += (date.getMonth() + 1)
+        date.getDate() < 10 ? dateB += '0' + date.getDate() : dateB += date.getDate()
+        date = new Date($scope.end)
+        var dateE = '' + date.getFullYear();
+        (date.getMonth() + 1) < 10 ? dateE += '0' + (date.getMonth() + 1) : dateE += (date.getMonth() + 1)
+        date.getDate() < 10 ? dateE += '0' + date.getDate() : dateE += date.getDate()
+
+        if (dateNow >= dateB && dateNow <= dateE) {
+          $scope.hasstop = true
+        } else {
+          $scope.hasstop = false
+        }
+      }
+    }, function () {
+    })
+  }
+  
   // 医生排班表数据
   $scope.Docweek = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
   $scope.TblColor1 = ['gray', 'green', 'gray', 'gray', 'green', 'green', 'gray']
@@ -4065,7 +4117,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // var lastMsg = $scope.msgs[$scope.msgs.length - 1]
         // if (lastMsg.fromID == $scope.params.UID) return
         // return News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1}) 
-        return News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11 })
+        return News.setReadOrNot({ sendBy: $scope.params.chatId, type: 11 })
       }
     })
   })
@@ -4150,7 +4202,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         insertMsg(data.msg)
       })
       // News.insertNews({userId: $state.params.chatId, type: '11', userRole:'patient', readOrNot: 1})
-      News.changeNewsStatus({ sendBy: $scope.params.chatId, type: 11})
+      News.setReadOrNot({ sendBy: $scope.params.chatId, type: 11})
       setTimeout(function () {
         Counsels.getStatus({ doctorId: $state.params.chatId, patientId: Storage.get('UID')})
                     .then(function (data) {
@@ -6821,17 +6873,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   var SetRead = function (message) {
-    console.log(message)
-    if (message.readOrNot == 0) {
-      message.readOrNot = 1
-      News.setReadOrNot(message).then(
-                function (data) {
-                  
-                }, function (err) {
-        console.log(err)
-      }
-            )
+    News.setReadOrNot({type:message.type}).then(
+               function (data) {
+ 
+              }, function (err) {
+      console.log(err)
     }
+            )
   }
 
   $scope.getConsultRecordDetail = function (ele,chat) {
@@ -6978,6 +7026,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         break
       case '8':
         $scope.varyMes = {name: '群体教育'}
+        $scope.notInfo = false
         break
     }
 
@@ -7294,7 +7343,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 
-.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', 'Patient',  function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, Patient) {
+.controller('DoctorCtrl', ['Service','DoctorService','QandC', '$interval', 'News', '$q',  '$cordovaBarcodeScanner', 'Storage', '$ionicLoading', '$scope', '$state', '$ionicPopup', 'Patient', '$ionicModal', function (Service,DoctorService,QandC, $interval, News, $q, $cordovaBarcodeScanner, Storage, $ionicLoading, $scope, $state, $ionicPopup, Patient, $ionicModal) {
   var GetUnread = function () {
         // console.log(new Date());
     News.getNewsByReadOrNot({userId: Storage.get('UID'), readOrNot: 0, userRole: 'patient'}).then(//
@@ -7374,7 +7423,94 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // console.log(123);
     // $ionicHistory.goBack();
   }
-  
+
+  //获取医生排班表
+   function GetMyDoctors () {
+    $scope.HemoTbl=[]
+    var promise = Patient.getDoctorLists({doctorId: $scope.doctor.userId})
+    promise.then(function (data) {
+      if (data.results[0]) {
+        var schedules = data.results[0].schedules
+        console.log(schedules)
+        if (schedules) {
+          for (var i = 0; i < schedules.length; i++) {
+            if (schedules[i].day=='Mon'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[1] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[2] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Tue'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[3] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[4] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Wed'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[5] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[6] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Thu'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[7] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[8] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Fri'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[9] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[10] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sat'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[11] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[12] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sun'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[13] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[14] = {'background-color': 'red'}
+                }
+            }           
+
+          }
+        }
+      }
+    }, function () {
+    })
+  }
+
+   $ionicModal.fromTemplateUrl('templates/modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function (modal) {
+    $scope.modal = modal
+  })
+  $scope.openModal = function () {
+    GetMyDoctors()
+    $scope.modal.show()
+  }
+  $scope.closeModal = function () {
+    $scope.modal.hide()
+  }
 
 
   var IsDoctor =function (Doctor) {
@@ -7662,14 +7798,14 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 
-.controller('DoctorDetailCtrl', ['Comment', 'Service','DoctorService','QandC', '$ionicLoading',  '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams',  'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', function (Comment, Service,DoctorService, QandC, $ionicLoading, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams,Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient) {
+.controller('DoctorDetailCtrl', ['Comment','Doctor','Service','DoctorService','QandC', '$ionicLoading',  '$http', '$ionicPopup', '$scope', '$state', '$ionicHistory', '$stateParams',  'Counsels', 'Storage', 'Account', 'CONFIG', 'Expense', 'socket', '$q', 'Patient', '$ionicModal', function (Comment, Doctor, Service,DoctorService, QandC, $ionicLoading, $http, $ionicPopup, $scope, $state, $ionicHistory, $stateParams,Counsels, Storage, Account, CONFIG, Expense, socket, $q, Patient, $ionicModal) {
   $scope.GoBack = function () {
     // console.log('111');
     // console.log($ionicHistory.backView());
     $ionicHistory.goBack()
   }
   var DoctorId = $stateParams.DoctorId
-  
+
    // 进入咨询页面之前先判断患者的个人信息是否完善，若否则禁用咨询和问诊，并弹窗提示完善个人信息
   $scope.$on('$ionicView.beforeEnter', function () {
     var unComPatPopup = function(){
@@ -7723,6 +7859,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
     Patient.getDoctorLists({doctorId: DoctorId}).then(
       function (data) {
+        console.log(data.results)
         $scope.doctor = data.results[0]
         IsDoctor($scope.doctor)
         console.log($scope.doctor)
@@ -7848,6 +7985,95 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     // $state.go('tab.consult-comment',{counselId:'CL201708220001',doctorId:'U201708180001',patientId:'U201708220002'})
     // Storage.set('doctorId',id)
   }
+
+  //获取医生排班表
+   function GetMyDoctors () {
+    $scope.HemoTbl=[]
+    var promise = Patient.getDoctorLists({doctorId: DoctorId})
+    promise.then(function (data) {
+      if (data.results[0]) {
+        var schedules = data.results[0].schedules
+        console.log(schedules)
+        if (schedules) {
+          for (var i = 0; i < schedules.length; i++) {
+            if (schedules[i].day=='Mon'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[1] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[2] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Tue'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[3] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[4] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Wed'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[5] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[6] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Thu'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[7] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[8] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Fri'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[9] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[10] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sat'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[11] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[12] = {'background-color': 'red'}
+                }
+            }
+            if (schedules[i].day=='Sun'){
+                if(schedules[i].time=='Morning'){
+                    $scope.HemoTbl[13] = {'background-color': 'red'}
+                }
+                if(schedules[i].time=="Afternoon"){
+                    $scope.HemoTbl[14] = {'background-color': 'red'}
+                }
+            }           
+
+          }
+        }
+      }
+    }, function () {
+    })
+  }
+  
+   $ionicModal.fromTemplateUrl('templates/modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function (modal) {
+    $scope.modal = modal
+  })
+  $scope.openModal = function () {
+    GetMyDoctors()
+    $scope.modal.show()
+  }
+  $scope.closeModal = function () {
+    $scope.modal.hide()
+  }
+
 }])
 
 .controller('DoctorCommentCtrl', ['$scope', 'Comment', '$stateParams', function($scope, Comment, $stateParams){
@@ -7885,7 +8111,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.loadMore();
-  
+
 }])
 
 .controller('appointmentCtrl', ['Service','$ionicPopup','Patient', 'Mywechat','$ionicLoading', '$stateParams', '$scope',  '$state', 'Storage', '$ionicHistory', function (Service,$ionicPopup, Patient, Mywechat, $ionicLoading, $stateParams, $scope, $state, Storage, $ionicHistory) {
@@ -8812,25 +9038,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
       confirmPopup.then(function (res) {
         if (res) {
-          Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
-                    function (data) {
-                        for (var i = 0; i < $scope.items.length; i++) {
-                          if (editId.insertTime == $scope.items[i].insertTime) {
-                            $scope.items.splice(i, 1)
-                            break
-                          }
-                        }
+          // Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
+          //           function (data) {
+          //               for (var i = 0; i < $scope.items.length; i++) {
+          //                 if (editId.insertTime == $scope.items[i].insertTime) {
+          //                   $scope.items.splice(i, 1)
+          //                   break
+          //                 }
+          //               }
 
-                    // console.log($scope.items)
-                    },
-                    function (err) {
-                      console.log(err)
-                    })
+          //           // console.log($scope.items)
+          //           },
+          //           function (err) {
+          //             console.log(err)
+          //           })
                   // 20140421 zxf
           var healthinfotimes = angular.fromJson(Storage.get('consulthealthinfo'))
           for (var i = 0; i < healthinfotimes.length; i++) {
             if (healthinfotimes[i].time == editId.insertTime) {
               healthinfotimes.splice(i, 1)
+              $scope.items.splice(i, 1)
               break
             }
           }
