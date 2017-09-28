@@ -9038,25 +9038,26 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
       confirmPopup.then(function (res) {
         if (res) {
-          Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
-                    function (data) {
-                        for (var i = 0; i < $scope.items.length; i++) {
-                          if (editId.insertTime == $scope.items[i].insertTime) {
-                            $scope.items.splice(i, 1)
-                            break
-                          }
-                        }
+          // Health.deleteHealth({userId: patientId, insertTime: editId.insertTime}).then(
+          //           function (data) {
+          //               for (var i = 0; i < $scope.items.length; i++) {
+          //                 if (editId.insertTime == $scope.items[i].insertTime) {
+          //                   $scope.items.splice(i, 1)
+          //                   break
+          //                 }
+          //               }
 
-                    // console.log($scope.items)
-                    },
-                    function (err) {
-                      console.log(err)
-                    })
+          //           // console.log($scope.items)
+          //           },
+          //           function (err) {
+          //             console.log(err)
+          //           })
                   // 20140421 zxf
           var healthinfotimes = angular.fromJson(Storage.get('consulthealthinfo'))
           for (var i = 0; i < healthinfotimes.length; i++) {
             if (healthinfotimes[i].time == editId.insertTime) {
               healthinfotimes.splice(i, 1)
+              $scope.items.splice(i, 1)
               break
             }
           }
