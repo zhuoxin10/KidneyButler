@@ -3788,7 +3788,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       }else{
         onClickCameraPhotos()
       }
-       // return true;
+       return true;
      }
    })
     // $scope.openPopover($event)
