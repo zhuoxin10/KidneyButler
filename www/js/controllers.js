@@ -47,8 +47,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
            // console.log(data)
           $ionicLoading.hide()
           if (data.results == 1) {
-
-            $scope.logStatus = '账号或密码错误！'
+            if (data.mesg == "Alluser doesn't Exist!" || data.mesg == 'No authority!') {
+              $scope.logStatus = '账号不存在！'
+            } else if (data.mesg == "Alluser password isn't correct!") {
+              $scope.logStatus = '账号或密码错误！'
+            }
           } else if (data.results.mesg == 'login success!') {
             $scope.logStatus = '登录成功！'
             $ionicHistory.clearCache()
