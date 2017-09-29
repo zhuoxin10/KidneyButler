@@ -6770,79 +6770,93 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   //其实这边并不需要拿到消息本身，只需要拿到患者接受到的消息种类以及该种类是否未读即可（除了聊天消息），最好根据response更改Storage里unReadTxt的值
   var Lastnews = function () {
     var receiver = Storage.get('UID')
-    News.getNews({userId: receiver, type: 1}).then(
+    News.getNotRead().then(
             function (data) {
-              if (data.results.length) {
                 console.log(data.results)
                 $scope.pay = data.results[0]
-              }
+                $scope.task = data.results[1]
+                $scope.insurance = data.results[2]
+                $scope.refund = data.results[3]
+                $scope.Info = data.results[4]
+                $scope.edu = data.results[5]
             }, function (err) {
       console.log(err)
     }
         )
 
-    News.getNews({userId: receiver, type: 2}).then(
-            function (data) {
-              if (data.results.length) {
-                console.log(data.results)
-                $scope.alert = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
+    // News.getNews({userId: receiver, type: 1}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.pay = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
 
-    News.getNews({userId: receiver, type: 3}).then(
-            function (data) {
-              if (data.results.length) {
-                console.log(data.results)
-                $scope.task = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
+    // News.getNews({userId: receiver, type: 2}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.alert = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
 
-    News.getNews({userId: receiver, type: 5}).then(
-            function (data) {
-              if (data.results.length) {
-                console.log(data.results)
-                $scope.insurance = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
-    News.getNews({userId: receiver, type: 6}).then(
-            function (data) {
-              if (data.results.length) {
-                console.log(data.results)
-                $scope.refund = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
+    // News.getNews({userId: receiver, type: 3}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.task = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
 
-        News.getNews({userId: receiver, type: 7}).then(
-            function (data) {
-              if (data.results.length) {
-                console.log(data.results)
-                $scope.Info = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
-        News.getNews({userId: receiver, type: 8}).then(
-            function (data) {
-              if (data.results.length) {
-                $scope.edu = data.results[0]
-              }
-            }, function (err) {
-      console.log(err)
-    }
-        )
+    // News.getNews({userId: receiver, type: 5}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.insurance = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
+    // News.getNews({userId: receiver, type: 6}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.refund = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
+
+    //     News.getNews({userId: receiver, type: 7}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             console.log(data.results)
+    //             $scope.Info = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
+    //     News.getNews({userId: receiver, type: 8}).then(
+    //         function (data) {
+    //           if (data.results.length) {
+    //             $scope.edu = data.results[0]
+    //           }
+    //         }, function (err) {
+    //   console.log(err)
+    // }
+    //     )
 
     News.getNewsByReadOrNot({userId: receiver, type: 11, readOrNot: 0, userRole: 'patient'}).then(
             function (data) {
