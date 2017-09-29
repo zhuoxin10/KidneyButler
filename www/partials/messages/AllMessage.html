@@ -8,7 +8,7 @@
 
       <!-- <div ng-if="pay||alert||task||insurance"> -->
       <!-- 支付消息 -->
-      <ion-item class="item item-avatar card" ng-if="pay" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(pay)">
+      <ion-item class="item item-avatar card" ng-if="pay.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(pay)">
         <img ng-src="img/icon_paymessage.png" image-red-point="!pay.readOrNot">
         <!-- <div class="row"> -->
             <h2>支付消息</h2>
@@ -18,18 +18,18 @@
       </ion-item>
      
       <!-- 警报消息 -->
-      <ion-item class="item item-avatar card" ng-if="alert" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(alert)">
-        <img ng-src="img/icon_warning.png" image-red-point="!alert.readOrNot">
+<!--       <ion-item class="item item-avatar card" ng-if="alert" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(alert)">
+        <img ng-src="img/icon_warning.png" image-red-point="!alert.readOrNot"> -->
         <!-- <div class="row"> -->
-            <h2>警报消息</h2>
+<!--             <h2>警报消息</h2> -->
             <!-- <span class="col" style="font-size: 12px">{{alert.time|dateFormat:"YYYY-MM-DD h:m"}}</span> -->
         <!-- </div> -->
         <!-- <span class="row" style="margin-left:5px;">{{alert.description}}</span> -->
-      </ion-item>
+<!--       </ion-item> -->
 
       
       <!-- 任务消息 -->
-      <ion-item class="item item-avatar card" ng-if="task" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(task)">
+      <ion-item class="item item-avatar card" ng-if="task.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(task)">
         <img ng-src="img/icon_renwu.png" image-red-point="!task.readOrNot">
         <!-- <div class="row"> -->
             <h2>任务消息</h2>
@@ -39,7 +39,7 @@
       </ion-item>
 
       <!-- 退款消息 -->
-      <ion-item class="item item-avatar card" ng-if="refund" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(refund)">
+      <ion-item class="item item-avatar card" ng-if="refund.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(refund)">
         <img ng-src="img/icon_paymessage.png" image-red-point="!refund.readOrNot">
         <!-- <div class="row"> -->
             <h2>退款消息</h2>
@@ -49,7 +49,7 @@
       </ion-item>
      
       <!-- 保险消息 -->
-      <ion-item class="item item-avatar card" ng-if="insurance" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(insurance)">
+      <ion-item class="item item-avatar card" ng-if="insurance.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(insurance)">
         <img ng-src="img/security.png" image-red-point="!insurance.readOrNot">
         <!-- <div class="row"> -->
         <h2>保险消息</h2>
@@ -59,7 +59,7 @@
       </ion-item>
 
       <!-- 系统通知 -->
-      <ion-item class="item item-avatar card" ng-if="Info" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(Info)">
+      <ion-item class="item item-avatar card" ng-if="Info.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(Info)">
         <img ng-src="img/mail.png" image-red-point="!Info.readOrNot">
         <!-- <div class="row"> -->
         <h2>系统通知</h2>
@@ -69,7 +69,7 @@
       </ion-item>
 
       <!-- 群体教育消息 -->
-      <ion-item class="item item-avatar card" ng-if="edu" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(edu)">
+      <ion-item class="item item-avatar card" ng-if="edu.history" style="padding-top: 25px;padding-bottom: 25px;" ng-click="getMessageDetail(edu)">
         <img ng-src="img/edu.png" image-red-point="!edu.readOrNot">
         <h2>群体教育消息</h2>
       </ion-item>

@@ -447,7 +447,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   var Message = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'message'}, {
-      getMessages: {method: 'GET', params: {route: 'messages'}, timeout: 100000}
+      getMessages: {method: 'GET', params: {route: 'messages'}, timeout: 100000},
+      setMessagesRead:{method: 'POST', params: {route: 'status'}, timeout: 100000}
     })
   }
 
@@ -462,7 +463,8 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       getNews: {method: 'GET', params: {route: 'news'}, timeout: 100000},
       insertNews: {method: 'POST', params: {route: 'news'}, timeout: 100000},
       getNewsByReadOrNot: {method: 'GET', params: {route: 'newsByReadOrNot'}, timeout: 100000},
-      setReadOrNot: {method: 'POST', params: {route: 'newsStatus'}, timeout: 100000}
+      setReadOrNot: {method: 'POST', params: {route: 'newsStatus'}, timeout: 100000},
+      getNotRead: {method: 'GET', params: {route: 'allNotReadNews'}, timeout: 100000}
     })
   }
 
@@ -2168,6 +2170,19 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             })
     return deferred.promise
   }
+
+    self.setMessagesRead = function (params) {
+    var deferred = $q.defer()
+    Data.Message.setMessagesRead(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
   return self
 }])
 
@@ -2242,7 +2257,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
             })
     return deferred.promise
   }
-
+    self.getNotRead = function (params) {
+    var deferred = $q.defer()
+    Data.News.getNotRead(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
   return self
 }])
 
