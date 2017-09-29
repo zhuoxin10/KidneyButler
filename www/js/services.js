@@ -363,7 +363,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   var Patient = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'patient'}, {
       getPatientDetail: {method: 'GET', params: {route: 'detail'}, timeout: 100000},
-      // getMyDoctors: {method: 'GET', params: {route: 'myDoctors'}, timeout: 10000},
+      getMyDoctors: {method: 'GET', params: {route: 'myDoctors'}, timeout: 10000},
       getDoctorLists: {method: 'GET', params: {route: 'doctors'}, timeout: 10000},
       getCounselRecords: {method: 'GET', params: {route: 'counselRecords'}, timeout: 10000},
             // insertDiagnosis:{method:'POST',params:{route:'diagnosis'},timeout:10000},
@@ -380,15 +380,15 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     })
   }
 
-  // var Doctor = function () {
-    // return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
+  var Doctor = function () {
+    return $resource(CONFIG.baseUrl + ':path/:route', {path: 'doctor'}, {
             // createDoc:{method:'POST', params:{route: 'postDocBasic'}, timeout: 100000},
             // getPatientList:{method:'GET', params:{route: 'getPatientList'}, timeout: 100000},
-      // getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
+      getDoctorInfo: {method: 'GET', params: {route: 'detail'}, timeout: 100000}
             // getMyGroupList:{method:'GET', params:{route: 'getMyGroupList'}, timeout: 100000},
             // getGroupPatientList:{method:'GET', params:{route: 'getGroupPatientList'}, timeout: 100000}
-    // })
-  // }
+    })
+  }
 
   var User = function () {
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'alluser'}, {
@@ -461,7 +461,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
     return $resource(CONFIG.baseUrl + ':path/:route', {path: 'new'}, {
       getNews: {method: 'GET', params: {route: 'news'}, timeout: 100000},
       insertNews: {method: 'POST', params: {route: 'news'}, timeout: 100000},
-      changeNewsStatus: {method: 'POST', params: {route: 'newsStatus'}, timeout: 100000},
       getNewsByReadOrNot: {method: 'GET', params: {route: 'newsByReadOrNot'}, timeout: 100000},
       setReadOrNot: {method: 'POST', params: {route: 'newsStatus'}, timeout: 100000}
     })
@@ -538,7 +537,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       serve.Measurement = Measurement()
       // serve.Temp = Temp()
       serve.Patient = Patient()
-      // serve.Doctor = Doctor()
+      serve.Doctor = Doctor()
       serve.Health = Health()
       serve.User = User()
       serve.Comment = Comment()
@@ -568,7 +567,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   serve.Measurement = Measurement()
   // serve.Temp = Temp()
   serve.Patient = Patient()
-  // serve.Doctor = Doctor()
+  serve.Doctor = Doctor()
   serve.Health = Health()
   serve.User = User()
   serve.Comment = Comment()
@@ -1700,18 +1699,18 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
 
     // params->0:{userId:'p01'}
-  // self.getMyDoctors = function (params) {
-  //   var deferred = $q.defer()
-  //   Data.Patient.getMyDoctors(
-  //           params,
-  //           function (data, headers) {
-  //             deferred.resolve(data)
-  //           },
-  //           function (err) {
-  //             deferred.reject(err)
-  //           })
-  //   return deferred.promise
-  // }
+  self.getMyDoctors = function (params) {
+    var deferred = $q.defer()
+    Data.Patient.getMyDoctors(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
 
     // params->0:{workUnit:'浙江省人民医院'}
     //        1:{workUnit:'浙江省人民医院',name:'医生01'}
@@ -1950,97 +1949,22 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   }
   return self
 }])
-// .factory('Doctor', ['$q', 'Data', function ($q, Data) {
-  // var self = this
-    // params->0:{
-           //   userId:'docpostTest',//unique
-           //   name:'姓名',
-           //   birthday:'1956-05-22',
-           //   gender:1,
-           //   workUnit:'浙江省人民医院',
-           //   department:'肾内科',
-           //   title:'副主任医师',
-           //   major:'慢性肾炎',
-           //   description:'经验丰富',
-           //   photoUrl:'http://photo/docpost3.jpg',
-           //   charge1:150,
-           //   charge2:50
-           // }
-    // self.postDocBasic = function(params){
-    //     var deferred = $q.defer();
-    //     Data.Doctor.postDocBasic(
-    //         params,
-    //         function(data, headers){
-    //             deferred.resolve(data);
-    //         },
-    //         function(err){
-    //             deferred.reject(err);
-    //     });
-    //     return deferred.promise;
-    // };
-    // params->0:{
-           //   userId:'doc01'
-           // }
-    // self.getPatientList = function(params){
-    //     var deferred = $q.defer();
-    //     Data.Doctor.getPatientList(
-    //         params,
-    //         function(data, headers){
-    //             deferred.resolve(data);
-    //         },
-    //         function(err){
-    //             deferred.reject(err);
-    //     });
-    //     return deferred.promise;
-    // };
-    // params->0:{
-           //   userId:'doc01'
-           // }
-  // self.getDoctorInfo = function (params) {
-  //   var deferred = $q.defer()
-  //   Data.Doctor.getDoctorInfo(
-  //           params,
-  //           function (data, headers) {
-  //             deferred.resolve(data)
-  //           },
-  //           function (err) {
-  //             deferred.reject(err)
-  //           })
-  //   return deferred.promise
-  // }
-    // params->0:{
-           //   userId:'doc01'
-           // }
-    // self.getMyGroupList = function(params){
-    //     var deferred = $q.defer();
-    //     Data.Doctor.getMyGroupList(
-    //         params,
-    //         function(data, headers){
-    //             deferred.resolve(data);
-    //         },
-    //         function(err){
-    //             deferred.reject(err);
-    //     });
-    //     return deferred.promise;
-    // };
-    // params->0:{
-           //   teamId:'team1',
-           //   status:1
-           // }
-    // self.getGroupPatientList = function(params){
-    //     var deferred = $q.defer();
-    //     Data.Doctor.getGroupPatientList(
-    //         params,
-    //         function(data, headers){
-    //             deferred.resolve(data);
-    //         },
-    //         function(err){
-    //             deferred.reject(err);
-    //     });
-    //     return deferred.promise;
-    // };
-  // return self
-// }])
+.factory('Doctor', ['$q', 'Data', function ($q, Data) {
+  var self = this
+  self.getDoctorInfo = function (params) {
+    var deferred = $q.defer()
+    Data.Doctor.getDoctorInfo(
+            params,
+            function (data, headers) {
+              deferred.resolve(data)
+            },
+            function (err) {
+              deferred.reject(err)
+            })
+    return deferred.promise
+  }
+  return self
+}])
 
 .factory('Counsels', ['$q', 'Data', function ($q, Data) {
   var self = this
@@ -2284,19 +2208,6 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
   self.insertNews = function (params) {
     var deferred = $q.defer()
     Data.News.insertNews(
-            params,
-            function (data, headers) {
-              deferred.resolve(data)
-            },
-            function (err) {
-              deferred.reject(err)
-            })
-    return deferred.promise
-  }
-
-  self.changeNewsStatus = function (params) {
-    var deferred = $q.defer()
-    Data.News.changeNewsStatus(
             params,
             function (data, headers) {
               deferred.resolve(data)
