@@ -1461,7 +1461,7 @@ button.textBtn{
 }
 
 .scroll-left {
- height: 50px;  
+ height: 40px;  
  width: 400%;
  overflow: hidden;
  text-overflow: ellipsis ;

@@ -1808,7 +1808,11 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $scope.newMes= "最新消息：医生"+str3+"给您发来一条聊天消息“"+data.results[0].description+"”"
                 
             } else {
-                $scope.newMes= "最新消息："+ data.results[0].description
+                if(data.results[0].type==8){
+                   $scope.newMes= "最新消息：您的医生"+ data.results[0].description.split('主管医生')[1]
+                }else{
+                   $scope.newMes= "最新消息："+ data.results[0].description
+                }
             } 
             if($scope.newMes.length>=80){
               $scope.newMes = $scope.newMes.slice(0,79)+ "..."
