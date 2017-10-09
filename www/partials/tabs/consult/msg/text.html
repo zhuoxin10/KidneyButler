@@ -6,5 +6,5 @@
         <!-- <div class="media-text">{{msg.content.text}}</div> -->
     </div>
     <div my-small-spin="msg.status" class="status"></div>
-    <div ng-if="msg.status=='send_fail'" class="msg-fail"><span><i class="icon ion-android-warning"></i>发送失败</span></div>
+    <div ng-if="msg.status=='send_fail'" class="msg-fail"><span ng-click="emitEvent('resend',msg.createTimeInMillis)"><i class="icon ion-android-warning"></i>发送失败（点此重发）</span></div>
 </div>
