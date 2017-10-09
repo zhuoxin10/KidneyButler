@@ -5424,13 +5424,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.$on('$ionicView.beforeEnter', function () {
     $ionicLoading.show({  
             template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
-            duration: 1800
+            duration: 5000
         });  
   })
   var switchLoading = function(){
     $ionicLoading.show({  
             template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
-            duration: 1000
+            duration: 5000
         })
   }
 
