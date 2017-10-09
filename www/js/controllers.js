@@ -4226,10 +4226,34 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     console.info('messageRes')
     console.log(data)
     if (data.msg.targetType == 'single' && data.msg.targetID == $state.params.chatId) {
+ var temppos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', data.msg.createTimeInMillis)
+      if (!(temppos != -1 && $scope.msgs[temppos].status == 'send_success')) {
+        console.log('newMsg')
       $scope.$apply(function () {
         insertMsg(data.msg)
       })
     }
+  }
+  })
+  /**
+   * 事件：点击重发
+   * @Author   zyh
+   * @DateTime 2017-09-30
+   * @param    {object}   event    事件
+   * @param    {array}    args     ['resend',msg.createTimeInMillis]
+   * @return   {null}
+   */
+  $scope.$on('resend', function (event, args) {
+    event.stopPropagation()
+    $scope.resendid = args[1]
+    console.log(args)
+    var pos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', args[1])
+    if (pos != -1 && $scope.msgs[pos].status == 'send_fail') $scope.msgs[pos].status = 'send_going'
+    socket.emit('message', {msg: $scope.msgs[pos], to: $scope.params.chatId, role: 'doctor'})
+    $timeout(function () {
+      if (pos != -1 && $scope.msgs[pos].status == 'send_going') $scope.msgs[pos].status = 'send_fail'
+    }, 10000)
+    // insertMsg($scope.msgs[pos])
   })
   // 点击图片
   $scope.$on('image', function (event, args) {
@@ -4504,7 +4528,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     $scope.msgs.push(msg)
     toBottom(true, 200)
     toBottom(true, 600)
-    setTimeout(function () {
+    $timeout(function () {
       var pos = arrTool.indexOf($scope.msgs, 'createTimeInMillis', msg.createTimeInMillis)
       if (pos != -1 && $scope.msgs[pos].status == 'send_going') $scope.msgs[pos].status = 'send_fail'
     }, 10000)
