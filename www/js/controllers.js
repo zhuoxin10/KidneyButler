@@ -5424,13 +5424,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.$on('$ionicView.beforeEnter', function () {
     $ionicLoading.show({  
             template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
-            duration: 1800
+            duration: 5000
         });  
   })
   var switchLoading = function(){
     $ionicLoading.show({  
             template: '<ion-spinner icon="bubbles" class="spinner-calm"></ion-spinner>',   
-            duration: 1000
+            duration: 5000
         })
   }
 
@@ -6699,8 +6699,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         document.getElementById('week').style.color = "#FFFFFF"
         var date = new Date() 
         var timeType = "week"
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)        
         DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toMonthReports = function(){
@@ -6715,8 +6715,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         document.getElementById('month').style.color = "#FFFFFF"
         var date = new Date() 
         var timeType = "month"
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)
         DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toSeasonReports = function(){
@@ -6731,8 +6731,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         document.getElementById('season').style.color = "#FFFFFF"
         var date = new Date() 
         var timeType = "season"
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)     
         DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toYearReports = function(){
@@ -6747,8 +6747,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         document.getElementById('year').style.color = "#FFFFFF"
         var date = new Date() 
         var timeType = "year"
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)
         DoctorWord(date,$scope.modify,timeType)
   }
   $scope.next = function(){
@@ -6762,12 +6762,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
            duration: 1000
           })
         $scope.modify=0
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)
         DoctorWord(date,$scope.modify,timeType)
       }else{
-        Painting(date,$scope.modify,timeType)
         ShowTime(date,$scope.modify,timeType)
+        Painting(date,$scope.modify,timeType)     
         DoctorWord(date,$scope.modify,timeType)
       }
   }
@@ -6777,8 +6777,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       $scope.modify-=1
       var timeType = $scope.type
       console.log(timeType)
-      Painting(date,$scope.modify,timeType)
       ShowTime(date,$scope.modify,timeType)
+      Painting(date,$scope.modify,timeType)
       DoctorWord(date,$scope.modify,timeType)
   }
   $scope.toWeekReports()
