@@ -8279,7 +8279,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                   alert('apply:'+JSON.stringify(data))
                   doctorSchedual()
                   $ionicPopup.alert({
-                    template: '面诊预约成功！请注意查收验证码。',
+                    template: '面诊预约成功！请您于' + period.availableDay + '日' + morning + '至' + period.place + '就诊，您的就诊码为' + data.results.code + '，届时请向主管医生当面出示。',
                     okText: '好的'
                   })
                 },function(err){
@@ -8477,7 +8477,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
               // alert('apply:'+JSON.stringify(data))
               $ionicPopup.alert({
-                template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+                template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了您的申请，预付金额将退还到您的账号。',
                 okText: '好的'
               }).then(function (e) {
                 $ionicHistory.goBack()
@@ -8513,7 +8513,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         }
         Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
           $ionicPopup.alert({
-            template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了你的申请，预付金额将退还到你的账号。',
+            template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了您的申请，预付金额将退还到您的账号。',
             okText: '好的'
           }).then(function (e) {
             $ionicHistory.goBack()
