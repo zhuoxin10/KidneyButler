@@ -7800,7 +7800,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.scanbarcode = function () {
     
     $cordovaBarcodeScanner.scan().then(function (imageData) {
-      alert("scan:" +JSON.stringify(imageData))
+      // alert("scan:" +JSON.stringify(imageData))
       if (imageData.cancelled){ 
         return 
       }
@@ -8254,7 +8254,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   orderdata:Object
          */
         Mywechat.addOrder(neworder).then(function (orderdata) {
-          alert('orderdata:'+JSON.stringify(orderdata))
+          // alert('orderdata:'+JSON.stringify(orderdata))
           if(orderdata.results.status !== 1){
             var params = {
               'partnerid': '1480817392', // merchant id
@@ -8270,7 +8270,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              */
             ionicLoadinghide()
             Wechat.sendPaymentRequest(params, function (data) {
-              alert('wechat:'+JSON.stringify(data))
+              // alert('wechat:'+JSON.stringify(data))
              
                 /**
                  * [发送预约面诊请求]
@@ -8279,14 +8279,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                  * @param {doctorId:String,day:String,time:String}
                  */
                 Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
-                  alert('apply:'+JSON.stringify(data))
+                  // alert('apply:'+JSON.stringify(data))
                   doctorSchedual()
                   $ionicPopup.alert({
-                    template: '面诊预约成功！请您于' + period.availableDay + '日' + morning + '至' + period.place + '就诊，您的就诊码为' + data.results.code + '，届时请向主管医生当面出示。',
+                    title:'面诊预约成功',
+                    template: '请您于' + period.availableDay + '日' + morning + '至' + period.place + '就诊，您的就诊码为' + data.results.code + '，届时请向主管医生当面出示。',
                     okText: '好的'
                   })
                 },function(err){
-                  alert('err:'+JSON.stringify(err))
+                  // alert('err:'+JSON.stringify(err))
                   //已支付可是面诊预约失败  这一步很危险
                 })
 
@@ -8321,14 +8322,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
              * @param {doctorId:String,day:String,time:String}
              */
             Service.appointDoc({doctorId: $scope.doctor.userId,day:period.availableDay,time:period.availableTime}).then(function(data){
-              alert('apply:'+JSON.stringify(data))
+              // alert('apply:'+JSON.stringify(data))
               doctorSchedual()
               $ionicPopup.alert({
-                template: '面诊预约成功！请注意查收验证码。',
+                title:'面诊预约成功',
+                template: '请您于' + period.availableDay + '日' + morning + '至' + period.place + '就诊，您的就诊码为' + data.results.code + '，届时请向主管医生当面出示。',
                 okText: '好的'
               })
             },function(err){
-              alert('err:'+JSON.stringify(err))
+              // alert('err:'+JSON.stringify(err))
               //已支付可是面诊预约失败  这一步很危险
             })
           }
@@ -8421,7 +8423,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     })
     applyDocPop.then(function(res){
       if(res){
-        debugger
         ionicLoadingshow()
         console.log(totalAmount)
         var neworder = {
@@ -8451,7 +8452,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
          * @return   orderdata:Object
          */
         Mywechat.addOrder(neworder).then(function (orderdata) {
-          alert('orderdata:'+JSON.stringify(orderdata))
+          // alert('orderdata:'+JSON.stringify(orderdata))
           if(orderdata.results.status !== 1){
             var params = {
               'partnerid': '1480817392', // merchant id
@@ -8495,7 +8496,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     $ionicHistory.goBack()
                   })
                 },function(err){
-                  alert('err:'+JSON.stringify(err))
+                  // alert('err:'+JSON.stringify(err))
                   //已支付可是提交主管医生请求失败  这一步很危险
                 })
 
@@ -8535,7 +8536,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
             })
           }
         },function(error){
-          alert('order:'+JSON.stringify(error))
+          // alert('order:'+JSON.stringify(error))
         })
       }
     })
