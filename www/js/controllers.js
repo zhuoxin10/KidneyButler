@@ -3497,7 +3497,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 }])
 
 // 我的 页面--PXY
-.controller('MineCtrl', ['$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', 'Mywechatphoto', function ($ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket, Mywechatphoto) {
+.controller('MineCtrl', ['User','$ionicActionSheet','$interval', 'News', '$scope', '$ionicHistory', '$state', '$ionicPopup', '$resource', 'Storage', 'CONFIG', '$ionicLoading', '$ionicPopover', 'Camera', 'Patient', 'Upload', '$sce', 'mySocket', 'socket', 'Mywechatphoto', function (User,$ionicActionSheet,$interval, News, $scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, CONFIG, $ionicLoading, $ionicPopover, Camera, Patient, Upload, $sce, mySocket, socket, Mywechatphoto) {
   // Storage.set("personalinfobackstate","mine")
 
   var patientId = Storage.get('UID')
@@ -3567,7 +3567,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.SignOut = function () {
-    $scope.navigation_login = $sce.trustAsResourceUrl('http://patientdiscuss.haihonghospitalmanagement.com/member.php?mod=logging&action=logout&formhash=xxxxxx')
     var myPopup = $ionicPopup.show({
       template: '<center>确定要退出登录吗?</center>',
       title: '退出',
@@ -3583,19 +3582,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           text: '确定',
           type: 'button-small button-positive ',
           onTap: function (e) {
-            $state.go('signin')
-            Storage.rm('TOKEN')
-            var USERNAME = Storage.get('USERNAME')
-            Storage.clear()
-                    // Storage.rm('patientunionid');
-                    // Storage.rm('PASSWORD');
-            Storage.set('USERNAME', USERNAME)
-            mySocket.cancelAll()
-            socket.emit('disconnect')
-            socket.disconnect()
-                     // $timeout(function () {
-            $ionicHistory.clearCache()
-            $ionicHistory.clearHistory()
+            User.logOut().then(function(data){
+              $state.go('signin')
+              Storage.rm('TOKEN')
+              var USERNAME = Storage.get('USERNAME')
+              Storage.clear()
+                      // Storage.rm('patientunionid');
+                      // Storage.rm('PASSWORD');
+              Storage.set('USERNAME', USERNAME)
+              mySocket.cancelAll()
+              socket.emit('disconnect')
+              socket.disconnect()
+                       // $timeout(function () {
+              $ionicHistory.clearCache()
+              $ionicHistory.clearHistory()
+            },function(err){
+            })
+            
 
                     // }, 30);
                     // $ionicPopup.hide();
@@ -8410,72 +8413,117 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
-    ionicLoadingshow()
-    console.log(totalAmount)
-    var neworder = {
-      'doctorId':doctorId,
-      //freeFlag为1表示免费
-      'freeFlag':0,
-      'type':4,
-      //主管医生类型为4
-      'userId': Storage.get('UID'),
-      'month':duration,
-      'role': 'appPatient',
-      // 微信支付以分为单位
-      'money': totalAmount * 100,
-      'class': '04',
-      'name': '主管医生',
-      'notes': doctorId,
-      // 'paystatus': 0,
-      // 'paytime': new Date(),
-      'trade_type': 'APP',
-      'body_description': '主管医生服务'
-    }
-    /**
-     * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
-     * @Author   PXY
-     * @DateTime 2017-07-20
-     * @param    neworder：Object
-     * @return   orderdata:Object
-     */
-    Mywechat.addOrder(neworder).then(function (orderdata) {
-      alert('orderdata:'+JSON.stringify(orderdata))
-      if(orderdata.results.status !== 1){
-        var params = {
-          'partnerid': '1480817392', // merchant id
-          'prepayid': orderdata.results.prepay_id[0], // prepay id
-          'noncestr': orderdata.results.nonceStr, // nonce
-          'timestamp': orderdata.results.timestamp, // timestamp
-          'sign': orderdata.results.paySign // signed string
+    var applyDocPop = $ionicPopup.confirm({
+      title: '主管医生申请',
+      template: '您正申请'+ $scope.doctor.name +'医生的主管医生服务，服务时长：'+duration+'个月，预付金额为'+totalAmount+'元。'+ '</br>'+'若医生同意了您的申请，在服务期间，主管医生服务将为您提供全面个性化的健康方案制定和调整，数据分析解读，免费的咨询和问诊服务。若医生拒绝了您的申请，预付金额将退还到您的账号。并且在等待医生审核期间，您将无法再次申请主管医生。是否提交申请？',
+      okText:'继续',
+      cancelText:'取消'
+    })
+    applyDocPop.then(function(res){
+      if(res){
+        debugger
+        ionicLoadingshow()
+        console.log(totalAmount)
+        var neworder = {
+          'doctorId':doctorId,
+          //freeFlag为1表示免费
+          'freeFlag':0,
+          'type':4,
+          //主管医生类型为4
+          'userId': Storage.get('UID'),
+          'month':duration,
+          'role': 'appPatient',
+          // 微信支付以分为单位
+          'money': totalAmount * 100,
+          'class': '04',
+          'name': '主管医生',
+          'notes': doctorId,
+          // 'paystatus': 0,
+          // 'paytime': new Date(),
+          'trade_type': 'APP',
+          'body_description': '主管医生服务'
         }
         /**
-         * *[微信jssdk方法，拉起微信支付]
+         * *[后台根据order下订单，生成拉起微信支付所需的参数,results.status===1表示医生设置的费用为0不需要拉起微信支付，status==0表示因活动免费也不进微信]
          * @Author   PXY
          * @DateTime 2017-07-20
+         * @param    neworder：Object
+         * @return   orderdata:Object
          */
-        ionicLoadinghide()
-        Wechat.sendPaymentRequest(params, function (data) {
-          // alert('wechat:'+JSON.stringify(data))
-          // $q.all([
-          // /**
-          //  * [给医生账户‘转账’]
-          //  * @Author   PXY
-          //  * @DateTime 2017-07-20
-          //  * @param {patientId:String,doctorId:String,type:String,money:Number}
-          //  */
-          //   Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
-          //     console.log(data)
-          //   }, function (err) {
-          //     console.log(err)
-          //   }),
+        Mywechat.addOrder(neworder).then(function (orderdata) {
+          alert('orderdata:'+JSON.stringify(orderdata))
+          if(orderdata.results.status !== 1){
+            var params = {
+              'partnerid': '1480817392', // merchant id
+              'prepayid': orderdata.results.prepay_id[0], // prepay id
+              'noncestr': orderdata.results.nonceStr, // nonce
+              'timestamp': orderdata.results.timestamp, // timestamp
+              'sign': orderdata.results.paySign // signed string
+            }
             /**
-             * 发送主管医生服务请求]
+             * *[微信jssdk方法，拉起微信支付]
              * @Author   PXY
-             * @DateTime 2017-07-25
-             * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
+             * @DateTime 2017-07-20
              */
+            ionicLoadinghide()
+            Wechat.sendPaymentRequest(params, function (data) {
+              // alert('wechat:'+JSON.stringify(data))
+              // $q.all([
+              // /**
+              //  * [给医生账户‘转账’]
+              //  * @Author   PXY
+              //  * @DateTime 2017-07-20
+              //  * @param {patientId:String,doctorId:String,type:String,money:Number}
+              //  */
+              //   Expense.rechargeDoctor({patientId: Storage.get('UID'), doctorId: doctorId, type: '主管医生服务', money: totalAmount}).then(function (data) {
+              //     console.log(data)
+              //   }, function (err) {
+              //     console.log(err)
+              //   }),
+                /**
+                 * 发送主管医生服务请求]
+                 * @Author   PXY
+                 * @DateTime 2017-07-25
+                 * @param {doctorId:String,chargeDuration:Number}   注：chargeDuration指购买服务月份
+                 */
+                Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
+                  // alert('apply:'+JSON.stringify(data))
+                  $ionicPopup.alert({
+                    template: '主管医生服务申请已提交，请耐心等待审核，在等待医生审核期间，您将无法再次申请主管医生，敬请谅解！若医生拒绝了您的申请，预付金额将退还到您的账号。',
+                    okText: '好的'
+                  }).then(function (e) {
+                    $ionicHistory.goBack()
+                  })
+                },function(err){
+                  alert('err:'+JSON.stringify(err))
+                  //已支付可是提交主管医生请求失败  这一步很危险
+                })
+
+
+            },function(reason){
+              // alert(JSON.stringify(reason))
+              if (reason == '发送请求失败') {
+                $ionicLoading.show({
+                  template: '请正确安装微信后使用此功能',
+                  duration: 1000
+                })
+              } else {
+                $ionicLoading.show({
+                  template: reason,
+                  duration: 1000
+                })
+              }
+            })
+          }else{
+            ionicLoadinghide()
+            if(orderdata.results.status === 1) {
+              $ionicLoading.show({
+                template:orderdata.results.mesg,
+                duration:1000,
+                hideOnStateChange:true
+              })
+            }
             Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-              // alert('apply:'+JSON.stringify(data))
               $ionicPopup.alert({
                 template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了您的申请，预付金额将退还到您的账号。',
                 okText: '好的'
@@ -8483,48 +8531,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                 $ionicHistory.goBack()
               })
             },function(err){
-              alert('err:'+JSON.stringify(err))
-              //已支付可是提交主管医生请求失败  这一步很危险
-            })
-
-
-        },function(reason){
-          // alert(JSON.stringify(reason))
-          if (reason == '发送请求失败') {
-            $ionicLoading.show({
-              template: '请正确安装微信后使用此功能',
-              duration: 1000
-            })
-          } else {
-            $ionicLoading.show({
-              template: reason,
-              duration: 1000
+              console.log(err)
             })
           }
-        })
-      }else{
-        ionicLoadinghide()
-        if(orderdata.results.status === 1) {
-          $ionicLoading.show({
-            template:orderdata.results.mesg,
-            duration:1000,
-            hideOnStateChange:true
-          })
-        }
-        Patient.ApplyDocInCharge({doctorId:doctorId,chargeDuration:duration}).then(function(data){
-          $ionicPopup.alert({
-            template: '主管医生服务申请已提交，请耐心等待审核！若医生拒绝了您的申请，预付金额将退还到您的账号。',
-            okText: '好的'
-          }).then(function (e) {
-            $ionicHistory.goBack()
-          })
-        },function(err){
-          console.log(err)
+        },function(error){
+          alert('order:'+JSON.stringify(error))
         })
       }
-    },function(error){
-      alert('order:'+JSON.stringify(error))
     })
+    
   }
  
 
