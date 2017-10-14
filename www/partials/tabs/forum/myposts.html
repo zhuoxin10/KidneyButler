@@ -30,7 +30,7 @@
         <div ng-click="gotopostsdetail(item.postId)">
            <div class="item item-avatar" style="border-bottom: none;padding-top: 12px;padding-bottom: 0px">
                 <img style="margin-top: 0px" ng-src="{{item.avatar || 'img/DefaultAvatar.jpg'}}">
-                <span style="font-size: 14px">{{item.sponsorName || item.sponsorId}}</span><i class="icon ion-trash-a" style="width: 5%;float: right;" ng-click="deletemyposts(item.postId)"></i><br/>
+               <!--  <span style="font-size: 14px">{{item.sponsorName || item.sponsorId}}</span><i class="icon ion-trash-a" style="width: 5%;float: right;" ng-click="deletemyposts(item.postId)"></i><br/> -->
                 <span style="font-size: 12px">{{item.time |dateFormat:"YYYY-MM-DD"}}</span>
            </div>
            <div class="item item-body" style="border: none;padding-top: 0px;padding-bottom: 10px">
@@ -50,9 +50,9 @@
                 <i class="icon ion-chatbox-working"></i>
                 评论
                 </a>
-                <a class="tab-item" ng-click="gotopostsdetail(item.postId)">
-                <i class="icon ion-eye"></i>
-                详情
+                <a class="tab-item" ng-click="deletemyposts(item.postId)">
+                <i class="icon ion-trash-a"></i>
+                删除
                 </a>
            </div>
       </div>  
