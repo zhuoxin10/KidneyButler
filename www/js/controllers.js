@@ -3947,6 +3947,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     if (!delay) delay = 100
     $timeout(function () {
       $scope.scrollHandle.scrollBottom(animate)
+      $timeout(function () {
+        $scope.scrollHandle.resize()
+      }, 500)
+      $timeout(function () {
+        $scope.scrollHandle.resize()
+      }, 1000)
     }, delay)
   }
   // 进入页面前：
