@@ -1953,7 +1953,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   // 批量更新任务
   function ChangeOverTime () {
     var temp = OverTimeTaks[index]
-    var task = {
+    if(temp){
+      var task = {
       'userId': UserId,
       'type': temp.type,
       'code': temp.code,
@@ -1965,17 +1966,19 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       'timesUnits': temp.timesUnits,
       'frequencyTimes': temp.frequencyTimes,
       'frequencyUnits': temp.frequencyUnits
+     }
+      var promise = Task.updateUserTask(task)
+      promise.then(function (data) {
+        if (data.results) {
+          index = index + 1
+          if (index < OverTimeTaks.length) {
+            ChangeOverTime()
+          }
+        };
+      }, function () {
+      })
     }
-    var promise = Task.updateUserTask(task)
-    promise.then(function (data) {
-      if (data.results) {
-        index = index + 1
-        if (index < OverTimeTaks.length) {
-          ChangeOverTime()
-        }
-      };
-    }, function () {
-    })
+    
   }
 
   // 获取今日已执行任务
@@ -9325,6 +9328,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.submit = function () {
+    $scope.submitable = true
     var userInfo = $.extend(true, {}, $scope.BasicInfo)
     userInfo.gender =userInfo.gender.Type
     userInfo.bloodType = userInfo.bloodType.Type
@@ -9379,107 +9383,111 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     }
 
     Counsels.questionaire(temp).then(
-          function (data) {
+      function (data) {
             // alert('questionaire'+JSON.stringify(data))
               // 不能重复提交
-              $scope.submitable = true
+              
 
-              Storage.rm('tempquestionare')
-              Storage.rm('tempimgrul')
-              var msgContent = {
-                counsel: data.results,
-                type: 'card',
-                counselId: data.results.counselId,
-                patientId: patientId,
-                patientName: $scope.BasicInfo.name,
-                doctorId: DoctorId,
-                fromId: patientId,
-                targetId: DoctorId
-              }
-              var msgJson = {
-                clientType: 'patient',
-                contentType: 'custom',
-                fromName: thisPatient.name,
-                fromID: patientId,
-                fromUser: {
-                  avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + patientId + '_myAvatar.jpg'
-                },
-                targetID: DoctorId,
-                targetName: '',
-                targetType: 'single',
-                status: 'send_going',
-                createTimeInMillis: Date.now(),
-                newsType: 11,
-                targetRole: 'doctor',
-                content: msgContent
-              }
-              socket.emit('newUser', {user_name: $scope.BasicInfo.name, user_id: patientId, client: 'patient'})
-              socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                // $scope.$on('im:messageRes',function(event,messageRes){
-                    // socket.off('messageRes');
-                    // socket.emit('disconnect');
-              // console.log(counselType)
-              // alert('counselType'+counselType)
-              if(counselType==1||counselType==6||counselType==7){
-                Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
-                  // alert('modifyCounts'+JSON.stringify(data))
-                },function(err){
-                  // alert('modifyError'+JSON.stringify(err))
-                })
-              }
-              if (DoctorId == 'U201612291283') {
-                var time = new Date()
-                var gid = 'G' + $filter('date')(time, 'MMddHmsss')
-                        // var msgdata = $state.params.msg;
-
-                var d = {
-                  teamId: '10050278',
-                  counselId: data.results.counselId,
-                  sponsorId: DoctorId,
-                  patientId: patientId,
-                  consultationId: gid,
-                  status: '1'
-                }
-                msgContent.consultationId = gid
-                var msgTeam = {
-                  clientType: 'doctor',
-                  targetRole: 'doctor',
-                  contentType: 'custom',
-                  fromID: DoctorId,
-                  fromName: '陈江华',
-                  fromUser: {
-                    avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + DoctorId + '_myAvatar.jpg'
-                  },
-                  targetID: '10050278',
-                  teamId: '10050278',
-                  targetName: '陈江华主任医师团队',
-                  targetType: 'group',
-                  status: 'send_going',
-                  newsType: 13,
-                  createTimeInMillis: Date.now(),
-                  content: msgContent
-                }
-                Communication.newConsultation(d)
-                        .then(function (con) {
-                          console.log(con)
-                            // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
-                          socket.emit('message', {msg: msgTeam, to: '10050278', role: 'patient'})
-                          setTimeout(function () {
-                            $state.go('consult-chat', {chatId: DoctorId})
-                          }, 500)
-                        }, function (er) {
-                          console.error(err)
-                        })
-              } else {
-                setTimeout(function () {
-                  $state.go('consult-chat', {chatId: DoctorId})
-                }, 500)
-              }
-                // });
+        Storage.rm('tempquestionare')
+        Storage.rm('tempimgrul')
+        var msgContent = {
+          counsel: data.results,
+          type: 'card',
+          counselId: data.results.counselId,
+          patientId: patientId,
+          patientName: $scope.BasicInfo.name,
+          doctorId: DoctorId,
+          fromId: patientId,
+          targetId: DoctorId
+        }
+        var msgJson = {
+          clientType: 'patient',
+          contentType: 'custom',
+          fromName: thisPatient.name,
+          fromID: patientId,
+          fromUser: {
+            avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + patientId + '_myAvatar.jpg'
           },
-        function (err) {
-          console.log(err)
-        })
+          targetID: DoctorId,
+          targetName: '',
+          targetType: 'single',
+          status: 'send_going',
+          createTimeInMillis: Date.now(),
+          newsType: 11,
+          targetRole: 'doctor',
+          content: msgContent
+        }
+        socket.emit('newUser', {user_name: $scope.BasicInfo.name, user_id: patientId, client: 'patient'})
+        socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
+          // $scope.$on('im:messageRes',function(event,messageRes){
+              // socket.off('messageRes');
+              // socket.emit('disconnect');
+        // console.log(counselType)
+        // alert('counselType'+counselType)
+        if(counselType==1||counselType==6||counselType==7){
+          Account.modifyCounts({patientId: Storage.get('UID'), doctorId: DoctorId, modify: 3}).then(function(data){
+            // alert('modifyCounts'+JSON.stringify(data))
+          },function(err){
+            // alert('modifyError'+JSON.stringify(err))
+          })
+        }
+        if (DoctorId == 'U201612291283') {
+          var time = new Date()
+          var gid = 'G' + $filter('date')(time, 'MMddHmsss')
+                  // var msgdata = $state.params.msg;
+
+          var d = {
+            teamId: '10050278',
+            counselId: data.results.counselId,
+            sponsorId: DoctorId,
+            patientId: patientId,
+            consultationId: gid,
+            status: '1'
+          }
+          msgContent.consultationId = gid
+          var msgTeam = {
+            clientType: 'doctor',
+            targetRole: 'doctor',
+            contentType: 'custom',
+            fromID: DoctorId,
+            fromName: '陈江华',
+            fromUser: {
+              avatarPath: CONFIG.mediaUrl + 'uploads/photos/resized' + DoctorId + '_myAvatar.jpg'
+            },
+            targetID: '10050278',
+            teamId: '10050278',
+            targetName: '陈江华主任医师团队',
+            targetType: 'group',
+            status: 'send_going',
+            newsType: 13,
+            createTimeInMillis: Date.now(),
+            content: msgContent
+          }
+          Communication.newConsultation(d)
+                  .then(function (con) {
+                    console.log(con)
+                      // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
+                    socket.emit('message', {msg: msgTeam, to: '10050278', role: 'patient'})
+                    setTimeout(function () {
+                      $state.go('consult-chat', {chatId: DoctorId})
+                    }, 500)
+                  }, function (er) {
+                    console.error(err)
+                  })
+        } else {
+          setTimeout(function () {
+            $state.go('consult-chat', {chatId: DoctorId})
+          }, 500)
+        }
+    },
+    function (err) {
+      $scope.submitable = false
+      $ionicLoading.show({
+        template:'提交失败，请重新提交！',
+        duration:1000
+      })
+      console.log(err)
+    })
   }
 
  // 上传健康信息的点击事件----------------------------
