@@ -14,6 +14,7 @@
         "cordova-plugin-file": "^4.3.3",
         "cordova-plugin-file-opener2": "^2.0.19",
         "cordova-plugin-file-transfer": "^1.6.3",
+        "cordova-plugin-inappbrowser": "^1.7.1",
         "cordova-plugin-media": "^3.0.1",
         "cordova-plugin-network-information": "^1.3.3",
         "cordova-plugin-splashscreen": "^4.0.3",
@@ -102,7 +103,8 @@
             "cordova-plugin-app-event": {},
             "cordova-plugin-wechat": {
                 "WECHATAPPID": "wx1c7863df9570e2fc"
-            }
+            },
+            "cordova-plugin-inappbrowser": {}
         },
         "platforms": [
             "android",
