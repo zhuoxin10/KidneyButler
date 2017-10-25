@@ -990,7 +990,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
   self.checkUpdate = function (scope) {
     $cordovaAppVersion.getAppVersion().then(function (version) {
-      alert(version)
+      // alert(version)
       var json = {
         title: '',
         template: ''
@@ -1001,7 +1001,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
       }
 
       getVersion(VersionParams).then(function (data) {
-        alert(JSON.stringify(data.results))
+        // alert(JSON.stringify(data.results))
         if (angular.isArray(data.results.msg)) {
           json.title = '肾事管家有更新啦'
           for (x in data.results.msg) {
