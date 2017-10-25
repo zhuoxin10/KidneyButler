@@ -1016,9 +1016,9 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
           }).then(function (res) {
             if (res && window.cordova && window.cordova.InAppBrowser) {
               if (ionic.Platform.isIOS()) {
-                window.cordova.InAppBrowser.open('https://itunes.apple.com/cn/app/%E8%82%BE%E4%BA%8B%E7%AE%A1%E5%AE%B6/id1274887634?mt=8')
+                window.cordova.InAppBrowser.open('https://itunes.apple.com/cn/app/%E8%82%BE%E4%BA%8B%E7%AE%A1%E5%AE%B6/id1274887634?mt=8', '_system')
               } else if (ionic.Platform.isAndroid()) {
-                window.cordova.InAppBrowser.open('https://media.haihonghospitalmanagement.com/download')
+                window.cordova.InAppBrowser.open('https://media.haihonghospitalmanagement.com/download', '_system')
                   // 安卓下载地址
               }
             }
