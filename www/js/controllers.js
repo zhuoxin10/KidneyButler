@@ -7031,7 +7031,6 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     //console.log('destroy')
     //$interval.cancel(RefreshUnread)
   //})
-  console.log('aaa')
   $scope.Goback = function () {
     $state.go('tab.myDoctors')
     // console.log($ionicHistory.backView())
@@ -7085,6 +7084,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.moredata = true
 
   var pagecontrol = {skip: 0, limit: 10}
+  var params = {province: '', city: '', workUnit: '', name: ''}
   var alldoctors = new Array()
 
   Dict.getDistrict({level: 1}).then(
@@ -7095,22 +7095,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           console.log(err)
         }
     )
+  
 
-  $scope.loadMore = function (params) {
-    console.log('i am  loadMore')
-    if (!params) 
-      {
-         params = {province: '', city: '', workUnit: '', name: ''}
-      }
+  $scope.loadMore = function () {
+    console.log('i am  loadMore',params)
+    // if (!params) 
+    //   {
+    //     params = {province: '', city: '', workUnit: '', name: ''}
+    //   }
         
     Patient.getDoctorLists({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name}).then(function (data) {
-      console.log(data)
+      // console.log({skip: pagecontrol.skip, limit: pagecontrol.limit, province: params.province, city: params.city, workUnit: params.workUnit, name: params.name},$scope.searchCont.t)
       $scope.$broadcast('scroll.infiniteScrollComplete')
       alldoctors = alldoctors.concat(data.results)
       $scope.doctors = alldoctors
       
       if (alldoctors.length == 0) {
-        console.log('aaa')
+        // console.log('aaa')
         $ionicLoading.show({
           template: '没有医生', duration: 1000
         })
@@ -7118,7 +7119,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // $scope.nexturl=data.nexturl;
       var skiploc = data.nexturl.indexOf('skip')
       pagecontrol.skip = data.nexturl.substring(skiploc + 5)
-      console.log(pagecontrol.skip)
+      // console.log(pagecontrol.skip)
       if (data.results.length < pagecontrol.limit) { $scope.moredata = false } else { $scope.moredata = true };
     }, function (err) {
       console.log(err)
@@ -7136,19 +7137,18 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         // var _district = ($scope.District&&$scope.District.district)? $scope.District.district.name:"";
         // console.log($scope.Hospital);
     var _hospital = ($scope.Hospital && $scope.Hospital.hospitalName) ? $scope.Hospital.hospitalName.hospitalName : ''
-    console.log(_hospital)
-    var params = {province: _province, city: _city, workUnit: _hospital, name: ($scope.searchCont.t || '')}
-    $scope.loadMore(params)
+    // console.log(_hospital)
+    params = {province: _province, city: _city, workUnit: _hospital, name: ($scope.searchCont.t || '')}
+    $scope.loadMore()
   }
 
   $scope.search = function () {
         // console.log("清空了");
-        console.log($scope.searchCont.t)
     ChangeSearch()
   }
 
   $scope.getCity = function (province) {
-    console.log(province)
+    // console.log(province)
     if (province != null) {
       Dict.getDistrict({level: '2', province: province.province, city: ''}).then(
               function (data) {
@@ -7171,7 +7171,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   }
 
   $scope.getHospital = function (province, city) {
-    console.log(city)
+    // console.log(city)
     if (city != null) {
       Dict.getHospital({province: province.name, city: city.name}).then(
           function (data) {
