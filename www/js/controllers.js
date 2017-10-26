@@ -365,7 +365,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-04
    * @param    phone:String
    */
-  var sendSMS = function (phone) {
+  var sendSMS = function (phone,count) {
     /**
      * [发送验证码,disable按钮一分钟，并根据服务器返回提示用户]
      * @Author   PXY
@@ -387,7 +387,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.logStatus = '验证码发送失败，请稍后再试'
       }
     }, function (err) {
-      $scope.logStatus = '验证码发送失败！'
+      count++
+      console.log(count)
+      if (count < 5) {
+        setTimeout(sendSMS(phone, count), 1000)
+      } else {
+        $scope.logStatus = '验证码发送失败！'
+      }
     })
   }
 
@@ -428,7 +434,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           $scope.logStatus = '该账户已注册！'
         }else{
-          sendSMS($scope.Register.Phone)
+          sendSMS($scope.Register.Phone,0)
         }
       }
       // 如果是微信号注册则分为三种：1：未注册手机号；2：已注册非导入用户（已签协议）；3：导入用户（未签协议）
@@ -436,7 +442,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
           User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
-            sendSMS($scope.Register.Phone)
+            sendSMS($scope.Register.Phone,0)
             if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
@@ -449,7 +455,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           
         }else{
           $scope.registerMode = 'wechatUnsigned'
-          sendSMS($scope.Register.Phone)
+          sendSMS($scope.Register.Phone,0)
         }
       }
       
@@ -736,7 +742,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @DateTime 2017-07-04
    * @param    phone:String
    */
-  var sendSMS = function (phone) {
+  var sendSMS = function (phone,count) {
     /**
      * [发送验证码,disable按钮一分钟，并根据服务器返回提示用户]
      * @Author   PXY
@@ -756,7 +762,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         $scope.logStatus = '验证码发送成功！'
       }
     }, function (err) {
-      $scope.logStatus = '验证码发送失败！'
+      count++
+      console.log(count)
+      if (count < 5) {
+        setTimeout(sendSMS(phone, count), 1000)
+      } else {
+        $scope.logStatus = '验证码发送失败！'
+      }
     })
   }
 
@@ -801,7 +813,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           $scope.logStatus = '该账户已注册！'
         }else{
-          sendSMS($scope.Register.Phone)
+          sendSMS($scope.Register.Phone,0)
         }
       }
       // 如果是微信号注册则分为三种：1：未注册手机号；2：已注册非导入用户（已签协议）；3：导入用户（未签协议）
@@ -809,7 +821,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         if (data.results == 0 && data.roles.toString().indexOf('patient')>-1) {
           Storage.set('UID',data.AlluserId)
           User.getAgree({userId: data.AlluserId,role:'patient'}).then(function (res) {
-            sendSMS($scope.Register.Phone)
+            sendSMS($scope.Register.Phone,0)
             if (res.results.agreementPat == '0') {
               //签过协议
               $scope.registerMode = 'wechatSigned'
@@ -822,7 +834,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           
         }else{
           $scope.registerMode = 'wechatUnsigned'
-          sendSMS($scope.Register.Phone)
+          sendSMS($scope.Register.Phone,0)
         }
       }
       
