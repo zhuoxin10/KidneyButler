@@ -5178,6 +5178,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               function (err) {
                 $ionicLoading.hide()
                 $ionicPopup.alert({
+                  title: '网络有点问题',
                   template: '请重新上传'
                 })
                 console.log(err)
@@ -5194,6 +5195,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
               function (err) {
                 $ionicLoading.hide()
                 $ionicPopup.alert({
+                  title: '网络有点问题',
                   template: '请重新上传'
                 })
                 console.log(err)
