@@ -4164,8 +4164,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.$on('$ionicView.enter', function () {
     if ($ionicPlatform.is('ios') == false)document.getElementById('inputbar').removeAttribute('keyboard-attach')
       console.log(document.getElementById('inputbar'))
-    $rootScope.conversation.type = 'single'
-    $rootScope.conversation.id = $state.params.chatId
+    // $rootScope.conversation.type = 'single'
+    // $rootScope.conversation.id = $state.params.chatId
     Counsels.getStatus({doctorId: $state.params.chatId, patientId: Storage.get('UID')})
             .then(function (data) {
               console.log('进入页面getstatus ')
@@ -4217,8 +4217,8 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
     for (var i in $scope.timer) clearTimeout($scope.timer[i])
     $scope.msgs = []
     if ($scope.modal)$scope.modal.remove()
-    $rootScope.conversation.type = null
-    $rootScope.conversation.id = ''
+    // $rootScope.conversation.type = null
+    // $rootScope.conversation.id = ''
   })
   // 显示键盘
   $scope.$on('keyboardshow', function (event, height) {
