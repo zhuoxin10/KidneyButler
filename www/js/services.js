@@ -3178,7 +3178,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       // alert('changeType' + JSON.stringify(data))
                           // console.log(data)
                       var msgJson = {
-                        clientType: 'app',
+                        clientType: 'patient',
                         contentType: 'custom',
                         fromName: '',
                         fromID: Storage.get('UID'),
@@ -3197,7 +3197,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           flag: 'consult'
                         }
                       }
-                      socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                      // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
                       $state.go('consult-chat', {chatId: DoctorId})
                     }, function (err) {
@@ -3246,7 +3246,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                             flag: 'consult'
                           }
                         }
-                        socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                        // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
                         $state.go('consult-chat', {chatId: DoctorId})
                       }, function (err) {
@@ -3477,7 +3477,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                     Counsels.changeType({doctorId: DoctorId, patientId: Storage.get('UID'), type: 1, status: 1, changeType: 'type7'}).then(function (data) {
                       // alert('changeType' + JSON.stringify(data))
                       var msgJson = {
-                        clientType: 'app',
+                        clientType: 'patient',
                         contentType: 'custom',
                         fromName: '',
                         fromID: Storage.get('UID'),
@@ -3496,7 +3496,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                           flag: 'urgent'
                         }
                       }
-                      socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                      // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
                       $state.go('consult-chat', {chatId: DoctorId})
                     }, function (err) {
@@ -3545,7 +3545,7 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                             flag: 'urgent'
                           }
                         }
-                        socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
+                        // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
 
                         $state.go('consult-chat', {chatId: DoctorId})
