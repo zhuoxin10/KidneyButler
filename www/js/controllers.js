@@ -8421,7 +8421,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.ChargeDuration = {Name:'一个月',Value:1}
   // 临时写的
   //$scope.doctor.charge3 = 0.01
-  $scope.ChargeTotal = $scope.doctor.charge4
+  $scope.ChargeTotal = $scope.doctor.charge4*100
   /**
    * [根据选中购买时长改变总金额]
    * @Author   PXY
@@ -8430,7 +8430,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
    * @param    charge:Number     [主管医生每月收费]
    */
   $scope.changeTotal = function(duration,charge){
-    $scope.ChargeTotal = duration.Value * (charge*100)/100
+    $scope.ChargeTotal = charge*100*duration.Value
   }
   /**
    * [加载蒙层，阻止用户交互，防止提交多次]
@@ -8456,7 +8456,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.SubmitRequest = function(doctorId,duration,totalAmount) {
     var applyDocPop = $ionicPopup.confirm({
       title: '主管医生申请',
-      template: '您正申请'+ $scope.doctor.name +'医生的主管医生服务，服务时长：'+duration+'个月，预付金额为'+totalAmount+'元。'+ '</br>'+'若医生同意了您的申请，在服务期间，主管医生服务将为您提供全面个性化的健康方案制定和调整，数据分析解读，免费的咨询和问诊服务。若医生拒绝了您的申请，预付金额将退还到您的账号。并且在等待医生审核期间，您将无法再次申请主管医生。是否提交申请？',
+      template: '您正申请'+ $scope.doctor.name +'医生的主管医生服务，服务时长：'+duration+'个月，预付金额为'+totalAmount/100+'元。'+ '</br>'+'若医生同意了您的申请，在服务期间，主管医生服务将为您提供全面个性化的健康方案制定和调整，数据分析解读，免费的咨询和问诊服务。若医生拒绝了您的申请，预付金额将退还到您的账号。并且在等待医生审核期间，您将无法再次申请主管医生。是否提交申请？',
       okText:'继续',
       cancelText:'取消'
     })
@@ -8474,7 +8474,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
           'month':duration,
           'role': 'appPatient',
           // 微信支付以分为单位
-          'money': totalAmount * 100,
+          'money': totalAmount,
           'class': '04',
           'name': '主管医生',
           'notes': doctorId,
