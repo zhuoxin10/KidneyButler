@@ -9645,16 +9645,23 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
                     console.log(con)
                       // socket.emit('newUser',{user_name:'陈江华'.name,user_id:DoctorId});
                     socket.emit('message', {msg: msgTeam, to: '10050278', role: 'patient'})
-                    setTimeout(function () {
-                      $state.go('consult-chat', {chatId: DoctorId})
-                    }, 500)
+                    $ionicLoading.show({ template: '发送中'})
+        setTimeout(function () {
+          $ionicLoading.hide()
+          $state.go('consult-chat', {chatId: DoctorId})
+        }, 2000)
+                    // setTimeout(function () {
+                    //   $state.go('consult-chat', {chatId: DoctorId})
+                    // }, 500)
                   }, function (er) {
                     console.error(err)
                   })
         } else {
-          setTimeout(function () {
-            $state.go('consult-chat', {chatId: DoctorId})
-          }, 500)
+          $ionicLoading.show({ template: '发送中'})
+        setTimeout(function () {
+          $ionicLoading.hide()
+          $state.go('consult-chat', {chatId: DoctorId})
+        }, 2000)
         }
     },
     function (err) {
