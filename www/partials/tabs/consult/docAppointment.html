@@ -32,7 +32,7 @@
         <!-- 如果是已预约 -->
         <button ng-if="period.diagId" class="col col-40 appointed" ng-click="cancelAppoint(period)">已预约</button>
         <!-- 如果患者没预约 -->
-        <button ng-if="!period.diagId&&(!period.suspendFlag)" ng-disabled="period.margin==0" class="col col-40 appoint" ng-click="AppointDoc(period)">{{period.margin|canAppointFilter}}</button>
+        <button ng-if="!period.diagId&&(!period.suspendFlag)" ng-disabled="period.margin<=0" class="col col-40 appoint" ng-click="AppointDoc(period)">{{period.margin|canAppointFilter}}</button>
         <button ng-if="!period.diagId&&period.suspendFlag" ng-disabled="true" class="col col-40 appoint">医生停诊中</button>
       </div>
     </div>
@@ -41,7 +41,7 @@
         <div class="col col-30 appointTable" ng-class="{true:'odd',false:'even'}[$index%2==0]">{{nextday.availableDay|periodFilter:$index}}</div>
         <div class="col col-30 appointTable">{{{Morning:"上午",Afternoon:"下午"}[nextday.availableTime]}}</div>
         <button ng-if="nextday.diagId" class="col col-40 appointed" ng-click="cancelAppoint(nextday)">已预约</button>
-        <button ng-if="!nextday.diagId&&(!nextday.suspendFlag)" ng-disabled="nextday.margin==0" ng-click="AppointDoc(nextday)" class="col col-40 appoint">{{nextday.margin|canAppointFilter}}</button>
+        <button ng-if="!nextday.diagId&&(!nextday.suspendFlag)" ng-disabled="nextday.margin<=0" ng-click="AppointDoc(nextday)" class="col col-40 appoint">{{nextday.margin|canAppointFilter}}</button>
         <button ng-if="!nextday.diagId&&nextday.suspendFlag" ng-disabled="true" class="col col-40 appoint">医生停诊中</button>
       </div>
     </div>

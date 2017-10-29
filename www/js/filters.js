@@ -182,7 +182,7 @@ angular.module('kidney.filters', [])
 .filter('canAppointFilter', [function () {
   return function (amount) {
     var name = '(' + amount + ') '
-    return name + (amount === 0 ? '不可预约' : '可预约')
+    return amount < 0 ? '不可预约' : name + (amount === 0 ? '不可预约' : '可预约')
   }
 }])
 
