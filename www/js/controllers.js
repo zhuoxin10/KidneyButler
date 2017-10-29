@@ -4650,11 +4650,13 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.submitMsg = function () {
     console.log('发送消息确认状态 '+$scope.counselstatus)
     if ($scope.counselstatus != 1) return nomoney()
+    var actionUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxfa2216ac422fb747&redirect_uri=https://media.haihonghospitalmanagement.com/proxy&response_type=code&scope=snsapi_userinfo&state=doctor_11_1_' +$scope.params.UID+ '_' + $scope.params.counsel.counselId + '&#wechat_redirect' 
     var template = {
       'userId': $scope.params.chatId, // 医生的UID
       'role': 'doctor',
       'postdata': {
-        'template_id': 'DWrM__2UuaLxYf5da6sKOQA_hlmYhlsazsaxYX59DtE',
+        'template_id': 'cVLIgOb_JvtFGQUA2KvwAmbT5B3ZB79cRsAM4ZKKK0k',
+        'url':actionUrl,
         'data': {
           'first': {
             'value': '您有一个新的' + ($scope.params.counseltype == 1 ? '咨询' : ($scope.params.counseltype == 6 ? '加急咨询' : '问诊') ) + '消息，请及时处理',
@@ -4684,7 +4686,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         }
       }
     }
-    Mywechat.messageTemplate(template)
+    //Mywechat.messageTemplate(template)
     sendmsg($scope.input.text, 'text')
     $scope.input.text = ''
   }
