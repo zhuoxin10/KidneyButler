@@ -1854,11 +1854,12 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
         console.log(err)
     })
   }
-  GetUnread()
+  
 
   $scope.$on('$ionicView.enter', function () {
     GetTasks()
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
+    GetUnread()
     RefreshUnread = $interval(GetUnread, 60000)
   })
 
@@ -3546,6 +3547,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   $scope.$on('$ionicView.enter', function () {
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
+    GetUnread()
     RefreshUnread = $interval(GetUnread, 60000)
   })
 
@@ -8247,10 +8249,10 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
       const docOffWork1 = 12,docOffWork2 =17
       var schedules = data.results.concat(), mornToCompare = new Date().setHours(docOffWork1,0,0),afterToCompare = new Date().setHours(docOffWork2,0,0),now = new Date()
       // if(now >=afterToCompare){
-      // 	schedules[0].margin = -1
-      // 	schedules[1].margin =-1
+      //  schedules[0].margin = -1
+      //  schedules[1].margin =-1
       // }else if(now>= mornToCompare){
-      // 	schedules[0].margin =-1
+      //  schedules[0].margin =-1
       // }
       now>=mornToCompare? schedules[0].margin=-1 : now>=afterToCompare ? schedules[0].margin = schedules[1].margin=-1: null
        // console.log(schedules)
@@ -9744,6 +9746,7 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
   $scope.$on('$ionicView.enter', function () {
     $scope.loadMore()
     $scope.HasUnreadMessages = Storage.get('unReadTxt')
+    GetUnread()
     RefreshUnread = $interval(GetUnread, 60000)
   })
 
