@@ -8244,8 +8244,15 @@ angular.module('kidney.controllers', ['ionic', 'kidney.services', 'ngResource', 
 
   var doctorSchedual = function(){
     Service.docSchedual({doctorId:$scope.doctor.userId}).then(function(data){
-      // console.log(data.results)
-      var schedules = data.results.concat()
+      
+      var schedules = data.results.concat(), mornToCompare = new Date().setHours(12,0,0),afterToCompare = new Date().setHours(17,0,0),now = new Date()
+      // if(now >=afterToCompare){
+      // 	schedules[0].margin = -1
+      // 	schedules[1].margin =-1
+      // }else if(now>= mornToCompare){
+      // 	schedules[0].margin =-1
+      // }
+      now>=mornToCompare? schedules[0].margin=-1 : now>=afterToCompare ? schedules[0].margin = schedules[1].margin=-1: null
        // console.log(schedules)
       $scope.periods = schedules.splice(0,14)
       $scope.nextDays = schedules
