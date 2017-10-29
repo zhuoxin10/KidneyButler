@@ -3199,7 +3199,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       }
                       // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                      $state.go('consult-chat', {chatId: DoctorId})
+                      $ionicLoading.show({ template: '发送中'})
+                      setTimeout(function () {
+                        $ionicLoading.hide()
+                        $state.go('consult-chat', {chatId: DoctorId})
+                      }, 2000)
                     }, function (err) {
 
                     })
@@ -3248,7 +3252,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         }
                         // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                        $state.go('consult-chat', {chatId: DoctorId})
+                        $ionicLoading.show({ template: '发送中'})
+                        setTimeout(function () {
+                          $ionicLoading.hide()
+                          $state.go('consult-chat', {chatId: DoctorId})
+                        }, 2000)
                       }, function (err) {
                         ionicLoadingShowError()
                         console.log(err)
@@ -3498,7 +3506,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                       }
                       // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                       socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
-                      $state.go('consult-chat', {chatId: DoctorId})
+                      $ionicLoading.show({ template: '发送中'})
+                      setTimeout(function () {
+                        $ionicLoading.hide()
+                        $state.go('consult-chat', {chatId: DoctorId})
+                      }, 2000)
                     }, function (err) {
                       ionicLoadingShowError()
                     })
@@ -3548,7 +3560,11 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
                         // socket.emit('newUser', {user_name: Storage.get('UID'), user_id: Storage.get('UID'), client: 'patient'})
                         socket.emit('message', {msg: msgJson, to: DoctorId, role: 'patient'})
 
-                        $state.go('consult-chat', {chatId: DoctorId})
+                        $ionicLoading.show({ template: '发送中'})
+                        setTimeout(function () {
+                          $ionicLoading.hide()
+                          $state.go('consult-chat', {chatId: DoctorId})
+                        }, 2000)
                       }, function (err) {
                         // alert('changeTypeERROR' + JSON.stringify(data))
                         ionicLoadingShowError()
