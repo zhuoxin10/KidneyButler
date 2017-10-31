@@ -1002,26 +1002,32 @@ angular.module('kidney.services', ['ionic', 'ngResource'])
 
       getVersion(VersionParams).then(function (data) {
         // alert(JSON.stringify(data.results))
-        if (angular.isArray(data.results.msg)) {
+        if (angular.isArray(data.results.msg) && Number(data.results.msg[0].versionName.split('.')[0]) > Number(version.split('.')[0])) {
           json.title = '肾事管家有更新啦'
           for (x in data.results.msg) {
             json.template += "<p style = 'padding-left:15px;'>" + 'V' + data.results.msg[x].versionName + ' 更新: ' + data.results.msg[x].content + '</p>'
           }
-          return $ionicPopup.confirm({
+          return $ionicPopup.show({
             title: json.title,
             template: json.template,
             scope: scope,
-            okText: '去更新',
-            cancelText: '知道了'
-          }).then(function (res) {
-            if (res && window.cordova && window.cordova.InAppBrowser) {
-              if (ionic.Platform.isIOS()) {
-                window.cordova.InAppBrowser.open('https://itunes.apple.com/cn/app/%E8%82%BE%E4%BA%8B%E7%AE%A1%E5%AE%B6/id1274887634?mt=8', '_system')
-              } else if (ionic.Platform.isAndroid()) {
-                window.cordova.InAppBrowser.open('https://media.haihonghospitalmanagement.com/download', '_system')
-                  // 安卓下载地址
+            buttons: [
+              {
+                text: '前往更新',
+                type: 'button-positive',
+                onTap: function (e) {
+                  e.preventDefault()
+                  if (window.cordova && window.cordova.InAppBrowser) {
+                    if (ionic.Platform.isIOS()) {
+                      window.cordova.InAppBrowser.open('https://itunes.apple.com/cn/app/%E8%82%BE%E4%BA%8B%E7%AE%A1%E5%AE%B6/id1274887634?mt=8', '_system')
+                    } else if (ionic.Platform.isAndroid()) {
+                      window.cordova.InAppBrowser.open('https://media.haihonghospitalmanagement.com/download', '_system')
+                      // 安卓下载地址
+                    }
+                  }
+                }
               }
-            }
+            ]
           })
         }
       }, function (err) {
